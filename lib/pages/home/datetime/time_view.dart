@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:slide_digital_clock/slide_digital_clock.dart';
 
@@ -6,22 +7,26 @@ class TimeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
-      data:
-          MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(0.80)),
+    var height = MediaQuery.of(context).size.height;
+    var fontSize = height > 768
+        ? Theme.of(context).textTheme.displayLarge!.fontSize! * 1.5
+        : Theme.of(context).textTheme.displayLarge!.fontSize!;
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      color: mainColor,
       child: DigitalClock(
         showSecondsDigit: false,
         is24HourTimeFormat: true,
         hourMinuteDigitTextStyle: TextStyle(
           color: Colors.white,
-          fontSize: Theme.of(context).textTheme.displayLarge!.fontSize,
+          fontSize: fontSize,
           fontWeight: FontWeight.bold,
         ),
         colon: Text(
           ":",
           style: TextStyle(
             color: Colors.white,
-            fontSize: Theme.of(context).textTheme.displayLarge!.fontSize,
+            fontSize: fontSize,
           ),
         ),
       ),

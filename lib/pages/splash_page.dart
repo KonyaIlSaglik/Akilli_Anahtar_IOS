@@ -2,6 +2,7 @@
 
 import 'package:akilli_anahtar/models/kullanici_giris_result.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
+import 'package:akilli_anahtar/pages/login_page2.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/services/web/web_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -9,7 +10,6 @@ import 'package:akilli_anahtar/widgets/custom_container.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
-import 'package:akilli_anahtar/pages/login_page.dart';
 import 'package:xml/xml.dart';
 
 class SplashPage extends StatefulWidget {
@@ -36,7 +36,7 @@ class _SplashPageState extends State<SplashPage> {
       Navigator.push(
         context,
         MaterialPageRoute<void>(
-          builder: (BuildContext context) => LoginPage(),
+          builder: (BuildContext context) => LoginPage2(),
         ),
       );
       return;
@@ -54,7 +54,7 @@ class _SplashPageState extends State<SplashPage> {
         Navigator.push(
           context,
           MaterialPageRoute<void>(
-            builder: (BuildContext context) => LoginPage(),
+            builder: (BuildContext context) => LoginPage2(),
           ),
         );
         return;

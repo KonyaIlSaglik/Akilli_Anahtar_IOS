@@ -32,6 +32,7 @@ class _TabViewState extends State<TabView> implements IMqttConnListener {
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
     return FocusDetector(
       onFocusGained: () async {
         if (client!.state == MqttConnectionState.disconnected) {
@@ -51,8 +52,7 @@ class _TabViewState extends State<TabView> implements IMqttConnListener {
         initialIndex: 0,
         child: Column(
           children: [
-            Flexible(
-              flex: 80,
+            Expanded(
               child: loading
                   ? Center(
                       child: CircularProgressIndicator(
@@ -70,8 +70,8 @@ class _TabViewState extends State<TabView> implements IMqttConnListener {
                       ),
                     ),
             ),
-            Flexible(
-              flex: 10,
+            SizedBox(
+              height: height * 0.1,
               child: Container(
                 color: mainColor,
                 child: Row(

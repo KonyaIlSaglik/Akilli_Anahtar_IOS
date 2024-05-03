@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/pages/home/home_page.dart';
-import 'package:akilli_anahtar/widgets/custom_container.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/gestures.dart';
@@ -10,14 +9,14 @@ import 'package:akilli_anahtar/services/web/web_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_text_field.dart';
 
-class LoginPageOld extends StatefulWidget {
-  const LoginPageOld({Key? key}) : super(key: key);
+class LoginPage2 extends StatefulWidget {
+  const LoginPage2({Key? key}) : super(key: key);
 
   @override
-  State<LoginPageOld> createState() => _LoginPageOldState();
+  State<LoginPage2> createState() => _LoginPageState();
 }
 
-class _LoginPageOldState extends State<LoginPageOld> {
+class _LoginPageState extends State<LoginPage2> {
   bool loading = false;
   final usercon = TextEditingController();
   final userFocus = FocusNode();
@@ -49,77 +48,81 @@ class _LoginPageOldState extends State<LoginPageOld> {
           exitApp(context);
         },
         child: SingleChildScrollView(
-          child: CustomContainer(
-            flex: 5,
-            body: Column(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: height * 0.030,
+            ),
+            child: Column(
               children: [
-                SizedBox(height: keboardVisible ? 0 : height * 0.05),
-                CustomContainer(
-                  flex: keboardVisible ? 20 : 5,
-                  body: Image.asset(
-                    "assets/anahtar.png",
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: height * 0.04),
+                  child: SizedBox(
+                    height: keboardVisible ? height * 0.10 : height * 0.20,
+                    child: Image.asset(
+                      "assets/anahtar.png",
+                    ),
                   ),
                 ),
-                SizedBox(height: keboardVisible ? 0 : height * 0.025),
-                Card(
-                  color: mainColor,
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: CustomContainer(
-                    flex: 10,
-                    body: form(height),
+                SizedBox(
+                  height: height * 0.65,
+                  child: Card(
+                    color: mainColor,
+                    elevation: 5,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: height * 0.03),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(
+                              keboardVisible ? height * 0.01 : height * 0.025,
+                            ),
+                            child: Text(
+                              "GİRİŞ",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: Theme.of(context)
+                                    .textTheme
+                                    .headlineLarge!
+                                    .fontSize,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          CustomTextField(
+                            controller: usercon,
+                            focusNode: userFocus,
+                            nextFocus: passwordFocus,
+                            hintText: "Kullanıcı Adı ya da Mail",
+                            icon: Icon(Icons.person),
+                          ),
+                          Padding(
+                            padding:
+                                EdgeInsets.symmetric(vertical: height * 0.020),
+                            child: CustomTextField(
+                              controller: passwordcon,
+                              focusNode: passwordFocus,
+                              hintText: "Şifre",
+                              icon: Icon(Icons.lock),
+                              isPassword: true,
+                            ),
+                          ),
+                          sozlesmeMetni(),
+                          Padding(
+                            padding:
+                                EdgeInsets.symmetric(vertical: height * 0.01),
+                            child: girisButon(height),
+                          ),
+                          otherButtons(),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  form(double height) {
-    return Column(
-      children: [
-        SizedBox(height: keboardVisible ? height * 0.02 : height * 0.05),
-        formTitle(),
-        SizedBox(height: keboardVisible ? height * 0.02 : height * 0.05),
-        CustomTextField(
-          controller: usercon,
-          focusNode: userFocus,
-          nextFocus: passwordFocus,
-          hintText: "Kullanıcı Adı ya da Mail",
-          icon: Icon(Icons.person),
-        ),
-        SizedBox(height: keboardVisible ? height * 0.02 : height * 0.05),
-        CustomTextField(
-          controller: passwordcon,
-          focusNode: passwordFocus,
-          hintText: "Şifre",
-          icon: Icon(Icons.lock),
-          isPassword: true,
-        ),
-        SizedBox(height: keboardVisible ? 5 : height * 0.02),
-        sozlesmeMetni(),
-        SizedBox(height: keboardVisible ? 5 : height * 0.02),
-        girisButon(height),
-        SizedBox(height: keboardVisible ? 10 : height * 0.02),
-        otherButtons(),
-        SizedBox(height: keboardVisible ? 10 : height * 0.01),
-      ],
-    );
-  }
-
-  formTitle() {
-    return Text(
-      "GİRİŞ",
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: Theme.of(context).textTheme.headlineLarge!.fontSize,
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
       ),
     );
   }

@@ -4,11 +4,11 @@ import 'package:akilli_anahtar/services/web/web_service.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:xml/xml.dart';
 
-import '../utils/constants.dart';
-import '../widgets/custom_container.dart';
-import '../widgets/custom_text_field.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/widgets/custom_text_field.dart';
 
 class SifreDegistirPage extends StatefulWidget {
   const SifreDegistirPage({Key? key}) : super(key: key);
@@ -31,6 +31,12 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
   @override
   void initState() {
     super.initState();
+    var keyboardVisibilityController = KeyboardVisibilityController();
+    keyboardVisibilityController.onChange.listen((bool visible) {
+      setState(() {
+        keboardVisible = visible;
+      });
+    });
     LocalDb.get(userKey).then((value) {
       setState(() {
         user =
@@ -64,27 +70,83 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
           Navigator.pop(context);
         },
         child: SingleChildScrollView(
-          child: CustomContainer(
-            flex: 5,
-            body: Column(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: height * 0.030,
+            ),
+            child: Column(
               children: [
-                SizedBox(height: keboardVisible ? 0 : 50),
-                CustomContainer(
-                  flex: keboardVisible ? 20 : 5,
-                  body: Image.asset(
-                    "assets/anahtar.png",
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: height * 0.04),
+                  child: SizedBox(
+                    height: keboardVisible ? height * 0.10 : height * 0.20,
+                    child: Image.asset(
+                      "assets/anahtar.png",
+                    ),
                   ),
                 ),
-                SizedBox(height: keboardVisible ? 0 : 25),
-                Card(
-                  color: mainColor,
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: CustomContainer(
-                    flex: 10,
-                    body: form(height),
+                SizedBox(
+                  height: height * 0.70,
+                  child: Card(
+                    color: mainColor,
+                    elevation: 5,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: height * 0.03),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(
+                              keboardVisible ? height * 0.01 : height * 0.025,
+                            ),
+                            child: Text(
+                              "Şifre Değiştir",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: Theme.of(context)
+                                    .textTheme
+                                    .headlineLarge!
+                                    .fontSize,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          CustomTextField(
+                            controller: oldPasswordCont,
+                            focusNode: oldPasswordFocus,
+                            nextFocus: newPasswordFocus,
+                            icon: Icon(Icons.lock),
+                            hintText: "Eski Şifre",
+                            isPassword: true,
+                          ),
+                          Padding(
+                            padding:
+                                EdgeInsets.symmetric(vertical: height * 0.020),
+                            child: CustomTextField(
+                              controller: newPasswordCont,
+                              focusNode: newPasswordFocus,
+                              nextFocus: newPasswordAgainFocus,
+                              icon: Icon(Icons.lock),
+                              hintText: "Yeni Şifre",
+                              isPassword: true,
+                            ),
+                          ),
+                          CustomTextField(
+                            controller: newPasswordAgainCont,
+                            focusNode: newPasswordAgainFocus,
+                            icon: Icon(Icons.lock),
+                            hintText: "Yeni Şifre Tekrar",
+                            isPassword: true,
+                          ),
+                          Padding(
+                            padding:
+                                EdgeInsets.symmetric(vertical: height * 0.025),
+                            child: kaydetButon(height),
+                          ),
+                          otherButtons(),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -95,59 +157,7 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
     );
   }
 
-  form(double height) {
-    return Column(
-      children: [
-        SizedBox(height: keboardVisible ? 20 : 30),
-        formTitle(),
-        SizedBox(height: keboardVisible ? 20 : 30),
-        CustomTextField(
-          controller: oldPasswordCont,
-          focusNode: oldPasswordFocus,
-          nextFocus: newPasswordFocus,
-          icon: Icon(Icons.lock),
-          hintText: "Eski Şifre",
-          isPassword: true,
-        ),
-        SizedBox(height: keboardVisible ? 10 : 20),
-        CustomTextField(
-          controller: newPasswordCont,
-          focusNode: newPasswordFocus,
-          nextFocus: newPasswordAgainFocus,
-          icon: Icon(Icons.lock),
-          hintText: "Yeni Şifre",
-          isPassword: true,
-        ),
-        SizedBox(height: keboardVisible ? 10 : 20),
-        CustomTextField(
-          controller: newPasswordAgainCont,
-          focusNode: newPasswordAgainFocus,
-          icon: Icon(Icons.lock),
-          hintText: "Yeni Şifre Tekrar",
-          isPassword: true,
-        ),
-        SizedBox(height: keboardVisible ? 10 : 20),
-        girisButon(height),
-        SizedBox(height: keboardVisible ? 10 : 20),
-        otherButtons(),
-        SizedBox(height: keboardVisible ? 10 : 20),
-      ],
-    );
-  }
-
-  formTitle() {
-    return Text(
-      "Şifre Değiştir",
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: Theme.of(context).textTheme.headlineLarge!.fontSize,
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  girisButon(double height) {
+  kaydetButon(double height) {
     return ButtonTheme(
       child: ElevatedButton(
         onPressed: () async {

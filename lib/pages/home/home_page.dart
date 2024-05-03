@@ -16,9 +16,14 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+//TODO Widget yapılacak. Tekli ve Çoklu
+
+// TODO Tab sekmeleri yetkiye bağlanacak
+
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
     return PopScope(
       onPopInvoked: (didPop) {
         exitApp(context);
@@ -30,20 +35,19 @@ class _HomePageState extends State<HomePage> {
         drawer: DrawerPage(user: widget.user),
         body: Column(
           children: [
-            Flexible(
-              flex: 10,
+            SizedBox(
+              height: height * 0.10,
               child: Toolbar(),
             ),
-            Flexible(
-              flex: 15,
+            SizedBox(
+              height: height * 0.12,
               child: TimeView(),
             ),
-            Flexible(
-              flex: 7,
+            SizedBox(
+              height: height * 0.06,
               child: DateView(),
             ),
-            Flexible(
-              flex: 73,
+            Expanded(
               child: TabView(user: widget.user),
             ),
           ],

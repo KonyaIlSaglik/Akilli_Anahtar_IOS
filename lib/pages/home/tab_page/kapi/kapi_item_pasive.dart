@@ -80,7 +80,7 @@ class KapiItemPasive extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 5, bottom: 5),
                 child: Text(
-                  "SİTE ADI",
+                  "BİNA ADI",
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,

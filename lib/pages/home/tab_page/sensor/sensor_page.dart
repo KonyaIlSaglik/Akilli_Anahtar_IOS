@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/services/web/mqtt_listener.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_wall_layout/flutter_wall_layout.dart';
 
@@ -10,7 +11,7 @@ class SensorPage extends StatefulWidget {
   State<SensorPage> createState() => _SensorPageState();
 }
 
-class _SensorPageState extends State<SensorPage> {
+class _SensorPageState extends State<SensorPage> implements IMqttSubListener {
   String broker = 'red.oss.net.tr';
   int port = 1883;
   String clientIdentifier = 'mehmet';
@@ -165,5 +166,16 @@ class _SensorPageState extends State<SensorPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void onMessage(String topic, String message) {
+    print("$topic --> $message");
+    setState(() {
+      // var kapi = kapilar.singleWhere((k) => k.topicStat == topic);
+      // setState(() {
+      //   kapi.topicMessage = message;
+      // });
+    });
   }
 }

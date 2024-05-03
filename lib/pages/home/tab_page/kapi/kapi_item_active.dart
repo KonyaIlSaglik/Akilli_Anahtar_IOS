@@ -47,12 +47,13 @@ class _KapiItemActiveState extends State<KapiItemActive>
   }
 
   body() {
+    var height = MediaQuery.of(context).size.height;
     var kapi = widget.kapi;
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          flex: 25,
+        SizedBox(
+          height: height * 0.03,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -81,8 +82,8 @@ class _KapiItemActiveState extends State<KapiItemActive>
             ],
           ),
         ),
-        Expanded(
-          flex: 60,
+        SizedBox(
+          height: height * 0.05,
           child: Center(
             child: kapi.kapiTurAdi == "BARİYER"
                 ? ImageIcon(

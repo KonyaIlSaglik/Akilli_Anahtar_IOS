@@ -5,9 +5,30 @@ import 'package:flutter_wall_layout/flutter_wall_layout.dart';
 
 import '../../../../models/kullanici_kapi_result.dart';
 
-class KapiGridView extends StatelessWidget {
+class KapiGridView extends StatefulWidget {
   final List<KullaniciKapiResult> kapilar;
   const KapiGridView({Key? key, required this.kapilar}) : super(key: key);
+
+  @override
+  State<KapiGridView> createState() => _KapiGridViewState();
+}
+
+class _KapiGridViewState extends State<KapiGridView> {
+  ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 500),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +37,7 @@ class KapiGridView extends StatelessWidget {
       reverse: false,
       layersCount: 10,
       scrollDirection: Axis.vertical,
+      scrollController: scrollController,
       stones: stoneList(),
     );
   }
@@ -32,6 +54,7 @@ class KapiGridView extends StatelessWidget {
         ),
       );
     }
+
     return list;
   }
 
@@ -40,12 +63,12 @@ class KapiGridView extends StatelessWidget {
     for (int i = 0; i < 6; i++) {
       tempList.add(KapiItemPasive());
     }
-    if (kapilar.length < 6) {
-      for (int i = 0; i < kapilar.length; i++) {
+    if (widget.kapilar.length < 6) {
+      for (int i = 0; i < widget.kapilar.length; i++) {
         tempList.removeLast();
       }
     }
-    for (var kapi in kapilar) {
+    for (var kapi in widget.kapilar) {
       tempList.add(KapiItemActive(kapi: kapi));
     }
     return tempList;

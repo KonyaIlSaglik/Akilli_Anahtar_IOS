@@ -20,7 +20,6 @@ class _KapiPageState extends State<KapiPage> implements IMqttSubListener {
   MyMqttClient? client = MyMqttClient.instance;
   bool loading = true;
   List<KullaniciKapiResult> kapilar = [];
-
   @override
   void initState() {
     super.initState();
