@@ -37,7 +37,6 @@ class _KapiPageState extends State<KapiPage> implements IMqttSubListener {
     return RefreshIndicator(
       color: mainColor,
       onRefresh: () async {
-        print("Yenileniyor");
         setState(() {
           loading = true;
         });

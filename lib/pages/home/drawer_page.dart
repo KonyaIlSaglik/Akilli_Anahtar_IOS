@@ -39,6 +39,7 @@ class _DrawerPageState extends State<DrawerPage> {
                     height: height * 0.10,
                     child: FittedBox(
                       child: CircleAvatar(
+                        backgroundColor: Colors.white,
                         child: Icon(
                           Icons.person,
                           color: mainColor,
@@ -89,22 +90,15 @@ class _DrawerPageState extends State<DrawerPage> {
                   },
                   trailing: Icon(Icons.chevron_right),
                 ),
-                ListTile(
-                  leading: Icon(Icons.help_outline),
-                  title: Text("Uygulama Yardımı"),
-                  onTap: () {
-                    //
-                  },
-                  trailing: Icon(Icons.chevron_right),
-                ),
-                ListTile(
-                  leading: Icon(FontAwesomeIcons.shieldHalved),
-                  title: Text("Gizlilik Politikası"),
-                  onTap: () {
-                    gizlilikSozlesmesi();
-                  },
-                  trailing: Icon(Icons.chevron_right),
-                ),
+                // ListTile(
+                //   leading: Icon(Icons.help_outline),
+                //   title: Text("Uygulama Yardımı"),
+                //   enabled: false,
+                //   onTap: () {
+                //     //
+                //   },
+                //   trailing: Icon(Icons.chevron_right),
+                // ),
                 ListTile(
                   leading: Icon(Icons.exit_to_app),
                   title: Text("Oturumdan Çık"),
@@ -125,6 +119,14 @@ class _DrawerPageState extends State<DrawerPage> {
                   onTap: () {
                     LocalDb.delete(userKey);
                     exit(0);
+                  },
+                  trailing: Icon(Icons.chevron_right),
+                ),
+                ListTile(
+                  leading: Icon(FontAwesomeIcons.shieldHalved),
+                  title: Text("Gizlilik Politikası"),
+                  onTap: () {
+                    gizlilikSozlesmesi();
                   },
                   trailing: Icon(Icons.chevron_right),
                 ),

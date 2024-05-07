@@ -17,16 +17,37 @@ class TabView extends StatefulWidget {
   State<TabView> createState() => _TabViewState();
 }
 
-class _TabViewState extends State<TabView> implements IMqttConnListener {
+class _TabViewState extends State<TabView>
+    with SingleTickerProviderStateMixin
+    implements IMqttConnListener {
+  final List<bool> _isDisabled = [false, true, true];
+  late TabController _tabController;
   bool loading = true;
   int windowState = 1;
   MyMqttClient? client = MyMqttClient.instance;
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(vsync: this, length: 3);
+    _tabController.addListener(onTap);
     client!.setConnListener(this);
     if (client!.state == MqttConnectionState.disconnected) {
       client!.connect();
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  onTap() {
+    if (_isDisabled[_tabController.index]) {
+      int index = _tabController.previousIndex;
+      setState(() {
+        _tabController.index = index;
+      });
     }
   }
 
@@ -62,45 +83,41 @@ class _TabViewState extends State<TabView> implements IMqttConnListener {
                   : Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       child: TabBarView(
+                        controller: _tabController,
+                        physics: NeverScrollableScrollPhysics(),
                         children: [
                           KapiPage(user: widget.user),
-                          BahcePage(),
                           SensorPage(),
+                          BahcePage(),
                         ],
                       ),
                     ),
             ),
             SizedBox(
-              height: height * 0.1,
+              height: height * 0.08,
               child: Container(
                 color: mainColor,
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: InkWell(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [Icon(Icons.menu), Text("Menü")],
-                        ),
-                        onTap: () {
-                          Scaffold.of(context).openDrawer();
-                        },
-                      ),
+                child: TabBar(
+                  controller: _tabController,
+                  dividerHeight: 0,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.black45,
+                  indicatorColor: Colors.transparent,
+                  tabs: [
+                    Tab(
+                      text: 'KAPI',
+                      icon: Icon(Icons.sensor_door),
+                      iconMargin: EdgeInsets.only(top: height * 0.005),
                     ),
-                    Expanded(
-                      flex: 3,
-                      child: TabBar(
-                        dividerHeight: 0,
-                        labelColor: Colors.white,
-                        unselectedLabelColor: Colors.black45,
-                        indicatorColor: Colors.transparent,
-                        tabs: [
-                          Tab(text: 'KAPI', icon: Icon(Icons.sensor_door)),
-                          Tab(text: 'BAHÇE', icon: Icon(Icons.sunny)),
-                          Tab(text: 'SENSÖR', icon: Icon(Icons.sensors)),
-                        ],
-                      ),
+                    Tab(
+                      text: 'SENSÖR',
+                      icon: Icon(Icons.sensors),
+                      iconMargin: EdgeInsets.only(top: height * 0.005),
+                    ),
+                    Tab(
+                      text: 'BAHÇE',
+                      icon: Icon(Icons.sunny),
+                      iconMargin: EdgeInsets.only(top: height * 0.005),
                     ),
                   ],
                 ),

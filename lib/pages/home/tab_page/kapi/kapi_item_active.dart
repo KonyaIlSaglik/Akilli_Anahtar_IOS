@@ -53,37 +53,29 @@ class _KapiItemActiveState extends State<KapiItemActive>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         SizedBox(
-          height: height * 0.03,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Card(
-                  elevation: 0,
-                  color: kapi.topicMessage == "AÇILIYOR"
-                      ? Colors.yellow
-                      : kapi.topicMessage == "AÇIK"
-                          ? Colors.blue
-                          : kapi.topicMessage == "KAPANIYOR"
-                              ? Colors.red
-                              : Colors.green[400],
-                  child: Center(
-                    child: Text(
-                      kapi.topicMessage ?? "",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize:
-                            Theme.of(context).textTheme.titleMedium!.fontSize,
-                      ),
-                    ),
-                  ),
+          height: height * 0.035,
+          child: Card(
+            elevation: 0,
+            color: kapi.topicMessage == "AÇILIYOR"
+                ? Colors.yellow
+                : kapi.topicMessage == "AÇIK"
+                    ? Colors.blue
+                    : kapi.topicMessage == "KAPANIYOR"
+                        ? Colors.red
+                        : Colors.green[400],
+            child: Center(
+              child: Text(
+                kapi.topicMessage ?? "",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: Theme.of(context).textTheme.labelLarge!.fontSize,
                 ),
               ),
-            ],
+            ),
           ),
         ),
         SizedBox(
-          height: height * 0.05,
+          height: height * 0.06,
           child: Center(
             child: kapi.kapiTurAdi == "BARİYER"
                 ? ImageIcon(
@@ -107,7 +99,7 @@ class _KapiItemActiveState extends State<KapiItemActive>
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: Theme.of(context).textTheme.labelLarge!.fontSize,
+                fontSize: Theme.of(context).textTheme.labelMedium!.fontSize,
                 color: Colors.white,
               ),
             ),

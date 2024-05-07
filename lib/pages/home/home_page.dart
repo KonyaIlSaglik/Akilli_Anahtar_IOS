@@ -24,27 +24,38 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
     return PopScope(
       onPopInvoked: (didPop) {
         exitApp(context);
       },
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: 0,
+          toolbarHeight: height * 0.10,
+          iconTheme: IconThemeData(color: mainColor),
+          leadingWidth: width * 0.15,
+          title: SizedBox(
+            height: height * 0.10,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Toolbar(),
+                SizedBox(
+                  width: width * 0.05,
+                ),
+              ],
+            ),
+          ),
         ),
         drawer: DrawerPage(user: widget.user),
         body: Column(
           children: [
             SizedBox(
-              height: height * 0.10,
-              child: Toolbar(),
-            ),
-            SizedBox(
               height: height * 0.12,
               child: TimeView(),
             ),
             SizedBox(
-              height: height * 0.06,
+              height: height * 0.08,
               child: DateView(),
             ),
             Expanded(

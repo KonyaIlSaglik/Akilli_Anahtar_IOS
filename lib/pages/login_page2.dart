@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage2> {
                   height: height * 0.65,
                   child: Card(
                     color: mainColor,
-                    elevation: 5,
+                    elevation: 0,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: height * 0.03),
                       child: Column(
@@ -180,7 +180,9 @@ class _LoginPageState extends State<LoginPage2> {
         child: Text(
           "OTURUM AÇ",
           style: TextStyle(
-              fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize),
+            fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
+            color: Colors.black,
+          ),
         ),
       ),
     );

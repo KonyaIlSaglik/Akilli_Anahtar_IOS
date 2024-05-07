@@ -26,36 +26,30 @@ class KapiItemPasive extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          flex: 25,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Card(
-                  elevation: 0,
-                  color: Colors.white,
-                  child: Center(
-                    child: Text(
-                      "DURUM",
-                      style: TextStyle(
-                        color: Colors.grey[300],
-                        fontSize:
-                            Theme.of(context).textTheme.titleMedium!.fontSize,
-                      ),
-                    ),
-                  ),
+        SizedBox(
+          height: height * 0.035,
+          child: Card(
+            elevation: 0,
+            color: Colors.white,
+            child: Center(
+              child: Text(
+                "DURUM",
+                style: TextStyle(
+                  color: Colors.grey[300],
+                  fontSize: Theme.of(context).textTheme.labelLarge!.fontSize,
                 ),
               ),
-            ],
+            ),
           ),
         ),
-        Expanded(
-          flex: 60,
-          child: Icon(
-            Icons.door_sliding,
-            size: (Theme.of(context).iconTheme.size ?? 28) * 1.50,
-            color: Colors.white,
+        SizedBox(
+          height: height * 0.06,
+          child: Center(
+            child: Icon(
+              Icons.door_sliding,
+              size: (Theme.of(context).iconTheme.size ?? 28),
+              color: Colors.white,
+            ),
           ),
         ),
         Expanded(
@@ -67,7 +61,7 @@ class KapiItemPasive extends StatelessWidget {
               maxLines: 2,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: Theme.of(context).textTheme.labelLarge!.fontSize,
+                fontSize: Theme.of(context).textTheme.labelMedium!.fontSize,
                 color: Colors.white,
               ),
             ),

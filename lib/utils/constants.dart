@@ -5,7 +5,7 @@ const String userKey = "user";
 const String passwordKey = "password";
 const String favoritesKey = "favorites";
 const String lastPageKey = "lastPage";
-const Color mainColor = Color.fromARGB(255, 182, 151, 104);
+const Color mainColor = Color.fromARGB(255, 180, 150, 100);
 const String gizlilikUrl = "https://ossbs.com/gizlilik/index.htm";
 
 exitApp(context) {

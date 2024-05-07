@@ -1,5 +1,6 @@
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/kapi_item_active.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/kapi_item_pasive.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_wall_layout/flutter_wall_layout.dart';
 
@@ -19,15 +20,6 @@ class _KapiGridViewState extends State<KapiGridView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (scrollController.hasClients) {
-        scrollController.animateTo(
-          scrollController.position.maxScrollExtent,
-          curve: Curves.easeOut,
-          duration: const Duration(milliseconds: 500),
-        );
-      }
-    });
   }
 
   @override
@@ -71,6 +63,19 @@ class _KapiGridViewState extends State<KapiGridView> {
     for (var kapi in widget.kapilar) {
       tempList.add(KapiItemActive(kapi: kapi));
     }
+    toEnd();
     return tempList;
+  }
+
+  void toEnd() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 200),
+        );
+      }
+    });
   }
 }

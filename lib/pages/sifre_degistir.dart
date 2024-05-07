@@ -89,7 +89,7 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
                   height: height * 0.70,
                   child: Card(
                     color: mainColor,
-                    elevation: 5,
+                    elevation: 0,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: height * 0.03),
                       child: Column(
@@ -171,7 +171,9 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
         child: Text(
           "KAYDET",
           style: TextStyle(
-              fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize),
+            fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
+            color: Colors.black,
+          ),
         ),
       ),
     );
