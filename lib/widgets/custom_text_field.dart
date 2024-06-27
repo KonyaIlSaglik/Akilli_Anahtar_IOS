@@ -22,6 +22,12 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
+  var iconColor;
+  @override
+  void initState() {
+    super.initState();
+  }
+
   bool passVisible = false;
   @override
   Widget build(BuildContext context) {
@@ -29,6 +35,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       controller: widget.controller,
       obscureText: widget.isPassword && !passVisible,
       focusNode: widget.focusNode,
+      cursorColor: Colors.white,
       onSubmitted: (value) {
         if (widget.nextFocus != null) {
           widget.nextFocus!.requestFocus();
@@ -43,15 +50,28 @@ class _CustomTextFieldState extends State<CustomTextField> {
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: TextStyle(
-          color: Colors.black26,
           fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
         ),
         prefixIcon: widget.icon,
+        prefixIconColor:
+            widget.focusNode.hasFocus ? Colors.white : Colors.black,
         border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(15),
+          ),
           borderSide: BorderSide(
             width: 1,
+            color: Colors.black,
           ),
-          borderRadius: BorderRadius.all(Radius.circular(15)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(15),
+          ),
+          borderSide: BorderSide(
+            width: 1,
+            color: Colors.white,
+          ),
         ),
         suffixIcon: widget.isPassword
             ? IconButton(

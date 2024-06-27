@@ -1,4 +1,6 @@
+import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
+import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/gestures.dart';
@@ -41,7 +43,6 @@ class _LoginPageState extends State<LoginPage2> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
-        backgroundColor: mainColor,
       ),
       body: PopScope(
         onPopInvoked: (didPop) async {
@@ -66,8 +67,8 @@ class _LoginPageState extends State<LoginPage2> {
                 SizedBox(
                   height: height * 0.65,
                   child: Card(
-                    color: mainColor,
                     elevation: 0,
+                    color: goldColor,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: height * 0.03),
                       child: Column(
@@ -165,23 +166,27 @@ class _LoginPageState extends State<LoginPage2> {
 
   girisButon(double height) {
     return ButtonTheme(
-      child: ElevatedButton(
-        onPressed: () async {
-          setState(() {
-            loading = true;
-          });
-          login(context);
-        },
-        style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          minimumSize: Size(double.infinity, height * 0.075),
-        ),
-        child: Text(
-          "OTURUM AÇ",
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
-            color: Colors.black,
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: OutlinedButton(
+          onPressed: () async {
+            setState(() {
+              loading = true;
+            });
+            login(context);
+          },
+          style: ElevatedButton.styleFrom(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            minimumSize: Size(double.infinity, height * 0.075),
+          ),
+          child: Text(
+            "OTURUM AÇ",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
+            ),
           ),
         ),
       ),
@@ -210,21 +215,32 @@ class _LoginPageState extends State<LoginPage2> {
       ).show(context);
       return;
     }
-    var user =
-        await WebService.kullaniciGiris(usercon.text.trim(), passwordcon.text);
-    if (user == null) {
-      passwordcon.text = "";
+
+    var result = await AuthService.login(
+      LoginModel(
+        userName: usercon.text.trim(),
+        password: passwordcon.text,
+      ),
+    );
+    if (result != null) {
+      if (result.success!) {
+        Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => HomePage(),
+          ),
+        );
+      } else {
+        passwordcon.text = "";
+        CherryToast.error(
+                toastPosition: Position.bottom, title: Text(result.message!))
+            .show(context);
+      }
+    } else {
       CherryToast.error(
               toastPosition: Position.bottom,
-              title: Text("Kullanıcı adı veya Şifre Hatalı"))
+              title: Text("Bir hata oluştu. Tekrar deneyiniz."))
           .show(context);
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => HomePage(user: user),
-        ),
-      );
     }
   }
 
@@ -247,6 +263,7 @@ class _LoginPageState extends State<LoginPage2> {
           child: Text(
             'Çıkış',
             style: TextStyle(
+              color: Colors.white,
               fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
             ),
           ),
@@ -263,7 +280,8 @@ class _LoginPageState extends State<LoginPage2> {
       children: [
         Checkbox(
           value: checkBoxValue,
-          checkColor: mainColor,
+          checkColor: Colors.black,
+          activeColor: Colors.white,
           onChanged: (value) {
             setState(() {
               checkBoxValue = value;

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../utils/constants.dart';
-
 class SensorCard extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -23,10 +21,7 @@ class SensorCard extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [
-            mainColor.withOpacity(0.8),
-            mainColor,
-          ]),
+          gradient: LinearGradient(colors: []),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(

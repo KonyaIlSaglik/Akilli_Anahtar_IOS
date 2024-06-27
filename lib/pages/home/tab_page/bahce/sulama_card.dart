@@ -4,8 +4,6 @@ import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../utils/constants.dart';
-
 class BahceSulamaCard extends StatefulWidget {
   final String title;
   const BahceSulamaCard({
@@ -43,10 +41,7 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
       ),
       child: Container(
         decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [
-              mainColor.withOpacity(0.8),
-              mainColor,
-            ]),
+            gradient: LinearGradient(colors: []),
             borderRadius: BorderRadius.circular(10)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

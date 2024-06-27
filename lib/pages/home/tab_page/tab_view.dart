@@ -1,17 +1,15 @@
-import 'package:akilli_anahtar/models/kullanici_giris_result.dart';
+import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/sensor/sensor_page.dart';
 import 'package:akilli_anahtar/services/web/mqtt_listener.dart';
 import 'package:akilli_anahtar/services/web/my_mqtt_service.dart';
 import 'package:flutter/material.dart';
 import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
-import '../../../utils/constants.dart';
 import 'bahce/bahce_page.dart';
 import 'kapi/kapi_page.dart';
 
 class TabView extends StatefulWidget {
-  final KullaniciGirisResult user;
-  const TabView({Key? key, required this.user}) : super(key: key);
+  const TabView({Key? key}) : super(key: key);
 
   @override
   State<TabView> createState() => _TabViewState();
@@ -76,9 +74,7 @@ class _TabViewState extends State<TabView>
             Expanded(
               child: loading
                   ? Center(
-                      child: CircularProgressIndicator(
-                        color: mainColor,
-                      ),
+                      child: CircularProgressIndicator(),
                     )
                   : Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -86,7 +82,7 @@ class _TabViewState extends State<TabView>
                         controller: _tabController,
                         physics: NeverScrollableScrollPhysics(),
                         children: [
-                          KapiPage(user: widget.user),
+                          KapiPage(),
                           SensorPage(),
                           BahcePage(),
                         ],
@@ -95,32 +91,29 @@ class _TabViewState extends State<TabView>
             ),
             SizedBox(
               height: height * 0.08,
-              child: Container(
-                color: mainColor,
-                child: TabBar(
-                  controller: _tabController,
-                  dividerHeight: 0,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.black45,
-                  indicatorColor: Colors.transparent,
-                  tabs: [
-                    Tab(
-                      text: 'KAPI',
-                      icon: Icon(Icons.sensor_door),
-                      iconMargin: EdgeInsets.only(top: height * 0.005),
-                    ),
-                    Tab(
-                      text: 'SENSÖR',
-                      icon: Icon(Icons.sensors),
-                      iconMargin: EdgeInsets.only(top: height * 0.005),
-                    ),
-                    Tab(
-                      text: 'BAHÇE',
-                      icon: Icon(Icons.sunny),
-                      iconMargin: EdgeInsets.only(top: height * 0.005),
-                    ),
-                  ],
-                ),
+              child: TabBar(
+                controller: _tabController,
+                dividerHeight: 0,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.black45,
+                indicatorColor: Colors.transparent,
+                tabs: [
+                  Tab(
+                    text: 'KAPI',
+                    icon: Icon(Icons.sensor_door),
+                    iconMargin: EdgeInsets.only(top: height * 0.005),
+                  ),
+                  Tab(
+                    text: 'SENSÖR',
+                    icon: Icon(Icons.sensors),
+                    iconMargin: EdgeInsets.only(top: height * 0.005),
+                  ),
+                  Tab(
+                    text: 'BAHÇE',
+                    icon: Icon(Icons.sunny),
+                    iconMargin: EdgeInsets.only(top: height * 0.005),
+                  ),
+                ],
               ),
             ),
           ],

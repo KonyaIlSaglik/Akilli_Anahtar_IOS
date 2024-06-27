@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
 
 class DateView extends StatelessWidget {
   const DateView({Key? key}) : super(key: key);
@@ -14,7 +13,6 @@ class DateView extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       width: MediaQuery.of(context).size.width,
-      color: mainColor,
       child: Text(
         DateFormat("dd MMMM yyyy EEEE", "tr_TR").format(DateTime.now()),
         style: TextStyle(

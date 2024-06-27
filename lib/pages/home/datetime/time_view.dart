@@ -1,4 +1,3 @@
-import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:slide_digital_clock/slide_digital_clock.dart';
 
@@ -13,7 +12,6 @@ class TimeView extends StatelessWidget {
         : Theme.of(context).textTheme.displayLarge!.fontSize!;
     return Container(
       width: MediaQuery.of(context).size.width,
-      color: mainColor,
       child: DigitalClock(
         showSecondsDigit: false,
         is24HourTimeFormat: true,

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../utils/constants.dart';
-
 class DateTimePickerCard extends StatefulWidget {
   final String title;
   final Function(DateTime date) onSelected;
@@ -29,7 +27,6 @@ class _DateTimePickerCardState extends State<DateTimePickerCard> {
       height: 75,
       child: Card(
         elevation: 3,
-        shadowColor: mainColor,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 5),
           child: Column(
@@ -51,7 +48,6 @@ class _DateTimePickerCardState extends State<DateTimePickerCard> {
                             flex: 20,
                             child: Icon(
                               Icons.calendar_month,
-                              color: mainColor,
                             ),
                           ),
                           Expanded(
@@ -80,7 +76,6 @@ class _DateTimePickerCardState extends State<DateTimePickerCard> {
                             flex: 30,
                             child: Icon(
                               Icons.access_time_outlined,
-                              color: mainColor,
                             ),
                           ),
                           Expanded(
@@ -120,7 +115,6 @@ class _DateTimePickerCardState extends State<DateTimePickerCard> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-                primary: mainColor, // <-- SEE HERE
                 onPrimary: Colors.white, // <-- SEE HERE
                 onSurface: Colors.black // <-- SEE HERE
                 ),
@@ -145,7 +139,6 @@ class _DateTimePickerCardState extends State<DateTimePickerCard> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-                primary: mainColor, // <-- SEE HERE
                 onPrimary: Colors.white, // <-- SEE HERE
                 onSurface: Colors.black // <-- SEE HERE
                 ),

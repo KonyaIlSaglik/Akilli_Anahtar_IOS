@@ -1,16 +1,16 @@
-import 'package:akilli_anahtar/models/kullanici_giris_result.dart';
+import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/kapi_grid_view.dart';
+import 'package:akilli_anahtar/services/api/device_service.dart';
+import 'package:akilli_anahtar/services/local/shared_prefences.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../models/kullanici_kapi_result.dart';
+import '../../../../models/kullanici_kapi_model.dart';
 import '../../../../services/web/mqtt_listener.dart';
 import '../../../../services/web/my_mqtt_service.dart';
-import '../../../../services/web/web_service.dart';
-import '../../../../utils/constants.dart';
 
 class KapiPage extends StatefulWidget {
-  final KullaniciGirisResult user;
-  const KapiPage({Key? key, required this.user}) : super(key: key);
+  const KapiPage({Key? key}) : super(key: key);
 
   @override
   State<KapiPage> createState() => _KapiPageState();
@@ -19,7 +19,7 @@ class KapiPage extends StatefulWidget {
 class _KapiPageState extends State<KapiPage> implements IMqttSubListener {
   MyMqttClient? client = MyMqttClient.instance;
   bool loading = true;
-  List<KullaniciKapiResult> kapilar = [];
+  List<KullaniciKapi> kapilar = [];
   @override
   void initState() {
     super.initState();
@@ -35,7 +35,6 @@ class _KapiPageState extends State<KapiPage> implements IMqttSubListener {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      color: mainColor,
       onRefresh: () async {
         setState(() {
           loading = true;
@@ -48,17 +47,19 @@ class _KapiPageState extends State<KapiPage> implements IMqttSubListener {
 
   getKapilar() async {
     kapilar.clear();
-    var kList = await WebService.kullaniciKapi(widget.user.id!) ?? [];
+    var info = await LocalDb.get(userKey);
+    var id = User.fromJson(info!).id;
+    var kList = await DeviceService.getKullaniciKapi(id!) ?? [];
     for (var i = 0; i < kList.length; i++) {
       kList[i].topicMessage = "KAPALI";
     }
     await Future.delayed(Duration(seconds: 1));
     for (var k in kList) {
-      client!.sub(k.topicStat!);
+      client!.sub(k.topicStat);
     }
     setState(() {
       kList.sort(
-        (a, b) => b.kapiId!.compareTo(a.kapiId!),
+        (a, b) => b.kapiId.compareTo(a.kapiId),
       );
       kapilar.addAll(kList);
       loading = false;

@@ -1,4 +1,3 @@
-import 'package:akilli_anahtar/models/kullanici_giris_result.dart';
 import 'package:akilli_anahtar/pages/home/datetime/date_view.dart';
 import 'package:akilli_anahtar/pages/home/datetime/time_view.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/tab_view.dart';
@@ -9,18 +8,18 @@ import 'package:akilli_anahtar/utils/constants.dart';
 import 'drawer_page.dart';
 
 class HomePage extends StatefulWidget {
-  final KullaniciGirisResult user;
-  const HomePage({Key? key, required this.user}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-//TODO Widget yapılacak. Tekli ve Çoklu
-
-// TODO Tab sekmeleri yetkiye bağlanacak
-
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -32,7 +31,6 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: height * 0.10,
-          iconTheme: IconThemeData(color: mainColor),
           leadingWidth: width * 0.15,
           title: SizedBox(
             height: height * 0.10,
@@ -47,7 +45,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        drawer: DrawerPage(user: widget.user),
+        drawer: DrawerPage(),
         body: Column(
           children: [
             SizedBox(
@@ -59,7 +57,7 @@ class _HomePageState extends State<HomePage> {
               child: DateView(),
             ),
             Expanded(
-              child: TabView(user: widget.user),
+              child: TabView(),
             ),
           ],
         ),

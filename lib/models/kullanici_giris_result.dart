@@ -1,6 +1,6 @@
 import 'package:xml/xml.dart';
 
-class KullaniciGirisResult {
+class KullaniciGirisResult2 {
   int? id;
   String? kad;
   String? adsoyad;
@@ -8,7 +8,7 @@ class KullaniciGirisResult {
   int? ap;
   String? ret;
 
-  KullaniciGirisResult({
+  KullaniciGirisResult2({
     this.id,
     this.kad,
     this.adsoyad,
@@ -17,7 +17,7 @@ class KullaniciGirisResult {
     this.ret,
   });
 
-  KullaniciGirisResult.fromXML(XmlElement xmlElement) {
+  KullaniciGirisResult2.fromXML(XmlElement xmlElement) {
     id = int.parse(xmlElement.getElement("ID")!.innerText);
     kad = xmlElement.getElement("KAD")!.innerText;
     adsoyad = xmlElement.getElement("ADSOYAD")!.innerText;

@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/pages/home/tab_page/bahce/date_time_picker_card.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 
@@ -40,7 +39,6 @@ class _ZamanlamaPageState extends State<ZamanlamaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: mainColor,
         title: Text("${widget.hat} Zamanlama"),
         foregroundColor: Colors.white,
         actions: [

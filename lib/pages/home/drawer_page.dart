@@ -1,24 +1,42 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
-import 'package:akilli_anahtar/models/kullanici_giris_result.dart';
-import 'package:akilli_anahtar/pages/login_page2.dart';
-import 'package:akilli_anahtar/pages/sifre_degistir.dart';
+import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'package:akilli_anahtar/pages/login_page2.dart';
+import 'package:akilli_anahtar/pages/sifre_degistir.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 
 class DrawerPage extends StatefulWidget {
-  final KullaniciGirisResult user;
-  const DrawerPage({Key? key, required this.user}) : super(key: key);
+  DrawerPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<DrawerPage> createState() => _DrawerPageState();
 }
 
 class _DrawerPageState extends State<DrawerPage> {
+  var loaded = false;
+  late User user;
+  @override
+  void initState() {
+    super.initState();
+    LocalDb.get(userKey).then((value) {
+      if (value != null) {
+        setState(() {
+          user = User.fromJson(value);
+          loaded = true;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -26,53 +44,61 @@ class _DrawerPageState extends State<DrawerPage> {
     return Drawer(
       child: Column(
         children: [
-          SizedBox(
+          Container(
             height: height * 0.30,
-            child: Container(
-              width: width,
-              color: mainColor,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: height * 0.10,
-                    child: FittedBox(
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.person,
-                          color: mainColor,
+            child: loaded
+                ? SizedBox(
+                    width: width,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: height * 0.10,
+                          child: FittedBox(
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                Icons.person,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        SizedBox(
+                          height: height * 0.05,
+                          child: Text(
+                            user.adsoyad!,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .fontSize,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: height * 0.05,
+                          child: Text(
+                            user.kad!,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge!
+                                  .fontSize,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
                     ),
                   ),
-                  SizedBox(
-                    height: height * 0.05,
-                    child: Text(
-                      widget.user.adsoyad!,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize:
-                            Theme.of(context).textTheme.headlineSmall!.fontSize,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: height * 0.05,
-                    child: Text(
-                      widget.user.kad!,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize:
-                            Theme.of(context).textTheme.titleLarge!.fontSize,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
           Expanded(
             child: ListView(
@@ -147,7 +173,6 @@ class _DrawerPageState extends State<DrawerPage> {
         return Scaffold(
           appBar: AppBar(
             toolbarHeight: 0,
-            backgroundColor: mainColor,
           ),
           body: Center(
             child: InAppWebView(
@@ -163,7 +188,6 @@ class _DrawerPageState extends State<DrawerPage> {
             ElevatedButton.icon(
               icon: Icon(
                 Icons.arrow_back,
-                color: mainColor,
               ),
               onPressed: () {
                 Navigator.pop(context);

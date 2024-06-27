@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -12,7 +11,6 @@ class CustomButton extends StatelessWidget {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return InkWell(
-      splashColor: mainColor.withOpacity(0.7),
       onTap: onTap,
       child: SizedBox(
         width: width * 0.7,
@@ -27,7 +25,6 @@ class CustomButton extends StatelessWidget {
               borderSide: BorderSide.none,
             ),
             elevation: 5,
-            color: Theme.of(context).primaryColor,
             child: Center(
               child: Text(
                 text,

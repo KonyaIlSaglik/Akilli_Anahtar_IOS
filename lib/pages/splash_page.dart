@@ -1,16 +1,17 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:akilli_anahtar/models/kullanici_giris_result.dart';
+import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/pages/login_page2.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
-import 'package:akilli_anahtar/services/web/web_service.dart';
+import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_container.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
-import 'package:xml/xml.dart';
+import 'package:intl/intl.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -31,30 +32,44 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void initialization() async {
-    var info = await LocalDb.get(userKey);
-    if (info == null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => LoginPage2(),
-        ),
-      );
-      return;
-    }
-    var user =
-        KullaniciGirisResult.fromXML(XmlDocument.parse(info).rootElement);
-    var password = await LocalDb.get(passwordKey);
-    if (password != null) {
-      var isLogin = await WebService.kullaniciGiris(user.kad!, password);
-      if (isLogin == null) {
-        CherryToast.error(
-          toastPosition: Position.bottom,
-          title: Text("Oturum açılamadı. Lütfen tekrar giriş yapınız."),
-        ).show(context);
+    var token = await LocalDb.get(tokenKey);
+    if (token != null) {
+      var expiration = await LocalDb.get(expirationKey);
+      if (expiration != null) {
+        var eTime =
+            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS+03:00").parse(expiration);
+        if (eTime.isBefore(DateTime.now())) {
+          var userName = await LocalDb.get(userKey);
+          var password = await LocalDb.get(passwordKey);
+          if (userName != null && password != null) {
+            var result = await AuthService.login(
+                LoginModel(userName: userName, password: password));
+            if (result!.success!) {
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (BuildContext context) => HomePage(),
+                ),
+              );
+              return;
+            }
+          }
+          CherryToast.error(
+            toastPosition: Position.bottom,
+            title: Text("Oturum açılamadı. Lütfen tekrar giriş yapınız."),
+          ).show(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => LoginPage2(),
+            ),
+          );
+          return;
+        }
         Navigator.push(
           context,
           MaterialPageRoute<void>(
-            builder: (BuildContext context) => LoginPage2(),
+            builder: (BuildContext context) => HomePage(),
           ),
         );
         return;
@@ -63,7 +78,7 @@ class _SplashPageState extends State<SplashPage> {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (BuildContext context) => HomePage(user: user),
+        builder: (BuildContext context) => LoginPage2(),
       ),
     );
   }

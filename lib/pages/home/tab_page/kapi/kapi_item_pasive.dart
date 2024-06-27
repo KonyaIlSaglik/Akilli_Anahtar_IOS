@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../utils/constants.dart';
-
 class KapiItemPasive extends StatelessWidget {
   const KapiItemPasive({Key? key}) : super(key: key);
 
@@ -11,12 +9,7 @@ class KapiItemPasive extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.all(4),
       child: Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [
-              mainColor.withOpacity(0.2),
-              mainColor.withOpacity(0.2)
-            ]),
-            borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
         child: body(context, height),
       ),
     );

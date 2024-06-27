@@ -1,6 +1,5 @@
-import 'package:akilli_anahtar/models/kullanici_giris_result.dart';
+import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
-import 'package:akilli_anahtar/services/web/web_service.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +18,6 @@ class SifreDegistirPage extends StatefulWidget {
 
 class _SifreDegistirPageState extends State<SifreDegistirPage> {
   bool keboardVisible = false;
-  KullaniciGirisResult? user;
   String password = "";
   final oldPasswordCont = TextEditingController(text: "");
   final oldPasswordFocus = FocusNode();
@@ -37,17 +35,6 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
         keboardVisible = visible;
       });
     });
-    LocalDb.get(userKey).then((value) {
-      setState(() {
-        user =
-            KullaniciGirisResult.fromXML(XmlDocument.parse(value!).rootElement);
-      });
-    });
-    LocalDb.get(passwordKey).then((value) {
-      setState(() {
-        password = value!;
-      });
-    });
   }
 
   @override
@@ -63,7 +50,6 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
-        backgroundColor: mainColor,
       ),
       body: PopScope(
         onPopInvoked: (didPop) async {
@@ -88,7 +74,6 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
                 SizedBox(
                   height: height * 0.70,
                   child: Card(
-                    color: mainColor,
                     elevation: 0,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: height * 0.03),
@@ -201,20 +186,32 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
       ).show(context);
       return;
     }
-    var result = await WebService.kullaniciSifreDegistir(
-        kad: user!.kad, eskiSifre: password, yeniSifre: newPasswordCont.text);
-    if (result != null && result) {
+    var result = await AuthService.changePassword(
+        oldPasswordCont.text, newPasswordCont.text);
+    if (result != null) {
+      if (result.success!) {
+        CherryToast.success(
+          toastPosition: Position.bottom,
+          title: Text("Şifre güncellendi"),
+        ).show(context);
+        setState(() {
+          password = newPasswordCont.text;
+        });
+        await LocalDb.add(passwordKey, password);
+        oldPasswordCont.clear();
+        newPasswordCont.clear();
+        newPasswordAgainCont.clear();
+      } else {
+        CherryToast.success(
+          toastPosition: Position.bottom,
+          title: Text(result.message!),
+        ).show(context);
+      }
+    } else {
       CherryToast.success(
         toastPosition: Position.bottom,
-        title: Text("Şifre güncellendi"),
+        title: Text("Bir hata oldu. Tekrar deneyiniz."),
       ).show(context);
-      setState(() {
-        password = newPasswordCont.text;
-      });
-      await LocalDb.add(passwordKey, password);
-      oldPasswordCont.clear();
-      newPasswordCont.clear();
-      newPasswordAgainCont.clear();
     }
   }
 

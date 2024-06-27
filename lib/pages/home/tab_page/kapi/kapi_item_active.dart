@@ -3,11 +3,10 @@ import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:turkish/turkish.dart';
 import 'package:akilli_anahtar/services/web/my_mqtt_service.dart';
-import 'package:akilli_anahtar/models/kullanici_kapi_result.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/models/kullanici_kapi_model.dart';
 
 class KapiItemActive extends StatefulWidget {
-  final KullaniciKapiResult kapi;
+  final KullaniciKapi kapi;
   const KapiItemActive({Key? key, required this.kapi}) : super(key: key);
 
   @override
@@ -34,10 +33,7 @@ class _KapiItemActiveState extends State<KapiItemActive>
           ),
           child: Container(
             decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-                  mainColor.withOpacity(0.8),
-                  mainColor,
-                ]),
+                gradient: LinearGradient(colors: []),
                 borderRadius: BorderRadius.circular(10)),
             child: body(),
           ),

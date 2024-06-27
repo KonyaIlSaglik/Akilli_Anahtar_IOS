@@ -1,4 +1,3 @@
-import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
@@ -18,7 +17,6 @@ class BahceSuTankCard extends StatelessWidget {
         borderRadius: 5,
         borderColor: Colors.transparent,
         borderWidth: 1,
-        backgroundColor: mainColor,
         center: Column(
           children: [
             Expanded(

@@ -1,11 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
+const String apiUrlIn = "http://10.42.42.19:81/api/";
+const String apiUrlOut = "http://uzak.konyasm.gov.tr:15730/api/";
+const String tokenKey = "token";
+const String expirationKey = "expiration";
 const String userKey = "user";
 const String passwordKey = "password";
 const String favoritesKey = "favorites";
 const String lastPageKey = "lastPage";
-const Color mainColor = Color.fromARGB(255, 180, 150, 100);
+const Color goldColor = Color(0xffb49664);
+//const Color mainColor = Color.fromARGB(255, 180, 150, 100);
 const String gizlilikUrl = "https://ossbs.com/gizlilik/index.htm";
 
 exitApp(context) {
