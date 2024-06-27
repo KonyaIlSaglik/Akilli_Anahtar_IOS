@@ -2,7 +2,7 @@
 import 'dart:io';
 
 import 'package:akilli_anahtar/entities/user.dart';
-import 'package:akilli_anahtar/services/api/user_service.dart';
+import 'package:akilli_anahtar/pages/device_install/device_install_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -141,10 +141,14 @@ class _DrawerPageState extends State<DrawerPage> {
                 ),
                 ListTile(
                   leading: Icon(Icons.close),
-                  title: Text("Uygulamayı Kapat"),
+                  title: Text("Cihaz Kurulumu"),
                   onTap: () {
-                    LocalDb.delete(userKey);
-                    exit(0);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => DeviceInstallPage(),
+                      ),
+                    );
                   },
                   trailing: Icon(Icons.chevron_right),
                 ),
