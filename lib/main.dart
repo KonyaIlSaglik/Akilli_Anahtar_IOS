@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
         locale: Locale("tr"),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          useMaterial3: false,
+          useMaterial3: true,
           primaryColor: goldColor,
           primarySwatch: goldMaterial,
         ),

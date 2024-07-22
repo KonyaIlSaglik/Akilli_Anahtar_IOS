@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class SensorListItem extends StatelessWidget {
@@ -23,6 +24,7 @@ class SensorListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
+        color: goldColor,
         child: Row(
           children: [
             Card(

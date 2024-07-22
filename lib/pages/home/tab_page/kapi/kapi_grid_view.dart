@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/models/kullanici_kapi_model.dart';
+import 'package:akilli_anahtar/models/kullanici_kapi.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/kapi_item_active.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/kapi_item_pasive.dart';
 import 'package:flutter/cupertino.dart';

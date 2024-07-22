@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class KapiItemPasive extends StatelessWidget {
@@ -9,7 +10,12 @@ class KapiItemPasive extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.all(4),
       child: Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(colors: [
+              goldColor.withOpacity(0.1),
+              goldColor.withOpacity(0.1)
+            ])),
         child: body(context, height),
       ),
     );

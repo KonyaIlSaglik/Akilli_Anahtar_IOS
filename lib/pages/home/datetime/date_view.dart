@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -11,6 +12,7 @@ class DateView extends StatelessWidget {
         ? Theme.of(context).textTheme.headlineMedium!.fontSize!
         : Theme.of(context).textTheme.headlineSmall!.fontSize!;
     return Container(
+      color: goldColor,
       alignment: Alignment.center,
       width: MediaQuery.of(context).size.width,
       child: Text(

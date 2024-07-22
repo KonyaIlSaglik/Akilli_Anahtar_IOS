@@ -5,7 +5,7 @@ import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../models/kullanici_kapi_model.dart';
+import '../../../../models/kullanici_kapi.dart';
 import '../../../../services/web/mqtt_listener.dart';
 import '../../../../services/web/my_mqtt_service.dart';
 

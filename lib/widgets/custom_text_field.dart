@@ -22,7 +22,6 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  var iconColor;
   @override
   void initState() {
     super.initState();

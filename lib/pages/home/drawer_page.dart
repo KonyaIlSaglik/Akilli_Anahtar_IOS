@@ -1,6 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:io';
-
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/pages/device_install/device_install_page.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +42,7 @@ class _DrawerPageState extends State<DrawerPage> {
       child: Column(
         children: [
           Container(
+            color: goldColor,
             height: height * 0.30,
             child: loaded
                 ? SizedBox(
@@ -53,13 +51,17 @@ class _DrawerPageState extends State<DrawerPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(
-                          height: height * 0.10,
-                          child: FittedBox(
-                            child: CircleAvatar(
-                              backgroundColor: Colors.white,
-                              child: Icon(
-                                Icons.person,
+                        Padding(
+                          padding: EdgeInsets.only(bottom: height * 0.05),
+                          child: SizedBox(
+                            height: height * 0.10,
+                            child: FittedBox(
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                child: Icon(
+                                  Icons.person,
+                                  color: goldColor,
+                                ),
                               ),
                             ),
                           ),
@@ -78,19 +80,6 @@ class _DrawerPageState extends State<DrawerPage> {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: height * 0.05,
-                          child: Text(
-                            user.kad!,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge!
-                                  .fontSize,
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   )
@@ -104,43 +93,7 @@ class _DrawerPageState extends State<DrawerPage> {
             child: ListView(
               children: [
                 ListTile(
-                  leading: Icon(Icons.lock_outline),
-                  title: Text("Şifre Değiştir"),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => SifreDegistirPage(),
-                      ),
-                    );
-                  },
-                  trailing: Icon(Icons.chevron_right),
-                ),
-                // ListTile(
-                //   leading: Icon(Icons.help_outline),
-                //   title: Text("Uygulama Yardımı"),
-                //   enabled: false,
-                //   onTap: () {
-                //     //
-                //   },
-                //   trailing: Icon(Icons.chevron_right),
-                // ),
-                ListTile(
-                  leading: Icon(Icons.exit_to_app),
-                  title: Text("Oturumdan Çık"),
-                  onTap: () {
-                    LocalDb.delete(userKey);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => LoginPage2(),
-                      ),
-                    );
-                  },
-                  trailing: Icon(Icons.chevron_right),
-                ),
-                ListTile(
-                  leading: Icon(Icons.close),
+                  leading: Icon(Icons.settings_input_component),
                   title: Text("Cihaz Kurulumu"),
                   onTap: () {
                     Navigator.push(
@@ -153,10 +106,37 @@ class _DrawerPageState extends State<DrawerPage> {
                   trailing: Icon(Icons.chevron_right),
                 ),
                 ListTile(
+                  leading: Icon(Icons.lock_outline),
+                  title: Text("Şifre Değiştir"),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => SifreDegistirPage(),
+                      ),
+                    );
+                  },
+                  trailing: Icon(Icons.chevron_right),
+                ),
+                ListTile(
                   leading: Icon(FontAwesomeIcons.shieldHalved),
                   title: Text("Gizlilik Politikası"),
                   onTap: () {
                     gizlilikSozlesmesi();
+                  },
+                  trailing: Icon(Icons.chevron_right),
+                ),
+                ListTile(
+                  leading: Icon(Icons.exit_to_app),
+                  title: Text("Oturumdan Çık"),
+                  onTap: () {
+                    LocalDb.delete(userKey);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => LoginPage2(),
+                      ),
+                    );
                   },
                   trailing: Icon(Icons.chevron_right),
                 ),

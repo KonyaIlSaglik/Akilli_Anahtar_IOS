@@ -1,9 +1,11 @@
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
+import 'package:text_scroll/text_scroll.dart';
 import 'package:turkish/turkish.dart';
 import 'package:akilli_anahtar/services/web/my_mqtt_service.dart';
-import 'package:akilli_anahtar/models/kullanici_kapi_model.dart';
+import 'package:akilli_anahtar/models/kullanici_kapi.dart';
 
 class KapiItemActive extends StatefulWidget {
   final KullaniciKapi kapi;
@@ -33,7 +35,10 @@ class _KapiItemActiveState extends State<KapiItemActive>
           ),
           child: Container(
             decoration: BoxDecoration(
-                gradient: LinearGradient(colors: []),
+                gradient: LinearGradient(colors: [
+                  goldColor.withOpacity(1),
+                  goldColor.withOpacity(1),
+                ]),
                 borderRadius: BorderRadius.circular(10)),
             child: body(),
           ),
@@ -90,9 +95,8 @@ class _KapiItemActiveState extends State<KapiItemActive>
           flex: 20,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 5, left: 5),
-            child: Text(
-              kapi.kapiAdi!.toUpperCaseTr(),
-              overflow: TextOverflow.ellipsis,
+            child: TextScroll(
+              kapi.kapiAdi.toUpperCaseTr(),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: Theme.of(context).textTheme.labelMedium!.fontSize,
@@ -107,9 +111,14 @@ class _KapiItemActiveState extends State<KapiItemActive>
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 5, bottom: 5),
-                child: Text(
-                  kapi.siteAdi!,
-                  overflow: TextOverflow.ellipsis,
+                child: TextScroll(
+                  kapi.siteAdi!.substring(0, 20),
+                  mode: TextScrollMode.bouncing,
+                  velocity: Velocity(pixelsPerSecond: Offset(150, 0)),
+                  delayBefore: Duration(milliseconds: 500),
+                  numberOfReps: 5,
+                  pauseBetween: Duration(milliseconds: 50),
+                  textAlign: TextAlign.right,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,

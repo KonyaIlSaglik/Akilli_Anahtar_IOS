@@ -1,7 +1,7 @@
-import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/sensor/sensor_page.dart';
 import 'package:akilli_anahtar/services/web/mqtt_listener.dart';
 import 'package:akilli_anahtar/services/web/my_mqtt_service.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
@@ -18,7 +18,7 @@ class TabView extends StatefulWidget {
 class _TabViewState extends State<TabView>
     with SingleTickerProviderStateMixin
     implements IMqttConnListener {
-  final List<bool> _isDisabled = [false, true, true];
+  final List<bool> _isDisabled = [false, false, true];
   late TabController _tabController;
   bool loading = true;
   int windowState = 1;
@@ -89,7 +89,8 @@ class _TabViewState extends State<TabView>
                       ),
                     ),
             ),
-            SizedBox(
+            Container(
+              color: goldColor,
               height: height * 0.08,
               child: TabBar(
                 controller: _tabController,

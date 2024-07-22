@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wifi_iot/wifi_iot.dart';
+import 'package:http/http.dart' as http;
 
 class DeviceInstallPage extends StatefulWidget {
   const DeviceInstallPage({Key? key}) : super(key: key);
@@ -15,11 +16,22 @@ class _DeviceInstallPageState extends State<DeviceInstallPage> {
     super.initState();
     WiFiForIoTPlugin.isEnabled().then((value) {
       if (value) {
-        WiFiForIoTPlugin.connect("car", password: "").then((value) {
-          print("sgseghsegse");
+        WiFiForIoTPlugin.findAndConnect("AKILLI_ANAHTAR11",
+                password: "12345678")
+            .then((value) {
+          print("sgseghsegse" + value.toString());
           setState(() {
             isConnected = value;
           });
+          if (value) {
+            print("parametreler gonderiliyor");
+            var uri = Uri.parse(
+                "http://192.168.4.1/wifisave?s=AKILLI_ANAHTAR&p=12345678&config=buradanbilgilergonderilecek");
+            var client = http.Client();
+            client.post(uri).then((response) {
+              print(response.statusCode);
+            });
+          }
         });
       } else {}
     });
