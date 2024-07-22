@@ -19,7 +19,7 @@ class _DeviceInstallPageState extends State<DeviceInstallPage> {
         WiFiForIoTPlugin.findAndConnect("AKILLI_ANAHTAR11",
                 password: "12345678")
             .then((value) {
-          print("sgseghsegse" + value.toString());
+          print("sgseghsegse$value");
           setState(() {
             isConnected = value;
           });
