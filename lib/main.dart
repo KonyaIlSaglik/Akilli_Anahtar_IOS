@@ -56,6 +56,9 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           primaryColor: goldColor,
           primarySwatch: goldMaterial,
+          dialogTheme: Theme.of(context)
+              .dialogTheme
+              .copyWith(backgroundColor: Colors.white),
         ),
         home: UpgradeAlert(
           child: SplashPage(),
