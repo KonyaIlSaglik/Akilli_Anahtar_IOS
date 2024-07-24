@@ -3,7 +3,7 @@ import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:wifi_iot/wifi_iot.dart';
-import 'package:http/http.dart' as http;
+//import 'package:http/http.dart' as http;
 import 'package:wifi_scan/wifi_scan.dart';
 
 class DeviceInstallPage extends StatefulWidget {
