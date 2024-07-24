@@ -57,13 +57,14 @@ dependencies:
   intl: ^0.18.0
   slide_digital_clock: ^1.0.3
   turkish: ">=0.2.1"
-  flutter_keyboard_visibility: ^5.4.1
+  flutter_keyboard_visibility: ^6.0.0
   cherry_toast: ^1.2.1
   flutter_advanced_switch: ^3.0.1
   flutter_inappwebview: ^5.7.2+3
   calendar_date_picker2: ^0.5.2
   flutter_localization: ^0.1.12
   text_scroll: ^0.2.0
+  introduction_screen: ^3.1.14
   wifi_scan: ^0.4.1
   wifi_iot: ^0.3.19
 
