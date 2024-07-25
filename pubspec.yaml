@@ -65,6 +65,7 @@ dependencies:
   flutter_localization: ^0.1.12
   text_scroll: ^0.2.0
   introduction_screen: ^3.1.14
+  connectivity_plus: ^6.0.3
   wifi_scan: ^0.4.1
   wifi_iot: ^0.3.19
 
