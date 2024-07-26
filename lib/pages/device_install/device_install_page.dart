@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'package:wifi_scan/wifi_scan.dart';
+import 'package:http/http.dart' as http;
 
 class DeviceInstallPage extends StatefulWidget {
   const DeviceInstallPage({Key? key}) : super(key: key);
@@ -17,15 +18,26 @@ class DeviceInstallPage extends StatefulWidget {
 
 class _DeviceInstallPageState extends State<DeviceInstallPage> {
   bool wifiEnable = false;
+  bool wifiEnableBefore = false;
   bool isConnected = false;
   bool scanning = false;
+  String connectedSSID = "";
   List<WiFiAccessPoint> accessPoints = <WiFiAccessPoint>[];
+  StreamSubscription<List<WiFiAccessPoint>>? subscription;
+
+  @override
+  void dispose() {
+    super.dispose();
+    subscription?.cancel();
+  }
+
   @override
   void initState() {
     super.initState();
     WiFiForIoTPlugin.isEnabled().then((value) {
       setState(() {
         wifiEnable = value;
+        wifiEnableBefore = wifiEnable;
         if (wifiEnable) {
           startScan();
         }
@@ -35,17 +47,22 @@ class _DeviceInstallPageState extends State<DeviceInstallPage> {
       WiFiForIoTPlugin.isEnabled().then((value) {
         setState(() {
           wifiEnable = value;
-          if (!wifiEnable) {
+          if (wifiEnableBefore == !wifiEnable) {
             setState(() {
-              scanning = false;
-              accessPoints.clear();
+              wifiEnableBefore = wifiEnable;
             });
-          } else {
-            if (accessPoints.isEmpty) {
+            if (!wifiEnable) {
               setState(() {
-                scanning = true;
+                print("Wifi kapandı");
+                scanning = false;
+                isConnected = false;
+                accessPoints = List.empty();
               });
-              startScan();
+            } else {
+              print("Wifi açıldı");
+              if (accessPoints.isEmpty && !scanning) {
+                startScan();
+              }
             }
           }
         });
@@ -60,12 +77,7 @@ class _DeviceInstallPageState extends State<DeviceInstallPage> {
     return IntroductionScreen(
       controlsPadding: EdgeInsets.only(top: 50),
       showNextButton: isConnected,
-      next: ElevatedButton(
-        child: Text("Sonraki"),
-        onPressed: () {
-          //
-        },
-      ),
+      next: Text("Sonraki"),
       //showBackButton: true,
       //back: Text("Önceki"),
       showSkipButton: true,
@@ -115,7 +127,9 @@ class _DeviceInstallPageState extends State<DeviceInstallPage> {
                   Expanded(
                     child: scanning
                         ? Center(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
                           )
                         : accessPoints.isEmpty
                             ? Center(
@@ -133,16 +147,22 @@ class _DeviceInstallPageState extends State<DeviceInstallPage> {
                                   itemBuilder: ((context, i) {
                                     return WifiListItem(
                                       accessPoint: accessPoints[i],
+                                      isConnected:
+                                          accessPoints[i].ssid == connectedSSID,
                                       onPressed: () {
                                         WiFiForIoTPlugin.isEnabled()
                                             .then((value) {
                                           if (value) {
-                                            WiFiForIoTPlugin.connect(
+                                            WiFiForIoTPlugin.findAndConnect(
                                                     accessPoints[i].ssid,
                                                     password: "AA123456")
                                                 .then((value) {
                                               setState(() {
                                                 isConnected = value;
+                                                if (isConnected) {
+                                                  connectedSSID =
+                                                      accessPoints[i].ssid;
+                                                }
                                               });
                                               Navigator.pop(context);
                                             });
@@ -158,6 +178,29 @@ class _DeviceInstallPageState extends State<DeviceInstallPage> {
               ),
             ),
           ),
+          footer: SizedBox(
+            child: Center(
+              child: ElevatedButton(
+                child: Text("Yeniden Tara"),
+                onPressed: () {
+                  if (wifiEnable) {
+                    startScan();
+                  }
+                },
+              ),
+            ),
+          ),
+        ),
+        PageViewModel(
+          title: "Title of introduction page",
+          bodyWidget: Column(),
+          image: const Center(
+            child: Icon(Icons.waving_hand, size: 50.0),
+          ),
+          footer: ElevatedButton(
+            child: Text("Gonder"),
+            onPressed: () {},
+          ),
         ),
         PageViewModel(
           title: "Title of introduction page",
@@ -170,17 +213,30 @@ class _DeviceInstallPageState extends State<DeviceInstallPage> {
     );
   }
 
-  startScan() {
-    WiFiScan.instance.startScan().then((isScanned) {
-      if (isScanned) {
-        WiFiScan.instance.getScannedResults().then((results) {
-          setState(() {
-            accessPoints = results;
-            scanning = false;
+  startScan() async {
+    final canStartScan =
+        await WiFiScan.instance.canStartScan(askPermissions: true);
+    if (canStartScan == CanStartScan.yes) {
+      final isScanning = await WiFiScan.instance.startScan();
+      setState(() {
+        print("tarama başladı");
+        scanning = isScanning;
+      });
+      if (scanning) {
+        final canGetScannedResults =
+            await WiFiScan.instance.canGetScannedResults(askPermissions: true);
+        if (canGetScannedResults == CanGetScannedResults.yes) {
+          subscription =
+              WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+            print(results.length);
+            setState(() {
+              scanning = false;
+              accessPoints = results;
+            });
           });
-        });
+        }
       }
-    });
+    }
   }
 
   girisButon(double height) {

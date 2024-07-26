@@ -1,13 +1,17 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:wifi_iot/wifi_iot.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 
 class WifiListItem extends StatelessWidget {
   final WiFiAccessPoint accessPoint;
   void Function()? onPressed;
-  WifiListItem({Key? key, required this.accessPoint, this.onPressed})
-      : super(key: key);
+  bool isConnected;
+  WifiListItem({
+    Key? key,
+    required this.accessPoint,
+    this.onPressed,
+    required this.isConnected,
+  }) : super(key: key);
 
   // build row that can display info, based on label: value pair.
   Widget _buildInfo(String label, dynamic value) => Container(
@@ -39,7 +43,14 @@ class WifiListItem extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(color: color),
       ),
-      subtitle: null,
+      subtitle: isConnected
+          ? Text(
+              "Bağlandı",
+              style: TextStyle(
+                color: color,
+              ),
+            )
+          : null,
       trailing: Icon(
         Icons.lock_outlined,
         color: Colors.white,

@@ -142,7 +142,9 @@ class _DeviceInstallPageEskiState extends State<DeviceInstallPageEski> {
                                 itemCount: accessPoints.length,
                                 itemBuilder: ((context, i) {
                                   return WifiListItem(
-                                      accessPoint: accessPoints[i]);
+                                    accessPoint: accessPoints[i],
+                                    isConnected: false,
+                                  );
                                   // return Padding(
                                   //   padding: const EdgeInsets.symmetric(horizontal: 10),
                                   //   child: ListTile(
