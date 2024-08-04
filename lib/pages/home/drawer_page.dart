@@ -1,6 +1,5 @@
 import 'package:akilli_anahtar/entities/user.dart';
-import 'package:akilli_anahtar/pages/device_install/device_install_page.dart';
-import 'package:akilli_anahtar/pages/device_install/device_install_page_eski.dart';
+import 'package:akilli_anahtar/pages/device_install/introduction_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -100,7 +99,7 @@ class _DrawerPageState extends State<DrawerPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute<void>(
-                        builder: (BuildContext context) => DeviceInstallPage(),
+                        builder: (BuildContext context) => IntroductionPage(),
                       ),
                     );
                   },
