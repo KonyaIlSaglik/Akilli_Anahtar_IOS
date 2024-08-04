@@ -1,4 +1,6 @@
+import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
+import 'package:akilli_anahtar/models/token_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/pages/login_page2.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
@@ -29,48 +31,47 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void initialization() async {
-    var token = await LocalDb.get(tokenKey);
-    if (token != null) {
-      var expiration = await LocalDb.get(expirationKey);
-      if (expiration != null) {
-        var eTime =
-            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS+03:00").parse(expiration);
-        if (eTime.isBefore(DateTime.now())) {
-          var userName = await LocalDb.get(userKey);
-          var password = await LocalDb.get(passwordKey);
-          if (userName != null && password != null) {
-            var result = await AuthService.login(
-                LoginModel(userName: userName, password: password));
-            if (result!.success!) {
-              Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (BuildContext context) => HomePage(),
-                ),
-              );
-              return;
-            }
+    var tokenInfo = await LocalDb.get(tokenModelKey);
+    if (tokenInfo != null) {
+      var tokenModel = TokenModel.fromJson(tokenInfo);
+      var eTime = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS+03:00")
+          .parse(tokenModel.expiration);
+      if (eTime.isBefore(DateTime.now())) {
+        var info = await LocalDb.get(userKey);
+        var user = User.fromJson(info!);
+        var password = await LocalDb.get(passwordKey);
+        if (password != null) {
+          var result = await AuthService.login(
+              LoginModel(userName: user.userName, password: password));
+          if (result!.success!) {
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => HomePage(),
+              ),
+            );
+            return;
           }
-          CherryToast.error(
-            toastPosition: Position.bottom,
-            title: Text("Oturum açılamadı. Lütfen tekrar giriş yapınız."),
-          ).show(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (BuildContext context) => LoginPage2(),
-            ),
-          );
-          return;
         }
+        CherryToast.error(
+          toastPosition: Position.bottom,
+          title: Text("Oturum açılamadı. Lütfen tekrar giriş yapınız."),
+        ).show(context);
         Navigator.push(
           context,
           MaterialPageRoute<void>(
-            builder: (BuildContext context) => HomePage(),
+            builder: (BuildContext context) => LoginPage2(),
           ),
         );
         return;
       }
+      Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => HomePage(),
+        ),
+      );
+      return;
     }
     Navigator.push(
       context,

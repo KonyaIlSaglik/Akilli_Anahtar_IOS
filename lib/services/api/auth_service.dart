@@ -24,21 +24,28 @@ class AuthService {
     client.close();
     var dataResult = DataResult<TokenModel>();
     if (response.statusCode == 200) {
+      await LocalDb.add(passwordKey, loginModel.password);
       var result = json.decode(response.body) as Map<String, dynamic>;
       dataResult.data = TokenModel.fromJson(json.encode(result["data"]));
       dataResult.success = result["success"];
       dataResult.message = result["message"];
-      await LocalDb.add(tokenKey, dataResult.data!.token);
-      await LocalDb.add(expirationKey, dataResult.data!.expiration);
+      await LocalDb.add(tokenModelKey, json.encode(result["data"]));
       var user = await UserService.get(int.parse(dataResult.message!));
       if (user != null) {
         await LocalDb.add(userKey, user.toJson());
+        await UserService.getClaims();
       }
     } else {
       dataResult.success = false;
       dataResult.message = response.body;
     }
     return dataResult;
+  }
+
+  static Future<bool> logout() async {
+    await LocalDb.delete(userClaimsKey);
+    await LocalDb.delete(tokenModelKey);
+    return true;
   }
 
   static Future<DataResult<TokenModel>?> changePassword(
@@ -53,12 +60,11 @@ class AuthService {
     var dataResult = DataResult<TokenModel>();
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
-      dataResult.data = TokenModel.fromJson(result["data"]);
+      dataResult.data = TokenModel.fromJson(json.encode(result["data"]));
       dataResult.success = result["success"];
       dataResult.message = result["message"];
 
-      await LocalDb.add(tokenKey, dataResult.data!.token);
-      await LocalDb.add(expirationKey, dataResult.data!.expiration);
+      await LocalDb.add(tokenModelKey, json.encode(result["data"]));
     } else {
       dataResult.success = false;
       dataResult.message = response.body;

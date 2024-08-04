@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 class CustomButton extends StatelessWidget {
   final void Function() onPressed;
   final String title;
+  bool? loading = false;
   CustomButton({
     Key? key,
     required this.title,
     required this.onPressed,
+    this.loading,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -23,13 +25,20 @@ class CustomButton extends StatelessWidget {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             minimumSize: Size(double.infinity, height * 0.075),
           ),
-          child: Text(
-            title,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
-            ),
-          ),
+          child: loading == null || !loading!
+              ? Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize:
+                        Theme.of(context).textTheme.headlineSmall!.fontSize,
+                  ),
+                )
+              : Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                ),
         ),
       ),
     );

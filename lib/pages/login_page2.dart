@@ -1,6 +1,9 @@
+import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
+import 'package:akilli_anahtar/services/local/shared_prefences.dart';
+import 'package:akilli_anahtar/widgets/custom_button.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/gestures.dart';
@@ -28,12 +31,26 @@ class _LoginPageState extends State<LoginPage2> {
   @override
   void initState() {
     super.initState();
+    init();
     var keyboardVisibilityController = KeyboardVisibilityController();
     keyboardVisibilityController.onChange.listen((bool visible) {
       setState(() {
         keboardVisible = visible;
       });
     });
+  }
+
+  void init() async {
+    var info = await LocalDb.get(userKey);
+    var password = await LocalDb.get(passwordKey);
+
+    if (info != null && password != null) {
+      var user = User.fromJson(info);
+      setState(() {
+        usercon.text = user.userName;
+        passwordcon.text = password;
+      });
+    }
   }
 
   @override
@@ -111,7 +128,16 @@ class _LoginPageState extends State<LoginPage2> {
                           Padding(
                             padding:
                                 EdgeInsets.symmetric(vertical: height * 0.01),
-                            child: girisButon(height),
+                            child: CustomButton(
+                              title: "OTURUM AÇ",
+                              loading: loading,
+                              onPressed: () {
+                                setState(() {
+                                  loading = true;
+                                });
+                                login(context);
+                              },
+                            ),
                           ),
                           otherButtons(),
                         ],

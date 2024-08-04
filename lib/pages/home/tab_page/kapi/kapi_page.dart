@@ -49,7 +49,7 @@ class _KapiPageState extends State<KapiPage> implements IMqttSubListener {
     kapilar.clear();
     var info = await LocalDb.get(userKey);
     var id = User.fromJson(info!).id;
-    var kList = await DeviceService.getKullaniciKapi(id!) ?? [];
+    var kList = await DeviceService.getKullaniciKapi(id) ?? [];
     for (var i = 0; i < kList.length; i++) {
       kList[i].topicMessage = "KAPALI";
     }

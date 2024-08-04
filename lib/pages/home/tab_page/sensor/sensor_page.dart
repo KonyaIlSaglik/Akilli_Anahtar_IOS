@@ -41,17 +41,21 @@ class _SensorPageState extends State<SensorPage> implements IMqttSubListener {
         ? Center(
             child: CircularProgressIndicator(),
           )
-        : MediaQuery(
-            data: MediaQuery.of(context)
-                .copyWith(textScaler: TextScaler.linear(0.90)),
-            child: WallLayout(
-              stonePadding: 5,
-              reverse: false,
-              layersCount: 4,
-              scrollDirection: Axis.vertical,
-              stones: getSensorWidgetList(),
-            ),
-          );
+        : sensorList.isEmpty
+            ? Center(
+                child: Text("Sensor Listesi Boş"),
+              )
+            : MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: TextScaler.linear(0.90)),
+                child: WallLayout(
+                  stonePadding: 5,
+                  reverse: false,
+                  layersCount: 4,
+                  scrollDirection: Axis.vertical,
+                  stones: getSensorWidgetList(),
+                ),
+              );
   }
 
   getSensorler() async {

@@ -1,4 +1,6 @@
+import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/sensor/sensor_page.dart';
+import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/services/web/mqtt_listener.dart';
 import 'package:akilli_anahtar/services/web/my_mqtt_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -18,7 +20,7 @@ class TabView extends StatefulWidget {
 class _TabViewState extends State<TabView>
     with SingleTickerProviderStateMixin
     implements IMqttConnListener {
-  final List<bool> _isDisabled = [false, false, true];
+  final List<bool> _isDisabled = [true, true, true];
   late TabController _tabController;
   bool loading = true;
   int windowState = 1;
@@ -32,6 +34,20 @@ class _TabViewState extends State<TabView>
     if (client!.state == MqttConnectionState.disconnected) {
       client!.connect();
     }
+
+    LocalDb.get(userClaimsKey).then((claimsInfo) {
+      if (claimsInfo != null) {
+        var claims = OperationClaim.fromJsonList(claimsInfo);
+        setState(() {
+          _isDisabled[0] = !claims
+              .any((c) => c.name == "developer" || c.name == "door_menu");
+          _isDisabled[1] = !claims
+              .any((c) => c.name == "developer" || c.name == "sensor_menu");
+          _isDisabled[2] = !claims
+              .any((c) => c.name == "developer" || c.name == "garden_menu");
+        });
+      }
+    });
   }
 
   @override
