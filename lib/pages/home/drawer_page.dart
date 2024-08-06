@@ -2,7 +2,6 @@ import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/pages/device_install/introduction_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
-import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
