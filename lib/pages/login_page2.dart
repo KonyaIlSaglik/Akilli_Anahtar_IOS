@@ -21,13 +21,14 @@ class LoginPage2 extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage2> {
-  bool loading = false;
-  final usercon = TextEditingController();
-  final userFocus = FocusNode();
-  final passwordcon = TextEditingController();
-  final passwordFocus = FocusNode();
-  bool keboardVisible = false;
   bool? checkBoxValue = true;
+  bool keboardVisible = false;
+  bool loading = false;
+  final passwordFocus = FocusNode();
+  final passwordcon = TextEditingController();
+  final userFocus = FocusNode();
+  final usercon = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -51,106 +52,6 @@ class _LoginPageState extends State<LoginPage2> {
         passwordcon.text = password;
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 0,
-      ),
-      body: PopScope(
-        onPopInvoked: (didPop) async {
-          exitApp(context);
-        },
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: height * 0.030,
-            ),
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: height * 0.04),
-                  child: SizedBox(
-                    height: keboardVisible ? height * 0.10 : height * 0.20,
-                    child: Image.asset(
-                      "assets/anahtar.png",
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: height * 0.65,
-                  child: Card(
-                    elevation: 0,
-                    color: goldColor,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: height * 0.03),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.all(
-                              keboardVisible ? height * 0.01 : height * 0.025,
-                            ),
-                            child: Text(
-                              "GİRİŞ",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: Theme.of(context)
-                                    .textTheme
-                                    .headlineLarge!
-                                    .fontSize,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          CustomTextField(
-                            controller: usercon,
-                            focusNode: userFocus,
-                            nextFocus: passwordFocus,
-                            hintText: "Kullanıcı Adı ya da Mail",
-                            icon: Icon(Icons.person),
-                          ),
-                          Padding(
-                            padding:
-                                EdgeInsets.symmetric(vertical: height * 0.020),
-                            child: CustomTextField(
-                              controller: passwordcon,
-                              focusNode: passwordFocus,
-                              hintText: "Şifre",
-                              icon: Icon(Icons.lock),
-                              isPassword: true,
-                            ),
-                          ),
-                          sozlesmeMetni(),
-                          Padding(
-                            padding:
-                                EdgeInsets.symmetric(vertical: height * 0.01),
-                            child: CustomButton(
-                              title: "OTURUM AÇ",
-                              loading: loading,
-                              onPressed: () {
-                                setState(() {
-                                  loading = true;
-                                });
-                                login(context);
-                              },
-                            ),
-                          ),
-                          otherButtons(),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   sifemiUnuttumDialog() {
@@ -386,6 +287,106 @@ class _LoginPageState extends State<LoginPage2> {
           ],
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 0,
+      ),
+      body: PopScope(
+        onPopInvoked: (didPop) async {
+          exitApp(context);
+        },
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: height * 0.030,
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: height * 0.04),
+                  child: SizedBox(
+                    height: keboardVisible ? height * 0.10 : height * 0.20,
+                    child: Image.asset(
+                      "assets/anahtar.png",
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: height * 0.65,
+                  child: Card(
+                    elevation: 0,
+                    color: goldColor,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: height * 0.03),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(
+                              keboardVisible ? height * 0.01 : height * 0.025,
+                            ),
+                            child: Text(
+                              "GİRİŞ",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: Theme.of(context)
+                                    .textTheme
+                                    .headlineLarge!
+                                    .fontSize,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          CustomTextField(
+                            controller: usercon,
+                            focusNode: userFocus,
+                            nextFocus: passwordFocus,
+                            hintText: "Kullanıcı Adı ya da Mail",
+                            icon: Icon(Icons.person),
+                          ),
+                          Padding(
+                            padding:
+                                EdgeInsets.symmetric(vertical: height * 0.020),
+                            child: CustomTextField(
+                              controller: passwordcon,
+                              focusNode: passwordFocus,
+                              hintText: "Şifre",
+                              icon: Icon(Icons.lock),
+                              isPassword: true,
+                            ),
+                          ),
+                          sozlesmeMetni(),
+                          Padding(
+                            padding:
+                                EdgeInsets.symmetric(vertical: height * 0.01),
+                            child: CustomButton(
+                              title: "OTURUM AÇ",
+                              loading: loading,
+                              onPressed: () {
+                                setState(() {
+                                  loading = true;
+                                });
+                                login(context);
+                              },
+                            ),
+                          ),
+                          otherButtons(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
