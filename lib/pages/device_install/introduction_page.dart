@@ -14,6 +14,7 @@ class IntroductionPage extends StatefulWidget {
 
 class _IntroductionPageState extends State<IntroductionPage> {
   var apConnected = false;
+  var chipId = 0;
   @override
   Widget build(BuildContext context) {
     //var width = MediaQuery.of(context).size.width;
@@ -50,8 +51,8 @@ class _IntroductionPageState extends State<IntroductionPage> {
           ),
           title: "",
           bodyWidget: NodeMcuConnectionPage(
-            isConnected: (isConnected) {
-              connected(isConnected);
+            isConnected: (isConnected, id) {
+              connected(isConnected, id);
             },
           ),
         ),
@@ -79,9 +80,10 @@ class _IntroductionPageState extends State<IntroductionPage> {
     );
   }
 
-  void connected(bool value) {
+  void connected(bool value, int id) {
     setState(() {
       apConnected = value;
+      chipId = id;
     });
   }
 }

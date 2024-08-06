@@ -3,14 +3,17 @@ import 'dart:async';
 
 import 'package:akilli_anahtar/widgets/custom_button.dart';
 import 'package:akilli_anahtar/widgets/custom_text_field.dart';
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'package:wifi_scan/wifi_scan.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' show parse;
 import 'package:akilli_anahtar/utils/constants.dart';
 
 class NodeMcuConnectionPage extends StatefulWidget {
-  final void Function(bool value)? isConnected;
+  final void Function(bool value, int chipId)? isConnected;
 
   NodeMcuConnectionPage({
     Key? key,
@@ -25,8 +28,10 @@ class _NodeMcuConnectionPageState extends State<NodeMcuConnectionPage> {
   bool wifiEnable = false;
   bool wifiEnableBefore = false;
   bool isConnected = false;
+  bool connecting = false;
   bool scanning = false;
   String connectedSSID = "";
+  int chipId = 0;
   List<WiFiAccessPoint> accessPoints = <WiFiAccessPoint>[];
   StreamSubscription<List<WiFiAccessPoint>>? subscription;
   late Timer timer;
@@ -41,10 +46,11 @@ class _NodeMcuConnectionPageState extends State<NodeMcuConnectionPage> {
     super.initState();
     WiFiForIoTPlugin.forceWifiUsage(true);
     WiFiForIoTPlugin.isEnabled().then((value) {
-      WiFiForIoTPlugin.isConnected().then((value) {
+      WiFiForIoTPlugin.isConnected().then((value) async {
+        await getChipId();
         setState(() {
           isConnected = value;
-          widget.isConnected!(value);
+          widget.isConnected!(value, chipId);
         });
         if (isConnected) {
           if (timer.isActive) {
@@ -199,7 +205,11 @@ class _NodeMcuConnectionPageState extends State<NodeMcuConnectionPage> {
                                           ),
                                           CustomButton(
                                             title: "BAĞLAN",
+                                            loading: connecting,
                                             onPressed: () {
+                                              setState(() {
+                                                connecting = true;
+                                              });
                                               WiFiForIoTPlugin.isEnabled()
                                                   .then((value) {
                                                 if (value) {
@@ -209,21 +219,58 @@ class _NodeMcuConnectionPageState extends State<NodeMcuConnectionPage> {
                                                               password:
                                                                   passController
                                                                       .text)
-                                                      .then((value) {
-                                                    setState(() {
-                                                      isConnected = value;
-                                                      if (isConnected) {
-                                                        if (timer.isActive) {
-                                                          timer.cancel();
-                                                        }
-                                                        reOrder();
-                                                        connectedSSID =
-                                                            selectedSSID;
+                                                      .then((value) async {
+                                                    if (value) {
+                                                      await getChipId();
+                                                      if (chipId < 1) {
+                                                        WiFiForIoTPlugin
+                                                                .disconnect()
+                                                            .then((value) {
+                                                          setState(() {
+                                                            isConnected =
+                                                                !value;
+                                                            connectedSSID = value
+                                                                ? ""
+                                                                : connectedSSID;
+                                                          });
+                                                          Navigator.pop(
+                                                              context);
+                                                          CherryToast.error(
+                                                            toastPosition:
+                                                                Position.bottom,
+                                                            title: Text(
+                                                                "Kutu bilgileri alınamadı. Tekrar bağlanmayı deneyin"),
+                                                          ).show(context);
+                                                        });
+                                                      } else {
+                                                        setState(() {
+                                                          isConnected = value;
+                                                          if (isConnected) {
+                                                            if (timer
+                                                                .isActive) {
+                                                              timer.cancel();
+                                                            }
+                                                            reOrder();
+                                                            connectedSSID =
+                                                                selectedSSID;
+                                                          }
+                                                        });
                                                       }
-                                                      widget
-                                                          .isConnected!(value);
-                                                    });
+                                                      setState(() {
+                                                        connecting = false;
+                                                      });
+                                                    }
                                                     Navigator.pop(context);
+                                                    setState(() {
+                                                      widget.isConnected!(
+                                                          value, chipId);
+                                                    });
+                                                    CherryToast.success(
+                                                      toastPosition:
+                                                          Position.bottom,
+                                                      title: Text(
+                                                          "Cihaz bilgileri alındı. Sonraki adıma geçebilirsiniz."),
+                                                    ).show(context);
                                                   });
                                                 }
                                               });
@@ -245,6 +292,23 @@ class _NodeMcuConnectionPageState extends State<NodeMcuConnectionPage> {
     );
   }
 
+  Future<void> getChipId() async {
+    var uri = Uri.parse("http://192.168.4.1/_ac");
+    var client = http.Client();
+    var response = await client.get(uri);
+    var doc = parse(response.body);
+    var table = doc.body!.getElementsByClassName("info")[0];
+    var rows = table.getElementsByTagName("tr");
+    for (var row in rows) {
+      if (row.getElementsByTagName("td")[0].innerHtml == "Chip ID") {
+        var id = int.tryParse(row.getElementsByTagName("td")[1].innerHtml) ?? 0;
+        setState(() {
+          chipId = id;
+        });
+      }
+    }
+  }
+
   startScan() async {
     final canStartScan =
         await WiFiScan.instance.canStartScan(askPermissions: true);
@@ -260,10 +324,13 @@ class _NodeMcuConnectionPageState extends State<NodeMcuConnectionPage> {
         if (canGetScannedResults == CanGetScannedResults.yes) {
           subscription =
               WiFiScan.instance.onScannedResultsAvailable.listen((results) {
-            print(results.length);
+            var list = results.where((a) => a.ssid.isNotEmpty).toList();
+            list.sort(
+              (a, b) => a.ssid.compareTo(b.ssid),
+            );
             setState(() {
               scanning = false;
-              accessPoints = results;
+              accessPoints = list;
             });
             reOrder();
           });
