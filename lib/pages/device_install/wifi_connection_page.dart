@@ -6,9 +6,7 @@ import 'package:akilli_anahtar/widgets/custom_text_field.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
-import 'package:wifi_iot/wifi_iot.dart';
 import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' show parse;
 
 class WifiConnectionPage extends StatefulWidget {
   const WifiConnectionPage({Key? key}) : super(key: key);
@@ -24,47 +22,47 @@ class _WifiConnectionPageState extends State<WifiConnectionPage> {
   @override
   void initState() {
     super.initState();
-    WiFiForIoTPlugin.isConnected().then((value) async {
-      if (value) {
-        int page = 0;
-        while (true) {
-          var uri = Uri.parse("http://192.168.4.1/_ac/config?page=$page");
-          var client = http.Client();
-          var response = await client.get(uri);
-          var doc = parse(response.body);
-          var panelDiv = doc.body!.getElementsByClassName("base-panel")[0];
-          var buttons = panelDiv
-              .getElementsByTagName("input")
-              .where((e) => e.attributes["type"] == "button")
-              .toList();
-          if (buttons.isEmpty) {
-            setState(() {
-              scanning = false;
-            });
-            break;
-          } else {
-            var list = buttons.map((e) => e.outerHtml
-                .split("value=")[1]
-                .replaceAll("\"", "")
-                .replaceAll(">", ""));
-            if (ssidList.isEmpty) {
-              setState(() {
-                ssidList = list.toList();
-                print("Burada..........");
-                scanning = false;
-              });
-            } else {
-              ssidList.addAll(list);
-            }
-            page++;
-          }
-        }
-      } else {
-        setState(() {
-          scanning = false;
-        });
-      }
-    });
+    // WiFiForIoTPlugin.isConnected().then((value) async {
+    //   if (value) {
+    //     int page = 0;
+    //     while (true) {
+    //       var uri = Uri.parse("http://192.168.4.1/_ac/config?page=$page");
+    //       var client = http.Client();
+    //       var response = await client.get(uri);
+    //       var doc = parse(response.body);
+    //       var panelDiv = doc.body!.getElementsByClassName("base-panel")[0];
+    //       var buttons = panelDiv
+    //           .getElementsByTagName("input")
+    //           .where((e) => e.attributes["type"] == "button")
+    //           .toList();
+    //       if (buttons.isEmpty) {
+    //         setState(() {
+    //           scanning = false;
+    //         });
+    //         break;
+    //       } else {
+    //         var list = buttons.map((e) => e.outerHtml
+    //             .split("value=")[1]
+    //             .replaceAll("\"", "")
+    //             .replaceAll(">", ""));
+    //         if (ssidList.isEmpty) {
+    //           setState(() {
+    //             ssidList = list.toList();
+    //             print("Burada..........");
+    //             scanning = false;
+    //           });
+    //         } else {
+    //           ssidList.addAll(list);
+    //         }
+    //         page++;
+    //       }
+    //     }
+    //   } else {
+    //     setState(() {
+    //       scanning = false;
+    //     });
+    //   }
+    // });
   }
 
   @override

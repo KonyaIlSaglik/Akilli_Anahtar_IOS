@@ -62,7 +62,7 @@ class _SensorPageState extends State<SensorPage> implements IMqttSubListener {
     sensorList.clear();
     var info = await LocalDb.get(userKey);
     var id = User.fromJson(info!).id;
-    var kList = await DeviceService.getKullaniciSensor(id!) ?? [];
+    var kList = await DeviceService.getKullaniciSensor(id) ?? [];
     for (var i = 0; i < kList.length; i++) {
       kList[i].topicMessage = "-";
     }

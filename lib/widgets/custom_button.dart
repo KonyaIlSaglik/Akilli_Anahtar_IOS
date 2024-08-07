@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class CustomButton extends StatelessWidget {
   final void Function() onPressed;
   final String title;
@@ -36,7 +38,7 @@ class CustomButton extends StatelessWidget {
                 )
               : Center(
                   child: CircularProgressIndicator(
-                    color: Colors.white,
+                    color: goldColor,
                   ),
                 ),
         ),
