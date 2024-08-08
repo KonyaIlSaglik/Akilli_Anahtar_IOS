@@ -59,7 +59,7 @@ class _NodeMcuConnectionPageState extends State<NodeMcuConnectionPage> {
     });
     if (enabled) {
       var connected = await WiFiForIoTPlugin.isConnected();
-      if (connected != null) {
+      if (connected) {
         await WiFiForIoTPlugin.disconnect();
       }
       startScan();
