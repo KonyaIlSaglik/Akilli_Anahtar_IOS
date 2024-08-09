@@ -1,14 +1,14 @@
+import 'package:akilli_anahtar/entities/relay.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:text_scroll/text_scroll.dart';
-import 'package:turkish/turkish.dart';
 import 'package:akilli_anahtar/services/web/my_mqtt_service.dart';
-import 'package:akilli_anahtar/models/kullanici_kapi.dart';
+import 'package:turkish/turkish.dart';
 
 class KapiItemActive extends StatefulWidget {
-  final KullaniciKapi kapi;
+  final Relay kapi;
   const KapiItemActive({Key? key, required this.kapi}) : super(key: key);
 
   @override
@@ -25,7 +25,13 @@ class _KapiItemActiveState extends State<KapiItemActive>
         onTap: () {
           MyMqttClient? client = MyMqttClient.instance;
           if (client.state == MqttConnectionState.connected) {
-            client.pub(widget.kapi.topicRec!, "0");
+            if (widget.kapi.deviceTypeId == 4) {
+              client.pub(widget.kapi.topicRec, "0");
+            }
+            if (widget.kapi.deviceTypeId == 5) {
+              client.pub(widget.kapi.topicRec,
+                  widget.kapi.topicMessage == "1" ? "0" : "1");
+            }
           }
         },
         child: Card(
@@ -59,14 +65,19 @@ class _KapiItemActiveState extends State<KapiItemActive>
             elevation: 0,
             color: kapi.topicMessage == "AÇILIYOR"
                 ? Colors.yellow
-                : kapi.topicMessage == "AÇIK"
+                : kapi.topicMessage == "AÇIK" || kapi.topicMessage == "1"
                     ? Colors.blue
-                    : kapi.topicMessage == "KAPANIYOR"
+                    : kapi.topicMessage == "KAPANIYOR" ||
+                            kapi.topicMessage == "0"
                         ? Colors.red
                         : Colors.green[400],
             child: Center(
               child: Text(
-                kapi.topicMessage ?? "",
+                kapi.topicMessage == "1"
+                    ? "AÇIK"
+                    : kapi.topicMessage == "0"
+                        ? "KAPALI"
+                        : kapi.topicMessage ?? "",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: Theme.of(context).textTheme.labelLarge!.fontSize,
@@ -78,7 +89,7 @@ class _KapiItemActiveState extends State<KapiItemActive>
         SizedBox(
           height: height * 0.06,
           child: Center(
-            child: kapi.kapiTurAdi == "BARİYER"
+            child: kapi.deviceTypeId == 4
                 ? ImageIcon(
                     Image.asset("assets/barrier.png").image,
                     size: (Theme.of(context).iconTheme.size ?? 28) * 2,
@@ -96,7 +107,7 @@ class _KapiItemActiveState extends State<KapiItemActive>
           child: Padding(
             padding: const EdgeInsets.only(bottom: 5, left: 5),
             child: TextScroll(
-              kapi.kapiAdi.toUpperCaseTr(),
+              kapi.name.toUpperCaseTr(),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: Theme.of(context).textTheme.labelMedium!.fontSize,
@@ -111,20 +122,7 @@ class _KapiItemActiveState extends State<KapiItemActive>
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 5, bottom: 5),
-                child: TextScroll(
-                  kapi.siteAdi!.substring(0, 20),
-                  mode: TextScrollMode.bouncing,
-                  velocity: Velocity(pixelsPerSecond: Offset(150, 0)),
-                  delayBefore: Duration(milliseconds: 500),
-                  numberOfReps: 5,
-                  pauseBetween: Duration(milliseconds: 50),
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
-                  ),
-                ),
+                child: Text(""),
               ),
             ],
           ),

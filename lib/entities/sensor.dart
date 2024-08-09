@@ -1,24 +1,25 @@
 import 'dart:convert';
 
-class Sensors {
+class Sensor {
   int id;
   String name;
   int deviceTypeId;
-  int mainSensorId;
+  int? mainSensorId;
   String topicStat;
-  String description;
+  String? description;
   int boxId;
   String pin;
   int active;
   String unit;
+  String? topicMessage;
 
-  Sensors({
+  Sensor({
     required this.id,
     required this.name,
     required this.deviceTypeId,
-    required this.mainSensorId,
+    this.mainSensorId,
     required this.topicStat,
-    required this.description,
+    this.description,
     required this.boxId,
     required this.pin,
     required this.active,
@@ -29,26 +30,26 @@ class Sensors {
     return <String, dynamic>{
       'id': id,
       'name': name,
-      'deviceTypeId': deviceTypeId,
-      'mainSensorId': mainSensorId,
-      'topicStat': topicStat,
+      'device_type_id': deviceTypeId,
+      'main_sensor_id': mainSensorId,
+      'topic_stat': topicStat,
       'description': description,
-      'boxId': boxId,
+      'box_id': boxId,
       'pin': pin,
       'active': active,
       'unit': unit,
     };
   }
 
-  factory Sensors.fromMap(Map<String, dynamic> map) {
-    return Sensors(
+  factory Sensor.fromMap(Map<String, dynamic> map) {
+    return Sensor(
       id: map['id'] as int,
       name: map['name'] as String,
-      deviceTypeId: map['deviceTypeId'] as int,
-      mainSensorId: map['mainSensorId'] as int,
-      topicStat: map['topicStat'] as String,
-      description: map['description'] as String,
-      boxId: map['boxId'] as int,
+      deviceTypeId: map['device_type_id'] as int,
+      mainSensorId: map['main_sensor_id'] ?? 0,
+      topicStat: map['topic_stat'] as String,
+      description: map['description'] ?? "",
+      boxId: map['box_id'] as int,
       pin: map['pin'] as String,
       active: map['active'] as int,
       unit: map['unit'] as String,
@@ -57,6 +58,6 @@ class Sensors {
 
   String toJson() => json.encode(toMap());
 
-  factory Sensors.fromJson(String source) =>
-      Sensors.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Sensor.fromJson(String source) =>
+      Sensor.fromMap(json.decode(source) as Map<String, dynamic>);
 }

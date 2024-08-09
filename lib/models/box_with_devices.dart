@@ -7,8 +7,8 @@ import 'package:akilli_anahtar/entities/sensor.dart';
 
 class BoxWithDevices {
   Box box;
-  List<Relays> relays;
-  List<Sensors> sensors;
+  List<Relay> relays;
+  List<Sensor> sensors;
   BoxWithDevices({
     required this.box,
     required this.relays,
@@ -26,14 +26,14 @@ class BoxWithDevices {
   factory BoxWithDevices.fromMap(Map<String, dynamic> map) {
     return BoxWithDevices(
       box: Box.fromMap(map['box'] as Map<String, dynamic>),
-      relays: List<Relays>.from(
-        (map['relays'] as List<int>).map<Relays>(
-          (x) => Relays.fromMap(x as Map<String, dynamic>),
+      relays: List<Relay>.from(
+        (map['relays'] as List<dynamic>).map<Relay>(
+          (x) => Relay.fromMap(x as Map<String, dynamic>),
         ),
       ),
-      sensors: List<Sensors>.from(
-        (map['sensors'] as List<int>).map<Sensors>(
-          (x) => Sensors.fromMap(x as Map<String, dynamic>),
+      sensors: List<Sensor>.from(
+        (map['sensors'] as List<dynamic>).map<Sensor>(
+          (x) => Sensor.fromMap(x as Map<String, dynamic>),
         ),
       ),
     );

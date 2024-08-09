@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:akilli_anahtar/entities/sensor.dart';
 import 'package:akilli_anahtar/entities/user.dart';
-import 'package:akilli_anahtar/models/kullanici_sensor.dart';
 import 'package:akilli_anahtar/services/api/device_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/services/web/mqtt_listener.dart';
@@ -22,7 +22,7 @@ class SensorPage extends StatefulWidget {
 class _SensorPageState extends State<SensorPage> implements IMqttSubListener {
   MyMqttClient? client = MyMqttClient.instance;
   bool loading = true;
-  List<KullaniciSensor> sensorList = [];
+  List<Sensor> sensorList = [];
   @override
   void initState() {
     super.initState();
@@ -62,7 +62,13 @@ class _SensorPageState extends State<SensorPage> implements IMqttSubListener {
     sensorList.clear();
     var info = await LocalDb.get(userKey);
     var id = User.fromJson(info!).id;
-    var kList = await DeviceService.getKullaniciSensor(id) ?? [];
+    var boxes = await DeviceService.getUserDevices(id) ?? [];
+    var kList = <Sensor>[];
+    for (var box in boxes) {
+      if (box.relays.isNotEmpty) {
+        kList.addAll(box.sensors);
+      }
+    }
     for (var i = 0; i < kList.length; i++) {
       kList[i].topicMessage = "-";
     }
@@ -72,7 +78,7 @@ class _SensorPageState extends State<SensorPage> implements IMqttSubListener {
     }
     setState(() {
       kList.sort(
-        (a, b) => b.sensorId.compareTo(a.sensorId),
+        (a, b) => b.id.compareTo(a.id),
       );
       sensorList.addAll(kList);
       loading = false;
@@ -84,16 +90,16 @@ class _SensorPageState extends State<SensorPage> implements IMqttSubListener {
 
     for (var sensor in sensorList) {
       list.add(Stone(
-        id: sensor.sensorId,
+        id: sensor.id,
         height: 1,
         width: 4,
         child: SensorListItem(
-          id: sensor.sensorId,
-          adi: sensor.sensorName,
-          kurum: sensor.kurumAdi,
+          id: sensor.id,
+          adi: sensor.name,
+          kurum: "-",
           durum: "Bağlı",
           deger: sensor.topicMessage,
-          birim: sensor.birim,
+          birim: sensor.unit,
           baglanti: 1,
         ),
       ));

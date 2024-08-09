@@ -23,11 +23,11 @@ class Box {
     return <String, dynamic>{
       'id': id,
       'name': name,
-      'chipId': chipId,
-      'organisationId': organisationId,
+      'chip_id': chipId,
+      'organisation_id': organisationId,
       'active': active,
-      'topicRec': topicRec,
-      'topicRes': topicRes,
+      'topic_rec': topicRec,
+      'topic_res': topicRes,
     };
   }
 
@@ -35,11 +35,11 @@ class Box {
     return Box(
       id: map['id'] as int,
       name: map['name'] as String,
-      chipId: map['chipId'] as int,
-      organisationId: map['organisationId'] as int,
+      chipId: map['chip_id'] as int,
+      organisationId: map['organisation_id'] as int,
       active: map['active'] as int,
-      topicRec: map['topicRec'] as String,
-      topicRes: map['topicRes'] as String,
+      topicRec: map['topic_rec'] as String,
+      topicRes: map['topic_res'] as String,
     );
   }
 

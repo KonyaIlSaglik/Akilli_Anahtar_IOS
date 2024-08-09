@@ -7,18 +7,20 @@ class CustomButton extends StatelessWidget {
   final void Function() onPressed;
   final String title;
   bool? loading = false;
+  Color? color;
   CustomButton({
     Key? key,
     required this.title,
     required this.onPressed,
     this.loading,
+    this.color,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     return ButtonTheme(
       child: Card(
-        color: Colors.white,
+        color: color ?? Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: OutlinedButton(
           onPressed: onPressed,
@@ -31,7 +33,7 @@ class CustomButton extends StatelessWidget {
               ? Text(
                   title,
                   style: TextStyle(
-                    color: Colors.black,
+                    color: color == null ? Colors.black : Colors.white,
                     fontSize:
                         Theme.of(context).textTheme.headlineSmall!.fontSize,
                   ),

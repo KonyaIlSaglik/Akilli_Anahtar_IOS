@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/models/kullanici_kapi.dart';
+import 'package:akilli_anahtar/entities/relay.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/kapi_item_active.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/kapi_item_pasive.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_wall_layout/flutter_wall_layout.dart';
 
 class KapiGridView extends StatefulWidget {
-  final List<KullaniciKapi> kapilar;
+  final List<Relay> kapilar;
   const KapiGridView({Key? key, required this.kapilar}) : super(key: key);
 
   @override
