@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:akilli_anahtar/pages/splash_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
     return MediaQuery(
       data:
           MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(0.90)),
-      child: MaterialApp(
+      child: GetMaterialApp(
         title: 'Flutter Demo',
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,

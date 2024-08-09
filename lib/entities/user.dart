@@ -13,15 +13,15 @@ class User {
   String mail;
 
   User({
-    required this.id,
-    required this.userName,
-    required this.password,
-    required this.passwordHash,
-    required this.passwordSalt,
-    required this.fullName,
-    required this.active,
-    required this.telephone,
-    required this.mail,
+    this.id = 0,
+    this.userName = "",
+    this.password = "",
+    this.passwordHash = "",
+    this.passwordSalt = "",
+    this.fullName = "",
+    this.active = 1,
+    this.telephone = "",
+    this.mail = "",
   });
 
   Map<String, dynamic> toMap() {

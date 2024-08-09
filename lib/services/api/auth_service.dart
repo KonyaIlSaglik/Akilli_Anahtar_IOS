@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 class AuthService {
   static String url = "${apiUrlOut}Auth";
 
-  static Future<DataResult<TokenModel>?> login(LoginModel loginModel) async {
+  static Future<DataResult<TokenModel>> login(LoginModel loginModel) async {
     var uri = Uri.parse("$url/login");
     var client = http.Client();
     var response = await client.post(
@@ -33,7 +33,7 @@ class AuthService {
       var user = await UserService.get(int.parse(dataResult.message!));
       if (user != null) {
         await LocalDb.add(userKey, user.toJson());
-        await UserService.getClaims();
+        await UserService.getClaims(user);
       }
     } else {
       dataResult.success = false;

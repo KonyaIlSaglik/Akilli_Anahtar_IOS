@@ -71,6 +71,7 @@ dependencies:
   wifi_scan: ^0.4.1
   wifi_iot: ^0.3.19
   html: ^0.15.4
+  get: ^4.6.6
 
 flutter_icons:
   android: "launcher_icon"

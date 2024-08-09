@@ -5,8 +5,8 @@ class TokenModel {
   String token;
   String expiration;
   TokenModel({
-    required this.token,
-    required this.expiration,
+    this.token = "",
+    this.expiration = "",
   });
 
   Map<String, dynamic> toMap() {

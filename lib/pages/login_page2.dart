@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_text_field.dart';
+import 'package:get/get.dart';
 
 class LoginPage2 extends StatefulWidget {
   const LoginPage2({Key? key}) : super(key: key);
@@ -28,6 +30,7 @@ class _LoginPageState extends State<LoginPage2> {
   final passwordcon = TextEditingController();
   final userFocus = FocusNode();
   final usercon = TextEditingController();
+  final AuthController _authController = Get.find<AuthController>();
 
   @override
   void initState() {
@@ -142,32 +145,45 @@ class _LoginPageState extends State<LoginPage2> {
       return;
     }
 
-    var result = await AuthService.login(
-      LoginModel(
-        userName: usercon.text.trim(),
-        password: passwordcon.text,
-      ),
-    );
-    if (result != null) {
-      if (result.success!) {
-        Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) => HomePage(),
-          ),
-        );
-      } else {
-        passwordcon.text = "";
-        CherryToast.error(
-                toastPosition: Position.bottom, title: Text(result.message!))
-            .show(context);
-      }
+    // var result = await AuthService.login(
+    //   LoginModel(
+    //     userName: usercon.text.trim(),
+    //     password: passwordcon.text,
+    //   ),
+    // );
+
+    await _authController.login(usercon.text.trim(), passwordcon.text);
+
+    if (_authController.isLoggedIn.value) {
+      Get.to(() => HomePage());
     } else {
+      passwordcon.text = "";
       CherryToast.error(
-              toastPosition: Position.bottom,
-              title: Text("Bir hata oluştu. Tekrar deneyiniz."))
-          .show(context);
+        toastPosition: Position.bottom,
+        title: Text("Hata oldu.."),
+      ).show(context);
     }
+
+    // if (result != null) {
+    //   if (result.success!) {
+    //     Navigator.push(
+    //       context,
+    //       MaterialPageRoute<void>(
+    //         builder: (BuildContext context) => HomePage(),
+    //       ),
+    //     );
+    //   } else {
+    //     passwordcon.text = "";
+    //     CherryToast.error(
+    //             toastPosition: Position.bottom, title: Text(result.message!))
+    //         .show(context);
+    //   }
+    // } else {
+    //   CherryToast.error(
+    //           toastPosition: Position.bottom,
+    //           title: Text("Bir hata oluştu. Tekrar deneyiniz."))
+    //       .show(context);
+    // }
   }
 
   otherButtons() {
@@ -365,16 +381,15 @@ class _LoginPageState extends State<LoginPage2> {
                           Padding(
                             padding:
                                 EdgeInsets.symmetric(vertical: height * 0.01),
-                            child: CustomButton(
-                              title: "OTURUM AÇ",
-                              loading: loading,
-                              onPressed: () {
-                                setState(() {
-                                  loading = true;
-                                });
-                                login(context);
-                              },
-                            ),
+                            child: Obx(() {
+                              return CustomButton(
+                                title: "OTURUM AÇ",
+                                loading: _authController.isLoading.value,
+                                onPressed: () {
+                                  login(context);
+                                },
+                              );
+                            }),
                           ),
                           otherButtons(),
                         ],

@@ -5,8 +5,8 @@ class OperationClaim {
   int id;
   String name;
   OperationClaim({
-    required this.id,
-    required this.name,
+    this.id = 0,
+    this.name = "",
   });
 
   Map<String, dynamic> toMap() {

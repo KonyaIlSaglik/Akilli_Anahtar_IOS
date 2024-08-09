@@ -5,6 +5,7 @@ const String apiUrlIn = "http://10.42.42.19:81/api/";
 const String apiUrlOut = "http://uzak.konyasm.gov.tr:15730/api/";
 const String tokenModelKey = "tokenModel";
 const String userKey = "user";
+const String userNameKey = "user";
 const String passwordKey = "password";
 const String userClaimsKey = "userClaims";
 const String favoritesKey = "favorites";

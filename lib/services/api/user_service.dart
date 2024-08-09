@@ -23,11 +23,24 @@ class UserService {
     return null;
   }
 
-  static Future<DataResult<List<OperationClaim>>> getClaims() async {
+  static Future<User?> getbyUserName(String userName) async {
+    var uri = Uri.parse("$url/getbyusername?user_name=$userName");
+    var client = http.Client();
+    var response = await client.get(uri);
+    client.close();
+    if (response.statusCode == 200) {
+      var result = json.decode(response.body) as Map<String, dynamic>;
+      var user = User.fromJson(json.encode(result["data"]));
+      return user;
+    }
+    return null;
+  }
+
+  static Future<DataResult<List<OperationClaim>>> getClaims(User user) async {
     var uri = Uri.parse("$url/getuserclaims");
     var client = http.Client();
-    var info = await LocalDb.get(userKey);
-    var user = User.fromJson(info!);
+    // var info = await LocalDb.get(userKey);
+    // var user = User.fromJson(info!);
     var response = await client.post(
       uri,
       headers: {
