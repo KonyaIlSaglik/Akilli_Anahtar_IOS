@@ -1,4 +1,3 @@
-import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/token_model.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
@@ -33,7 +32,7 @@ class AuthController extends GetxController {
         await LocalDb.add(passwordKey, password);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Something went wrong');
+      Get.snackbar('Error', 'Bir hata oldu. Tekrar deneyin.');
     } finally {
       isLoading.value = false;
     }

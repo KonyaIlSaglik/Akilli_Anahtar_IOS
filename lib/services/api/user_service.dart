@@ -39,8 +39,6 @@ class UserService {
   static Future<DataResult<List<OperationClaim>>> getClaims(User user) async {
     var uri = Uri.parse("$url/getuserclaims");
     var client = http.Client();
-    // var info = await LocalDb.get(userKey);
-    // var user = User.fromJson(info!);
     var response = await client.post(
       uri,
       headers: {
@@ -55,7 +53,7 @@ class UserService {
       dataResult.data =
           OperationClaim.fromJsonList(json.encode(result["data"]));
       dataResult.success = result["success"];
-      dataResult.message = result["message"];
+      dataResult.message = result["message"] ?? "";
       await LocalDb.add(userClaimsKey, json.encode(result["data"]));
     } else {
       dataResult.success = false;

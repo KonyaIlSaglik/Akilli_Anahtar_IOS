@@ -10,24 +10,24 @@ class Box {
   String topicRes;
 
   Box({
-    required this.id,
-    required this.name,
-    required this.chipId,
-    required this.organisationId,
-    required this.active,
-    required this.topicRec,
-    required this.topicRes,
+    this.id = 0,
+    this.name = "",
+    this.chipId = 0,
+    this.organisationId = 0,
+    this.active = 1,
+    this.topicRec = "",
+    this.topicRes = "",
   });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
       'name': name,
-      'chip_id': chipId,
-      'organisation_id': organisationId,
+      'chipId': chipId,
+      'organisationId': organisationId,
       'active': active,
-      'topic_rec': topicRec,
-      'topic_res': topicRes,
+      'topicRec': topicRec,
+      'topicRes': topicRes,
     };
   }
 
@@ -35,11 +35,11 @@ class Box {
     return Box(
       id: map['id'] as int,
       name: map['name'] as String,
-      chipId: map['chip_id'] as int,
-      organisationId: map['organisation_id'] as int,
+      chipId: map['chipId'] as int,
+      organisationId: map['organisationId'] as int,
       active: map['active'] as int,
-      topicRec: map['topic_rec'] as String,
-      topicRes: map['topic_res'] as String,
+      topicRec: map['topicRec'] as String,
+      topicRes: map['topicRes'] as String,
     );
   }
 

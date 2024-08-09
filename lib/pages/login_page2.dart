@@ -124,33 +124,18 @@ class _LoginPageState extends State<LoginPage2> {
 
   login(context) async {
     if (usercon.text.trim().isEmpty) {
-      CherryToast.error(
-        toastPosition: Position.bottom,
-        title: Text("Kullanıcı adı boş geçilemez."),
-      ).show(context);
+      Get.snackbar('Error', 'Kullanıcı adı boş geçilemez');
       return;
     }
     if (passwordcon.text.isEmpty) {
-      CherryToast.error(
-        toastPosition: Position.bottom,
-        title: Text("Şifre boş geçilemez"),
-      ).show(context);
+      Get.snackbar('Error', 'Şifre boş geçilemez');
       return;
     }
     if (!checkBoxValue!) {
-      CherryToast.error(
-        toastPosition: Position.bottom,
-        title: Text("Sözleşme Şartlarını okuyup kabul etmeniz gerekmektedir"),
-      ).show(context);
+      Get.snackbar(
+          'Error', 'Sözleşme Şartlarını okuyup kabul etmeniz gerekmektedir');
       return;
     }
-
-    // var result = await AuthService.login(
-    //   LoginModel(
-    //     userName: usercon.text.trim(),
-    //     password: passwordcon.text,
-    //   ),
-    // );
 
     await _authController.login(usercon.text.trim(), passwordcon.text);
 
@@ -158,32 +143,7 @@ class _LoginPageState extends State<LoginPage2> {
       Get.to(() => HomePage());
     } else {
       passwordcon.text = "";
-      CherryToast.error(
-        toastPosition: Position.bottom,
-        title: Text("Hata oldu.."),
-      ).show(context);
     }
-
-    // if (result != null) {
-    //   if (result.success!) {
-    //     Navigator.push(
-    //       context,
-    //       MaterialPageRoute<void>(
-    //         builder: (BuildContext context) => HomePage(),
-    //       ),
-    //     );
-    //   } else {
-    //     passwordcon.text = "";
-    //     CherryToast.error(
-    //             toastPosition: Position.bottom, title: Text(result.message!))
-    //         .show(context);
-    //   }
-    // } else {
-    //   CherryToast.error(
-    //           toastPosition: Position.bottom,
-    //           title: Text("Bir hata oluştu. Tekrar deneyiniz."))
-    //       .show(context);
-    // }
   }
 
   otherButtons() {

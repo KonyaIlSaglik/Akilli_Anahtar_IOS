@@ -1,3 +1,5 @@
+import 'package:akilli_anahtar/controllers/device_controller.dart';
+import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/sensor/sensor_page.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
@@ -6,6 +8,7 @@ import 'package:akilli_anahtar/services/web/my_mqtt_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:focus_detector_v2/focus_detector_v2.dart';
+import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'bahce/bahce_page.dart';
 import 'kapi/kapi_page.dart';
@@ -25,29 +28,39 @@ class _TabViewState extends State<TabView>
   bool loading = true;
   int windowState = 1;
   MyMqttClient? client = MyMqttClient.instance;
+
+  final UserController _userController = Get.find<UserController>();
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: 3);
+
+    Get.put(DeviceController());
+
+    _isDisabled[0] = !_userController.operationClaims
+        .any((c) => c.name == "developer" || c.name == "door_menu");
+    _isDisabled[1] = !_userController.operationClaims
+        .any((c) => c.name == "developer" || c.name == "sensor_menu");
+    _isDisabled[2] = !_userController.operationClaims
+        .any((c) => c.name == "developer" || c.name == "garden_menu");
+
+    _tabController = TabController(
+      vsync: this,
+      length: 3,
+      initialIndex: _isDisabled[0]
+          ? _isDisabled[1]
+              ? _isDisabled[2]
+                  ? 0
+                  : 2
+              : 1
+          : 0,
+    );
+
     _tabController.addListener(onTap);
     client!.setConnListener(this);
     if (client!.state == MqttConnectionState.disconnected) {
       client!.connect();
     }
-
-    LocalDb.get(userClaimsKey).then((claimsInfo) {
-      if (claimsInfo != null) {
-        var claims = OperationClaim.fromJsonList(claimsInfo);
-        setState(() {
-          _isDisabled[0] = !claims
-              .any((c) => c.name == "developer" || c.name == "door_menu");
-          _isDisabled[1] = !claims
-              .any((c) => c.name == "developer" || c.name == "sensor_menu");
-          _isDisabled[2] = !claims
-              .any((c) => c.name == "developer" || c.name == "garden_menu");
-        });
-      }
-    });
   }
 
   @override

@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class Relay {
@@ -29,12 +30,12 @@ class Relay {
     return <String, dynamic>{
       'id': id,
       'name': name,
-      'device_type_id': deviceTypeId,
-      'topic_stat': topicStat,
-      'topic_rec': topicRec,
-      'topic_res': topicRes,
+      'deviceTypeId': deviceTypeId,
+      'topicStat': topicStat,
+      'topicRec': topicRec,
+      'topicRes': topicRes,
       'description': description,
-      'box_id': boxId,
+      'boxId': boxId,
       'pin': pin,
       'active': active,
     };
@@ -44,12 +45,13 @@ class Relay {
     return Relay(
       id: map['id'] as int,
       name: map['name'] as String,
-      deviceTypeId: map['device_type_id'] as int,
-      topicStat: map['topic_stat'] as String,
-      topicRec: map['topic_rec'] as String,
-      topicRes: map['topic_res'] as String,
-      description: map['description'] ?? "",
-      boxId: map['box_id'] as int,
+      deviceTypeId: map['deviceTypeId'] as int,
+      topicStat: map['topicStat'] as String,
+      topicRec: map['topicRec'] as String,
+      topicRes: map['topicRes'] as String,
+      description:
+          map['description'] != null ? map['description'] as String : null,
+      boxId: map['boxId'] as int,
       pin: map['pin'] as String,
       active: map['active'] as int,
     );

@@ -27,11 +27,11 @@ class User {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'user_name': userName,
+      'userName': userName,
       'password': password,
-      'password_hash': passwordHash,
-      'password_salt': passwordSalt,
-      'full_name': fullName,
+      'passwordHash': passwordHash,
+      'passwordSalt': passwordSalt,
+      'fullName': fullName,
       'active': active,
       'telephone': telephone,
       'mail': mail,
@@ -41,11 +41,11 @@ class User {
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
       id: map['id'] as int,
-      userName: map['user_name'] as String,
+      userName: map['userName'] as String,
       password: map['password'] as String,
-      passwordHash: map['password_hash'] as String,
-      passwordSalt: map['password_salt'] as String,
-      fullName: map['full_name'] as String,
+      passwordHash: map['passwordHash'] as String,
+      passwordSalt: map['passwordSalt'] as String,
+      fullName: map['fullName'] as String,
       active: map['active'] as int,
       telephone: map['telephone'] as String,
       mail: map['mail'] as String,

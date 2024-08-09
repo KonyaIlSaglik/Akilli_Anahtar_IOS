@@ -24,17 +24,16 @@ class AuthService {
     client.close();
     var dataResult = DataResult<TokenModel>();
     if (response.statusCode == 200) {
-      await LocalDb.add(passwordKey, loginModel.password);
       var result = json.decode(response.body) as Map<String, dynamic>;
       dataResult.data = TokenModel.fromJson(json.encode(result["data"]));
       dataResult.success = result["success"];
       dataResult.message = result["message"];
-      await LocalDb.add(tokenModelKey, json.encode(result["data"]));
-      var user = await UserService.get(int.parse(dataResult.message!));
-      if (user != null) {
-        await LocalDb.add(userKey, user.toJson());
-        await UserService.getClaims(user);
-      }
+      // await LocalDb.add(tokenModelKey, json.encode(result["data"]));
+      // var user = await UserService.get(int.parse(dataResult.message));
+      // if (user != null) {
+      //   await LocalDb.add(userKey, user.toJson());
+      //   await UserService.getClaims(user);
+      // }
     } else {
       dataResult.success = false;
       dataResult.message = response.body;

@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class Sensor {
@@ -30,11 +31,11 @@ class Sensor {
     return <String, dynamic>{
       'id': id,
       'name': name,
-      'device_type_id': deviceTypeId,
-      'main_sensor_id': mainSensorId,
-      'topic_stat': topicStat,
+      'deviceTypeId': deviceTypeId,
+      'mainSensorId': mainSensorId,
+      'topicStat': topicStat,
       'description': description,
-      'box_id': boxId,
+      'boxId': boxId,
       'pin': pin,
       'active': active,
       'unit': unit,
@@ -45,11 +46,13 @@ class Sensor {
     return Sensor(
       id: map['id'] as int,
       name: map['name'] as String,
-      deviceTypeId: map['device_type_id'] as int,
-      mainSensorId: map['main_sensor_id'] ?? 0,
-      topicStat: map['topic_stat'] as String,
-      description: map['description'] ?? "",
-      boxId: map['box_id'] as int,
+      deviceTypeId: map['deviceTypeId'] as int,
+      mainSensorId:
+          map['mainSensorId'] != null ? map['mainSensorId'] as int : null,
+      topicStat: map['topicStat'] as String,
+      description:
+          map['description'] != null ? map['description'] as String : null,
+      boxId: map['boxId'] as int,
       pin: map['pin'] as String,
       active: map['active'] as int,
       unit: map['unit'] as String,
