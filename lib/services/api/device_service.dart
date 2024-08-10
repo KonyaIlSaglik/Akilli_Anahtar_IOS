@@ -17,30 +17,29 @@ class DeviceService {
     client.close();
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
-      print(json.encode(result["data"]));
       var boxWithDevices = BoxWithDevices.fromJson(json.encode(result["data"]));
       return boxWithDevices;
     }
     return null;
   }
 
-  static Future<List<BoxWithDevices>?> getUserDevices(int userId) async {
-    var uri = Uri.parse("$url/getdevicesbyuserId?user_id=$userId");
-    var client = http.Client();
-    var response = await client.get(uri);
-    client.close();
-    if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
-      print(json.encode(result["data"]));
-      var boxWithDevices = List<BoxWithDevices>.from(
-        (result["data"] as List<dynamic>).map<BoxWithDevices>(
-          (b) => BoxWithDevices.fromMap(b as Map<String, dynamic>),
-        ),
-      );
-      return boxWithDevices;
-    }
-    return null;
-  }
+  // static Future<List<BoxWithDevices>?> getUserDevices(int userId) async {
+  //   var uri = Uri.parse("$url/getdevicesbyuserId?user_id=$userId");
+  //   var client = http.Client();
+  //   var response = await client.get(uri);
+  //   client.close();
+  //   if (response.statusCode == 200) {
+  //     var result = json.decode(response.body) as Map<String, dynamic>;
+  //     print(json.encode(result["data"]));
+  //     var boxWithDevices = List<BoxWithDevices>.from(
+  //       (result["data"] as List<dynamic>).map<BoxWithDevices>(
+  //         (b) => BoxWithDevices.fromMap(b as Map<String, dynamic>),
+  //       ),
+  //     );
+  //     return boxWithDevices;
+  //   }
+  //   return null;
+  // }
 
   static Future<List<DeviceType>?> getDeviceTypes() async {
     var uri = Uri.parse("$url/getdevicetypes");
@@ -49,7 +48,6 @@ class DeviceService {
     client.close();
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
-      print(json.encode(result["data"]));
       var types = List<DeviceType>.from(
         (result["data"] as List<dynamic>).map<DeviceType>(
           (b) => DeviceType.fromMap(b as Map<String, dynamic>),
@@ -67,7 +65,6 @@ class DeviceService {
     client.close();
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
-      print(json.encode(result["data"]));
       var sensorDevices = List<SensorDeviceModel>.from(
         (result["data"] as List<dynamic>).map<SensorDeviceModel>(
           (b) => SensorDeviceModel.fromMap(b as Map<String, dynamic>),
@@ -87,13 +84,17 @@ class DeviceService {
     client.close();
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
-      print(json.encode(result["data"]));
-      var controlDevices = List<ControlDeviceModel>.from(
-        (result["data"] as List<dynamic>).map<ControlDeviceModel>(
-          (b) => ControlDeviceModel.fromMap(b as Map<String, dynamic>),
-        ),
-      );
-      return controlDevices;
+      try {
+        var controlDevices = List<ControlDeviceModel>.from(
+          (result["data"] as List<dynamic>).map<ControlDeviceModel>(
+            (b) => ControlDeviceModel.fromMap(b as Map<String, dynamic>),
+          ),
+        );
+        return controlDevices;
+      } catch (e) {
+        print('Error parsing JSON: $e');
+      }
+      return null;
     }
     return null;
   }

@@ -27,6 +27,7 @@ class AuthController extends GetxController {
       );
       if (response.success) {
         tokenModel.value = response.data!;
+        isLoggedIn.value = true;
         _saveToken();
         await LocalDb.add(userNameKey, userName);
         await LocalDb.add(passwordKey, password);

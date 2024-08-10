@@ -14,8 +14,6 @@ class ParameterService {
     client.close();
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
-      print("parametreler");
-      print(json.encode(result["data"]));
       var list = List<Parameter>.from(
         (result["data"] as List<dynamic>)
             .map((e) => Parameter.fromMap(e as Map<String, dynamic>)),

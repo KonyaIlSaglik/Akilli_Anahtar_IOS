@@ -1,8 +1,7 @@
 import 'package:akilli_anahtar/controllers/device_controller.dart';
 import 'package:akilli_anahtar/controllers/user_controller.dart';
-import 'package:akilli_anahtar/entities/operation_claim.dart';
+import 'package:akilli_anahtar/pages/home/tab_page/kapi/control_devices_page.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/sensor/sensor_page.dart';
-import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/services/web/mqtt_listener.dart';
 import 'package:akilli_anahtar/services/web/my_mqtt_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -11,7 +10,6 @@ import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'bahce/bahce_page.dart';
-import 'kapi/kapi_page.dart';
 
 class TabView extends StatefulWidget {
   const TabView({Key? key}) : super(key: key);
@@ -47,13 +45,7 @@ class _TabViewState extends State<TabView>
     _tabController = TabController(
       vsync: this,
       length: 3,
-      initialIndex: _isDisabled[0]
-          ? _isDisabled[1]
-              ? _isDisabled[2]
-                  ? 0
-                  : 2
-              : 1
-          : 0,
+      initialIndex: 0,
     );
 
     _tabController.addListener(onTap);
@@ -111,7 +103,7 @@ class _TabViewState extends State<TabView>
                         controller: _tabController,
                         physics: NeverScrollableScrollPhysics(),
                         children: [
-                          KapiPage(),
+                          ControlDevicesPage(),
                           SensorPage(),
                           BahcePage(),
                         ],

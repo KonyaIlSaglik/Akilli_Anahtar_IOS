@@ -1,15 +1,16 @@
-import 'package:akilli_anahtar/entities/relay.dart';
+import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/models/control_device_model.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:focus_detector_v2/focus_detector_v2.dart';
+import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:text_scroll/text_scroll.dart';
-import 'package:akilli_anahtar/services/web/my_mqtt_service.dart';
 import 'package:turkish/turkish.dart';
 
 class KapiItemActive extends StatefulWidget {
-  final Relay kapi;
-  const KapiItemActive({Key? key, required this.kapi}) : super(key: key);
+  final ControlDeviceModel device;
+  const KapiItemActive({Key? key, required this.device}) : super(key: key);
 
   @override
   State<KapiItemActive> createState() => _KapiItemActiveState();
@@ -17,20 +18,53 @@ class KapiItemActive extends StatefulWidget {
 
 class _KapiItemActiveState extends State<KapiItemActive>
     with AutomaticKeepAliveClientMixin {
+  late ControlDeviceModel device;
+  final MqttController _mqttController = Get.find<MqttController>();
+  bool isSub = false;
+  String status = "KAPALI";
+  @override
+  void initState() {
+    super.initState();
+    device = widget.device;
+    _mqttController.subscribeToTopic(device.topicStat!, (message) {
+      if (mounted) {
+        setState(() {
+          status = message;
+        });
+      }
+    });
+    _mqttController.subListenerList.add((topic) {
+      if (mounted) {
+        setState(() {
+          if (topic == device.topicStat) {
+            isSub = true;
+          }
+        });
+      }
+    });
+    var result = _mqttController.getSubscriptionTopicStatus(device.topicStat);
+    if (result == MqttSubscriptionStatus.active) {
+      if (mounted) {
+        setState(() {
+          isSub = true;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return FocusDetector(
       child: InkWell(
         onTap: () {
-          MyMqttClient? client = MyMqttClient.instance;
-          if (client.state == MqttConnectionState.connected) {
-            if (widget.kapi.deviceTypeId == 4) {
-              client.pub(widget.kapi.topicRec, "0");
+          if (_mqttController.isConnected.value) {
+            if (device.deviceTypeId == 4) {
+              _mqttController.publishMessage(device.topicRec!, "0");
             }
-            if (widget.kapi.deviceTypeId == 5) {
-              client.pub(widget.kapi.topicRec,
-                  widget.kapi.topicMessage == "1" ? "0" : "1");
+            if (device.deviceTypeId == 5) {
+              _mqttController.publishMessage(
+                  device.topicRec!, status == "1" ? "0" : "1");
             }
           }
         },
@@ -55,7 +89,6 @@ class _KapiItemActiveState extends State<KapiItemActive>
 
   body() {
     var height = MediaQuery.of(context).size.height;
-    var kapi = widget.kapi;
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -63,21 +96,28 @@ class _KapiItemActiveState extends State<KapiItemActive>
           height: height * 0.035,
           child: Card(
             elevation: 0,
-            color: kapi.topicMessage == "AÇILIYOR"
-                ? Colors.yellow
-                : kapi.topicMessage == "AÇIK" || kapi.topicMessage == "1"
-                    ? Colors.blue
-                    : kapi.topicMessage == "KAPANIYOR" ||
-                            kapi.topicMessage == "0"
-                        ? Colors.red
-                        : Colors.green[400],
+            color: !isSub
+                ? Colors.grey
+                : device.deviceTypeId == 4
+                    ? status == "AÇILIYOR"
+                        ? Colors.yellow
+                        : status == "AÇIK"
+                            ? Colors.green[400]
+                            : status == "KAPANIYOR"
+                                ? Colors.yellow
+                                : Colors.red
+                    : device.deviceTypeId == 5
+                        ? status == "1"
+                            ? Colors.green
+                            : Colors.red
+                        : Colors.black,
             child: Center(
               child: Text(
-                kapi.topicMessage == "1"
+                status == "1"
                     ? "AÇIK"
-                    : kapi.topicMessage == "0"
+                    : status == "0"
                         ? "KAPALI"
-                        : kapi.topicMessage ?? "",
+                        : status,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: Theme.of(context).textTheme.labelLarge!.fontSize,
@@ -89,15 +129,15 @@ class _KapiItemActiveState extends State<KapiItemActive>
         SizedBox(
           height: height * 0.06,
           child: Center(
-            child: kapi.deviceTypeId == 4
+            child: device.deviceTypeId == 4
                 ? ImageIcon(
                     Image.asset("assets/barrier.png").image,
                     size: (Theme.of(context).iconTheme.size ?? 28) * 2,
                     color: Colors.white,
                   )
                 : Icon(
-                    Icons.door_sliding,
-                    size: (Theme.of(context).iconTheme.size ?? 28) * 2,
+                    Icons.light_mode_outlined,
+                    size: (Theme.of(context).iconTheme.size ?? 28) * 1.5,
                     color: Colors.white,
                   ),
           ),
@@ -107,7 +147,7 @@ class _KapiItemActiveState extends State<KapiItemActive>
           child: Padding(
             padding: const EdgeInsets.only(bottom: 5, left: 5),
             child: TextScroll(
-              kapi.name.toUpperCaseTr(),
+              device.name!.toUpperCaseTr(),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: Theme.of(context).textTheme.labelMedium!.fontSize,

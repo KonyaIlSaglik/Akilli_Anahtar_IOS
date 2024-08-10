@@ -1,10 +1,13 @@
+import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/home/datetime/date_view.dart';
 import 'package:akilli_anahtar/pages/home/datetime/time_view.dart';
+import 'package:akilli_anahtar/pages/home/index/index_page.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/tab_view.dart';
 import 'package:akilli_anahtar/pages/home/toolbar/toolbar_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:get/get.dart';
 import 'drawer_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,6 +18,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final MqttController _mqttController = Get.put(MqttController());
+
   @override
   void initState() {
     super.initState();
@@ -57,7 +62,15 @@ class _HomePageState extends State<HomePage> {
               child: DateView(),
             ),
             Expanded(
-              child: TabView(),
+              child: Obx(() {
+                return _mqttController.connecting.value
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : _mqttController.isConnected.value
+                        ? TabView()
+                        : IndexPage();
+              }),
             ),
           ],
         ),

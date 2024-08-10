@@ -14,6 +14,7 @@ class UserController extends GetxController {
     if (userName != null) {
       var userResult = await UserService.getbyUserName(userName);
       if (userResult != null) {
+        LocalDb.add(userKey, userResult.toJson());
         user.value = userResult;
         getclaims();
       }

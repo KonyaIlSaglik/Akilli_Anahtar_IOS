@@ -1,36 +1,41 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:akilli_anahtar/entities/box.dart';
-import 'package:akilli_anahtar/entities/device_type.dart';
-import 'package:akilli_anahtar/entities/sensor_value_range.dart';
-
 class SensorDeviceModel {
-  int id;
-  String name;
-  int deviceTypeId;
-  String topicStat;
-  String description;
-  int boxId;
-  String pin;
-  int active;
-  String unit;
-  Box? box;
-  DeviceType? deviceType;
-  SensorValueRange? sensorValueRange;
+  int? id;
+  String? name;
+  int? deviceTypeId;
+  String? topicStat;
+  String? description;
+  int? boxId;
+  String? pin;
+  int? active;
+  String? unit;
+  int? valueRangeId;
+  int? valueRangeMin;
+  int? valueRangeMax;
+  String? deviceTypeName;
+  int? deviceTypeMenuId;
+  String? boxName;
+  int? boxOrganisationId;
+  String? boxOrganisationName;
   SensorDeviceModel({
-    this.id = 0,
-    this.name = "",
-    this.deviceTypeId = 0,
-    this.topicStat = "",
-    this.description = "",
-    this.boxId = 0,
-    this.pin = "",
-    this.active = 1,
-    this.unit = "",
-    this.box,
-    this.deviceType,
-    this.sensorValueRange,
+    this.id,
+    this.name,
+    this.deviceTypeId,
+    this.topicStat,
+    this.description,
+    this.boxId,
+    this.pin,
+    this.active,
+    this.unit,
+    this.valueRangeId,
+    this.valueRangeMin,
+    this.valueRangeMax,
+    this.deviceTypeName,
+    this.deviceTypeMenuId,
+    this.boxName,
+    this.boxOrganisationId,
+    this.boxOrganisationName,
   });
 
   Map<String, dynamic> toMap() {
@@ -44,33 +49,36 @@ class SensorDeviceModel {
       'pin': pin,
       'active': active,
       'unit': unit,
-      'box': box?.toMap(),
-      'deviceType': deviceType?.toMap(),
-      'sensorVelueRange': sensorValueRange?.toMap(),
+      'valueRangeId': valueRangeId,
+      'valueRangeMin': valueRangeMin,
+      'valueRangeMax': valueRangeMax,
+      'deviceTypeName': deviceTypeName,
+      'deviceTypeMenuId': deviceTypeMenuId,
+      'boxName': boxName,
+      'boxOrganisationId': boxOrganisationId,
+      'boxOrganisationName': boxOrganisationName,
     };
   }
 
   factory SensorDeviceModel.fromMap(Map<String, dynamic> map) {
     return SensorDeviceModel(
-      id: map['id'] as int,
-      name: map['name'] as String,
-      deviceTypeId: map['deviceTypeId'] as int,
-      topicStat: map['topicStat'] as String,
-      description: map['description'] as String,
-      boxId: map['boxId'] as int,
-      pin: map['pin'] as String,
-      active: map['active'] as int,
-      unit: map['unit'] as String,
-      box: map['box'] != null
-          ? Box.fromMap(map['box'] as Map<String, dynamic>)
-          : null,
-      deviceType: map['deviceType'] != null
-          ? DeviceType.fromMap(map['deviceType'] as Map<String, dynamic>)
-          : null,
-      sensorValueRange: map['sensorValueRange'] != null
-          ? SensorValueRange.fromMap(
-              map['sensorValueRange'] as Map<String, dynamic>)
-          : null,
+      id: map['id'] as int?,
+      name: map['name'] as String?,
+      deviceTypeId: map['deviceTypeId'] as int?,
+      topicStat: map['topicStat'] as String?,
+      description: map['description'] as String?,
+      boxId: map['boxId'] as int?,
+      pin: map['pin'] as String?,
+      active: map['active'] as int?,
+      unit: map['unit'] as String?,
+      valueRangeId: map['valueRangeId'] as int?,
+      valueRangeMin: map['valueRangeMin'] as int?,
+      valueRangeMax: map['valueRangeMax'] as int?,
+      deviceTypeName: map['deviceTypeName'] as String?,
+      deviceTypeMenuId: map['deviceTypeMenuId'] as int?,
+      boxName: map['boxName'] as String?,
+      boxOrganisationId: map['boxOrganisationId'] as int?,
+      boxOrganisationName: map['boxOrganisationName'] as String?,
     );
   }
 

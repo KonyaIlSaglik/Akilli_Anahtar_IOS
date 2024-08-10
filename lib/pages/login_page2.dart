@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
@@ -30,7 +31,7 @@ class _LoginPageState extends State<LoginPage2> {
   final passwordcon = TextEditingController();
   final userFocus = FocusNode();
   final usercon = TextEditingController();
-  final AuthController _authController = Get.find<AuthController>();
+  final AuthController _authController = Get.put(AuthController());
 
   @override
   void initState() {
@@ -45,13 +46,12 @@ class _LoginPageState extends State<LoginPage2> {
   }
 
   void init() async {
-    var info = await LocalDb.get(userKey);
+    var userName = await LocalDb.get(userNameKey);
     var password = await LocalDb.get(passwordKey);
 
-    if (info != null && password != null) {
-      var user = User.fromJson(info);
+    if (userName != null && password != null) {
       setState(() {
-        usercon.text = user.userName;
+        usercon.text = userName;
         passwordcon.text = password;
       });
     }
@@ -140,6 +140,7 @@ class _LoginPageState extends State<LoginPage2> {
     await _authController.login(usercon.text.trim(), passwordcon.text);
 
     if (_authController.isLoggedIn.value) {
+      await Get.put(UserController()).getUser();
       Get.to(() => HomePage());
     } else {
       passwordcon.text = "";

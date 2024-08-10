@@ -3,7 +3,6 @@ import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/data_result.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/token_model.dart';
-import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:http/http.dart' as http;
@@ -28,12 +27,6 @@ class AuthService {
       dataResult.data = TokenModel.fromJson(json.encode(result["data"]));
       dataResult.success = result["success"];
       dataResult.message = result["message"];
-      // await LocalDb.add(tokenModelKey, json.encode(result["data"]));
-      // var user = await UserService.get(int.parse(dataResult.message));
-      // if (user != null) {
-      //   await LocalDb.add(userKey, user.toJson());
-      //   await UserService.getClaims(user);
-      // }
     } else {
       dataResult.success = false;
       dataResult.message = response.body;
