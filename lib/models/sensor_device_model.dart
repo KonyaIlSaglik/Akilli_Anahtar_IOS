@@ -11,8 +11,8 @@ class SensorDeviceModel {
   int? active;
   String? unit;
   int? valueRangeId;
-  int? valueRangeMin;
-  int? valueRangeMax;
+  double? valueRangeMin;
+  double? valueRangeMax;
   String? deviceTypeName;
   int? deviceTypeMenuId;
   String? boxName;
@@ -61,6 +61,7 @@ class SensorDeviceModel {
   }
 
   factory SensorDeviceModel.fromMap(Map<String, dynamic> map) {
+    print(map);
     return SensorDeviceModel(
       id: map['id'] as int?,
       name: map['name'] as String?,
@@ -72,8 +73,12 @@ class SensorDeviceModel {
       active: map['active'] as int?,
       unit: map['unit'] as String?,
       valueRangeId: map['valueRangeId'] as int?,
-      valueRangeMin: map['valueRangeMin'] as int?,
-      valueRangeMax: map['valueRangeMax'] as int?,
+      valueRangeMin: (map['valueRangeMin'] is num)
+          ? (map['valueRangeMin'] as num).toDouble()
+          : null,
+      valueRangeMax: (map['valueRangeMax'] is num)
+          ? (map['valueRangeMax'] as num).toDouble()
+          : null,
       deviceTypeName: map['deviceTypeName'] as String?,
       deviceTypeMenuId: map['deviceTypeMenuId'] as int?,
       boxName: map['boxName'] as String?,

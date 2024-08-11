@@ -77,7 +77,6 @@ class MqttController extends GetxController {
   }
 
   void onSubscribed(MqttSubscription sb) {
-    print('Subscribed to ${sb.topic}');
     for (var listen in subListenerList) {
       listen(sb.topic.toString());
     }
@@ -87,17 +86,19 @@ class MqttController extends GetxController {
     print('Ping response received');
   }
 
-  void subscribeToTopic(String topic, Function(String message) onMessage) {
+  void subscribeToTopic(String topic) {
     if (client.getSubscriptionTopicStatus(topic) !=
         MqttSubscriptionStatus.active) {
       client.subscribe(topic, MqttQos.atLeastOnce);
     }
+  }
+
+  void onMessage(Function(String topic, String message) onMessage) {
     client.updates.listen((event) {
       var response = event[0].payload as MqttPublishMessage;
       var message = Utf8Decoder().convert(response.payload.message!);
-      if (event[0].topic == topic) {
-        onMessage(message);
-      }
+      print("${event[0].topic.toString()} - $message");
+      onMessage(event[0].topic.toString(), message);
     });
   }
 

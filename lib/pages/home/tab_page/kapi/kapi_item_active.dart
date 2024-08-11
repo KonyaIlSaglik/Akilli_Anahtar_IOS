@@ -26,11 +26,14 @@ class _KapiItemActiveState extends State<KapiItemActive>
   void initState() {
     super.initState();
     device = widget.device;
-    _mqttController.subscribeToTopic(device.topicStat!, (message) {
-      if (mounted) {
-        setState(() {
-          status = message;
-        });
+    _mqttController.subscribeToTopic(device.topicStat!);
+    _mqttController.onMessage((topic, message) {
+      if (topic == device.topicStat) {
+        if (mounted) {
+          setState(() {
+            status = message;
+          });
+        }
       }
     });
     _mqttController.subListenerList.add((topic) {

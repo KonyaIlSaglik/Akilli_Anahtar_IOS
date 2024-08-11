@@ -82,7 +82,7 @@ class DeviceController extends GetxController {
           sensorDevices.value = response;
         }
       } catch (e) {
-        Get.snackbar('Error', 'Bir hata oluştu');
+        Get.snackbar('Error', 'Sensorler Bir hata oluştu');
       } finally {
         loadingSensorDevices.value = false;
       }

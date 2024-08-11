@@ -4,8 +4,8 @@ import 'dart:convert';
 class SensorValueRange {
   int id;
   int sensorId;
-  int minValue;
-  int maxValue;
+  double minValue;
+  double maxValue;
   DateTime? insertDatetime;
   SensorValueRange({
     this.id = 0,
@@ -29,8 +29,8 @@ class SensorValueRange {
     return SensorValueRange(
       id: map['id'] as int,
       sensorId: map['sensorId'] as int,
-      minValue: map['minValue'] as int,
-      maxValue: map['maxValue'] as int,
+      minValue: map['minValue'] as double,
+      maxValue: map['maxValue'] as double,
       insertDatetime:
           DateTime.tryParse(map['insertDatetime']) ?? DateTime(1900),
     );

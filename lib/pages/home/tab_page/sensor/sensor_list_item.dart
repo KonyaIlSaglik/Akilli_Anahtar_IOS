@@ -23,22 +23,44 @@ class _SensorListItemState extends State<SensorListItem> {
   final MqttController _mqttController = Get.find<MqttController>();
   String status = "";
   bool isSub = false;
+  bool onAlarm = false;
   @override
   void initState() {
     super.initState();
     device = widget.device;
-    _mqttController.subscribeToTopic(device.topicStat!, (message) {
-      var result = json.decode(message);
-      if (mounted) {
-        setState(() {
-          status = result["deger"].toString();
-        });
+    _mqttController.subscribeToTopic(device.topicStat!);
+
+    _mqttController.onMessage((topic, message) {
+      if (topic == device.topicStat) {
+        var result = json.decode(message);
+        if (mounted) {
+          setState(() {
+            status = result["deger"].toString();
+          });
+          if (device.deviceTypeId == 1) {
+            var deger = (result["deger"] is num)
+                ? (result["deger"] as num).toDouble()
+                : null;
+            var id = result["sensor_id"] as int?;
+            if (deger != null &&
+                (device.valueRangeMin != null ||
+                    device.valueRangeMax != null)) {
+              // print(
+              //     "${device.name!} - $deger - ${device.valueRangeMin} - ${device.valueRangeMax}");
+              setState(() {
+                onAlarm = deger < device.valueRangeMin! ||
+                    deger > device.valueRangeMax!;
+              });
+            }
+          }
+        }
       }
     });
     _mqttController.subListenerList.add((topic) {
       if (mounted) {
         setState(() {
           if (topic == device.topicStat) {
+            print('Subscribed to $topic');
             isSub = true;
           }
         });
@@ -62,7 +84,11 @@ class _SensorListItemState extends State<SensorListItem> {
         child: Row(
           children: [
             Card(
-              color: isSub ? Colors.green : Colors.grey,
+              color: !isSub
+                  ? Colors.grey
+                  : onAlarm
+                      ? Colors.red
+                      : Colors.green,
               child: SizedBox(
                 width: 15,
                 height: 100,
