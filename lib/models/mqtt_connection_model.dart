@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:akilli_anahtar/entities/parameter.dart';
+
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class MqttConnectionModel {
   String mqttHostLocal;
@@ -17,6 +19,25 @@ class MqttConnectionModel {
     required this.mqttPassword,
     required this.mqttClientId,
   });
+
+  factory MqttConnectionModel.fromParameterList(List<Parameter> parameters) {
+    return MqttConnectionModel(
+      mqttHostLocal:
+          parameters.firstWhere((p) => p.name == "mqtt_host_local").value,
+      mqttHostPublic:
+          parameters.firstWhere((p) => p.name == "mqtt_host_public").value,
+      mqttPort: int.tryParse(
+              parameters.firstWhere((p) => p.name == "mqtt_port").value) ??
+          1883,
+      mqttUser: parameters.firstWhere((p) => p.name == "mqtt_user").value,
+      mqttPassword:
+          parameters.firstWhere((p) => p.name == "mqtt_password").value,
+      mqttClientId: "",
+      // devices != null
+      //     ? "${devices.box.id}-${devices.box.name}"
+      //     : "AA$chipId",
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
