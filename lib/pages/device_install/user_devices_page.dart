@@ -28,9 +28,9 @@ class _UserDevicesPageState extends State<UserDevicesPage> {
         itemCount: boxes.length,
         itemBuilder: ((context, i) {
           return ExpansionTile(
-            title: Text(boxes[i].box.name),
+            title: Text(boxes[i].box!.name),
             children: boxes[i]
-                .sensors
+                .sensors!
                 .map(
                   (e) => ListTile(
                     title: Text(e.name),

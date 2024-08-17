@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:wifi_iot/wifi_iot.dart';
-import 'package:wifi_scan/wifi_scan.dart';
 
 class WifiController extends GetxController {
   var isConnected = false.obs;
@@ -12,12 +11,12 @@ class WifiController extends GetxController {
   var timer = Timer(Duration(), () {}).obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
+    await getSSID();
 
     timer.value = Timer.periodic(Duration(seconds: 1), (timer) async {
-      if (currentSSID.isEmpty) {
-        isConnected.value = false;
+      if (!isConnected.value) {
         await getSSID();
       }
     });
@@ -25,10 +24,14 @@ class WifiController extends GetxController {
 
   Future<void> getSSID() async {
     try {
-      currentSSID.value = await WiFiForIoTPlugin.getSSID() ?? "";
+      var result = await WiFiForIoTPlugin.getSSID() ?? "";
+      print(result);
+      currentSSID.value = result == "<unknown ssid>" ? "" : result;
       if (currentSSID.value.isNotEmpty) {
         isConnected.value = true;
-        await getRouterIP();
+        //await getRouterIP();
+      } else {
+        isConnected.value = false;
       }
     } catch (e) {
       return;
@@ -36,10 +39,13 @@ class WifiController extends GetxController {
   }
 
   Future<void> getRouterIP() async {
+    var result = await WiFiForIoTPlugin.getIP();
+    print(result);
     MethodChannel channel = MethodChannel('com.example.wifi');
     try {
       final String? ip = await channel.invokeMethod('getRouterIP');
       routerIP.value = ip ?? 'Unknown IP';
+      print(routerIP.value);
     } on PlatformException catch (e) {
       routerIP.value = 'Failed to get IP: ${e.message}';
     }

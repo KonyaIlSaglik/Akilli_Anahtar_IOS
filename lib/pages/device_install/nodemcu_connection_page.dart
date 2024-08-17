@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
-import 'package:akilli_anahtar/models/box_with_devices.dart';
 import 'package:akilli_anahtar/services/api/device_service.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
@@ -283,12 +282,12 @@ class _NodeMcuConnectionPageState extends State<NodeMcuConnectionPage> {
         widget.isConnected!(true, chipId);
         status = "Sistemden veriler alınıyor";
       });
-      var devices = await DeviceService.getBoxDevices(chipId);
+      var devices = await DeviceService.getBoxDevices("0");
       if (devices != null) {
         setState(() {
           status = "Veriler Cihaza yükleniyor...";
         });
-        await sendDeviceSetting(devices);
+        //await sendDeviceSetting(devices);
       } else {
         CherryToast.error(
           toastPosition: Position.top,
@@ -355,33 +354,5 @@ class _NodeMcuConnectionPageState extends State<NodeMcuConnectionPage> {
         });
       }
     }
-  }
-
-  Future<bool> sendDeviceSetting(BoxWithDevices devices) async {
-    var uri = Uri.parse("http://192.168.4.1/devicesettings");
-    var client = http.Client();
-    client
-        .post(
-      uri,
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: devices.toJson(),
-    )
-        .then((response) {
-      if (response.statusCode == 200) {
-        CherryToast.success(
-          toastPosition: Position.bottom,
-          title: Text(response.body),
-        ).show(context);
-        return true;
-      } else {
-        CherryToast.error(
-          toastPosition: Position.bottom,
-          title: Text(response.body),
-        ).show(context);
-      }
-    });
-    return false;
   }
 }

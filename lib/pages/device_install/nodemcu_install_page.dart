@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:akilli_anahtar/models/mqtt_connection_model.dart';
 import 'package:akilli_anahtar/models/wifi_model.dart';
@@ -247,7 +248,6 @@ class _NodemcuInstallPageState extends State<NodemcuInstallPage> {
               connectionStatus = "Bağlı: $connectedSSID";
             });
           }
-          await getChipId();
           if (chipId > 0) {
             timer.cancel();
             setState(() {
@@ -273,31 +273,9 @@ class _NodemcuInstallPageState extends State<NodemcuInstallPage> {
     });
   }
 
-  Future<void> getChipId() async {
-    await WiFiForIoTPlugin.forceWifiUsage(true);
-    var uri = Uri.parse("http://192.168.4.1/_ac");
-    var client = http.Client();
-    var response = await client.get(uri);
-    if (response.statusCode == 200) {
-      var doc = parse(response.body);
-      var table = doc.body!.getElementsByClassName("info")[0];
-      var rows = table.getElementsByTagName("tr");
-      for (var row in rows) {
-        if (row.getElementsByTagName("td")[0].innerHtml == "Chip ID") {
-          var id =
-              int.tryParse(row.getElementsByTagName("td")[1].innerHtml) ?? 0;
-          setState(() {
-            chipId = id;
-          });
-          return;
-        }
-      }
-    }
-  }
-
   Future<void> deviceEntegration() async {
     await WiFiForIoTPlugin.forceWifiUsage(false);
-    var devices = await DeviceService.getBoxDevices(chipId);
+    var devices = await DeviceService.getBoxDevices("chipId");
     var parameters = await ParameterService.getParametersbyType(1);
     if (parameters != null) {
       var mqttModel = MqttConnectionModel(
@@ -312,7 +290,7 @@ class _NodemcuInstallPageState extends State<NodemcuInstallPage> {
         mqttPassword:
             parameters.firstWhere((p) => p.name == "mqtt_password").value,
         mqttClientId: devices != null
-            ? "${devices.box.id}-${devices.box.name}"
+            ? "${devices.box!.id}-${devices.box!.name}"
             : "AA$chipId",
       );
       await WiFiForIoTPlugin.forceWifiUsage(true);

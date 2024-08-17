@@ -108,6 +108,7 @@ flutter:
     - assets/app_icon.png
     - assets/barrier.png
     - assets/logo2.jpg
+    - assets/pages/install/wifi.png
     - assets/theme/light.json
     - assets/theme/dark.json
 

@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 class DeviceService {
   static String url = "${apiUrlOut}Device";
 
-  static Future<BoxWithDevices?> getBoxDevices(int chipId) async {
+  static Future<BoxWithDevices?> getBoxDevices(String chipId) async {
     var uri = Uri.parse("$url/getboxwithdevicesbychipid?chip_id=$chipId");
     var client = http.Client();
     var response = await client.get(uri);

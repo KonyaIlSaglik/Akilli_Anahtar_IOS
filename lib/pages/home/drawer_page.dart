@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/controllers/user_controller.dart';
+import 'package:akilli_anahtar/pages/device_install/introduction_page.dart';
 import 'package:akilli_anahtar/pages/device_install/nodemcu_install_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +94,7 @@ class _DrawerPageState extends State<DrawerPage> {
                             context,
                             MaterialPageRoute<void>(
                               builder: (BuildContext context) =>
-                                  NodemcuInstallPage(),
+                                  IntroductionPage(),
                             ),
                           );
                         },

@@ -1,9 +1,6 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/user_controller.dart';
-import 'package:akilli_anahtar/entities/user.dart';
-import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
-import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/widgets/custom_button.dart';
 import 'package:cherry_toast/cherry_toast.dart';

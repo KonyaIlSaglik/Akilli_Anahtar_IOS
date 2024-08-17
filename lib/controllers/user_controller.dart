@@ -4,14 +4,17 @@ import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
+import 'package:wifi_iot/wifi_iot.dart';
 
 class UserController extends GetxController {
   var user = User().obs;
   var operationClaims = <OperationClaim>[].obs;
 
   Future<void> getUser() async {
+    WiFiForIoTPlugin.forceWifiUsage(false);
     var userName = await LocalDb.get(userNameKey);
     if (userName != null) {
+      print(userName);
       var userResult = await UserService.getbyUserName(userName);
       if (userResult != null) {
         LocalDb.add(userKey, userResult.toJson());

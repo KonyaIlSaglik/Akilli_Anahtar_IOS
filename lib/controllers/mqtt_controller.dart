@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
 import 'package:platform_device_id/platform_device_id.dart';
-import 'package:dart_ping/dart_ping.dart';
 
 class MqttController extends GetxController {
   var connecting = false.obs;

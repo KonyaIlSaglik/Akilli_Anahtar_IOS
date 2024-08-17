@@ -9,7 +9,7 @@ class MqttConnectionModel {
   int mqttPort;
   String mqttUser;
   String mqttPassword;
-  String mqttClientId;
+  String? mqttClientId;
 
   MqttConnectionModel({
     required this.mqttHostLocal,
@@ -17,7 +17,7 @@ class MqttConnectionModel {
     required this.mqttPort,
     required this.mqttUser,
     required this.mqttPassword,
-    required this.mqttClientId,
+    this.mqttClientId,
   });
 
   factory MqttConnectionModel.fromParameterList(List<Parameter> parameters) {
@@ -32,10 +32,6 @@ class MqttConnectionModel {
       mqttUser: parameters.firstWhere((p) => p.name == "mqtt_user").value,
       mqttPassword:
           parameters.firstWhere((p) => p.name == "mqtt_password").value,
-      mqttClientId: "",
-      // devices != null
-      //     ? "${devices.box.id}-${devices.box.name}"
-      //     : "AA$chipId",
     );
   }
 

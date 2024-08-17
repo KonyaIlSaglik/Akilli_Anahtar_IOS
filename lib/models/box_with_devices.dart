@@ -6,20 +6,20 @@ import 'package:akilli_anahtar/entities/relay.dart';
 import 'package:akilli_anahtar/entities/sensor.dart';
 
 class BoxWithDevices {
-  Box box;
-  List<Relay> relays;
-  List<Sensor> sensors;
+  Box? box;
+  List<Relay>? relays;
+  List<Sensor>? sensors;
   BoxWithDevices({
-    required this.box,
-    required this.relays,
-    required this.sensors,
+    this.box,
+    this.relays,
+    this.sensors,
   });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'box': box.toMap(),
-      'relays': relays.map((x) => x.toMap()).toList(),
-      'sensors': sensors.map((x) => x.toMap()).toList(),
+      'box': box?.toMap(),
+      'relays': relays?.map((x) => x.toMap()).toList(),
+      'sensors': sensors?.map((x) => x.toMap()).toList(),
     };
   }
 
