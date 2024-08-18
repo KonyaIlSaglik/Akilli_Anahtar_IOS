@@ -1,7 +1,8 @@
 import 'package:akilli_anahtar/controllers/device_controller.dart';
 import 'package:akilli_anahtar/models/control_device_model.dart';
-import 'package:akilli_anahtar/pages/home/tab_page/kapi/kapi_item_active.dart';
-import 'package:akilli_anahtar/pages/home/tab_page/kapi/kapi_item_pasive.dart';
+import 'package:akilli_anahtar/pages/home/tab_page/kapi/barrier_door_item_4.dart';
+import 'package:akilli_anahtar/pages/home/tab_page/kapi/light_item_5.dart';
+import 'package:akilli_anahtar/pages/home/tab_page/kapi/null_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_wall_layout/flutter_wall_layout.dart';
 import 'package:get/get.dart';
@@ -70,7 +71,7 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
   List<Widget> createList() {
     List<Widget> tempList = [];
     for (int i = 0; i < 6; i++) {
-      tempList.add(KapiItemPasive());
+      tempList.add(NullItem());
     }
     if (controlDevices.length < 6) {
       for (int i = 0; i < controlDevices.length; i++) {
@@ -78,7 +79,12 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
       }
     }
     for (var device in controlDevices) {
-      tempList.add(KapiItemActive(device: device));
+      if (device.deviceTypeId == 4) {
+        tempList.add(BarrierDoorItem4(device: device));
+      }
+      if (device.deviceTypeId == 5) {
+        tempList.add(LightItem5(device: device));
+      }
     }
     toEnd();
     return tempList;

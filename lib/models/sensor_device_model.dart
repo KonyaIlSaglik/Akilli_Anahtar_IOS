@@ -61,7 +61,6 @@ class SensorDeviceModel {
   }
 
   factory SensorDeviceModel.fromMap(Map<String, dynamic> map) {
-    print(map);
     return SensorDeviceModel(
       id: map['id'] as int?,
       name: map['name'] as String?,

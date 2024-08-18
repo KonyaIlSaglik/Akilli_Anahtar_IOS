@@ -96,7 +96,6 @@ class MqttController extends GetxController {
     client.updates.listen((event) {
       var response = event[0].payload as MqttPublishMessage;
       var message = Utf8Decoder().convert(response.payload.message!);
-      print("${event[0].topic.toString()} - $message");
       onMessage(event[0].topic.toString(), message);
     });
   }

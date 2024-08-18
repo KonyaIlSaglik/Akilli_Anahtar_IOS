@@ -49,7 +49,7 @@ class NodemcuController extends GetxController {
 
   Future<bool> sendDeviceSetting() async {
     await WiFiForIoTPlugin.forceWifiUsage(false);
-    var result = await DeviceService.getBoxDevices(infoModel.value.chipId!);
+    var result = await DeviceService.getBoxDevices(infoModel.value.chipId);
     if (result != null) {
       boxDevices.value = result;
     }
@@ -122,6 +122,9 @@ class NodemcuController extends GetxController {
         },
         body: mqttModel.toJson(),
       );
+      if (response.statusCode == 200) {
+        //
+      }
     }
   }
 }

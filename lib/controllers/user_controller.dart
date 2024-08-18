@@ -14,7 +14,6 @@ class UserController extends GetxController {
     WiFiForIoTPlugin.forceWifiUsage(false);
     var userName = await LocalDb.get(userNameKey);
     if (userName != null) {
-      print(userName);
       var userResult = await UserService.getbyUserName(userName);
       if (userResult != null) {
         LocalDb.add(userKey, userResult.toJson());

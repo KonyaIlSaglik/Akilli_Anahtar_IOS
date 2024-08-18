@@ -1,8 +1,8 @@
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 
-class KapiItemPasive extends StatelessWidget {
-  const KapiItemPasive({Key? key}) : super(key: key);
+class NullItem extends StatelessWidget {
+  const NullItem({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -1,25 +1,26 @@
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/models/control_device_model.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/widgets/custom_text_scroll.dart';
 import 'package:flutter/material.dart';
 import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
-import 'package:text_scroll/text_scroll.dart';
 import 'package:turkish/turkish.dart';
 
-class KapiItemActive extends StatefulWidget {
+class BarrierDoorItem4 extends StatefulWidget {
   final ControlDeviceModel device;
-  const KapiItemActive({Key? key, required this.device}) : super(key: key);
+  const BarrierDoorItem4({Key? key, required this.device}) : super(key: key);
 
   @override
-  State<KapiItemActive> createState() => _KapiItemActiveState();
+  State<BarrierDoorItem4> createState() => _BarrierDoorItem4State();
 }
 
-class _KapiItemActiveState extends State<KapiItemActive>
+class _BarrierDoorItem4State extends State<BarrierDoorItem4>
     with AutomaticKeepAliveClientMixin {
   late ControlDeviceModel device;
   final MqttController _mqttController = Get.find<MqttController>();
+
   bool isSub = false;
   String status = "KAPALI";
   @override
@@ -62,13 +63,7 @@ class _KapiItemActiveState extends State<KapiItemActive>
       child: InkWell(
         onTap: () {
           if (_mqttController.isConnected.value) {
-            if (device.deviceTypeId == 4) {
-              _mqttController.publishMessage(device.topicRec!, "0");
-            }
-            if (device.deviceTypeId == 5) {
-              _mqttController.publishMessage(
-                  device.topicRec!, status == "1" ? "0" : "1");
-            }
+            _mqttController.publishMessage(device.topicRec!, "0");
           }
         },
         child: Card(
@@ -101,19 +96,13 @@ class _KapiItemActiveState extends State<KapiItemActive>
             elevation: 0,
             color: !isSub
                 ? Colors.grey
-                : device.deviceTypeId == 4
-                    ? status == "AÇILIYOR"
-                        ? Colors.yellow
-                        : status == "AÇIK"
-                            ? Colors.green[400]
-                            : status == "KAPANIYOR"
-                                ? Colors.yellow
-                                : Colors.red
-                    : device.deviceTypeId == 5
-                        ? status == "1"
-                            ? Colors.green
-                            : Colors.red
-                        : Colors.black,
+                : status == "AÇILIYOR"
+                    ? Colors.yellow
+                    : status == "AÇIK"
+                        ? Colors.green[400]
+                        : status == "KAPANIYOR"
+                            ? Colors.yellow
+                            : Colors.red,
             child: Center(
               child: Text(
                 status == "1"
@@ -132,42 +121,28 @@ class _KapiItemActiveState extends State<KapiItemActive>
         SizedBox(
           height: height * 0.06,
           child: Center(
-            child: device.deviceTypeId == 4
-                ? ImageIcon(
-                    Image.asset("assets/barrier.png").image,
-                    size: (Theme.of(context).iconTheme.size ?? 28) * 2,
-                    color: Colors.white,
-                  )
-                : Icon(
-                    Icons.light_mode_outlined,
-                    size: (Theme.of(context).iconTheme.size ?? 28) * 1.5,
-                    color: Colors.white,
-                  ),
-          ),
+              child: ImageIcon(
+            Image.asset("assets/barrier.png").image,
+            size: (Theme.of(context).iconTheme.size ?? 28) * 2,
+            color: Colors.white,
+          )),
         ),
         Expanded(
           flex: 20,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 5, left: 5),
-            child: TextScroll(
-              device.name!.toUpperCaseTr(),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: Theme.of(context).textTheme.labelMedium!.fontSize,
-                color: Colors.white,
-              ),
+            child: CustomTextScroll(
+              text: device.name!.toUpperCaseTr(),
             ),
           ),
         ),
         Expanded(
           flex: 20,
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 5, bottom: 5),
-                child: Text(""),
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.only(left: 5, bottom: 0),
+            child: CustomTextScroll(
+              text: device.boxOrganisationName ?? "",
+            ),
           ),
         ),
       ],

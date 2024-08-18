@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
@@ -11,6 +12,7 @@ class BahceSuTankCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: LiquidLinearProgressIndicator(
+        backgroundColor: goldColor,
         direction: Axis.vertical,
         valueColor: AlwaysStoppedAnimation(Colors.blue.withOpacity(0.7)),
         value: value / top,

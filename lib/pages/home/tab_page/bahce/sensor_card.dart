@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class SensorCard extends StatelessWidget {
@@ -21,7 +22,8 @@ class SensorCard extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: []),
+          gradient: LinearGradient(
+              colors: [goldColor.withOpacity(1), goldColor.withOpacity(1)]),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(

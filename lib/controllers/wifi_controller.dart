@@ -1,62 +1,61 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 
 class WifiController extends GetxController {
   var isConnected = false.obs;
-  var currentSSID = ''.obs;
+  var currentIp = ''.obs;
   var routerIP = ''.obs;
   var timer = Timer(Duration(), () {}).obs;
 
   @override
   void onInit() async {
     super.onInit();
-    await getSSID();
+    await getIP();
 
     timer.value = Timer.periodic(Duration(seconds: 1), (timer) async {
       if (!isConnected.value) {
-        await getSSID();
+        await getIP();
       }
     });
   }
 
-  Future<void> getSSID() async {
+  Future<void> getIP() async {
     try {
-      var result = await WiFiForIoTPlugin.getSSID() ?? "";
-      print(result);
-      currentSSID.value = result == "<unknown ssid>" ? "" : result;
-      if (currentSSID.value.isNotEmpty) {
+      var result = await WiFiForIoTPlugin.getIP() ?? "";
+      result = result.toLowerCase().contains("unknown") ? "" : result;
+      result = result.contains("192.168.4.") ? result : "";
+      currentIp.value = result;
+      if (currentIp.value.isNotEmpty) {
         isConnected.value = true;
         //await getRouterIP();
       } else {
         isConnected.value = false;
       }
     } catch (e) {
+      isConnected.value = false;
       return;
     }
   }
 
-  Future<void> getRouterIP() async {
-    var result = await WiFiForIoTPlugin.getIP();
-    print(result);
-    MethodChannel channel = MethodChannel('com.example.wifi');
-    try {
-      final String? ip = await channel.invokeMethod('getRouterIP');
-      routerIP.value = ip ?? 'Unknown IP';
-      print(routerIP.value);
-    } on PlatformException catch (e) {
-      routerIP.value = 'Failed to get IP: ${e.message}';
-    }
-  }
+  // Future<void> getRouterIP() async {
+  //   var result = await WiFiForIoTPlugin.getIP();
+  //   MethodChannel channel = MethodChannel('com.example.wifi');
+  //   try {
+  //     final String? ip = await channel.invokeMethod('getRouterIP');
+  //     routerIP.value = ip ?? 'Unknown IP';
+  //   } on PlatformException catch (e) {
+  //     routerIP.value = 'Failed to get IP: ${e.message}';
+  //   }
+  // }
 
   Future<void> connectToNetwork(String ssid, String password) async {
     bool success = await WiFiForIoTPlugin.connect(ssid,
         password: password, security: NetworkSecurity.WPA);
     isConnected.value = success;
     if (success) {
-      currentSSID.value = ssid;
+      currentIp.value = ssid;
     }
   }
 
@@ -64,7 +63,7 @@ class WifiController extends GetxController {
     bool success = await WiFiForIoTPlugin.disconnect();
     isConnected.value = !success;
     if (!success) {
-      currentSSID.value = '';
+      currentIp.value = '';
     }
   }
 }

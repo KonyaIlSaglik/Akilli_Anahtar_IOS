@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/controllers/user_controller.dart';
+import 'package:akilli_anahtar/pages/admin/admin_index_page.dart';
 import 'package:akilli_anahtar/pages/device_install/introduction_page.dart';
-import 'package:akilli_anahtar/pages/device_install/nodemcu_install_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -100,8 +100,24 @@ class _DrawerPageState extends State<DrawerPage> {
                         },
                         trailing: Icon(Icons.chevron_right),
                       ),
+                    if (_userController.operationClaims
+                        .any((c) => c.name == "developer"))
+                      ListTile(
+                        leading: Icon(FontAwesomeIcons.userShield),
+                        title: Text("Admin"),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (BuildContext context) =>
+                                  AdminIndexPage(),
+                            ),
+                          );
+                        },
+                        trailing: Icon(Icons.chevron_right),
+                      ),
                     ListTile(
-                      leading: Icon(Icons.lock_outline),
+                      leading: Icon(Icons.lock),
                       title: Text("Şifre Değiştir"),
                       onTap: () {
                         Navigator.push(

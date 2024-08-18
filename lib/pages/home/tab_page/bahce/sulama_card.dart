@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/pages/home/tab_page/bahce/zamanlama_page.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -41,7 +42,8 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
       ),
       child: Container(
         decoration: BoxDecoration(
-            gradient: LinearGradient(colors: []),
+            gradient: LinearGradient(
+                colors: [goldColor.withOpacity(1), goldColor.withOpacity(1)]),
             borderRadius: BorderRadius.circular(10)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

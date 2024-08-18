@@ -8,10 +8,10 @@ import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 
 class SensorListItem extends StatefulWidget {
-  final SensorDeviceModel device;
+  final SensorDeviceModel sensor;
   const SensorListItem({
     Key? key,
-    required this.device,
+    required this.sensor,
   }) : super(key: key);
 
   @override
@@ -19,37 +19,36 @@ class SensorListItem extends StatefulWidget {
 }
 
 class _SensorListItemState extends State<SensorListItem> {
-  late SensorDeviceModel device;
+  late SensorDeviceModel sensor;
   final MqttController _mqttController = Get.find<MqttController>();
-  String status = "";
+  String status = "-";
   bool isSub = false;
   bool onAlarm = false;
   @override
   void initState() {
     super.initState();
-    device = widget.device;
-    _mqttController.subscribeToTopic(device.topicStat!);
+    sensor = widget.sensor;
+    _mqttController.subscribeToTopic(sensor.topicStat!);
 
     _mqttController.onMessage((topic, message) {
-      if (topic == device.topicStat) {
+      if (topic == sensor.topicStat) {
+        print(message);
         var result = json.decode(message);
         if (mounted) {
           setState(() {
             status = result["deger"].toString();
           });
-          if (device.deviceTypeId == 1) {
+          if (sensor.deviceTypeId == 1) {
             var deger = (result["deger"] is num)
                 ? (result["deger"] as num).toDouble()
                 : null;
-            var id = result["sensor_id"] as int?;
+            //var id = result["sensor_id"] as int?;
             if (deger != null &&
-                (device.valueRangeMin != null ||
-                    device.valueRangeMax != null)) {
-              // print(
-              //     "${device.name!} - $deger - ${device.valueRangeMin} - ${device.valueRangeMax}");
+                (sensor.valueRangeMin != null ||
+                    sensor.valueRangeMax != null)) {
               setState(() {
-                onAlarm = deger < device.valueRangeMin! ||
-                    deger > device.valueRangeMax!;
+                onAlarm = deger < sensor.valueRangeMin! ||
+                    deger > sensor.valueRangeMax!;
               });
             }
           }
@@ -59,14 +58,14 @@ class _SensorListItemState extends State<SensorListItem> {
     _mqttController.subListenerList.add((topic) {
       if (mounted) {
         setState(() {
-          if (topic == device.topicStat) {
+          if (topic == sensor.topicStat) {
             print('Subscribed to $topic');
             isSub = true;
           }
         });
       }
     });
-    var result = _mqttController.getSubscriptionTopicStatus(device.topicStat);
+    var result = _mqttController.getSubscriptionTopicStatus(sensor.topicStat);
     if (result == MqttSubscriptionStatus.active) {
       if (mounted) {
         setState(() {
@@ -84,7 +83,7 @@ class _SensorListItemState extends State<SensorListItem> {
         child: Row(
           children: [
             Card(
-              color: !isSub
+              color: !isSub || status == "-"
                   ? Colors.grey
                   : onAlarm
                       ? Colors.red
@@ -103,7 +102,7 @@ class _SensorListItemState extends State<SensorListItem> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    device.name!,
+                    sensor.name!,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
@@ -114,7 +113,9 @@ class _SensorListItemState extends State<SensorListItem> {
                   //   style: TextStyle(color: Colors.white),
                   // ),
                   Text(
-                    "Durum: ",
+                    sensor.valueRangeId != null && sensor.valueRangeId! > 0
+                        ? "${sensor.valueRangeMin} - ${sensor.valueRangeMax}"
+                        : "-",
                     style: TextStyle(color: Colors.white),
                   ),
                 ],
@@ -127,7 +128,7 @@ class _SensorListItemState extends State<SensorListItem> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "$status ${device.unit}",
+                    "$status ${sensor.unit}",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
