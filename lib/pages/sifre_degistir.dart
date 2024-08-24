@@ -1,12 +1,12 @@
-import 'package:akilli_anahtar/services/api/auth_service.dart';
-import 'package:akilli_anahtar/services/local/shared_prefences.dart';
-import 'package:cherry_toast/cherry_toast.dart';
-import 'package:cherry_toast/resources/arrays.dart';
+import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/user_controller.dart';
+import 'package:akilli_anahtar/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_text_field.dart';
+import 'package:get/get.dart';
 
 class SifreDegistirPage extends StatefulWidget {
   const SifreDegistirPage({Key? key}) : super(key: key);
@@ -24,6 +24,8 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
   final newPasswordFocus = FocusNode();
   final newPasswordAgainCont = TextEditingController(text: "");
   final newPasswordAgainFocus = FocusNode();
+  final AuthController _authController = Get.put(AuthController());
+  final UserController _userController = Get.put(UserController());
 
   @override
   void initState() {
@@ -34,6 +36,7 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
         keboardVisible = visible;
       });
     });
+    oldPasswordCont.text = Get.find<UserController>().password.value;
   }
 
   @override
@@ -74,6 +77,7 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
                   height: height * 0.70,
                   child: Card(
                     elevation: 0,
+                    color: goldColor,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: height * 0.03),
                       child: Column(
@@ -125,7 +129,15 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
                           Padding(
                             padding:
                                 EdgeInsets.symmetric(vertical: height * 0.025),
-                            child: kaydetButon(height),
+                            child: Obx(() {
+                              return CustomButton(
+                                title: "KAYDET",
+                                loading: _authController.isLoading.value,
+                                onPressed: () {
+                                  sifreDegistir(context);
+                                },
+                              );
+                            }),
                           ),
                           otherButtons(),
                         ],
@@ -164,54 +176,29 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
   }
 
   sifreDegistir(context) async {
-    if (oldPasswordCont.text != password) {
-      CherryToast.error(
-        toastPosition: Position.bottom,
-        title: Text("Hatalı şifre"),
-      ).show(context);
+    if (oldPasswordCont.text != _userController.password.value) {
+      Get.snackbar("Hata", "Eski şifre boş olamaz.");
       return;
     }
     if (newPasswordCont.text.isEmpty) {
-      CherryToast.error(
-        toastPosition: Position.bottom,
-        title: Text("Yeni Şifre boş olamaz"),
-      ).show(context);
+      Get.snackbar("Hata", "Yeni şifre boş olamaz.");
       return;
     }
     if (newPasswordCont.text != newPasswordAgainCont.text) {
-      CherryToast.error(
-        toastPosition: Position.bottom,
-        title: Text("Şifreler eşit değil"),
-      ).show(context);
+      Get.snackbar("Hata", "Şifreler eşleşmiyor.");
       return;
     }
-    var result = await AuthService.changePassword(
+
+    await _authController.changePassword(
         oldPasswordCont.text, newPasswordCont.text);
-    if (result != null) {
-      if (result.success!) {
-        CherryToast.success(
-          toastPosition: Position.bottom,
-          title: Text("Şifre güncellendi"),
-        ).show(context);
-        setState(() {
-          password = newPasswordCont.text;
-        });
-        await LocalDb.add(passwordKey, password);
-        oldPasswordCont.clear();
-        newPasswordCont.clear();
-        newPasswordAgainCont.clear();
-      } else {
-        CherryToast.success(
-          toastPosition: Position.bottom,
-          title: Text(result.message!),
-        ).show(context);
-      }
-    } else {
-      CherryToast.success(
-        toastPosition: Position.bottom,
-        title: Text("Bir hata oldu. Tekrar deneyiniz."),
-      ).show(context);
+
+    if (_authController.isChanged.value) {
+      oldPasswordCont.text = _userController.password.value;
+      Get.snackbar("Info", "Şifre Değiştirildi");
     }
+
+    newPasswordCont.text = "";
+    newPasswordAgainCont.text = "";
   }
 
   otherButtons() {
@@ -223,6 +210,7 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
             'Vazgeç',
             style: TextStyle(
               fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
+              color: Colors.white,
             ),
           ),
           onPressed: () {

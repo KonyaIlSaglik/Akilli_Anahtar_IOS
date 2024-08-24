@@ -42,18 +42,24 @@ class NodemcuPageViewModel {
                   Icon(
                     Icons.done,
                     color: Colors.green,
+                    size: 50,
                   ),
                   SizedBox(
                     height: height * 0.01,
                   ),
-                  Text("Veri aktarımı başarılı. Sonraki adıma geçebilirsiniz.")
+                  Text(
+                    "Tamamlandı. Sonraki adıma geçebilirsiniz.",
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  )
                 ],
               ),
       ),
       decoration: PageDecoration(
-        footerFlex: 10,
-        bodyFlex: 30,
-        imageFlex: 60,
+        footerFlex: 20,
+        bodyFlex: 40,
+        imageFlex: 40,
         pageColor: Colors.white,
         imagePadding: EdgeInsets.all(24),
         titleTextStyle: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),

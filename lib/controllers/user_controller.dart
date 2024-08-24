@@ -9,6 +9,14 @@ import 'package:wifi_iot/wifi_iot.dart';
 class UserController extends GetxController {
   var user = User().obs;
   var operationClaims = <OperationClaim>[].obs;
+  var password = "".obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    getUser();
+    getPassword();
+  }
 
   Future<void> getUser() async {
     WiFiForIoTPlugin.forceWifiUsage(false);
@@ -30,5 +38,9 @@ class UserController extends GetxController {
         operationClaims.value = claimsResult.data!;
       }
     }
+  }
+
+  Future<void> getPassword() async {
+    password.value = await LocalDb.get(passwordKey) ?? "";
   }
 }

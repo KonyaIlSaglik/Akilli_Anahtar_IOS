@@ -15,9 +15,7 @@ class WifiController extends GetxController {
     await getIP();
 
     timer.value = Timer.periodic(Duration(seconds: 1), (timer) async {
-      if (!isConnected.value) {
-        await getIP();
-      }
+      await getIP();
     });
   }
 

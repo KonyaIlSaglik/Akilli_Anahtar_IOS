@@ -1,6 +1,7 @@
 import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/pages/admin/admin_index_page.dart';
-import 'package:akilli_anahtar/pages/device_install/introduction_page.dart';
+import 'package:akilli_anahtar/pages/device_manager/install/introduction_page.dart';
+import 'package:akilli_anahtar/pages/device_manager/update/update_main_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -86,22 +87,41 @@ class _DrawerPageState extends State<DrawerPage> {
                   children: [
                     if (_userController.operationClaims.any((c) =>
                         c.name == "developer" || c.name == "device_install"))
-                      ListTile(
-                        leading: Icon(Icons.settings_input_component),
-                        title: Text("Cihaz Kurulumu"),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (BuildContext context) =>
-                                  IntroductionPage(),
-                            ),
-                          );
-                        },
-                        trailing: Icon(Icons.chevron_right),
+                      ExpansionTile(
+                        title: Text("Cihaz Yönetimi"),
+                        children: [
+                          ListTile(
+                            leading: Icon(Icons.settings_input_component),
+                            title: Text("Kurulum"),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (BuildContext context) =>
+                                      IntroductionPage(),
+                                ),
+                              );
+                            },
+                            trailing: Icon(Icons.chevron_right),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.upgrade),
+                            title: Text("Yazılım Güncelleme"),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (BuildContext context) =>
+                                      UpdateMainPage(),
+                                ),
+                              );
+                            },
+                            trailing: Icon(Icons.chevron_right),
+                          ),
+                        ],
                       ),
                     if (_userController.operationClaims
-                        .any((c) => c.name == "developer"))
+                        .any((c) => c.name == "developer" || c.name == "admin"))
                       ListTile(
                         leading: Icon(FontAwesomeIcons.userShield),
                         title: Text("Admin"),

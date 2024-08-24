@@ -65,14 +65,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
-  cherry_toast:
-    dependency: "direct main"
-    description:
-      name: cherry_toast
-      sha256: b2d67085fa1d533f41ef6d079a83b01084a5e508d20c958636a3487f14e6f839
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.11.0"
   cli_util:
     dependency: transitive
     description:
@@ -429,38 +421,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
-  json_class:
-    dependency: transitive
-    description:
-      name: json_class
-      sha256: "95ae95062f7827ca77b7eb7b4a72db97bf01f71ed22bdbd98a3cc6d2691de961"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0+8"
-  json_schema:
-    dependency: transitive
-    description:
-      name: json_schema
-      sha256: b183ba828374365a89b81246c06a9a636935897d509cd846998bbc0d9bd0a2cf
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.2.0"
-  json_theme:
-    dependency: "direct main"
-    description:
-      name: json_theme
-      sha256: c6ae6a88ccaec32eb04215e56d0099f8d139d5cfc22460aef38258ae46772eff
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.4.0"
-  json_theme_annotation:
-    dependency: transitive
-    description:
-      name: json_theme_annotation
-      sha256: "1be9def487510c90407dac2bc1ac4c396a4f5857e8e6ce791ebc97a0368706d6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3+10"
   lints:
     dependency: transitive
     description:
@@ -493,14 +453,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  logging:
-    dependency: transitive
-    description:
-      name: logging
-      sha256: "623a88c9594aa774443aa3eb2d41807a48486b5613e67599fb4c41c0ad47c340"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.0"
   matcher:
     dependency: transitive
     description:
@@ -757,22 +709,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
-  quiver:
-    dependency: transitive
-    description:
-      name: quiver
-      sha256: b1c1ac5ce6688d77f65f3375a9abb9319b3cb32486bdc7a1e0fdf004d7ba4e47
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.2.1"
-  rfc_6901:
-    dependency: transitive
-    description:
-      name: rfc_6901
-      sha256: df1bbfa3d023009598f19636d6114c6ac1e0b7bb7bf6a260f0e6e6ce91416820
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -938,14 +874,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.3.0"
-  uri:
-    dependency: transitive
-    description:
-      name: uri
-      sha256: "889eea21e953187c6099802b7b4cf5219ba8f3518f604a1033064d45b1b8268a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   url_launcher:
     dependency: "direct main"
     description:

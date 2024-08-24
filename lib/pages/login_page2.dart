@@ -1,10 +1,7 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/widgets/custom_button.dart';
-import 'package:cherry_toast/cherry_toast.dart';
-import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -78,10 +75,6 @@ class _LoginPageState extends State<LoginPage2> {
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-                CherryToast.success(
-                  toastPosition: Position.bottom,
-                  title: Text("Yeni şifreniz mail adresinize gönderildi"),
-                ).show(context);
               },
             ),
           ],
@@ -137,7 +130,6 @@ class _LoginPageState extends State<LoginPage2> {
     await _authController.login(usercon.text.trim(), passwordcon.text);
 
     if (_authController.isLoggedIn.value) {
-      await Get.put(UserController()).getUser();
       Get.to(() => HomePage());
     } else {
       passwordcon.text = "";

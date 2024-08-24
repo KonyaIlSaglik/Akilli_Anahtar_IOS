@@ -7,15 +7,17 @@ class CustomTextField extends StatefulWidget {
   final String? hintText;
   final FocusNode focusNode;
   final FocusNode? nextFocus;
-  const CustomTextField(
-      {Key? key,
-      required this.controller,
-      required this.icon,
-      this.hintText,
-      required this.focusNode,
-      this.nextFocus,
-      this.isPassword = false})
-      : super(key: key);
+  final bool autoFocus;
+  const CustomTextField({
+    Key? key,
+    required this.controller,
+    required this.icon,
+    this.hintText,
+    required this.focusNode,
+    this.nextFocus,
+    this.isPassword = false,
+    this.autoFocus = false,
+  }) : super(key: key);
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -34,6 +36,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       controller: widget.controller,
       obscureText: widget.isPassword && !passVisible,
       focusNode: widget.focusNode,
+      autofocus: widget.autoFocus,
       cursorColor: Colors.white,
       onSubmitted: (value) {
         if (widget.nextFocus != null) {

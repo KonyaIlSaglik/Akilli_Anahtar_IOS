@@ -8,6 +8,7 @@ class Box {
   int active;
   String topicRec;
   String topicRes;
+  String version;
 
   Box({
     this.id = 0,
@@ -17,6 +18,7 @@ class Box {
     this.active = 1,
     this.topicRec = "",
     this.topicRes = "",
+    this.version = "",
   });
 
   Map<String, dynamic> toMap() {
@@ -28,6 +30,7 @@ class Box {
       'active': active,
       'topicRec': topicRec,
       'topicRes': topicRes,
+      'version': version,
     };
   }
 
@@ -40,6 +43,7 @@ class Box {
       active: map['active'] as int,
       topicRec: map['topicRec'] as String,
       topicRes: map['topicRes'] as String,
+      version: map['version'] != null ? map['version'] as String : "",
     );
   }
 

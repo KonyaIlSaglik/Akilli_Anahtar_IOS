@@ -12,6 +12,7 @@ class NodemcuInfoModel {
   int relayCount;
   int sensorCount;
   bool haveDevices;
+  String version;
   NodemcuInfoModel({
     this.chipId = "",
     this.wifiSsid = "",
@@ -23,6 +24,7 @@ class NodemcuInfoModel {
     this.relayCount = 0,
     this.sensorCount = 0,
     this.haveDevices = false,
+    this.version = "",
   });
 
   Map<String, dynamic> toMap() {
@@ -37,6 +39,7 @@ class NodemcuInfoModel {
       'relay_count': relayCount,
       'sensor_count': sensorCount,
       'have_devices': haveDevices,
+      'version': version,
     };
   }
 
@@ -58,6 +61,7 @@ class NodemcuInfoModel {
       sensorCount: map['sensor_count'] != null ? map['sensor_count'] as int : 0,
       haveDevices:
           map['have_devices'] != null ? map['have_devices'] as bool : false,
+      version: map['version'] != null ? map['version'] as String : "",
     );
   }
 

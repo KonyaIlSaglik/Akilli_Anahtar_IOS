@@ -1,14 +1,15 @@
 import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
 import 'package:akilli_anahtar/controllers/wifi_controller.dart';
-import 'package:akilli_anahtar/pages/device_install/c_nodemcu_page_view_model.dart';
-import 'package:akilli_anahtar/pages/device_install/a_start_page_view_model.dart';
-import 'package:akilli_anahtar/pages/device_install/d_online_page_view_model.dart';
-import 'package:akilli_anahtar/pages/device_install/b_wifi_page_view_model.dart';
+import 'package:akilli_anahtar/pages/device_manager/install/c_nodemcu_page_view_model.dart';
+import 'package:akilli_anahtar/pages/device_manager/install/a_start_page_view_model.dart';
+import 'package:akilli_anahtar/pages/device_manager/install/d_online_page_view_model.dart';
+import 'package:akilli_anahtar/pages/device_manager/install/b_wifi_page_view_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'package:wifi_iot/wifi_iot.dart';
 
 class IntroductionPage extends StatefulWidget {
   const IntroductionPage({Key? key}) : super(key: key);
@@ -43,7 +44,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
               (page == 1 && _wifiController.isConnected.value) ||
               (page == 2 && _nodemcuController.infoModel.value.haveDevices),
           next: Text(
-            "Sonraki",
+            page == 0 ? "Başla" : "Sonraki",
             style: TextStyle(
               color: goldColor,
               fontWeight: FontWeight.bold,
@@ -84,6 +85,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                       ),
                       TextButton(
                         onPressed: () {
+                          WiFiForIoTPlugin.forceWifiUsage(false);
                           Get.to(HomePage());
                         },
                         child: Text(
@@ -100,17 +102,16 @@ class _IntroductionPageState extends State<IntroductionPage> {
             }
           },
           onDone: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ),
-            );
+            _nodemcuController.disconnect();
+            WiFiForIoTPlugin.forceWifiUsage(false);
+            Get.to(HomePage());
           },
           onChange: (value) async {
             setState(() {
               page = value;
             });
             if (value == 2) {
+              await _nodemcuController.getNodemcuInfo();
               await _nodemcuController.sendDeviceSetting();
             }
             if (value == 3) {

@@ -18,12 +18,16 @@ class NodemcuController extends GetxController {
   var apSSID = "".obs;
   var apPass = "".obs;
   var apConnected = false.obs;
+  var apScanning = false.obs;
 
-  @override
-  void onInit() async {
-    super.onInit();
-    await cleanNodemcu();
-    await getNodemcuInfo();
+  Future<void> cleanNodemcu() async {
+    await WiFiForIoTPlugin.forceWifiUsage(true);
+    var uri = Uri.parse("http://192.168.4.1/cleandevices");
+    var client = http.Client();
+    var response = await client.get(uri);
+    if (response.statusCode == 200) {
+      getNodemcuInfo();
+    }
   }
 
   Future<void> getNodemcuInfo() async {
@@ -34,16 +38,6 @@ class NodemcuController extends GetxController {
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
       infoModel.value = NodemcuInfoModel.fromMap(result);
-    }
-  }
-
-  Future<void> cleanNodemcu() async {
-    await WiFiForIoTPlugin.forceWifiUsage(true);
-    var uri = Uri.parse("http://192.168.4.1/cleandevices");
-    var client = http.Client();
-    var response = await client.get(uri);
-    if (response.statusCode == 200) {
-      //
     }
   }
 
@@ -72,6 +66,7 @@ class NodemcuController extends GetxController {
   }
 
   Future<void> getNodemcuApList() async {
+    apScanning.value = true;
     await WiFiForIoTPlugin.forceWifiUsage(true);
     var uri = Uri.parse("http://192.168.4.1/getaplist");
     var client = http.Client();
@@ -85,6 +80,7 @@ class NodemcuController extends GetxController {
           (b) => NodemcuApModel.fromMap(b),
         ),
       );
+      apScanning.value = false;
     }
   }
 
@@ -126,5 +122,13 @@ class NodemcuController extends GetxController {
         //
       }
     }
+  }
+
+  Future<void> disconnect() async {
+    await WiFiForIoTPlugin.forceWifiUsage(true);
+    var uri = Uri.parse("http://192.168.4.1/disconnect");
+    var client = http.Client();
+    var response = await client.get(uri);
+    await WiFiForIoTPlugin.forceWifiUsage(false);
   }
 }

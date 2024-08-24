@@ -1,22 +1,16 @@
-import 'dart:convert';
-
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:akilli_anahtar/pages/splash_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:json_theme/json_theme.dart';
 import 'package:upgrader/upgrader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final themeStr = await rootBundle.loadString('assets/theme/light.json');
-  final themeJson = jsonDecode(themeStr);
-  final theme = ThemeDecoder.decodeThemeData(themeJson)!;
-  initializeDateFormatting('tr_TR', null)
-      .then((value) => runApp(MyApp(theme: theme)));
+  initializeDateFormatting('tr_TR', null).then((value) => runApp(MyApp(
+        theme: ThemeData.light(),
+      )));
 }
 
 class MyApp extends StatelessWidget {
@@ -62,6 +56,8 @@ class MyApp extends StatelessWidget {
               .copyWith(backgroundColor: Colors.white),
         ),
         home: UpgradeAlert(
+          dialogStyle: UpgradeDialogStyle.cupertino,
+          cupertinoButtonTextStyle: TextStyle(color: Colors.black),
           child: SplashPage(),
         ),
       ),

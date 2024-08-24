@@ -1,9 +1,7 @@
-class DataResult<T> {
-  T? data;
+class Result {
   bool success;
   String message;
-  DataResult({
-    this.data,
+  Result({
     this.success = false,
     this.message = "",
   });
