@@ -1,13 +1,10 @@
-import 'package:akilli_anahtar/controllers/user_controller.dart';
+import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/pages/admin/admin_index_page.dart';
 import 'package:akilli_anahtar/pages/device_manager/install/introduction_page.dart';
 import 'package:akilli_anahtar/pages/device_manager/update/update_main_page.dart';
-import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import 'package:akilli_anahtar/pages/login_page2.dart';
 import 'package:akilli_anahtar/pages/sifre_degistir.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
@@ -22,7 +19,7 @@ class DrawerPage extends StatefulWidget {
 }
 
 class _DrawerPageState extends State<DrawerPage> {
-  final UserController _userController = Get.find<UserController>();
+  final AuthController _authController = Get.find<AuthController>();
 
   @override
   void initState() {
@@ -66,7 +63,7 @@ class _DrawerPageState extends State<DrawerPage> {
                         height: height * 0.05,
                         child: Center(
                           child: Text(
-                            _userController.user.value.fullName.trim(),
+                            _authController.user.value.fullName.trim(),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: Theme.of(context)
@@ -85,7 +82,7 @@ class _DrawerPageState extends State<DrawerPage> {
               Expanded(
                 child: ListView(
                   children: [
-                    if (_userController.operationClaims.any((c) =>
+                    if (_authController.operationClaims.any((c) =>
                         c.name == "developer" || c.name == "device_install"))
                       ExpansionTile(
                         title: Text("Cihaz Yönetimi"),
@@ -120,7 +117,7 @@ class _DrawerPageState extends State<DrawerPage> {
                           ),
                         ],
                       ),
-                    if (_userController.operationClaims
+                    if (_authController.operationClaims
                         .any((c) => c.name == "developer" || c.name == "admin"))
                       ListTile(
                         leading: Icon(FontAwesomeIcons.userShield),
@@ -162,13 +159,7 @@ class _DrawerPageState extends State<DrawerPage> {
                       leading: Icon(Icons.exit_to_app),
                       title: Text("Oturumdan Çık"),
                       onTap: () async {
-                        await AuthService.logout();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (BuildContext context) => LoginPage2(),
-                          ),
-                        );
+                        await _authController.logOut();
                       },
                       trailing: Icon(Icons.chevron_right),
                     ),

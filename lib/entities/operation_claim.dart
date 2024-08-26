@@ -32,4 +32,7 @@ class OperationClaim {
       List<OperationClaim>.from(json
           .decode(source)
           .map((x) => OperationClaim.fromJson(json.encode(x))));
+  static String toJsonList(List<OperationClaim> claims) {
+    return json.encode(claims.map((c) => c.toJson()).toList());
+  }
 }

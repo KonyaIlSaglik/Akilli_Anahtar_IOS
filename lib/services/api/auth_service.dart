@@ -62,12 +62,6 @@ class AuthService {
     return dataResult;
   }
 
-  static Future<bool> logout() async {
-    await LocalDb.delete(userClaimsKey);
-    await LocalDb.delete(tokenModelKey);
-    return true;
-  }
-
   static Future<DataResult<TokenModel>> changePassword(
       String oldPassword, String newPassword) async {
     var authController = Get.find<AuthController>();
@@ -95,8 +89,6 @@ class AuthService {
       dataResult.data = TokenModel.fromJson(json.encode(result["data"]));
       dataResult.success = result["success"];
       dataResult.message = result["message"];
-      authController.tokenModel.value = dataResult.data!;
-      authController.saveToken();
     } else {
       dataResult.success = false;
       dataResult.message = response.body;

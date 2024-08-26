@@ -18,29 +18,39 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
   ScrollController scrollController = ScrollController();
   List<ControlDeviceModel> controlDevices = [];
   final DeviceController _deviceController = Get.put(DeviceController());
+  bool loading = true;
   @override
   void initState() {
     super.initState();
-    controlDevices = _deviceController.controlDevices;
+    _deviceController.getControlDevices().then((value) {
+      setState(() {
+        controlDevices = _deviceController.controlDevices;
+        loading = false;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
+        setState(() {
+          loading = true;
+        });
         await _deviceController.getControlDevices();
         if (mounted) {
           setState(() {
             controlDevices = _deviceController.controlDevices;
+            loading = false;
           });
         }
       },
-      child: Obx(() {
-        return _deviceController.loadingControlDevices.value
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : WallLayout(
+      child: loading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Obx(() {
+              return WallLayout(
                 stonePadding: 20,
                 reverse: false,
                 layersCount: 10,
@@ -48,7 +58,7 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
                 scrollController: scrollController,
                 stones: stoneList(),
               );
-      }),
+            }),
     );
   }
 

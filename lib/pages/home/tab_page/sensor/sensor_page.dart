@@ -14,18 +14,36 @@ class SensorPage extends StatefulWidget {
 }
 
 class _SensorPageState extends State<SensorPage> {
-  final DeviceController _deviceController = Get.find<DeviceController>();
+  final DeviceController _deviceController = Get.put(DeviceController());
   List<SensorDeviceModel> sensorList = [];
+  bool loading = true;
   @override
   void initState() {
     super.initState();
-    sensorList = _deviceController.sensorDevices;
+    _deviceController.getSensorDevices().then((value) {
+      setState(() {
+        sensorList = _deviceController.sensorDevices;
+        loading = false;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return _deviceController.loadingSensorDevices.value
+    return RefreshIndicator(
+      onRefresh: () async {
+        setState(() {
+          loading = true;
+        });
+        await _deviceController.getSensorDevices();
+        if (mounted) {
+          setState(() {
+            sensorList = _deviceController.sensorDevices;
+            loading = false;
+          });
+        }
+      },
+      child: loading
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -36,7 +54,8 @@ class _SensorPageState extends State<SensorPage> {
               : MediaQuery(
                   data: MediaQuery.of(context)
                       .copyWith(textScaler: TextScaler.linear(0.90)),
-                  child: WallLayout(
+                  child: Obx(() {
+                    return WallLayout(
                       stonePadding: 5,
                       reverse: false,
                       layersCount: 4,
@@ -51,9 +70,11 @@ class _SensorPageState extends State<SensorPage> {
                             sensor: sensor,
                           ),
                         );
-                      })),
-                );
-    });
+                      }),
+                    );
+                  }),
+                ),
+    );
   }
 
   List<Stone> getSensorWidgetList() {

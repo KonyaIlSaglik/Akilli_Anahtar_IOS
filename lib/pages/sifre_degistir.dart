@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -25,7 +24,6 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
   final newPasswordAgainCont = TextEditingController(text: "");
   final newPasswordAgainFocus = FocusNode();
   final AuthController _authController = Get.put(AuthController());
-  final UserController _userController = Get.put(UserController());
 
   @override
   void initState() {
@@ -36,7 +34,7 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
         keboardVisible = visible;
       });
     });
-    oldPasswordCont.text = Get.find<UserController>().password.value;
+    oldPasswordCont.text = _authController.loginModel.value.password;
   }
 
   @override
@@ -176,7 +174,11 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
   }
 
   sifreDegistir(context) async {
-    if (oldPasswordCont.text != _userController.password.value) {
+    if (oldPasswordCont.text != _authController.loginModel.value.password) {
+      Get.snackbar("Hata", "Eski şifre hatalı.");
+      return;
+    }
+    if (oldPasswordCont.text.isEmpty) {
       Get.snackbar("Hata", "Eski şifre boş olamaz.");
       return;
     }
@@ -193,7 +195,7 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
         oldPasswordCont.text, newPasswordCont.text);
 
     if (_authController.isChanged.value) {
-      oldPasswordCont.text = _userController.password.value;
+      oldPasswordCont.text = _authController.loginModel.value.password;
       Get.snackbar("Info", "Şifre Değiştirildi");
     }
 

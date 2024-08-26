@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/pages/login_page2.dart';
 import 'package:akilli_anahtar/widgets/custom_container.dart';
@@ -16,7 +15,6 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> {
   bool load = false;
   final AuthController _authController = Get.put(AuthController());
-  final UserController _userController = Get.put(UserController());
 
   @override
   void initState() {
@@ -27,12 +25,11 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   init() async {
-    await _authController.loadToken();
+    await _authController.loadAuth();
     if (_authController.isLoggedIn.value) {
-      await _userController.getUser();
-      Get.to(() => HomePage());
+      Get.to(HomePage());
     } else {
-      Get.to(() => LoginPage2());
+      Get.to(LoginPage2());
     }
   }
 

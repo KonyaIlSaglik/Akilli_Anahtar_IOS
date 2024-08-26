@@ -25,6 +25,7 @@ class UserService {
       },
     );
     client.close();
+
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
       var user = User.fromJson(json.encode(result["data"]));

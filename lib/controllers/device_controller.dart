@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/user_controller.dart';
+import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/device_type.dart';
 import 'package:akilli_anahtar/models/box_with_devices.dart';
 import 'package:akilli_anahtar/models/control_device_model.dart';
@@ -7,23 +7,13 @@ import 'package:akilli_anahtar/services/api/device_service.dart';
 import 'package:get/get.dart';
 
 class DeviceController extends GetxController {
+  final AuthController _authController = Get.find<AuthController>();
   var loadingDeviceTypes = false.obs;
-  var loadingControlDevices = false.obs;
-  var loadingSensorDevices = false.obs;
   var deviceTypes = <DeviceType>[].obs;
   var boxWithDevices = <BoxWithDevices>[].obs;
 
   var controlDevices = <ControlDeviceModel>[].obs;
   var sensorDevices = <SensorDeviceModel>[].obs;
-
-  @override
-  void onInit() async {
-    super.onInit();
-    await getDeviceTypes();
-    await getControlDevices();
-    await getSensorDevices();
-    //await getBoxesWithDevices();
-  }
 
   Future<void> getDeviceTypes() async {
     loadingDeviceTypes.value = true;
@@ -54,9 +44,7 @@ class DeviceController extends GetxController {
   // }
 
   Future<void> getControlDevices() async {
-    loadingControlDevices.value = true;
-    var uc = Get.find<UserController>();
-    var id = uc.user.value.id;
+    var id = _authController.user.value.id;
     if (id > 0) {
       try {
         var response = await DeviceService.getControlDevices(id, 1);
@@ -65,16 +53,12 @@ class DeviceController extends GetxController {
         }
       } catch (e) {
         Get.snackbar('Error', '1- Bir hata oluştu');
-      } finally {
-        loadingControlDevices.value = false;
       }
     }
   }
 
   Future<void> getSensorDevices() async {
-    loadingSensorDevices.value = true;
-    var uc = Get.find<UserController>();
-    var id = uc.user.value.id;
+    var id = _authController.user.value.id;
     if (id > 0) {
       try {
         var response = await DeviceService.getSensorDevices(id);
@@ -83,8 +67,6 @@ class DeviceController extends GetxController {
         }
       } catch (e) {
         Get.snackbar('Error', 'Sensorler Bir hata oluştu');
-      } finally {
-        loadingSensorDevices.value = false;
       }
     }
   }

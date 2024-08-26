@@ -40,15 +40,17 @@ class User {
 
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      id: map['id'] as int,
-      userName: map['userName'] as String,
-      password: map['password'] as String,
-      passwordHash: map['passwordHash'] as String,
-      passwordSalt: map['passwordSalt'] as String,
-      fullName: map['fullName'] as String,
-      active: map['active'] as int,
-      telephone: map['telephone'] as String,
-      mail: map['mail'] as String,
+      id: map['id'] != null ? map['id'] as int : 0,
+      userName: map['userName'] != null ? map['userName'] as String : "",
+      password: map['password'] != null ? map['password'] as String : "",
+      passwordHash:
+          map['passwordHash'] != null ? map['passwordHash'] as String : "",
+      passwordSalt:
+          map['passwordSalt'] != null ? map['passwordSalt'] as String : "",
+      fullName: map['fullName'] != null ? map['fullName'] as String : "",
+      active: map['active'] != null ? map['active'] as int : 0,
+      telephone: map['telephone'] != null ? map['telephone'] as String : "",
+      mail: map['mail'] != null ? map['mail'] as String : "",
     );
   }
 

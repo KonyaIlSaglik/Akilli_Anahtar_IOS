@@ -1,5 +1,5 @@
+import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/device_controller.dart';
-import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/control_devices_page.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/sensor/sensor_page.dart';
 import 'package:akilli_anahtar/services/web/mqtt_listener.dart';
@@ -26,8 +26,7 @@ class _TabViewState extends State<TabView>
   bool loading = true;
   int windowState = 1;
   MyMqttClient? client = MyMqttClient.instance;
-
-  final UserController _userController = Get.find<UserController>();
+  final AuthController _authController = Get.find<AuthController>();
 
   @override
   void initState() {
@@ -35,11 +34,11 @@ class _TabViewState extends State<TabView>
 
     Get.put(DeviceController());
 
-    _isDisabled[0] = !_userController.operationClaims
+    _isDisabled[0] = !_authController.operationClaims
         .any((c) => c.name == "developer" || c.name == "door_menu");
-    _isDisabled[1] = !_userController.operationClaims
+    _isDisabled[1] = !_authController.operationClaims
         .any((c) => c.name == "developer" || c.name == "sensor_menu");
-    _isDisabled[2] = !_userController.operationClaims
+    _isDisabled[2] = !_authController.operationClaims
         .any((c) => c.name == "developer" || c.name == "garden_menu");
 
     _tabController = TabController(

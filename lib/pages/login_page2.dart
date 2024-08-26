@@ -1,6 +1,5 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
-import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/widgets/custom_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -25,30 +24,19 @@ class _LoginPageState extends State<LoginPage2> {
   final passwordcon = TextEditingController();
   final userFocus = FocusNode();
   final usercon = TextEditingController();
-  final AuthController _authController = Get.put(AuthController());
+  final AuthController _authController = Get.find<AuthController>();
 
   @override
   void initState() {
     super.initState();
-    init();
     var keyboardVisibilityController = KeyboardVisibilityController();
     keyboardVisibilityController.onChange.listen((bool visible) {
       setState(() {
         keboardVisible = visible;
       });
     });
-  }
-
-  void init() async {
-    var userName = await LocalDb.get(userNameKey);
-    var password = await LocalDb.get(passwordKey);
-
-    if (userName != null && password != null) {
-      setState(() {
-        usercon.text = userName;
-        passwordcon.text = password;
-      });
-    }
+    usercon.text = _authController.loginModel.value.userName;
+    passwordcon.text = _authController.loginModel.value.password;
   }
 
   sifemiUnuttumDialog() {
@@ -127,7 +115,7 @@ class _LoginPageState extends State<LoginPage2> {
       return;
     }
 
-    await _authController.login(usercon.text.trim(), passwordcon.text);
+    await _authController.login(usercon.text, passwordcon.text);
 
     if (_authController.isLoggedIn.value) {
       Get.to(() => HomePage());
