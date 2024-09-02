@@ -17,7 +17,7 @@ class SensorValueRangeService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -39,7 +39,7 @@ class SensorValueRangeService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -62,7 +62,7 @@ class SensorValueRangeService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
       body: sensorValueRange.toJson(),
     );
@@ -85,7 +85,7 @@ class SensorValueRangeService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
       body: sensorValueRange.toJson(),
     );

@@ -105,9 +105,9 @@ class _BarrierDoorItem4State extends State<BarrierDoorItem4>
                             : Colors.red,
             child: Center(
               child: Text(
-                status == "1"
+                status == "0"
                     ? "AÇIK"
-                    : status == "0"
+                    : status == "1"
                         ? "KAPALI"
                         : status,
                 style: TextStyle(

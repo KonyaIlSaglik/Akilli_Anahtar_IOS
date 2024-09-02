@@ -2,25 +2,57 @@
 import 'dart:convert';
 
 class TokenModel {
-  String token;
+  int id;
+  int userId;
+  String loginTime;
+  String platformIdentity;
+  String accessToken;
   String expiration;
+  String? logoutTime;
   TokenModel({
-    this.token = "",
-    this.expiration = "",
+    required this.id,
+    required this.userId,
+    required this.loginTime,
+    required this.platformIdentity,
+    required this.accessToken,
+    required this.expiration,
+    this.logoutTime,
   });
+
+  factory TokenModel.epmty() {
+    return TokenModel(
+      id: 0,
+      userId: 0,
+      accessToken: "",
+      expiration: "",
+      loginTime: "",
+      platformIdentity: "",
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'token': token,
+      'id': id,
+      'userId': userId,
+      'loginTime': loginTime,
+      'platformIdentity': platformIdentity,
+      'accessToken': accessToken,
       'expiration': expiration,
+      'logoutTime': logoutTime,
     };
   }
 
   factory TokenModel.fromMap(Map<String, dynamic> map) {
-    return TokenModel(
-      token: map['token'] as String,
+    var model = TokenModel(
+      id: map['id'] as int,
+      userId: map['userId'] as int,
+      loginTime: map['loginTime'] as String,
+      platformIdentity: map['platformIdentity'] as String,
+      accessToken: map['accessToken'] as String,
       expiration: map['expiration'] as String,
+      logoutTime: map['logoutTime'],
     );
+    return model;
   }
 
   String toJson() => json.encode(toMap());

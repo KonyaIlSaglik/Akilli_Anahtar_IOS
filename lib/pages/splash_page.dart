@@ -1,6 +1,8 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/pages/login_page2.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_container.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,7 +16,7 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   bool load = false;
-  final AuthController _authController = Get.put(AuthController());
+  final AuthController _authController = Get.find();
 
   @override
   void initState() {
@@ -27,9 +29,10 @@ class _SplashPageState extends State<SplashPage> {
   init() async {
     await _authController.loadAuth();
     if (_authController.isLoggedIn.value) {
-      Get.to(HomePage());
+      Get.put(MqttController());
+      Get.to(() => HomePage());
     } else {
-      Get.to(LoginPage2());
+      Get.to(() => LoginPage2());
     }
   }
 
@@ -46,7 +49,16 @@ class _SplashPageState extends State<SplashPage> {
             children: [
               Expanded(flex: 30, child: SizedBox(height: 0)),
               Expanded(flex: 20, child: Image.asset("assets/anahtar1.png")),
-              Expanded(flex: 40, child: SizedBox(height: 0)),
+              Expanded(
+                  flex: 40,
+                  child: SizedBox(
+                    height: 0,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: goldColor,
+                      ),
+                    ),
+                  )),
               Expanded(flex: 1, child: Image.asset("assets/rdiot1.png")),
               Expanded(flex: 10, child: SizedBox(height: 0)),
             ],

@@ -21,7 +21,7 @@ class DeviceService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -29,6 +29,58 @@ class DeviceService {
       var result = json.decode(response.body) as Map<String, dynamic>;
       var boxWithDevices = BoxWithDevices.fromJson(json.encode(result["data"]));
       return boxWithDevices;
+    }
+    return null;
+  }
+
+  static Future<List<BoxWithDevices>?> getBoxDevicesByUserId() async {
+    var authController = Get.find<AuthController>();
+    var uri = Uri.parse(
+        "$url/getdevicesbyuserId?user_id=${authController.user.value.id}");
+    var client = http.Client();
+    var tokenModel = authController.tokenModel.value;
+    var response = await client.get(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
+      },
+    );
+    client.close();
+    if (response.statusCode == 200) {
+      var result = json.decode(response.body) as Map<String, dynamic>;
+      var boxWithDevicesList = List<BoxWithDevices>.from(
+        (result["data"] as List<dynamic>).map<BoxWithDevices>(
+          (b) => BoxWithDevices.fromMap(b as Map<String, dynamic>),
+        ),
+      );
+      return boxWithDevicesList;
+    }
+    return null;
+  }
+
+  static Future<List<BoxWithDevices>?> getDevicesForInstall() async {
+    var authController = Get.find<AuthController>();
+    var uri = Uri.parse(
+        "$url/getdevicesforinstall?userId=${authController.user.value.id}");
+    var client = http.Client();
+    var tokenModel = authController.tokenModel.value;
+    var response = await client.get(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
+      },
+    );
+    client.close();
+    if (response.statusCode == 200) {
+      var result = json.decode(response.body) as Map<String, dynamic>;
+      var boxWithDevicesList = List<BoxWithDevices>.from(
+        (result["data"] as List<dynamic>).map<BoxWithDevices>(
+          (b) => BoxWithDevices.fromMap(b as Map<String, dynamic>),
+        ),
+      );
+      return boxWithDevicesList;
     }
     return null;
   }
@@ -42,7 +94,7 @@ class DeviceService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -67,7 +119,7 @@ class DeviceService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -94,7 +146,7 @@ class DeviceService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();

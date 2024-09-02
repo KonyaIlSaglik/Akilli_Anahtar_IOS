@@ -21,7 +21,7 @@ class BoxListItem extends StatefulWidget {
 }
 
 class _BoxListItemState extends State<BoxListItem> {
-  final MqttController _mqttController = Get.put(MqttController());
+  MqttController mqttController = Get.put(MqttController());
   UpdateController updateController = Get.find<UpdateController>();
   late Box box;
   Widget? body;
@@ -34,19 +34,19 @@ class _BoxListItemState extends State<BoxListItem> {
     body = PassiveItem(
       box: box,
       onPressed: () {
-        _mqttController.subscribeToTopic(box.topicRes);
+        mqttController.subscribeToTopic(box.topicRes);
       },
     );
-    _mqttController.subscribeToTopic(box.topicRes);
-    _mqttController.publishMessage(box.topicRec, "getinfo");
-    _mqttController.onMessage((topic, message) {
+    mqttController.subscribeToTopic(box.topicRes);
+    mqttController.publishMessage(box.topicRec, "getinfo");
+    mqttController.onMessage((topic, message) {
       if (topic == box.topicRes) {
         if (message.isNotEmpty) {
           if (message == "boxConnected") {
             setState(() {
               upgrading = false;
             });
-            _mqttController.publishMessage(box.topicRec, "getinfo");
+            mqttController.publishMessage(box.topicRec, "getinfo");
           } else {
             if (mounted) {
               setState(() {
@@ -61,7 +61,7 @@ class _BoxListItemState extends State<BoxListItem> {
                       setState(() {
                         upgrading = true;
                       });
-                      _mqttController.publishMessage(box.topicRec, "doUpgrade");
+                      mqttController.publishMessage(box.topicRec, "doUpgrade");
                     },
                   );
                 } else {

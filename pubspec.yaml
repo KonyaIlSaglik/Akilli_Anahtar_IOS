@@ -64,8 +64,7 @@ dependencies:
   text_scroll: ^0.2.0
   introduction_screen: ^3.1.14
   permission_handler: ^11.3.1
-  connectivity_plus: ^6.0.3
-  network_info_plus: ^6.0.0
+  internet_connection_checker: ^1.0.0+1
   wifi_scan: ^0.4.1
   wifi_iot: ^0.3.19
   html: ^0.15.4

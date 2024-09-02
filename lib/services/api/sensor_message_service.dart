@@ -17,7 +17,7 @@ class SensorMessageService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -38,7 +38,7 @@ class SensorMessageService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -61,7 +61,7 @@ class SensorMessageService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
       body: sensorMessage.toJson(),
     );
@@ -84,7 +84,7 @@ class SensorMessageService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
       body: sensorMessage.toJson(),
     );

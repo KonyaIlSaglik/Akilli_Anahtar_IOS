@@ -1,6 +1,9 @@
+import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/connectivity_controller.dart';
+import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:akilli_anahtar/pages/splash_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,6 +11,8 @@ import 'package:upgrader/upgrader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Get.put(ConnectivityController());
+  Get.put(AuthController());
   initializeDateFormatting('tr_TR', null).then((value) => runApp(MyApp(
         theme: ThemeData.light(),
       )));

@@ -17,7 +17,7 @@ class RelayService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -38,7 +38,7 @@ class RelayService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -60,7 +60,7 @@ class RelayService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
       body: relay.toJson(),
     );
@@ -83,7 +83,7 @@ class RelayService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
       body: relay.toJson(),
     );

@@ -5,6 +5,7 @@ import 'package:akilli_anahtar/models/register_model.dart';
 import 'package:akilli_anahtar/models/token_model.dart';
 import 'package:akilli_anahtar/pages/login_page2.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
+import 'package:akilli_anahtar/services/api/operation_claim_service.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -15,14 +16,20 @@ class AuthController extends GetxController {
   var isLoading = false.obs;
   var isLoggedIn = false.obs;
   var isChanged = false.obs;
-  var tokenModel = TokenModel().obs;
+  var tokenModel = TokenModel.epmty().obs;
   var user = User().obs;
   var operationClaims = <OperationClaim>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadAuth();
+  }
 
   Future<void> login(String userName, String password) async {
     isLoggedIn.value = false;
     isLoading.value = true;
-    tokenModel.value = TokenModel();
+    tokenModel.value = TokenModel.epmty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
     await LocalDb.delete(tokenModelKey);
@@ -33,10 +40,10 @@ class AuthController extends GetxController {
         userName: userName,
         password: password,
       );
-      var response = await AuthService.login(lm);
-      if (response.success) {
+      var tokenResult = await AuthService.login(lm);
+      if (tokenResult != null) {
         loginModel.value = lm;
-        tokenModel.value = response.data!;
+        tokenModel.value = tokenResult;
         await LocalDb.add(loginModelKey, loginModel.toJson());
         await LocalDb.add(tokenModelKey, tokenModel.value.toJson());
         await getUser();
@@ -60,7 +67,7 @@ class AuthController extends GetxController {
 
   Future<void> getClaims() async {
     if (user.value.id > 0) {
-      var claimsResult = await UserService.getClaims(user.value);
+      var claimsResult = await OperationClaimService.getClaims(user.value);
       if (claimsResult.success) {
         operationClaims.value = claimsResult.data!;
         LocalDb.add(userClaimsKey, OperationClaim.toJsonList(operationClaims));
@@ -69,14 +76,15 @@ class AuthController extends GetxController {
   }
 
   Future<void> logOut() async {
+    await AuthService.logOut();
     isLoggedIn.value = false;
-    tokenModel.value = TokenModel();
+    tokenModel.value = TokenModel.epmty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
     await LocalDb.delete(tokenModelKey);
     await LocalDb.delete(userClaimsKey);
     await LocalDb.delete(userKey);
-    Get.to(LoginPage2());
+    Get.to(() => LoginPage2());
   }
 
   Future<void> register(RegisterModel registerModel) async {
@@ -124,7 +132,7 @@ class AuthController extends GetxController {
       loginModel.value = LoginModel.fromJson(savedLoginModel);
     } else {
       isLoggedIn.value = false;
-      Get.to(LoginPage2());
+      Get.to(() => LoginPage2());
     }
     var savedUser = await LocalDb.get(userKey);
     if (savedUser != null) {
@@ -140,14 +148,12 @@ class AuthController extends GetxController {
         await login(loginModel.value.userName, loginModel.value.password);
       } else {
         isLoggedIn.value = true;
-        if (savedUser == null) {
-          getUser();
-        }
-        await getClaims();
       }
     } else {
       isLoggedIn.value = false;
-      Get.to(LoginPage2());
+      Get.to(() => LoginPage2());
     }
+    await getUser();
+    await getClaims();
   }
 }

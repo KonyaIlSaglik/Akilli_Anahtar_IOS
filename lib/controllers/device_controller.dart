@@ -7,43 +7,39 @@ import 'package:akilli_anahtar/services/api/device_service.dart';
 import 'package:get/get.dart';
 
 class DeviceController extends GetxController {
-  final AuthController _authController = Get.find<AuthController>();
+  final AuthController _authController = Get.find();
   var loadingDeviceTypes = false.obs;
+  var loadingControlDevices = false.obs;
+  var loadingSensorDevices = false.obs;
   var deviceTypes = <DeviceType>[].obs;
   var boxWithDevices = <BoxWithDevices>[].obs;
 
   var controlDevices = <ControlDeviceModel>[].obs;
   var sensorDevices = <SensorDeviceModel>[].obs;
 
-  Future<void> getDeviceTypes() async {
-    loadingDeviceTypes.value = true;
-    try {
-      var response = await DeviceService.getDeviceTypes();
-      if (response != null) {
-        deviceTypes.value = response;
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Bir hata oluştu');
-    } finally {
-      loadingDeviceTypes.value = false;
-    }
+  @override
+  void onInit() async {
+    super.onInit();
+    getControlDevices();
+    getSensorDevices();
   }
 
-  // Future<void> getBoxesWithDevices() async {
-  //   var id = Get.find<UserController>().user.value.id;
-  //   if (id > 0) {
-  //     try {
-  //       var response = await DeviceService.getUserDevices(id);
-  //       if (response != null) {
-  //         boxWithDevices.value = response;
-  //       }
-  //     } catch (e) {
-  //       Get.snackbar('Error', 'Bir hata oluştu');
+  // Future<void> getDeviceTypes() async {
+  //   loadingDeviceTypes.value = true;
+  //   try {
+  //     var response = await DeviceService.getDeviceTypes();
+  //     if (response != null) {
+  //       deviceTypes.value = response;
   //     }
+  //   } catch (e) {
+  //     Get.snackbar('Error', 'Bir hata oluştu');
+  //   } finally {
+  //     loadingDeviceTypes.value = false;
   //   }
   // }
 
   Future<void> getControlDevices() async {
+    loadingControlDevices.value = true;
     var id = _authController.user.value.id;
     if (id > 0) {
       try {
@@ -53,11 +49,14 @@ class DeviceController extends GetxController {
         }
       } catch (e) {
         Get.snackbar('Error', '1- Bir hata oluştu');
+      } finally {
+        loadingControlDevices.value = false;
       }
     }
   }
 
   Future<void> getSensorDevices() async {
+    loadingSensorDevices.value = true;
     var id = _authController.user.value.id;
     if (id > 0) {
       try {
@@ -67,6 +66,8 @@ class DeviceController extends GetxController {
         }
       } catch (e) {
         Get.snackbar('Error', 'Sensorler Bir hata oluştu');
+      } finally {
+        loadingSensorDevices.value = false;
       }
     }
   }

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 const String apiUrlIn = "http://10.42.42.19:81/api";
-const String apiUrlOut = "http://uzak.konyasm.gov.tr:15730/api";
+const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtar/api";
 const String tokenModelKey = "tokenModel";
 const String userKey = "user";
 const String loginModelKey = "loginModel";

@@ -1,13 +1,46 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
+import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/models/data_result.dart';
 import 'dart:convert';
 import 'package:akilli_anahtar/models/result.dart';
+import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class OperationClaimService {
   static String url = "$apiUrlOut/OperationClaim";
+
+  static Future<DataResult<List<OperationClaim>>> getClaims(User user) async {
+    var uri = Uri.parse("$url/getuserclaims");
+    var client = http.Client();
+    var authController = Get.find<AuthController>();
+    var tokenModel = authController.tokenModel.value;
+    var response = await client.post(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
+      },
+      body: user.toJson(),
+    );
+    client.close();
+    var dataResult = DataResult<List<OperationClaim>>();
+    if (response.statusCode == 200) {
+      var result = json.decode(response.body) as Map<String, dynamic>;
+      dataResult.data =
+          OperationClaim.fromJsonList(json.encode(result["data"]));
+      dataResult.success = result["success"];
+      dataResult.message = result["message"] ?? "";
+      await LocalDb.add(userClaimsKey, json.encode(result["data"]));
+    } else {
+      dataResult.success = false;
+      dataResult.message = response.body;
+    }
+    return dataResult;
+  }
+
   static Future<OperationClaim?> get(int id) async {
     var uri = Uri.parse("$url/get?id=$id");
     var client = http.Client();
@@ -17,7 +50,7 @@ class OperationClaimService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -38,7 +71,7 @@ class OperationClaimService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
@@ -61,7 +94,7 @@ class OperationClaimService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
       body: operationClaim.toJson(),
     );
@@ -84,7 +117,7 @@ class OperationClaimService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
       body: operationClaim.toJson(),
     );

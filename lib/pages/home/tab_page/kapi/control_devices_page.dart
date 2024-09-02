@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/device_controller.dart';
-import 'package:akilli_anahtar/models/control_device_model.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/barrier_door_item_4.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/light_item_5.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/null_item.dart';
@@ -15,42 +14,25 @@ class ControlDevicesPage extends StatefulWidget {
 }
 
 class _ControlDevicesPageState extends State<ControlDevicesPage> {
+  DeviceController deviceController = Get.find();
   ScrollController scrollController = ScrollController();
-  List<ControlDeviceModel> controlDevices = [];
-  final DeviceController _deviceController = Get.put(DeviceController());
-  bool loading = true;
   @override
   void initState() {
     super.initState();
-    _deviceController.getControlDevices().then((value) {
-      setState(() {
-        controlDevices = _deviceController.controlDevices;
-        loading = false;
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        setState(() {
-          loading = true;
-        });
-        await _deviceController.getControlDevices();
-        if (mounted) {
-          setState(() {
-            controlDevices = _deviceController.controlDevices;
-            loading = false;
-          });
-        }
+        await deviceController.getControlDevices();
       },
-      child: loading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : Obx(() {
-              return WallLayout(
+      child: Obx(() {
+        return deviceController.loadingControlDevices.value
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : WallLayout(
                 stonePadding: 20,
                 reverse: false,
                 layersCount: 10,
@@ -58,7 +40,7 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
                 scrollController: scrollController,
                 stones: stoneList(),
               );
-            }),
+      }),
     );
   }
 
@@ -83,12 +65,12 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
     for (int i = 0; i < 6; i++) {
       tempList.add(NullItem());
     }
-    if (controlDevices.length < 6) {
-      for (int i = 0; i < controlDevices.length; i++) {
+    if (deviceController.controlDevices.length < 6) {
+      for (int i = 0; i < deviceController.controlDevices.length; i++) {
         tempList.removeLast();
       }
     }
-    for (var device in controlDevices) {
+    for (var device in deviceController.controlDevices) {
       if (device.deviceTypeId == 4) {
         tempList.add(BarrierDoorItem4(device: device));
       }

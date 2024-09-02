@@ -101,9 +101,9 @@ class _LightItem5State extends State<LightItem5>
                     : Colors.red,
             child: Center(
               child: Text(
-                status == "1"
+                status == "0"
                     ? "AÇIK"
-                    : status == "0"
+                    : status == "1"
                         ? "KAPALI"
                         : status,
                 style: TextStyle(

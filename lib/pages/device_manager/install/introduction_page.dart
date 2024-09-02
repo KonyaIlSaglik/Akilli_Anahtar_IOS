@@ -9,7 +9,6 @@ import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:introduction_screen/introduction_screen.dart';
-import 'package:wifi_iot/wifi_iot.dart';
 
 class IntroductionPage extends StatefulWidget {
   const IntroductionPage({Key? key}) : super(key: key);
@@ -19,8 +18,9 @@ class IntroductionPage extends StatefulWidget {
 }
 
 class _IntroductionPageState extends State<IntroductionPage> {
-  final WifiController _wifiController = Get.put(WifiController());
   final NodemcuController _nodemcuController = Get.put(NodemcuController());
+  final WifiController _wifiController = Get.put(WifiController());
+
   final _introKey = GlobalKey<IntroductionScreenState>();
   var chipId = 0;
   int page = 0;
@@ -40,7 +40,9 @@ class _IntroductionPageState extends State<IntroductionPage> {
             ),
           ),
           controlsPadding: EdgeInsets.only(top: 50),
-          showNextButton: page == 0 ||
+          showNextButton: (page == 0 &&
+                  _nodemcuController.boxDevices.isNotEmpty &&
+                  _nodemcuController.connModel.value.wifiMode != 2) ||
               (page == 1 && _wifiController.isConnected.value) ||
               (page == 2 && _nodemcuController.infoModel.value.haveDevices),
           next: Text(
@@ -85,8 +87,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          WiFiForIoTPlugin.forceWifiUsage(false);
-                          Get.to(HomePage());
+                          Get.to(() => HomePage());
                         },
                         child: Text(
                           "Çıkış",
@@ -103,8 +104,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
           },
           onDone: () {
             _nodemcuController.disconnect();
-            WiFiForIoTPlugin.forceWifiUsage(false);
-            Get.to(HomePage());
+            Get.to(() => HomePage());
           },
           onChange: (value) async {
             setState(() {

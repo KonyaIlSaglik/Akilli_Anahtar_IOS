@@ -24,7 +24,6 @@ class MqttController extends GetxController {
     var deviceId = await PlatformDeviceId.getDeviceId;
     var now = DateTime.now().toString();
     var identifier = "$deviceId-$now";
-    print(identifier);
     if (params != null) {
       var host = params.firstWhere((p) => p.name == "mqtt_host_public").value;
       client = MqttServerClient(host, identifier);
@@ -48,6 +47,7 @@ class MqttController extends GetxController {
           .withWillQos(MqttQos.atMostOnce);
       client.connectionMessage = connMess;
     }
+    print("Mqtt initialized");
     connect();
   }
 

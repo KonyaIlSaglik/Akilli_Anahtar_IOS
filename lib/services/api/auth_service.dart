@@ -9,11 +9,13 @@ import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:platform_device_id/platform_device_id.dart';
 
 class AuthService {
   static String url = "$apiUrlOut/Auth";
 
-  static Future<DataResult<TokenModel>> login(LoginModel loginModel) async {
+  static Future<TokenModel?> login(LoginModel loginModel) async {
+    loginModel.identity = await PlatformDeviceId.getDeviceId ?? "";
     var uri = Uri.parse("$url/login");
     var client = http.Client();
     var response = await client.post(
@@ -24,17 +26,12 @@ class AuthService {
       body: loginModel.toJson(),
     );
     client.close();
-    var dataResult = DataResult<TokenModel>();
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
-      dataResult.data = TokenModel.fromJson(json.encode(result["data"]));
-      dataResult.success = result["success"];
-      dataResult.message = result["message"];
-    } else {
-      dataResult.success = false;
-      dataResult.message = response.body;
+      var tokenModel = TokenModel.fromJson(json.encode(result["data"]));
+      return tokenModel;
     }
-    return dataResult;
+    return null;
   }
 
   static Future<DataResult<TokenModel>> register(
@@ -62,6 +59,23 @@ class AuthService {
     return dataResult;
   }
 
+  static Future<void> logOut() async {
+    var info = await LocalDb.get(userKey);
+    var user = User.fromJson(info!);
+    var identity = await PlatformDeviceId.getDeviceId ?? "";
+    var uri =
+        Uri.parse("$url/changepassword?userId=${user.id}&identity=$identity");
+    var client = http.Client();
+    print("logout");
+    var response = await client.post(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+      },
+    );
+    client.close();
+  }
+
   static Future<DataResult<TokenModel>> changePassword(
       String oldPassword, String newPassword) async {
     var authController = Get.find<AuthController>();
@@ -76,14 +90,11 @@ class AuthService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.token}',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
     );
     client.close();
     var dataResult = DataResult<TokenModel>();
-    print(response.request!.url.path);
-    print(response.statusCode);
-    print(response.body);
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
       dataResult.data = TokenModel.fromJson(json.encode(result["data"]));
