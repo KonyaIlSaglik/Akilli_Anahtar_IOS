@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
 import 'package:akilli_anahtar/controllers/wifi_controller.dart';
 import 'package:akilli_anahtar/pages/device_manager/install/c_nodemcu_page_view_model.dart';
@@ -18,12 +20,25 @@ class IntroductionPage extends StatefulWidget {
 }
 
 class _IntroductionPageState extends State<IntroductionPage> {
+  var chipId = 0;
+  int page = 0;
+
+  final _introKey = GlobalKey<IntroductionScreenState>();
   final NodemcuController _nodemcuController = Get.put(NodemcuController());
   final WifiController _wifiController = Get.put(WifiController());
 
-  final _introKey = GlobalKey<IntroductionScreenState>();
-  var chipId = 0;
-  int page = 0;
+  @override
+  void initState() {
+    super.initState();
+    Timer.periodic(Duration(seconds: 1), (timer) async {
+      if (_wifiController.isConnected.value) {
+        await _nodemcuController.getChipId();
+        await _nodemcuController.getNodemcuApList();
+        showWifiDialog();
+        timer.cancel();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +55,8 @@ class _IntroductionPageState extends State<IntroductionPage> {
             ),
           ),
           controlsPadding: EdgeInsets.only(top: 50),
-          showNextButton: (page == 0 &&
-                  _nodemcuController.boxDevices.isNotEmpty &&
-                  _nodemcuController.connModel.value.wifiMode != 2) ||
-              (page == 1 && _wifiController.isConnected.value) ||
-              (page == 2 && _nodemcuController.infoModel.value.haveDevices),
+          showNextButton: (page == 0 && _nodemcuController.downloaded.value) ||
+              (page == 1 && _wifiController.isConnected.value),
           next: Text(
             page == 0 ? "Başla" : "Sonraki",
             style: TextStyle(
@@ -103,20 +115,12 @@ class _IntroductionPageState extends State<IntroductionPage> {
             }
           },
           onDone: () {
-            _nodemcuController.disconnect();
             Get.to(() => HomePage());
           },
           onChange: (value) async {
             setState(() {
               page = value;
             });
-            if (value == 2) {
-              await _nodemcuController.getNodemcuInfo();
-              await _nodemcuController.sendDeviceSetting();
-            }
-            if (value == 3) {
-              await _nodemcuController.getNodemcuApList();
-            }
           },
           pages: [
             StartPageViewModel.get(context),

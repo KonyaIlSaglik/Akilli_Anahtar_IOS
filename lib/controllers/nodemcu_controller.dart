@@ -12,19 +12,20 @@ import 'package:http/http.dart' as http;
 class NodemcuController extends GetxController {
   var boxDevices = <BoxWithDevices>[].obs;
   var connModel = NodemcuConnectionModel().obs;
+  var downloaded = false.obs;
   var chipId = "".obs;
   var selectedDevice = BoxWithDevices().obs;
   var apList = <NodemcuApModel>[].obs;
   var apScanning = false.obs;
   var wifiSSID = "".obs;
   var wifiPASS = "".obs;
-  var loading = false.obs;
+  var uploading = false.obs;
 
   @override
   void onInit() async {
     super.onInit();
-    getDeviceList();
-    getConnModel();
+    await getDeviceList();
+    await getConnModel();
   }
 
   Future<void> getDeviceList() async {
@@ -56,6 +57,7 @@ class NodemcuController extends GetxController {
       connModel.value.mqttPass =
           params.firstWhereOrNull((p) => p.name == "mqtt_password")!.value;
     }
+    downloaded.value = true;
   }
 
   Future<void> getChipId() async {
@@ -96,7 +98,7 @@ class NodemcuController extends GetxController {
   }
 
   Future<void> sendDeviceSetting() async {
-    loading.value = true;
+    uploading.value = true;
     var uri = Uri.parse("http://192.168.4.1/devicesettings");
     var client = http.Client();
     var response = await client.post(
@@ -110,7 +112,7 @@ class NodemcuController extends GetxController {
       if (response.body == "true") {
         sendConnectionSettings();
       } else {
-        loading.value = false;
+        uploading.value = false;
       }
     }
   }
@@ -125,7 +127,7 @@ class NodemcuController extends GetxController {
       },
       body: connModel.toJson(),
     );
-    loading.value = true;
+    uploading.value = true;
     await WiFiForIoTPlugin.forceWifiUsage(false);
   }
 }

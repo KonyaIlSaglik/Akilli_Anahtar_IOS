@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
 import 'package:akilli_anahtar/controllers/wifi_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +8,13 @@ import 'package:introduction_screen/introduction_screen.dart';
 class WifiPageViewModel {
   static PageViewModel get(context) {
     final WifiController wifiController = Get.put(WifiController());
+    NodemcuController nodemcuController = Get.find();
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return PageViewModel(
-      title: "HOŞGELİDİNİZ",
+      title: "KURULUM",
       body:
-          "Telefonunuzun Wifi Ayarlarına giderek AKILLI ANAHTAR cihazına bağlantı kurunuz. Bağlantı sonrası bir sonraki adıma geçebilirsiniz.",
+          "Telefonunuzun Wifi Ayarlarına giderek AKILLI ANAHTAR cihazına bağlantı kurunuz. Bağlantı sonrası kurulum işlemleri otomatik olarak gerçekleştirilecektir.",
       image: Center(
         child: Icon(
           wifiController.isConnected.value ? Icons.wifi : Icons.wifi_off,
@@ -25,6 +27,11 @@ class WifiPageViewModel {
         child: wifiController.isConnected.value
             ? Column(
                 children: [
+                  Center(
+                    child: nodemcuController.apScanning.value
+                    ?
+                    : ,
+                  ),
                   Icon(
                     Icons.done,
                     color: Colors.green,
@@ -34,7 +41,7 @@ class WifiPageViewModel {
                     height: height * 0.01,
                   ),
                   Text(
-                    "Bağlısınız. Sonraki adıma geçebilirsiniz.",
+                    "Bağlısınız. Cihaz ayarları yapılandırılıyor...",
                     style: TextStyle(
                       fontSize: 18,
                     ),
@@ -49,7 +56,7 @@ class WifiPageViewModel {
                   SizedBox(
                     height: height * 0.01,
                   ),
-                  Text("Cihaza bağlanma bekleniyor.")
+                  Text("Cihaza bağlanma bekleniyor...")
                 ],
               ),
       ),

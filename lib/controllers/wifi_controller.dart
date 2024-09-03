@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
 import 'package:get/get.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 
@@ -27,7 +28,6 @@ class WifiController extends GetxController {
       currentIp.value = result;
       if (currentIp.value.isNotEmpty) {
         isConnected.value = true;
-        //await getRouterIP();
       } else {
         isConnected.value = false;
       }
@@ -36,17 +36,6 @@ class WifiController extends GetxController {
       return;
     }
   }
-
-  // Future<void> getRouterIP() async {
-  //   var result = await WiFiForIoTPlugin.getIP();
-  //   MethodChannel channel = MethodChannel('com.example.wifi');
-  //   try {
-  //     final String? ip = await channel.invokeMethod('getRouterIP');
-  //     routerIP.value = ip ?? 'Unknown IP';
-  //   } on PlatformException catch (e) {
-  //     routerIP.value = 'Failed to get IP: ${e.message}';
-  //   }
-  // }
 
   Future<void> connectToNetwork(String ssid, String password) async {
     bool success = await WiFiForIoTPlugin.connect(ssid,
