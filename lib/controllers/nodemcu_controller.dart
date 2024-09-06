@@ -36,7 +36,7 @@ class NodemcuController extends GetxController {
   }
 
   Future<void> getConnModel() async {
-    connModel.value.wifiMode = 1;
+    connModel.value.wifiMode = 2;
     connModel.value.apSsid = "AKILLI_ANAHTAR";
     connModel.value.apPass = "AA123456";
     connModel.value.apIp = "192.168.4.1";
@@ -61,6 +61,7 @@ class NodemcuController extends GetxController {
   }
 
   Future<void> getChipId() async {
+    apScanning.value = true;
     await WiFiForIoTPlugin.forceWifiUsage(true);
     var uri = Uri.parse("http://192.168.4.1/getchipid");
     var client = http.Client();
@@ -74,7 +75,6 @@ class NodemcuController extends GetxController {
   }
 
   Future<void> getNodemcuApList() async {
-    apScanning.value = true;
     var uri = Uri.parse("http://192.168.4.1/getaplist");
     var client = http.Client();
     var response = await client.get(uri);
@@ -95,10 +95,16 @@ class NodemcuController extends GetxController {
     connModel.value.wifiSsid = wifiSSID.value;
     connModel.value.wifiPass = wifiPASS.value;
     connModel.value.mqttClientId = "AA${chipId.value}";
+    if (wifiSSID.isNotEmpty) {
+      connModel.value.wifiMode = 1;
+    } else {
+      connModel.value.wifiMode = 2;
+    }
   }
 
   Future<void> sendDeviceSetting() async {
     uploading.value = true;
+    await WiFiForIoTPlugin.forceWifiUsage(true);
     var uri = Uri.parse("http://192.168.4.1/devicesettings");
     var client = http.Client();
     var response = await client.post(
@@ -110,7 +116,7 @@ class NodemcuController extends GetxController {
     );
     if (response.statusCode == 200) {
       if (response.body == "true") {
-        sendConnectionSettings();
+        await sendConnectionSettings();
       } else {
         uploading.value = false;
       }
@@ -127,7 +133,7 @@ class NodemcuController extends GetxController {
       },
       body: connModel.toJson(),
     );
-    uploading.value = true;
+    uploading.value = false;
     await WiFiForIoTPlugin.forceWifiUsage(false);
   }
 }

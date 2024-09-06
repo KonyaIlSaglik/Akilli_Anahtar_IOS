@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/models/result.dart';
-import 'package:akilli_anahtar/models/token_model.dart';
-import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;

@@ -1,9 +1,18 @@
 import 'dart:convert';
 
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:akilli_anahtar/utils/hive_constants.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'operation_claim.g.dart';
+
+@HiveType(typeId: HiveConstants.claimsTypeId)
 class OperationClaim {
+  @HiveField(0)
   int id;
+
+  @HiveField(1)
   String name;
+
   OperationClaim({
     this.id = 0,
     this.name = "",

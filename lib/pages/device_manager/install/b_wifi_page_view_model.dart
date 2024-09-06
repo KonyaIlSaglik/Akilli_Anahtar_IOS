@@ -8,13 +8,13 @@ import 'package:introduction_screen/introduction_screen.dart';
 class WifiPageViewModel {
   static PageViewModel get(context) {
     final WifiController wifiController = Get.put(WifiController());
-    NodemcuController nodemcuController = Get.find();
+    final NodemcuController nodemcuController = Get.find();
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return PageViewModel(
       title: "KURULUM",
       body:
-          "Telefonunuzun Wifi Ayarlarına giderek AKILLI ANAHTAR cihazına bağlantı kurunuz. Bağlantı sonrası kurulum işlemleri otomatik olarak gerçekleştirilecektir.",
+          "Telefonunuzun Wifi Ayarlarına giderek AKILLI ANAHTAR cihazına bağlantı kurunuz.",
       image: Center(
         child: Icon(
           wifiController.isConnected.value ? Icons.wifi : Icons.wifi_off,
@@ -24,28 +24,26 @@ class WifiPageViewModel {
       ),
       footer: Padding(
         padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-        child: wifiController.isConnected.value
+        child: wifiController.isConnected.value &&
+                !nodemcuController.apScanning.value
             ? Column(
                 children: [
                   Center(
-                    child: nodemcuController.apScanning.value
-                    ?
-                    : ,
-                  ),
-                  Icon(
-                    Icons.done,
-                    color: Colors.green,
-                    size: 50,
+                    child: Icon(
+                      Icons.done,
+                      color: Colors.green,
+                      size: 50,
+                    ),
                   ),
                   SizedBox(
                     height: height * 0.01,
                   ),
                   Text(
-                    "Bağlısınız. Cihaz ayarları yapılandırılıyor...",
+                    "Bağlısınız. Sonraki adıma geçebilirsiniz",
                     style: TextStyle(
                       fontSize: 18,
                     ),
-                  )
+                  ),
                 ],
               )
             : Column(
@@ -61,8 +59,8 @@ class WifiPageViewModel {
               ),
       ),
       decoration: PageDecoration(
-        footerFlex: 20,
-        bodyFlex: 40,
+        footerFlex: 30,
+        bodyFlex: 30,
         imageFlex: 40,
         pageColor: Colors.white,
         imagePadding: EdgeInsets.all(24),

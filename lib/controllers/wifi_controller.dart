@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
 import 'package:get/get.dart';
 import 'package:wifi_iot/wifi_iot.dart';
@@ -7,7 +6,6 @@ import 'package:wifi_iot/wifi_iot.dart';
 class WifiController extends GetxController {
   var isConnected = false.obs;
   var currentIp = ''.obs;
-  var routerIP = ''.obs;
   var timer = Timer(Duration(), () {}).obs;
 
   @override

@@ -1,14 +1,32 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+import 'package:akilli_anahtar/utils/hive_constants.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+part 'token_model.g.dart';
+
+@HiveType(typeId: HiveConstants.tokenModelTypeId)
 class TokenModel {
-  int id;
-  int userId;
-  String loginTime;
-  String platformIdentity;
-  String accessToken;
-  String expiration;
-  String? logoutTime;
+  @HiveField(0)
+  final int id;
+
+  @HiveField(1)
+  final int userId;
+
+  @HiveField(2)
+  final String loginTime;
+
+  @HiveField(3)
+  final String platformIdentity;
+
+  @HiveField(4)
+  final String accessToken;
+
+  @HiveField(5)
+  final String expiration;
+
+  @HiveField(6)
+  final String? logoutTime;
   TokenModel({
     required this.id,
     required this.userId,

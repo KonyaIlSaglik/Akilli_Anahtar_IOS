@@ -21,13 +21,13 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    if (mounted) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       init();
-    }
+    });
   }
 
   init() async {
-    await _authController.loadAuth();
+    await _authController.loadToken();
     if (_authController.isLoggedIn.value) {
       Get.put(MqttController());
       Get.to(() => HomePage());

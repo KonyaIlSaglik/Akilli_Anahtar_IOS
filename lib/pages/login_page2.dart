@@ -30,10 +30,13 @@ class _LoginPageState extends State<LoginPage2> {
   void initState() {
     super.initState();
     var keyboardVisibilityController = KeyboardVisibilityController();
+
     keyboardVisibilityController.onChange.listen((bool visible) {
-      setState(() {
-        keboardVisible = visible;
-      });
+      if (mounted) {
+        setState(() {
+          keboardVisible = visible;
+        });
+      }
     });
     usercon.text = _authController.loginModel.value.userName;
     passwordcon.text = _authController.loginModel.value.password;

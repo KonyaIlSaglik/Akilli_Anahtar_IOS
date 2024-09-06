@@ -18,18 +18,27 @@ class AuthService {
     loginModel.identity = await PlatformDeviceId.getDeviceId ?? "";
     var uri = Uri.parse("$url/login");
     var client = http.Client();
-    var response = await client.post(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-      },
-      body: loginModel.toJson(),
-    );
-    client.close();
-    if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
-      var tokenModel = TokenModel.fromJson(json.encode(result["data"]));
-      return tokenModel;
+    try {
+      var response = await client.post(
+        uri,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+        },
+        body: loginModel.toJson(),
+      );
+      client.close();
+      print(response.body);
+      if (response.statusCode == 200) {
+        var result = json.decode(response.body) as Map<String, dynamic>;
+        var tokenModel = TokenModel.fromJson(json.encode(result["data"]));
+        return tokenModel;
+      }
+      if (response.statusCode == 400) {
+        Get.snackbar("Hata", response.body);
+      }
+    } catch (e) {
+      Get.snackbar("Hata", "Oturum Açma Sırasında bir hata oluştu.");
+      print(e);
     }
     return null;
   }
@@ -63,8 +72,7 @@ class AuthService {
     var info = await LocalDb.get(userKey);
     var user = User.fromJson(info!);
     var identity = await PlatformDeviceId.getDeviceId ?? "";
-    var uri =
-        Uri.parse("$url/changepassword?userId=${user.id}&identity=$identity");
+    var uri = Uri.parse("$url/logout?userId=${user.id}&identity=$identity");
     var client = http.Client();
     print("logout");
     var response = await client.post(

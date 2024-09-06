@@ -1,15 +1,38 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:akilli_anahtar/utils/hive_constants.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'user.g.dart';
+
+@HiveType(typeId: HiveConstants.userTypeId)
 class User {
+  @HiveField(0)
   int id;
+
+  @HiveField(1)
   String userName;
+
+  @HiveField(2)
   String password;
+
+  @HiveField(3)
   String passwordHash;
+
+  @HiveField(4)
   String passwordSalt;
+
+  @HiveField(5)
   String fullName;
+
+  @HiveField(6)
   int active;
+
+  @HiveField(7)
   String telephone;
+
+  @HiveField(8)
   String mail;
 
   User({

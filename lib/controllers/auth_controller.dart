@@ -7,11 +7,25 @@ import 'package:akilli_anahtar/pages/login_page2.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/services/api/operation_claim_service.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
+import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
+  var tokenManager = CacheManager<TokenModel>(HiveConstants.tokenModelKey,
+      HiveConstants.tokenModelTypeId, TokenModelAdapter());
+
+  var loginManager = CacheManager<LoginModel>(HiveConstants.loginModelKey,
+      HiveConstants.loginModelTypeId, LoginModelAdapter());
+
+  var claimsManager = CacheManager<OperationClaim>(HiveConstants.claimsKey,
+      HiveConstants.claimsTypeId, OperationClaimAdapter());
+
+  var userManager = CacheManager<User>(
+      HiveConstants.userKey, HiveConstants.userTypeId, UserAdapter());
+
   var loginModel = LoginModel().obs;
   var isLoading = false.obs;
   var isLoggedIn = false.obs;
@@ -21,9 +35,45 @@ class AuthController extends GetxController {
   var operationClaims = <OperationClaim>[].obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    loadAuth();
+  }
+
+  Future<void> loadToken() async {
+    await loginManager.init();
+    var lm = loginManager.get();
+    if (lm != null) {
+      loginModel.value = lm;
+    } else {
+      Get.to(() => LoginPage2());
+      return;
+    }
+
+    await userManager.init();
+    var usr = userManager.get();
+    if (usr != null) {
+      user.value = usr;
+    } else {
+      await getUser();
+    }
+
+    await claimsManager.init();
+    var claims = claimsManager.getAll();
+    if (claims!.isNotEmpty) {
+      operationClaims.value = claims;
+    } else {
+      await getClaims();
+    }
+
+    await tokenManager.init();
+    var model = tokenManager.get();
+    if (model != null) {
+      tokenModel.value = model;
+      isLoggedIn.value = true;
+    } else {
+      Get.to(() => LoginPage2());
+      return;
+    }
   }
 
   Future<void> login(String userName, String password) async {
@@ -32,9 +82,10 @@ class AuthController extends GetxController {
     tokenModel.value = TokenModel.epmty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
-    await LocalDb.delete(tokenModelKey);
-    await LocalDb.delete(userClaimsKey);
-    await LocalDb.delete(userKey);
+
+    tokenManager.clear();
+    loginManager.clear();
+
     try {
       var lm = LoginModel(
         userName: userName,
@@ -42,16 +93,19 @@ class AuthController extends GetxController {
       );
       var tokenResult = await AuthService.login(lm);
       if (tokenResult != null) {
+        Get.snackbar('Info', 'Giriş başarılı.');
         loginModel.value = lm;
         tokenModel.value = tokenResult;
-        await LocalDb.add(loginModelKey, loginModel.toJson());
-        await LocalDb.add(tokenModelKey, tokenModel.value.toJson());
+        tokenManager.add(tokenResult);
+        loginManager.add(lm);
         await getUser();
         await getClaims();
         isLoggedIn.value = true;
+      } else {
+        Get.snackbar('Error', 'Giriş Başarısız.');
       }
     } catch (e) {
-      Get.snackbar('Error', 'Bir hata oldu. Tekrar deneyin.');
+      Get.snackbar('Error', 'Giriş sırasında bir hata oluştu');
     } finally {
       isLoading.value = false;
     }
@@ -60,7 +114,7 @@ class AuthController extends GetxController {
   Future<void> getUser() async {
     var userResult = await UserService.getbyUserName(loginModel.value.userName);
     if (userResult != null) {
-      LocalDb.add(userKey, userResult.toJson());
+      userManager.add(userResult);
       user.value = userResult;
     }
   }
@@ -70,7 +124,7 @@ class AuthController extends GetxController {
       var claimsResult = await OperationClaimService.getClaims(user.value);
       if (claimsResult.success) {
         operationClaims.value = claimsResult.data!;
-        LocalDb.add(userClaimsKey, OperationClaim.toJsonList(operationClaims));
+        claimsManager.addList(claimsResult.data!);
       }
     }
   }
@@ -124,36 +178,5 @@ class AuthController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  Future<void> loadAuth() async {
-    var savedLoginModel = await LocalDb.get(loginModelKey);
-    if (savedLoginModel != null) {
-      loginModel.value = LoginModel.fromJson(savedLoginModel);
-    } else {
-      isLoggedIn.value = false;
-      Get.to(() => LoginPage2());
-    }
-    var savedUser = await LocalDb.get(userKey);
-    if (savedUser != null) {
-      user.value = User.fromJson(savedUser);
-    }
-
-    final savedToken = await LocalDb.get(tokenModelKey);
-    if (savedToken != null) {
-      tokenModel.value = TokenModel.fromJson(savedToken);
-      DateTime tokenExpiryDate = DateTime.parse(tokenModel.value.expiration);
-      bool isTokenExpired = DateTime.now().isAfter(tokenExpiryDate);
-      if (isTokenExpired) {
-        await login(loginModel.value.userName, loginModel.value.password);
-      } else {
-        isLoggedIn.value = true;
-      }
-    } else {
-      isLoggedIn.value = false;
-      Get.to(() => LoginPage2());
-    }
-    await getUser();
-    await getClaims();
   }
 }

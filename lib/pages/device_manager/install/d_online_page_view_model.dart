@@ -2,7 +2,6 @@ import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get/get.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 
@@ -16,7 +15,7 @@ class OnlinePageViewModel {
     return PageViewModel(
       title: "CİHAZ İNTERNET BAĞLANTISI",
       body:
-          "Cihazı internete bağlamak için yukarıdaki listeden bir ağ seçin ve istenirse şifre girin ve bağlanmayı bekleyin. Tamamlandı butonuna bastığınızda cihaz yeniden başlatılacaktır.",
+          "Cihazı internete bağlamak için yukarıdaki listeden bir ağ seçin ve istenirse şifre girin ve bağlanmayı bekleyin.",
       image: Column(
         children: [
           Expanded(
@@ -71,15 +70,12 @@ class OnlinePageViewModel {
                                       TextButton(
                                         onPressed: () async {
                                           Navigator.pop(context);
-                                          nodemcuController.apSSID.value =
+                                          nodemcuController.wifiSSID.value =
                                               nodemcuController
                                                   .apList[i].ssidName;
 
-                                          nodemcuController.apPass.value =
+                                          nodemcuController.wifiPASS.value =
                                               passController.text;
-
-                                          await nodemcuController
-                                              .sendWifiSettings();
                                         },
                                         child: Text(
                                           "Bağlan",
@@ -109,14 +105,21 @@ class OnlinePageViewModel {
       ),
       footer: Padding(
         padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-        child: !nodemcuController.apConnected.value
+        child: nodemcuController.wifiSSID.value.isEmpty
             ? Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  Icon(
+                    Icons.router_outlined,
+                    color: Colors.blue,
+                    size: 75,
+                  ),
                   SizedBox(
                     height: height * 0.01,
                   ),
-                  Text("İnternet Bağlantısı bekleniyor.")
+                  Text(
+                    "Cihazınızı İnternete bağlayabilirya da \nkurulumu tamamlayabilirsiniz.",
+                  ),
                 ],
               )
             : Column(
@@ -139,9 +142,9 @@ class OnlinePageViewModel {
               ),
       ),
       decoration: PageDecoration(
-        footerFlex: 15,
-        bodyFlex: 30,
-        imageFlex: 55,
+        footerFlex: 25,
+        bodyFlex: 25,
+        imageFlex: 40,
         pageColor: Colors.white,
         imagePadding: EdgeInsets.all(24),
         titleTextStyle: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),

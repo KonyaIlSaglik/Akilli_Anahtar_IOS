@@ -96,7 +96,7 @@ class _LightItem5State extends State<LightItem5>
             elevation: 0,
             color: !isSub
                 ? Colors.grey
-                : status == "1"
+                : status == "0"
                     ? Colors.green
                     : Colors.red,
             child: Center(
