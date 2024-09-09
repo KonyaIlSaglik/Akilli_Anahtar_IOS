@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LocalDb {
+class LocalDbb {
   static Future<String?> get(String key) async {
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences pref = await SharedPreferences.getInstance();

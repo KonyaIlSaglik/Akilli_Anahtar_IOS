@@ -24,20 +24,6 @@ class DeviceController extends GetxController {
     getSensorDevices();
   }
 
-  // Future<void> getDeviceTypes() async {
-  //   loadingDeviceTypes.value = true;
-  //   try {
-  //     var response = await DeviceService.getDeviceTypes();
-  //     if (response != null) {
-  //       deviceTypes.value = response;
-  //     }
-  //   } catch (e) {
-  //     Get.snackbar('Error', 'Bir hata oluştu');
-  //   } finally {
-  //     loadingDeviceTypes.value = false;
-  //   }
-  // }
-
   Future<void> getControlDevices() async {
     loadingControlDevices.value = true;
     var id = _authController.user.value.id;

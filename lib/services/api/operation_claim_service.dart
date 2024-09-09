@@ -4,7 +4,6 @@ import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/data_result.dart';
 import 'dart:convert';
 import 'package:akilli_anahtar/models/result.dart';
-import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -33,7 +32,6 @@ class OperationClaimService {
           OperationClaim.fromJsonList(json.encode(result["data"]));
       dataResult.success = result["success"];
       dataResult.message = result["message"] ?? "";
-      await LocalDb.add(userClaimsKey, json.encode(result["data"]));
     } else {
       dataResult.success = false;
       dataResult.message = response.body;

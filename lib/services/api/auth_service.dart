@@ -27,7 +27,6 @@ class AuthService {
         body: loginModel.toJson(),
       );
       client.close();
-      print(response.body);
       if (response.statusCode == 200) {
         var result = json.decode(response.body) as Map<String, dynamic>;
         var tokenModel = TokenModel.fromJson(json.encode(result["data"]));
@@ -69,12 +68,9 @@ class AuthService {
   }
 
   static Future<void> logOut() async {
-    var info = await LocalDb.get(userKey);
-    var user = User.fromJson(info!);
     var identity = await PlatformDeviceId.getDeviceId ?? "";
-    var uri = Uri.parse("$url/logout?userId=${user.id}&identity=$identity");
+    var uri = Uri.parse("$url/logout?identity=$identity");
     var client = http.Client();
-    print("logout");
     var response = await client.post(
       uri,
       headers: {
@@ -88,10 +84,8 @@ class AuthService {
       String oldPassword, String newPassword) async {
     var authController = Get.find<AuthController>();
     var tokenModel = authController.tokenModel.value;
-    var info = await LocalDb.get(userKey);
-    var user = User.fromJson(info!);
     var uri = Uri.parse(
-        "$url/changepassword?userId=${user.id}&oldPasword=$oldPassword&newPassword=$newPassword");
+        "$url/changepassword?userId=${authController.user.value.id}&oldPasword=$oldPassword&newPassword=$newPassword");
     var client = http.Client();
 
     var response = await client.put(

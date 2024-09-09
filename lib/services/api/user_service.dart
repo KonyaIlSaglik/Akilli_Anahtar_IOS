@@ -1,10 +1,7 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
-import 'package:akilli_anahtar/models/data_result.dart';
 import 'dart:convert';
 import 'package:akilli_anahtar/models/result.dart';
-import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -25,11 +22,13 @@ class UserService {
       },
     );
     client.close();
-
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
       var user = User.fromJson(json.encode(result["data"]));
       return user;
+    }
+    if (response.statusCode == 401) {
+      authController.logOut();
     }
     return null;
   }

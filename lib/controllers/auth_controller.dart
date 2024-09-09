@@ -8,8 +8,6 @@ import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/services/api/operation_claim_service.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
-import 'package:akilli_anahtar/services/local/shared_prefences.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:get/get.dart';
 
@@ -135,9 +133,9 @@ class AuthController extends GetxController {
     tokenModel.value = TokenModel.epmty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
-    await LocalDb.delete(tokenModelKey);
-    await LocalDb.delete(userClaimsKey);
-    await LocalDb.delete(userKey);
+    tokenManager.clear();
+    userManager.clear();
+    claimsManager.clear();
     Get.to(() => LoginPage2());
   }
 
@@ -151,8 +149,8 @@ class AuthController extends GetxController {
         isLoggedIn.value = true;
         loginModel.value.userName = registerModel.userName;
         loginModel.value.password = registerModel.password;
-        await LocalDb.add(loginModelKey, loginModel.toJson());
-        await LocalDb.add(tokenModelKey, tokenModel.value.toJson());
+        // await LocalDb.add(loginModelKey, loginModel.toJson());
+        // await LocalDb.add(tokenModelKey, tokenModel.value.toJson());
       }
     } catch (e) {
       Get.snackbar('Error', 'Bir hata oldu. Tekrar deneyin.');
@@ -170,8 +168,10 @@ class AuthController extends GetxController {
         tokenModel.value = response.data!;
         isChanged.value = true;
         loginModel.value.password = newPassword;
-        await LocalDb.add(loginModelKey, loginModel.toJson());
-        await LocalDb.add(tokenModelKey, tokenModel.value.toJson());
+        await loginManager.clear();
+        loginManager.add(loginModel.value);
+        await tokenManager.clear();
+        tokenManager.add(tokenModel.value);
       }
     } catch (e) {
       Get.snackbar('Error', 'Bir hata oldu. Tekrar deneyin.');

@@ -1,10 +1,22 @@
 import 'dart:convert';
 
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:akilli_anahtar/utils/hive_constants.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'parameter.g.dart';
+
+@HiveType(typeId: HiveConstants.parametersTypeId)
 class Parameter {
+  @HiveField(0)
   int id;
+
+  @HiveField(1)
   String name;
+
+  @HiveField(2)
   String value;
+
+  @HiveField(3)
   int type;
 
   Parameter({

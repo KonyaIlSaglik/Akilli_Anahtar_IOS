@@ -1,6 +1,9 @@
 import 'dart:convert';
 
+import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/services/api/parameter_service.dart';
+import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
+import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
@@ -20,7 +23,18 @@ class MqttController extends GetxController {
   }
 
   void initClient() async {
-    var params = await ParameterService.getParametersbyType(1);
+    var paramsManager = CacheManager<Parameter>(HiveConstants.parametersKey,
+        HiveConstants.parametersTypeId, ParameterAdapter());
+    await paramsManager.init();
+    var params = paramsManager.getAll();
+    if (params == null || params.isEmpty) {
+      var paramsResult = await ParameterService.getParametersbyType(1);
+      if (paramsResult != null) {
+        params = paramsResult;
+        await paramsManager.clear();
+        paramsManager.addList(params);
+      }
+    }
     var deviceId = await PlatformDeviceId.getDeviceId;
     var now = DateTime.now().toString();
     var identifier = "$deviceId-$now";

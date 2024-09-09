@@ -8,6 +8,9 @@ class HiveConstants {
   static const userTypeId = 3;
   static const userKey = "userCache";
 
-  static const claimsTypeId = 3;
+  static const claimsTypeId = 4;
   static const claimsKey = "claimsCache";
+
+  static const parametersTypeId = 5;
+  static const parametersKey = "paramsCache";
 }
