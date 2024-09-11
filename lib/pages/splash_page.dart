@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/connectivity_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/pages/login_page2.dart';
@@ -16,11 +17,12 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   bool load = false;
-  final AuthController _authController = Get.find();
+  final AuthController _authController = Get.put(AuthController());
 
   @override
   void initState() {
     super.initState();
+    Get.put(ConnectivityController());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       init();
     });

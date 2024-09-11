@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/services/api/parameter_service.dart';
 import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
@@ -7,7 +8,6 @@ import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
-import 'package:platform_device_id/platform_device_id.dart';
 
 class MqttController extends GetxController {
   var connecting = false.obs;
@@ -28,6 +28,7 @@ class MqttController extends GetxController {
     await paramsManager.init();
     var params = paramsManager.getAll();
     if (params == null || params.isEmpty) {
+      print("servisten geliyor");
       var paramsResult = await ParameterService.getParametersbyType(1);
       if (paramsResult != null) {
         params = paramsResult;
@@ -35,7 +36,8 @@ class MqttController extends GetxController {
         paramsManager.addList(params);
       }
     }
-    var deviceId = await PlatformDeviceId.getDeviceId;
+    AuthController authController = Get.find();
+    var deviceId = await authController.getDeviceId();
     var now = DateTime.now().toString();
     var identifier = "$deviceId-$now";
     if (params != null) {
@@ -91,6 +93,7 @@ class MqttController extends GetxController {
   }
 
   void onSubscribed(MqttSubscription sb) {
+    print("${sb.topic} subscribbed");
     for (var listen in subListenerList) {
       listen(sb.topic.toString());
     }
@@ -103,7 +106,7 @@ class MqttController extends GetxController {
   void subscribeToTopic(String topic) {
     if (client.getSubscriptionTopicStatus(topic) !=
         MqttSubscriptionStatus.active) {
-      client.subscribe(topic, MqttQos.atLeastOnce);
+      client.subscribe(topic, MqttQos.atMostOnce);
     }
   }
 
@@ -122,7 +125,7 @@ class MqttController extends GetxController {
   void publishMessage(String topic, String message) {
     final builder = MqttPayloadBuilder();
     builder.addString(message);
-    client.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
+    client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
   }
 
   @override

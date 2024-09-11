@@ -1,16 +1,32 @@
+import 'package:akilli_anahtar/models/box_update_model.dart';
 import 'package:akilli_anahtar/services/api/box_service.dart';
 import 'package:get/get.dart';
 
 class UpdateController extends GetxController {
+  var checkingNewVersion = false.obs;
+  var loadingBoxList = false.obs;
   var newVersion = "".obs;
+  var boxList = <BoxUpdateModel>[].obs;
 
   @override
   void onInit() async {
     super.onInit();
+    checkingNewVersion.value = true;
     await checkNewVersion();
+    await getBoxList();
   }
 
   Future<void> checkNewVersion() async {
     newVersion.value = await BoxService.checkNewVersion();
+    checkingNewVersion.value = false;
+  }
+
+  Future<void> getBoxList() async {
+    loadingBoxList.value = true;
+    var result = await BoxService.getAll();
+    if (result != null) {
+      boxList.value = result.map((e) => BoxUpdateModel(box: e)).toList();
+    }
+    loadingBoxList.value = false;
   }
 }

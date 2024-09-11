@@ -3,7 +3,6 @@ import 'package:akilli_anahtar/models/control_device_model.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_text_scroll.dart';
 import 'package:flutter/material.dart';
-import 'package:focus_detector_v2/focus_detector_v2.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:turkish/turkish.dart';
@@ -59,27 +58,25 @@ class _BarrierDoorItem4State extends State<BarrierDoorItem4>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return FocusDetector(
-      child: InkWell(
-        onTap: () {
-          if (_mqttController.isConnected.value) {
-            _mqttController.publishMessage(device.topicRec!, "0");
-          }
-        },
-        child: Card(
-          elevation: 10,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-                  goldColor.withOpacity(1),
-                  goldColor.withOpacity(1),
-                ]),
-                borderRadius: BorderRadius.circular(10)),
-            child: body(),
-          ),
+    return InkWell(
+      onTap: () {
+        if (_mqttController.isConnected.value) {
+          _mqttController.publishMessage(device.topicRec!, "0");
+        }
+      },
+      child: Card(
+        elevation: 10,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+                goldColor.withOpacity(1),
+                goldColor.withOpacity(1),
+              ]),
+              borderRadius: BorderRadius.circular(10)),
+          child: body(),
         ),
       ),
     );

@@ -151,28 +151,6 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
     );
   }
 
-  kaydetButon(double height) {
-    return ButtonTheme(
-      child: ElevatedButton(
-        onPressed: () async {
-          sifreDegistir(context);
-        },
-        style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          minimumSize: Size(double.infinity, height * 0.075),
-        ),
-        child: Text(
-          "KAYDET",
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
-            color: Colors.black,
-          ),
-        ),
-      ),
-    );
-  }
-
   sifreDegistir(context) async {
     if (oldPasswordCont.text != _authController.loginModel.value.password) {
       Get.snackbar("Hata", "Eski şifre hatalı.");

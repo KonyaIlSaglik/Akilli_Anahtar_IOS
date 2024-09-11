@@ -123,13 +123,18 @@ class BoxService {
   }
 
   static Future<String> checkNewVersion() async {
-    var uri = Uri.parse("https://www.ossbs.com/update/version.html");
-    var client = http.Client();
-    var response = await client.get(uri);
-    if (response.statusCode == 200) {
-      var s1 = response.body.split(":");
-      var s2 = s1[1].split("-");
-      return s2[0];
+    try {
+      var uri = Uri.parse("https://www.ossbs.com/update/version.html");
+      var client = http.Client();
+      var response = await client.get(uri);
+      if (response.statusCode == 200) {
+        var s1 = response.body.split(":");
+        var s2 = s1[1].split("-");
+        return s2[0];
+      }
+    } catch (e) {
+      print(e);
+      return "";
     }
     return "";
   }

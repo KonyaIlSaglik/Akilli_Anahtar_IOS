@@ -1,23 +1,65 @@
 import 'dart:convert';
 
+import 'package:akilli_anahtar/utils/hive_constants.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part '../hive_adapters/sensor_device_model.g.dart';
+
+@HiveType(typeId: HiveConstants.sensorDevicesTypeId)
 class SensorDeviceModel {
+  @HiveField(0)
   int? id;
+
+  @HiveField(1)
   String? name;
+
+  @HiveField(2)
   int? deviceTypeId;
+
+  @HiveField(3)
   String? topicStat;
+
+  @HiveField(4)
   String? description;
+
+  @HiveField(5)
   int? boxId;
+
+  @HiveField(6)
   String? pin;
+
+  @HiveField(7)
   int? active;
+
+  @HiveField(8)
   String? unit;
+
+  @HiveField(9)
   int? valueRangeId;
+
+  @HiveField(10)
   double? valueRangeMin;
+
+  @HiveField(11)
   double? valueRangeMax;
+
+  @HiveField(12)
   String? deviceTypeName;
+
+  @HiveField(13)
   int? deviceTypeMenuId;
+
+  @HiveField(14)
   String? boxName;
+
+  @HiveField(15)
   int? boxOrganisationId;
+
+  @HiveField(16)
   String? boxOrganisationName;
+
+  bool isSub;
+
   SensorDeviceModel({
     this.id,
     this.name,
@@ -36,6 +78,7 @@ class SensorDeviceModel {
     this.boxName,
     this.boxOrganisationId,
     this.boxOrganisationName,
+    this.isSub = false,
   });
 
   Map<String, dynamic> toMap() {

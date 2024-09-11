@@ -1,5 +1,3 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/connectivity_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,8 +10,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter("localdb");
-  Get.put(ConnectivityController());
-  Get.put(AuthController());
   initializeDateFormatting('tr_TR', null).then((value) => runApp(MyApp(
         theme: ThemeData.light(),
       )));

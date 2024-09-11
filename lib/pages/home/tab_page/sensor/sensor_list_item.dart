@@ -59,7 +59,6 @@ class _SensorListItemState extends State<SensorListItem> {
       if (mounted) {
         setState(() {
           if (topic == sensor.topicStat) {
-            print('Subscribed to $topic');
             isSub = true;
           }
         });

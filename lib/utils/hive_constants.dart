@@ -13,4 +13,10 @@ class HiveConstants {
 
   static const parametersTypeId = 5;
   static const parametersKey = "paramsCache";
+
+  static const controlDevicesTypeId = 6;
+  static const controlDevicesKey = "controlDevicesCache";
+
+  static const sensorDevicesTypeId = 7;
+  static const sensorDevicesKey = "sensorDevicesCache";
 }

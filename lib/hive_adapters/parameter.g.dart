@@ -1,38 +1,41 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'login_model.dart';
+part of '../entities/parameter.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class LoginModelAdapter extends TypeAdapter<LoginModel> {
+class ParameterAdapter extends TypeAdapter<Parameter> {
   @override
-  final int typeId = 2;
+  final int typeId = 5;
 
   @override
-  LoginModel read(BinaryReader reader) {
+  Parameter read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return LoginModel(
-      userName: fields[0] as String,
-      password: fields[1] as String,
-      identity: fields[2] as String,
+    return Parameter(
+      id: fields[0] as int,
+      name: fields[1] as String,
+      value: fields[2] as String,
+      type: fields[3] as int,
     );
   }
 
   @override
-  void write(BinaryWriter writer, LoginModel obj) {
+  void write(BinaryWriter writer, Parameter obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.userName)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.password)
+      ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.identity);
+      ..write(obj.value)
+      ..writeByte(3)
+      ..write(obj.type);
   }
 
   @override
@@ -41,7 +44,7 @@ class LoginModelAdapter extends TypeAdapter<LoginModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LoginModelAdapter &&
+      other is ParameterAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

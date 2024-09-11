@@ -21,7 +21,7 @@ class _LightItem5State extends State<LightItem5>
   late ControlDeviceModel device;
   final MqttController _mqttController = Get.find<MqttController>();
   bool isSub = false;
-  String status = "KAPALI";
+  String status = "1";
   @override
   void initState() {
     super.initState();

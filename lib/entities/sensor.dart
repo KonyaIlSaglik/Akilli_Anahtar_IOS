@@ -11,7 +11,7 @@ class Sensor {
   int boxId;
   String pin;
   int active;
-  String unit;
+  String? unit;
   String? topicMessage;
 
   Sensor({
@@ -24,7 +24,7 @@ class Sensor {
     required this.boxId,
     required this.pin,
     required this.active,
-    required this.unit,
+    this.unit,
   });
 
   Map<String, dynamic> toMap() {
@@ -55,7 +55,7 @@ class Sensor {
       boxId: map['boxId'] as int,
       pin: map['pin'] as String,
       active: map['active'] as int,
-      unit: map['unit'] as String,
+      unit: map['unit'] != null ? map['unit'] as String : null,
     );
   }
 

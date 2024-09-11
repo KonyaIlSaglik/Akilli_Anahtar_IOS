@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-part 'operation_claim.g.dart';
+part '../hive_adapters/operation_claim.g.dart';
 
 @HiveType(typeId: HiveConstants.claimsTypeId)
 class OperationClaim {

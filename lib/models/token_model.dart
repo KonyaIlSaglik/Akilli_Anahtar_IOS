@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-part 'token_model.g.dart';
+part '../hive_adapters/token_model.g.dart';
 
 @HiveType(typeId: HiveConstants.tokenModelTypeId)
 class TokenModel {

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-part 'user.g.dart';
+part '../hive_adapters/user.g.dart';
 
 @HiveType(typeId: HiveConstants.userTypeId)
 class User {

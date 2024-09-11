@@ -1,8 +1,6 @@
 import 'package:akilli_anahtar/controllers/update_controller.dart';
-import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/pages/device_manager/update/box_list_item.dart';
 import 'package:akilli_anahtar/pages/home/toolbar/toolbar_view.dart';
-import 'package:akilli_anahtar/services/api/box_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,18 +14,10 @@ class UpdateMainPage extends StatefulWidget {
 
 class _UpdateMainPageState extends State<UpdateMainPage> {
   UpdateController updateController = Get.put(UpdateController());
-  var boxList = <Box>[];
-  String newVersion = "";
   @override
   void initState() {
     super.initState();
-    BoxService.getAll().then((value) {
-      if (value != null) {
-        setState(() {
-          boxList = value;
-        });
-      }
-    });
+    updateController.onInit();
   }
 
   @override
@@ -71,51 +61,65 @@ class _UpdateMainPageState extends State<UpdateMainPage> {
               ],
             ),
           ),
-          Expanded(
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  color: goldColor,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Cihaz Listesi",
-                        style: TextStyle(fontSize: 20, color: Colors.white),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          //
-                        },
-                        child: Text(
-                          "Tümünü Güncelle",
-                          style: TextStyle(
-                            color: Colors.white70,
+          Obx(() {
+            return Expanded(
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    color: goldColor,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Cihaz Listesi",
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            //
+                          },
+                          child: Text(
+                            "Tümünü Güncelle",
+                            style: TextStyle(
+                              color: Colors.white70,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: boxList.isEmpty
-                      ? Center(
-                          child: Text("Liste boş"),
-                        )
-                      : ListView.separated(
-                          itemBuilder: (context, i) {
-                            return BoxListItem(box: boxList[i]);
-                          },
-                          separatorBuilder: (context, index) {
-                            return Divider();
-                          },
-                          itemCount: boxList.length,
-                        ),
-                ),
-              ],
-            ),
-          ),
+                  Expanded(
+                    child: updateController.checkingNewVersion.value
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: goldColor,
+                            ),
+                          )
+                        : updateController.loadingBoxList.value
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                  color: goldColor,
+                                ),
+                              )
+                            : updateController.boxList.isEmpty
+                                ? Center(
+                                    child: Text("Liste boş"),
+                                  )
+                                : ListView.separated(
+                                    itemBuilder: (context, i) {
+                                      return BoxListItem(index: i);
+                                    },
+                                    separatorBuilder: (context, index) {
+                                      return Divider();
+                                    },
+                                    itemCount: updateController.boxList.length,
+                                  ),
+                  ),
+                ],
+              ),
+            );
+          })
         ],
       ),
     );

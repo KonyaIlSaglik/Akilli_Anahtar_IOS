@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
@@ -9,6 +11,7 @@ import 'package:akilli_anahtar/services/api/operation_claim_service.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
@@ -178,5 +181,20 @@ class AuthController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<String> getDeviceId() async {
+    var info = DeviceInfoPlugin();
+    String deviceId = "";
+    if (Platform.isAndroid) {
+      var androidInfo = await info.androidInfo;
+      deviceId = androidInfo.id;
+    }
+    if (Platform.isIOS) {
+      var iosInfo = await info.iosInfo;
+      deviceId =
+          iosInfo.identifierForVendor ?? "${iosInfo.name}-${iosInfo.model}";
+    }
+    return deviceId;
   }
 }

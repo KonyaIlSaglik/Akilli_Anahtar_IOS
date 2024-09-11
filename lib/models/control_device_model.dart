@@ -1,22 +1,60 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:akilli_anahtar/utils/hive_constants.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part '../hive_adapters/control_device_model.g.dart';
+
+@HiveType(typeId: HiveConstants.controlDevicesTypeId)
 class ControlDeviceModel {
+  @HiveField(0)
   int? id;
+
+  @HiveField(1)
   String? name;
+
+  @HiveField(2)
   int? deviceTypeId;
+
+  @HiveField(3)
   String? topicStat;
+
+  @HiveField(4)
   String? topicRec;
+
+  @HiveField(5)
   String? topicRes;
+
+  @HiveField(6)
   String? description;
+
+  @HiveField(7)
   int? boxId;
+
+  @HiveField(8)
   String? pin;
+
+  @HiveField(9)
   int? active;
+
+  @HiveField(10)
   String? deviceTypeName;
+
+  @HiveField(11)
   int? deviceTypeMenuId;
+
+  @HiveField(12)
   String? boxName;
+
+  @HiveField(13)
   int? boxOrganisationId;
+
+  @HiveField(14)
   String? boxOrganisationName;
+
+  bool isSub;
+
   ControlDeviceModel({
     this.id,
     this.name,
@@ -33,6 +71,7 @@ class ControlDeviceModel {
     this.boxName,
     this.boxOrganisationId,
     this.boxOrganisationName,
+    this.isSub = false,
   });
 
   Map<String, dynamic> toMap() {
