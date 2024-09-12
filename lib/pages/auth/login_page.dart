@@ -38,8 +38,12 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     });
-    usercon.text = _authController.loginModel.value.userName;
-    passwordcon.text = _authController.loginModel.value.password;
+    _authController.loadLoginInfo().then(
+      (value) {
+        usercon.text = _authController.loginModel.value.userName;
+        passwordcon.text = _authController.loginModel.value.password;
+      },
+    );
   }
 
   sifemiUnuttumDialog() {
@@ -105,16 +109,15 @@ class _LoginPageState extends State<LoginPage> {
 
   login(context) async {
     if (usercon.text.trim().isEmpty) {
-      Get.snackbar('Error', 'Kullanıcı adı boş geçilemez');
+      errorSnackbar('Hata', 'Kullanıcı adı boş geçilemez');
       return;
     }
     if (passwordcon.text.isEmpty) {
-      Get.snackbar('Error', 'Şifre boş geçilemez');
+      errorSnackbar('Hata', 'Sifre boş geçilemez');
       return;
     }
     if (!checkBoxValue!) {
-      Get.snackbar(
-          'Error', 'Sözleşme Şartlarını okuyup kabul etmeniz gerekmektedir');
+      errorSnackbar('Hata', 'Gizlilik Sözleşmesinin onaylanması zorunlu');
       return;
     }
 

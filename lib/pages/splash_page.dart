@@ -3,10 +3,6 @@ import 'package:akilli_anahtar/controllers/connectivity_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
-<<<<<<< HEAD
-import 'package:akilli_anahtar/pages/auth/login_page.dart';
-=======
->>>>>>> a0466f8e8fc75671507ffea2912a07e0f323eeb9
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_container.dart';
 import 'package:flutter/material.dart';
@@ -33,21 +29,15 @@ class _SplashPageState extends State<SplashPage> {
 
   init() async {
     await _authController.loadToken();
-<<<<<<< HEAD
-    // if (_authController.isLoggedIn.value) {
-    //   Get.put(MqttController());
-    //   Get.to(() => HomePage());
-    // } else {
-    //   Get.to(() => LoginPage());
-    // }
-=======
     if (_authController.isLoggedIn.value) {
       Get.put(MqttController());
+      await _authController.getUser();
+      print("Go to HomePage");
       Get.to(() => HomePage());
     } else {
+      print("Go to LoginPage");
       Get.to(() => LoginPage());
     }
->>>>>>> a0466f8e8fc75671507ffea2912a07e0f323eeb9
   }
 
   @override

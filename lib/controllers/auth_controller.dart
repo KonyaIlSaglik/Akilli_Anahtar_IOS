@@ -10,6 +10,7 @@ import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/services/api/operation_claim_service.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart';
@@ -36,17 +37,24 @@ class AuthController extends GetxController {
   var operationClaims = <OperationClaim>[].obs;
 
   Future<void> loadToken() async {
-<<<<<<< HEAD
-=======
+    await tokenManager.init();
+    var model = tokenManager.get();
+    if (model != null) {
+      tokenModel.value = model;
+      isLoggedIn.value = true;
+      await loadLoginInfo();
+    }
+  }
+
+  Future<void> loadLoginInfo() async {
     await loginManager.init();
     var lm = loginManager.get();
     if (lm != null) {
       loginModel.value = lm;
-    } else {
-      Get.to(() => LoginPage());
-      return;
     }
+  }
 
+  Future<void> loadUser() async {
     await userManager.init();
     var usr = userManager.get();
     if (usr != null) {
@@ -54,7 +62,9 @@ class AuthController extends GetxController {
     } else {
       await getUser();
     }
+  }
 
+  Future<void> loadClaims() async {
     await claimsManager.init();
     var claims = claimsManager.getAll();
     if (claims!.isNotEmpty) {
@@ -62,45 +72,6 @@ class AuthController extends GetxController {
     } else {
       await getClaims();
     }
-
->>>>>>> a0466f8e8fc75671507ffea2912a07e0f323eeb9
-    await tokenManager.init();
-    var model = tokenManager.get();
-    if (model != null) {
-      tokenModel.value = model;
-      isLoggedIn.value = true;
-<<<<<<< HEAD
-=======
-    } else {
-      Get.to(() => LoginPage());
->>>>>>> a0466f8e8fc75671507ffea2912a07e0f323eeb9
-      return;
-    }
-
-    // await loginManager.init();
-    // var lm = loginManager.get();
-    // if (lm != null) {
-    //   loginModel.value = lm;
-    // } else {
-    //   Get.to(() => LoginPage());
-    //   return;
-    // }
-
-    // await userManager.init();
-    // var usr = userManager.get();
-    // if (usr != null) {
-    //   user.value = usr;
-    // } else {
-    //   await getUser();
-    // }
-
-    // await claimsManager.init();
-    // var claims = claimsManager.getAll();
-    // if (claims!.isNotEmpty) {
-    //   operationClaims.value = claims;
-    // } else {
-    //   await getClaims();
-    // }
   }
 
   Future<void> login(String userName, String password) async {
@@ -110,8 +81,10 @@ class AuthController extends GetxController {
     user.value = User();
     operationClaims.value = <OperationClaim>[];
 
-    tokenManager.clear();
-    loginManager.clear();
+    await tokenManager.clear();
+    await loginManager.clear();
+    await userManager.clear();
+    await claimsManager.clear();
 
     try {
       var lm = LoginModel(
@@ -120,19 +93,18 @@ class AuthController extends GetxController {
       );
       var tokenResult = await AuthService.login(lm);
       if (tokenResult != null) {
-        Get.snackbar('Info', 'Giriş başarılı.');
+        successSnackbar('Başarılı', 'Oturum açıldı.');
         loginModel.value = lm;
         tokenModel.value = tokenResult;
-        tokenManager.add(tokenResult);
-        loginManager.add(lm);
+        await tokenManager.add(tokenResult);
+        await loginManager.add(lm);
         await getUser();
-        await getClaims();
         isLoggedIn.value = true;
       } else {
-        Get.snackbar('Error', 'Giriş Başarısız.');
+        errorSnackbar('Başarısız', 'Oturum açılamadı.');
       }
     } catch (e) {
-      Get.snackbar('Error', 'Giriş sırasında bir hata oluştu');
+      errorSnackbar('Hata', 'Giriş sırasında bir hata oluştu');
     } finally {
       isLoading.value = false;
     }
@@ -141,8 +113,10 @@ class AuthController extends GetxController {
   Future<void> getUser() async {
     var userResult = await UserService.getbyUserName(loginModel.value.userName);
     if (userResult != null) {
-      userManager.add(userResult);
+      await userManager.clear();
+      await userManager.add(userResult);
       user.value = userResult;
+      await getClaims();
     }
   }
 
@@ -151,7 +125,8 @@ class AuthController extends GetxController {
       var claimsResult = await OperationClaimService.getClaims(user.value);
       if (claimsResult.success) {
         operationClaims.value = claimsResult.data!;
-        claimsManager.addList(claimsResult.data!);
+        await claimsManager.clear();
+        await claimsManager.addList(claimsResult.data!);
       }
     }
   }
@@ -162,9 +137,9 @@ class AuthController extends GetxController {
     tokenModel.value = TokenModel.epmty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
-    tokenManager.clear();
-    userManager.clear();
-    claimsManager.clear();
+    await tokenManager.clear();
+    await userManager.clear();
+    await claimsManager.clear();
     Get.to(() => LoginPage());
   }
 
@@ -174,15 +149,16 @@ class AuthController extends GetxController {
     try {
       var response = await AuthService.register(registerModel);
       if (response.success) {
+        successSnackbar("Başarılı", "Kayıt yapıldı.");
         tokenModel.value = response.data!;
         isLoggedIn.value = true;
         loginModel.value.userName = registerModel.userName;
         loginModel.value.password = registerModel.password;
-        // await LocalDb.add(loginModelKey, loginModel.toJson());
-        // await LocalDb.add(tokenModelKey, tokenModel.value.toJson());
+      } else {
+        errorSnackbar("Başarısız", "Kayıt yapılamadı");
       }
     } catch (e) {
-      Get.snackbar('Error', 'Bir hata oldu. Tekrar deneyin.');
+      errorSnackbar('Error', 'Bir hata oldu. Tekrar deneyin.');
     } finally {
       isLoading.value = false;
     }
@@ -203,7 +179,7 @@ class AuthController extends GetxController {
         tokenManager.add(tokenModel.value);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Bir hata oldu. Tekrar deneyin.');
+      errorSnackbar('Error', 'Bir hata oldu. Tekrar deneyin.');
     } finally {
       isLoading.value = false;
     }

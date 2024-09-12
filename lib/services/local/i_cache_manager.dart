@@ -49,6 +49,6 @@ class CacheManager<T> {
 
   Future<void> clear() async {
     print("$key: box cleaned");
-    await box?.clear();
+    await box?.delete(key);
   }
 }

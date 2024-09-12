@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 const String apiUrlIn = "http://10.42.42.19:81/api";
 const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtar/api";
@@ -42,5 +43,41 @@ exitApp(context) {
         ],
       );
     },
+  );
+}
+
+errorSnackbar(String title, String message) {
+  Get.snackbar(
+    title,
+    message,
+    backgroundColor: Colors.red.withOpacity(0.75),
+    colorText: Colors.white,
+    icon: Icon(Icons.dangerous_outlined, color: Colors.white),
+  );
+}
+
+successSnackbar(String title, String message) {
+  Get.snackbar(
+    title,
+    message,
+    backgroundColor: Colors.green.withOpacity(0.75),
+    colorText: Colors.white,
+    icon: Icon(
+      Icons.done_outline,
+      color: Colors.white,
+    ),
+  );
+}
+
+infoSnackbar(String title, String message) {
+  Get.snackbar(
+    title,
+    message,
+    backgroundColor: Colors.blue.withOpacity(0.75),
+    colorText: Colors.white,
+    icon: Icon(
+      Icons.info_outline,
+      color: Colors.white,
+    ),
   );
 }

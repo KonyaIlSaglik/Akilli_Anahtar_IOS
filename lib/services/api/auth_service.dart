@@ -32,10 +32,10 @@ class AuthService {
         return tokenModel;
       }
       if (response.statusCode == 400) {
-        Get.snackbar("Hata", response.body);
+        errorSnackbar("Hata", response.body);
       }
     } catch (e) {
-      Get.snackbar("Hata", "Oturum Açma Sırasında bir hata oluştu.");
+      errorSnackbar("Hata", "Oturum Açma Sırasında bir hata oluştu.");
       print(e);
     }
     return null;
@@ -78,6 +78,11 @@ class AuthService {
       },
     );
     client.close();
+    if (response.statusCode == 200) {
+      successSnackbar("Başarılı", response.body);
+    } else {
+      errorSnackbar("Hata", response.body);
+    }
   }
 
   static Future<DataResult<TokenModel>> changePassword(

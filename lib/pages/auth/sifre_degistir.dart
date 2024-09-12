@@ -153,19 +153,19 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
 
   sifreDegistir(context) async {
     if (oldPasswordCont.text != _authController.loginModel.value.password) {
-      Get.snackbar("Hata", "Eski şifre hatalı.");
+      errorSnackbar("Hata", "Eski şifre hatalı.");
       return;
     }
     if (oldPasswordCont.text.isEmpty) {
-      Get.snackbar("Hata", "Eski şifre boş olamaz.");
+      errorSnackbar("Hata", "Eski şifre boş olamaz.");
       return;
     }
     if (newPasswordCont.text.isEmpty) {
-      Get.snackbar("Hata", "Yeni şifre boş olamaz.");
+      errorSnackbar("Hata", "Yeni şifre boş olamaz.");
       return;
     }
     if (newPasswordCont.text != newPasswordAgainCont.text) {
-      Get.snackbar("Hata", "Şifreler eşleşmiyor.");
+      errorSnackbar("Hata", "Şifreler eşleşmiyor.");
       return;
     }
 
@@ -174,7 +174,7 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
 
     if (_authController.isChanged.value) {
       oldPasswordCont.text = _authController.loginModel.value.password;
-      Get.snackbar("Info", "Şifre Değiştirildi");
+      infoSnackbar("Bilgilendirme", "Şifre Değiştirildi");
     }
 
     newPasswordCont.text = "";
