@@ -35,17 +35,45 @@ class AuthController extends GetxController {
   var user = User().obs;
   var operationClaims = <OperationClaim>[].obs;
 
-  @override
-  void onInit() async {
-    super.onInit();
-  }
-
   Future<void> loadToken() async {
+<<<<<<< HEAD
+=======
+    await loginManager.init();
+    var lm = loginManager.get();
+    if (lm != null) {
+      loginModel.value = lm;
+    } else {
+      Get.to(() => LoginPage());
+      return;
+    }
+
+    await userManager.init();
+    var usr = userManager.get();
+    if (usr != null) {
+      user.value = usr;
+    } else {
+      await getUser();
+    }
+
+    await claimsManager.init();
+    var claims = claimsManager.getAll();
+    if (claims!.isNotEmpty) {
+      operationClaims.value = claims;
+    } else {
+      await getClaims();
+    }
+
+>>>>>>> a0466f8e8fc75671507ffea2912a07e0f323eeb9
     await tokenManager.init();
     var model = tokenManager.get();
     if (model != null) {
       tokenModel.value = model;
       isLoggedIn.value = true;
+<<<<<<< HEAD
+=======
+    } else {
+      Get.to(() => LoginPage());
+>>>>>>> a0466f8e8fc75671507ffea2912a07e0f323eeb9
       return;
     }
 
