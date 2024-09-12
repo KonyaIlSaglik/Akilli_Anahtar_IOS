@@ -71,6 +71,7 @@ dependencies:
   get: ^4.6.6
   dart_ping: ^9.0.1
   hive_flutter: ^1.1.0
+  
 
 flutter_icons:
   android: "launcher_icon"

@@ -2,7 +2,7 @@ import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/connectivity_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
-import 'package:akilli_anahtar/pages/login_page2.dart';
+import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_container.dart';
 import 'package:flutter/material.dart';
@@ -22,20 +22,19 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
+    print("SplashPage started");
     Get.put(ConnectivityController());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      init();
-    });
+    init();
   }
 
   init() async {
     await _authController.loadToken();
-    if (_authController.isLoggedIn.value) {
-      Get.put(MqttController());
-      Get.to(() => HomePage());
-    } else {
-      Get.to(() => LoginPage2());
-    }
+    // if (_authController.isLoggedIn.value) {
+    //   Get.put(MqttController());
+    //   Get.to(() => HomePage());
+    // } else {
+    //   Get.to(() => LoginPage());
+    // }
   }
 
   @override
@@ -49,18 +48,28 @@ class _SplashPageState extends State<SplashPage> {
           body: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Expanded(flex: 30, child: SizedBox(height: 0)),
+              Expanded(flex: 20, child: SizedBox(height: 0)),
               Expanded(flex: 20, child: Image.asset("assets/anahtar1.png")),
+              Expanded(flex: 15, child: SizedBox(height: 0)),
               Expanded(
-                  flex: 40,
-                  child: SizedBox(
-                    height: 0,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: goldColor,
-                      ),
+                flex: 15,
+                child: SizedBox(
+                  height: 0,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: goldColor,
                     ),
-                  )),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 10,
+                child: Text(
+                  "Giriş yapılıyor...",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(flex: 10, child: SizedBox(height: 0)),
               Expanded(flex: 1, child: Image.asset("assets/rdiot1.png")),
               Expanded(flex: 10, child: SizedBox(height: 0)),
             ],
