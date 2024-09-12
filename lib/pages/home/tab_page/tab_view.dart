@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/device_controller.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/control_devices_page.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/sensor/sensor_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -23,7 +22,6 @@ class _TabViewState extends State<TabView> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    Get.put(DeviceController());
     _isDisabled[0] = !_authController.operationClaims
         .any((c) => c.name == "developer" || c.name == "door_menu");
     _isDisabled[1] = !_authController.operationClaims

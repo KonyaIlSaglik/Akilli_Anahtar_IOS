@@ -24,7 +24,7 @@ class CacheManager<T> {
   }
 
   Future<void> add(T value) async {
-    var result = await box?.add(value);
+    await box?.put(key, value);
     print("$key: value added to box");
   }
 

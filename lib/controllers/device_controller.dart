@@ -22,8 +22,8 @@ class DeviceController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    getControlDevices();
-    getSensorDevices();
+    await getControlDevices();
+    await getSensorDevices();
   }
 
   Future<void> getControlDevices() async {
@@ -59,5 +59,16 @@ class DeviceController extends GetxController {
         loadingSensorDevices.value = false;
       }
     }
+  }
+
+  void clearController() {
+    loadingDeviceTypes.value = false;
+    loadingControlDevices.value = false;
+    loadingSensorDevices.value = false;
+    deviceTypes.value = <DeviceType>[];
+    boxWithDevices.value = <BoxWithDevices>[];
+
+    controlDevices.value = <ControlDeviceModel>[];
+    sensorDevices.value = <SensorDeviceModel>[];
   }
 }

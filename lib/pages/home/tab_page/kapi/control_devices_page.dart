@@ -14,11 +14,13 @@ class ControlDevicesPage extends StatefulWidget {
 }
 
 class _ControlDevicesPageState extends State<ControlDevicesPage> {
-  DeviceController deviceController = Get.find();
+  DeviceController deviceController = Get.put(DeviceController());
   ScrollController scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+    print("ControlDevicesPage Started.");
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:akilli_anahtar/controllers/device_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
@@ -40,6 +41,8 @@ class AuthController extends GetxController {
     await tokenManager.init();
     var model = tokenManager.get();
     if (model != null) {
+      print("tokenModel: ${model.toJson()}");
+
       tokenModel.value = model;
       isLoggedIn.value = true;
       await loadLoginInfo();
@@ -50,29 +53,30 @@ class AuthController extends GetxController {
     await loginManager.init();
     var lm = loginManager.get();
     if (lm != null) {
+      print("loginModel: ${lm.toJson()}");
       loginModel.value = lm;
     }
   }
 
-  Future<void> loadUser() async {
-    await userManager.init();
-    var usr = userManager.get();
-    if (usr != null) {
-      user.value = usr;
-    } else {
-      await getUser();
-    }
-  }
+  // Future<void> loadUser() async {
+  //   await userManager.init();
+  //   var usr = userManager.get();
+  //   if (usr != null) {
+  //     user.value = usr;
+  //   } else {
+  //     await getUser();
+  //   }
+  // }
 
-  Future<void> loadClaims() async {
-    await claimsManager.init();
-    var claims = claimsManager.getAll();
-    if (claims!.isNotEmpty) {
-      operationClaims.value = claims;
-    } else {
-      await getClaims();
-    }
-  }
+  // Future<void> loadClaims() async {
+  //   await claimsManager.init();
+  //   var claims = claimsManager.getAll();
+  //   if (claims!.isNotEmpty) {
+  //     operationClaims.value = claims;
+  //   } else {
+  //     await getClaims();
+  //   }
+  // }
 
   Future<void> login(String userName, String password) async {
     isLoggedIn.value = false;
@@ -80,11 +84,6 @@ class AuthController extends GetxController {
     tokenModel.value = TokenModel.epmty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
-
-    await tokenManager.clear();
-    await loginManager.clear();
-    await userManager.clear();
-    await claimsManager.clear();
 
     try {
       var lm = LoginModel(
@@ -96,7 +95,10 @@ class AuthController extends GetxController {
         successSnackbar('Başarılı', 'Oturum açıldı.');
         loginModel.value = lm;
         tokenModel.value = tokenResult;
+        await tokenManager.clear();
         await tokenManager.add(tokenResult);
+        print(lm.toJson());
+        await loginManager.clear();
         await loginManager.add(lm);
         await getUser();
         isLoggedIn.value = true;
@@ -140,6 +142,9 @@ class AuthController extends GetxController {
     await tokenManager.clear();
     await userManager.clear();
     await claimsManager.clear();
+
+    DeviceController deviceController = Get.find();
+    deviceController.clearController();
     Get.to(() => LoginPage());
   }
 
