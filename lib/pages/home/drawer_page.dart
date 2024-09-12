@@ -1,11 +1,11 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/pages/admin/admin_index_page.dart';
+import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
 import 'package:akilli_anahtar/pages/device_manager/install/introduction_page.dart';
 import 'package:akilli_anahtar/pages/device_manager/update/update_main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:akilli_anahtar/pages/sifre_degistir.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 

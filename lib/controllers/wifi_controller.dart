@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
 import 'package:get/get.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 
