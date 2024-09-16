@@ -8,6 +8,7 @@ import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class MqttController extends GetxController {
   var connecting = false.obs;
@@ -16,19 +17,29 @@ class MqttController extends GetxController {
   var status = 'Disconnected'.obs;
   List<Function(String topic)> subListenerList = <Function(String topic)>[].obs;
 
+  late FlutterLocalNotificationsPlugin localNotifications;
+
   @override
   void onInit() {
     super.onInit();
     initClient();
   }
 
-  void initClient() async {
+  Future<void> initClient() async {
+    localNotifications = FlutterLocalNotificationsPlugin();
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('app_icon');
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+
+    localNotifications.initialize(initializationSettings);
+
     var paramsManager = CacheManager<Parameter>(HiveConstants.parametersKey,
         HiveConstants.parametersTypeId, ParameterAdapter());
     await paramsManager.init();
     var params = paramsManager.getAll();
     if (params == null || params.isEmpty) {
-      print("servisten geliyor");
       var paramsResult = await ParameterService.getParametersbyType(1);
       if (paramsResult != null) {
         params = paramsResult;
@@ -132,5 +143,20 @@ class MqttController extends GetxController {
   void onClose() {
     client.disconnect();
     super.onClose();
+  }
+
+  Future<void> showNotification(String message) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails('your_channel_id', 'Your Channel Name',
+            channelDescription: 'Your Channel Description',
+            importance: Importance.max,
+            priority: Priority.high,
+            showWhen: false);
+
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await localNotifications.show(
+        0, 'MQTT Message', message, platformChannelSpecifics);
   }
 }

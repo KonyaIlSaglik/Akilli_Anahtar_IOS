@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class BoxListItem extends StatefulWidget {
   final int index;
@@ -45,11 +46,21 @@ class _BoxListItemState extends State<BoxListItem> {
             if (jsonData != null && jsonData["version"] != null) {
               var info = NodemcuInfoModel.fromJson(message);
               updateController.boxList[i].box.version = info.version;
-              double bv =
-                  double.tryParse(updateController.boxList[i].box.version) ?? 0;
-              double nv =
-                  double.tryParse(updateController.newVersion.value) ?? 0;
-              updateController.boxList[i].isOld = bv < nv;
+              var bv = updateController.boxList[i].box.version;
+              var nv = updateController.newVersion.value;
+              var bv1 = int.tryParse(bv.split(".")[0]) ?? 0;
+              var nv1 = int.tryParse(nv.split(".")[0]) ?? 0;
+              if (bv1 < nv1) {
+                updateController.boxList[i].isOld = true;
+              } else {
+                var bv2 = int.tryParse(bv.split(".")[1]) ?? 0;
+                var nv2 = int.tryParse(nv.split(".")[1]) ?? 0;
+                if (bv2 < nv2) {
+                  updateController.boxList[i].isOld = true;
+                } else {
+                  updateController.boxList[i].isOld = false;
+                }
+              }
             }
           }
         } else {

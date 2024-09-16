@@ -11,13 +11,14 @@ class UpdateController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    checkingNewVersion.value = true;
     await checkNewVersion();
     await getBoxList();
   }
 
   Future<void> checkNewVersion() async {
+    checkingNewVersion.value = true;
     newVersion.value = await BoxService.checkNewVersion();
+    print(newVersion.value);
     checkingNewVersion.value = false;
   }
 
