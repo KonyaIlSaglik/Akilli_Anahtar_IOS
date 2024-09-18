@@ -26,14 +26,14 @@ class MqttController extends GetxController {
   }
 
   Future<void> initClient() async {
-    localNotifications = FlutterLocalNotificationsPlugin();
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
+    // localNotifications = FlutterLocalNotificationsPlugin();
+    // const AndroidInitializationSettings initializationSettingsAndroid =
+    //     AndroidInitializationSettings('app_icon');
 
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+    // const InitializationSettings initializationSettings =
+    //     InitializationSettings(android: initializationSettingsAndroid);
 
-    localNotifications.initialize(initializationSettings);
+    // localNotifications.initialize(initializationSettings);
 
     var paramsManager = CacheManager<Parameter>(HiveConstants.parametersKey,
         HiveConstants.parametersTypeId, ParameterAdapter());

@@ -41,31 +41,6 @@ class AuthService {
     return null;
   }
 
-  static Future<DataResult<TokenModel>> register(
-      RegisterModel registerModel) async {
-    var uri = Uri.parse("$url/register");
-    var client = http.Client();
-    var response = await client.post(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-      },
-      body: registerModel.toJson(),
-    );
-    client.close();
-    var dataResult = DataResult<TokenModel>();
-    if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
-      dataResult.data = TokenModel.fromJson(json.encode(result["data"]));
-      dataResult.success = result["success"];
-      dataResult.message = result["message"];
-    } else {
-      dataResult.success = false;
-      dataResult.message = response.body;
-    }
-    return dataResult;
-  }
-
   static Future<void> logOut() async {
     AuthController authController = Get.find();
     var identity = await authController.getDeviceId();

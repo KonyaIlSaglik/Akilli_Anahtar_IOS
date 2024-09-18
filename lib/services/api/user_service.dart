@@ -1,7 +1,8 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/models/data_result.dart';
+import 'package:akilli_anahtar/models/register_model.dart';
 import 'dart:convert';
-import 'package:akilli_anahtar/models/result.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -76,30 +77,31 @@ class UserService {
     return null;
   }
 
-  static Future<Result> add(User user) async {
-    var uri = Uri.parse("$url/add");
+  static Future<DataResult<User>> register(RegisterModel registerModel) async {
+    var uri = Uri.parse("$url/register");
     var client = http.Client();
-    var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
     var response = await client.post(
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
-      body: user.toJson(),
+      body: registerModel.toJson(),
     );
     client.close();
-    var result = Result();
+    var dataResult = DataResult<User>();
     if (response.statusCode == 200) {
-      var body = json.decode(response.body) as Map<String, dynamic>;
-      result.success = body["success"] as bool;
-      result.message = body["message"] ?? "";
+      var result = json.decode(response.body) as Map<String, dynamic>;
+      dataResult.data = User.fromJson(json.encode(result["data"]));
+      dataResult.success = result["success"];
+      dataResult.message = result["message"];
+    } else {
+      dataResult.success = false;
+      dataResult.message = response.body;
     }
-    return result;
+    return dataResult;
   }
 
-  static Future<Result> update(User user) async {
+  static Future<DataResult<User>> update(User user) async {
     var uri = Uri.parse("$url/update");
     var client = http.Client();
     var authController = Get.find<AuthController>();
@@ -113,12 +115,43 @@ class UserService {
       body: user.toJson(),
     );
     client.close();
-    var result = Result();
+    var dataResult = DataResult<User>();
     if (response.statusCode == 200) {
-      var body = json.decode(response.body) as Map<String, dynamic>;
-      result.success = body["success"] as bool;
-      result.message = body["message"] ?? "";
+      var result = json.decode(response.body) as Map<String, dynamic>;
+      dataResult.data = User.fromJson(json.encode(result["data"]));
+      dataResult.success = result["success"];
+      dataResult.message = result["message"];
+    } else {
+      dataResult.success = false;
+      dataResult.message = response.body;
     }
-    return result;
+    return dataResult;
+  }
+
+  static Future<DataResult<User>> delete(User user) async {
+    var uri = Uri.parse("$url/delete");
+    var client = http.Client();
+    var authController = Get.find<AuthController>();
+    var tokenModel = authController.tokenModel.value;
+    var response = await client.delete(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
+      },
+      body: user.toJson(),
+    );
+    client.close();
+    var dataResult = DataResult<User>();
+    if (response.statusCode == 200) {
+      var result = json.decode(response.body) as Map<String, dynamic>;
+      dataResult.data = User.fromJson(json.encode(result["data"]));
+      dataResult.success = result["success"];
+      dataResult.message = result["message"];
+    } else {
+      dataResult.success = false;
+      dataResult.message = response.body;
+    }
+    return dataResult;
   }
 }

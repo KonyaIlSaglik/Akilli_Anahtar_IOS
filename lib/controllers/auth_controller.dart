@@ -148,27 +148,6 @@ class AuthController extends GetxController {
     Get.to(() => LoginPage());
   }
 
-  Future<void> register(RegisterModel registerModel) async {
-    isLoggedIn.value = false;
-    isLoading.value = true;
-    try {
-      var response = await AuthService.register(registerModel);
-      if (response.success) {
-        successSnackbar("Başarılı", "Kayıt yapıldı.");
-        tokenModel.value = response.data!;
-        isLoggedIn.value = true;
-        loginModel.value.userName = registerModel.userName;
-        loginModel.value.password = registerModel.password;
-      } else {
-        errorSnackbar("Başarısız", "Kayıt yapılamadı");
-      }
-    } catch (e) {
-      errorSnackbar('Error', 'Bir hata oldu. Tekrar deneyin.');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   Future<void> changePassword(String oldPassword, String newPassword) async {
     isChanged.value = false;
     isLoading.value = true;
