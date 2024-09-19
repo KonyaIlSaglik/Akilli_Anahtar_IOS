@@ -2,6 +2,7 @@ import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/data_result.dart';
 import 'package:akilli_anahtar/models/register_model.dart';
+import 'package:akilli_anahtar/models/result.dart';
 import 'dart:convert';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
@@ -114,7 +115,9 @@ class UserService {
       },
       body: user.toJson(),
     );
+    print(user.toJson());
     client.close();
+    print(response.body);
     var dataResult = DataResult<User>();
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
@@ -153,5 +156,25 @@ class UserService {
       dataResult.message = response.body;
     }
     return dataResult;
+  }
+
+  static Future<Result> passUpdate(int id, String password) async {
+    var uri = Uri.parse("$url/passupdate?id=$id&password=$password");
+    var client = http.Client();
+    var authController = Get.find<AuthController>();
+    var tokenModel = authController.tokenModel.value;
+    var response = await client.put(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
+      },
+    );
+    client.close();
+    var result = Result();
+    var data = json.decode(response.body) as Map<String, dynamic>;
+    result.success = data["success"];
+    result.message = data["message"];
+    return result;
   }
 }

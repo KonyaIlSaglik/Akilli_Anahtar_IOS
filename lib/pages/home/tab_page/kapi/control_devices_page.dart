@@ -2,6 +2,8 @@ import 'package:akilli_anahtar/controllers/device_controller.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/barrier_door_item_4.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/light_item_5.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/null_item.dart';
+import 'package:akilli_anahtar/pages/home/tab_page/kapi/rf_command_item_6.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_wall_layout/flutter_wall_layout.dart';
 import 'package:get/get.dart';
@@ -26,23 +28,31 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
+      color: goldColor,
       onRefresh: () async {
         await deviceController.getControlDevices();
       },
-      child: Obx(() {
-        return deviceController.loadingControlDevices.value
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : WallLayout(
-                stonePadding: 20,
-                reverse: false,
-                layersCount: 10,
-                scrollDirection: Axis.vertical,
-                scrollController: scrollController,
-                stones: stoneList(),
-              );
-      }),
+      child: ListView(
+        children: [
+          Obx(() {
+            return deviceController.loadingControlDevices.value
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: goldColor,
+                    ),
+                  )
+                : WallLayout(
+                    stonePadding: 20,
+                    reverse: false,
+                    layersCount: 10,
+                    scrollDirection: Axis.vertical,
+                    scrollController: scrollController,
+                    primary: false,
+                    stones: stoneList(),
+                  );
+          }),
+        ],
+      ),
     );
   }
 
@@ -78,6 +88,9 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
       }
       if (device.deviceTypeId == 5) {
         tempList.add(LightItem5(device: device));
+      }
+      if (device.deviceTypeId == 6) {
+        tempList.add(RfCommandItem6(device: device));
       }
     }
     toEnd();

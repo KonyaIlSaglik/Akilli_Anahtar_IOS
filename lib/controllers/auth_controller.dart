@@ -1,14 +1,13 @@
 import 'dart:io';
 
+import 'package:akilli_anahtar/controllers/claim_controller.dart';
 import 'package:akilli_anahtar/controllers/device_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
-import 'package:akilli_anahtar/models/register_model.dart';
 import 'package:akilli_anahtar/models/token_model.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
-import 'package:akilli_anahtar/services/api/operation_claim_service.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -36,6 +35,7 @@ class AuthController extends GetxController {
   var tokenModel = TokenModel.epmty().obs;
   var user = User().obs;
   var operationClaims = <OperationClaim>[].obs;
+  late ClaimController claimController = Get.put(ClaimController());
 
   Future<void> loadToken() async {
     await tokenManager.init();
@@ -118,17 +118,9 @@ class AuthController extends GetxController {
       await userManager.clear();
       await userManager.add(userResult);
       user.value = userResult;
-      await getClaims();
-    }
-  }
-
-  Future<void> getClaims() async {
-    if (user.value.id > 0) {
-      var claimsResult = await OperationClaimService.getClaims(user.value);
-      if (claimsResult.success) {
-        operationClaims.value = claimsResult.data!;
-        await claimsManager.clear();
-        await claimsManager.addList(claimsResult.data!);
+      var claims = await claimController.getUserClaims(user.value);
+      if (claims != null) {
+        operationClaims.value = claims;
       }
     }
   }

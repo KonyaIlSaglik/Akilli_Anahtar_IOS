@@ -3,6 +3,7 @@ import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/pages/admin/user_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:turkish/turkish.dart';
 
 class AdminIndexPage extends StatefulWidget {
   const AdminIndexPage({Key? key}) : super(key: key);
@@ -13,82 +14,125 @@ class AdminIndexPage extends StatefulWidget {
 
 class _AdminIndexPageState extends State<AdminIndexPage> {
   UserController userController = Get.put(UserController());
-  String searchQuery = '';
+  String selectedSortOption = 'Ad Soyad';
 
   @override
   void initState() {
     super.initState();
-    userController.getAll();
+    Future.delayed(Duration.zero, () {
+      userController.getAll();
+    });
+  }
+
+  void sortUsers(List<User> users) {
+    if (selectedSortOption == 'Sıra No') {
+      users.sort((a, b) => a.id.compareTo(b.id));
+    } else if (selectedSortOption == 'Ad Soyad') {
+      users.sort((a, b) => a.fullName.compareTo(b.fullName));
+    } else if (selectedSortOption == 'Kullanıcı Adı') {
+      users.sort((a, b) => a.userName.compareTo(b.userName));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 3,
-        shadowColor: Colors.black,
-        title: Text("Kullanıcılar"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              userController.selectedUser.value = User();
-              Get.to(() => UserAddEditPage());
-            },
-            icon: Icon(Icons.person_add_alt),
-          )
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(60.0),
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Ara',
-                border: OutlineInputBorder(),
-                fillColor: Colors.white,
-                filled: true,
-              ),
-              onChanged: (value) {
+    return PopScope(
+      onPopInvoked: (didPop) {
+        userController.searchQuery.value = "";
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 3,
+          shadowColor: Colors.black,
+          title: Text("Kullanıcılar"),
+          actions: [
+            DropdownButton<String>(
+              value: selectedSortOption,
+              icon: Icon(Icons.sort),
+              dropdownColor: Colors.white,
+              padding: EdgeInsets.only(top: 10),
+              onChanged: (String? newValue) {
                 setState(() {
-                  searchQuery = value.toLowerCase();
+                  selectedSortOption = newValue!;
+                  sortUsers(userController.users);
                 });
               },
+              items: <String>['Sıra No', 'Ad Soyad', 'Kullanıcı Adı']
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+            IconButton(
+              onPressed: () {
+                userController.selectedUser.value = User();
+                Get.to(() => UserAddEditPage());
+              },
+              icon: Icon(Icons.person_add_alt),
+            ),
+          ],
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(60.0),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Ara',
+                  border: OutlineInputBorder(),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    userController.searchQuery.value = value.toLowerCase();
+                  });
+                },
+              ),
             ),
           ),
         ),
+        body: Obx(() {
+          if (userController.loadingUser.value) {
+            return Center(child: CircularProgressIndicator());
+          } else if (userController.users.isEmpty) {
+            return Center(child: Text("No users found."));
+          } else {
+            // Filter users based on the search query
+            final filteredUsers = userController.users.where((user) {
+              return user.fullName.toLowerCaseTr().contains(
+                      userController.searchQuery.value.toLowerCaseTr()) ||
+                  user.userName.toLowerCaseTr().contains(
+                      userController.searchQuery.value.toLowerCaseTr());
+            }).toList();
+            return ListView.separated(
+              itemBuilder: (context, i) {
+                return ListTile(
+                  leading: CircleAvatar(
+                    child:
+                        Text(filteredUsers[i].id.toString()), // Display user ID
+                  ),
+                  title: Text(filteredUsers[i].fullName),
+                  subtitle: Text(filteredUsers[i].userName),
+                  trailing: IconButton(
+                    icon: Icon(Icons.chevron_right),
+                    onPressed: () {
+                      userController.selectedUser.value = filteredUsers[i];
+                      Get.to(() => UserAddEditPage());
+                    },
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return Divider();
+              },
+              itemCount: filteredUsers.length,
+            );
+          }
+        }),
       ),
-      body: Obx(() {
-        if (userController.loadingUser.value) {
-          return Center(child: CircularProgressIndicator());
-        } else if (userController.users.isEmpty) {
-          return Center(child: Text("No users found."));
-        } else {
-          // Filter users based on the search query
-          final filteredUsers = userController.users.where((user) {
-            return user.fullName.toLowerCase().contains(searchQuery);
-          }).toList();
-
-          return ListView.separated(
-            itemBuilder: (context, i) {
-              return ListTile(
-                title: Text(filteredUsers[i].fullName),
-                trailing: IconButton(
-                  icon: Icon(Icons.chevron_right),
-                  onPressed: () {
-                    userController.selectedUser.value = filteredUsers[i];
-                    Get.to(() => UserAddEditPage());
-                  },
-                ),
-              );
-            },
-            separatorBuilder: (context, index) {
-              return Divider();
-            },
-            itemCount: filteredUsers.length,
-          );
-        }
-      }),
     );
   }
 }

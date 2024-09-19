@@ -1,8 +1,7 @@
+import 'package:akilli_anahtar/controllers/claim_controller.dart';
 import 'package:akilli_anahtar/controllers/user_controller.dart';
-import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/register_model.dart';
 import 'package:akilli_anahtar/pages/admin/admin_index_page.dart';
-import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,13 +14,22 @@ class UserAddEditPage extends StatefulWidget {
 
 class _UserAddEditPageState extends State<UserAddEditPage> {
   UserController userController = Get.find();
+  ClaimController claimController = Get.put(ClaimController());
   final _formKey = GlobalKey<FormState>();
+  final _formKey2 = GlobalKey<FormState>();
   late String password;
 
   @override
   void initState() {
     super.initState();
     password = "";
+    Future.delayed(Duration.zero, () async {
+      var claims = await claimController
+          .getUserClaims(userController.selectedUser.value);
+      if (claims != null) {
+        userController.selectedUserClaims.value = claims;
+      }
+    });
   }
 
   void _saveUser({bool isValidate = true}) async {
@@ -35,18 +43,16 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
             tel: userController.selectedUser.value.telephone,
             password: password,
           );
-          var result = await userController.register(newUser);
-          if (result != null) {
-            setState(() {
-              userController.selectedUser.value = result;
-            });
-          }
+          userController.register(newUser);
         } else {
           userController.updateUser(userController.selectedUser.value);
         }
       }
     } else {
-      userController.updateUser(userController.selectedUser.value);
+      if (_formKey2.currentState!.validate()) {
+        userController.passUpdate(
+            userController.selectedUser.value.id, password);
+      }
     }
   }
 
@@ -67,8 +73,7 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
             TextButton(
               child: Text("Sil"),
               onPressed: () {
-                UserService.delete(userController.selectedUser.value);
-                userController.users.clear();
+                userController.delete(userController.selectedUser.value);
                 Get.to(() => AdminIndexPage());
               },
             ),
@@ -96,10 +101,12 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
                     ? Colors.black
                     : Colors.grey,
               ),
-              onPressed: () {
+              onPressed: () async {
                 userController.selectedUser.value.active =
                     userController.selectedUser.value.active == 1 ? 0 : 1;
-                _saveUser(isValidate: false);
+                await userController
+                    .updateUser(userController.selectedUser.value);
+                setState(() {});
               },
             ),
           if (userController.selectedUser.value.id > 0)
@@ -117,89 +124,97 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Kullanıcı Adı'),
-                  initialValue: userController.selectedUser.value.userName,
-                  onChanged: (value) =>
-                      userController.selectedUser.value.userName = value,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a username';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 8),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Ad Soyad'),
-                  initialValue: userController.selectedUser.value.fullName,
-                  onChanged: (value) =>
-                      userController.selectedUser.value.fullName = value,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a full name';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 8),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Email'),
-                  initialValue: userController.selectedUser.value.mail,
-                  onChanged: (value) =>
-                      userController.selectedUser.value.mail = value,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter an email';
-                    }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 8),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Telefon'),
-                  initialValue: userController.selectedUser.value.telephone,
-                  onChanged: (value) =>
-                      userController.selectedUser.value.telephone = value,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a telephone number';
-                    }
-                    return null;
-                  },
-                ),
-                if (userController.selectedUser.value.id == 0)
-                  Column(
-                    children: [
-                      SizedBox(height: 8),
-                      TextFormField(
-                        decoration: InputDecoration(labelText: 'Şifre'),
-                        initialValue: password,
-                        onChanged: (value) => password = value,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '';
-                          }
-                          return null;
-                        },
+          child: Column(
+            children: [
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      decoration: InputDecoration(labelText: 'Kullanıcı Adı'),
+                      initialValue: userController.selectedUser.value.userName,
+                      onChanged: (value) =>
+                          userController.selectedUser.value.userName = value,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a username';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 8),
+                    TextFormField(
+                      decoration: InputDecoration(labelText: 'Ad Soyad'),
+                      initialValue: userController.selectedUser.value.fullName,
+                      onChanged: (value) =>
+                          userController.selectedUser.value.fullName = value,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a full name';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 8),
+                    TextFormField(
+                      decoration: InputDecoration(labelText: 'Email'),
+                      initialValue: userController.selectedUser.value.mail,
+                      onChanged: (value) =>
+                          userController.selectedUser.value.mail = value,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter an email';
+                        }
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 8),
+                    TextFormField(
+                      decoration: InputDecoration(labelText: 'Telefon'),
+                      initialValue: userController.selectedUser.value.telephone,
+                      onChanged: (value) =>
+                          userController.selectedUser.value.telephone = value,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a telephone number';
+                        }
+                        return null;
+                      },
+                    ),
+                    if (userController.selectedUser.value.id == 0)
+                      Column(
+                        children: [
+                          SizedBox(height: 8),
+                          TextFormField(
+                            decoration: InputDecoration(labelText: 'Şifre'),
+                            initialValue: password,
+                            onChanged: (value) => password = value,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Boş geçilemez';
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _saveUser,
-                  child: Text('Kaydet'),
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _saveUser,
+                      child: Text('Kaydet'),
+                    ),
+                  ],
                 ),
-                if (userController.selectedUser.value.id > 0)
-                  Column(
+              ),
+              if (userController.selectedUser.value.id > 0)
+                Form(
+                  key: _formKey2,
+                  child: Column(
                     children: [
+                      Divider(),
                       SizedBox(height: 16),
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Şifre'),
@@ -207,7 +222,7 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
                         onChanged: (value) => password = value,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return '';
+                            return 'Boş geçilemez';
                           }
                           return null;
                         },
@@ -215,14 +230,33 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
                       SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {
-                          //
+                          _saveUser(isValidate: false);
                         },
                         child: Text('Güncelle'),
                       ),
                     ],
                   ),
-              ],
-            ),
+                ),
+              Divider(),
+              ExpansionTile(
+                title: Text("Temel Yetkiler"),
+                children: userController.selectedUserClaims.map((c) {
+                  return ListTile(
+                    title: Text(c.name),
+                    trailing: Checkbox(
+                      onChanged: (value) {
+                        //
+                      },
+                      value: false,
+                    ),
+                  );
+                }).toList(),
+              ),
+              Divider(),
+              ExpansionTile(
+                title: Text("Cihaz Yetkileri"),
+              ),
+            ],
           ),
         ),
       ),

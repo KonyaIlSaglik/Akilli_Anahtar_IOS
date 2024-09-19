@@ -2,38 +2,39 @@
 import 'dart:convert';
 
 import 'package:akilli_anahtar/entities/box.dart';
-import 'package:akilli_anahtar/entities/relay.dart';
-import 'package:akilli_anahtar/entities/sensor.dart';
+import 'package:akilli_anahtar/models/control_device_model.dart';
+import 'package:akilli_anahtar/models/sensor_device_model.dart';
 
 class BoxWithDevices {
   Box? box;
-  List<Relay>? relays;
-  List<Sensor>? sensors;
+  List<ControlDeviceModel>? controlDeviceModels;
+  List<SensorDeviceModel>? sensorDeviceModels;
   BoxWithDevices({
     this.box,
-    this.relays,
-    this.sensors,
+    this.controlDeviceModels,
+    this.sensorDeviceModels,
   });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'box': box?.toMap(),
-      'relays': relays?.map((x) => x.toMap()).toList(),
-      'sensors': sensors?.map((x) => x.toMap()).toList(),
+      'controlDeviceModels':
+          controlDeviceModels?.map((x) => x.toMap()).toList(),
+      'sensorDeviceModels': sensorDeviceModels?.map((x) => x.toMap()).toList(),
     };
   }
 
   factory BoxWithDevices.fromMap(Map<String, dynamic> map) {
     return BoxWithDevices(
       box: Box.fromMap(map['box'] as Map<String, dynamic>),
-      relays: List<Relay>.from(
-        (map['relays'] as List<dynamic>).map<Relay>(
-          (x) => Relay.fromMap(x as Map<String, dynamic>),
+      controlDeviceModels: List<ControlDeviceModel>.from(
+        (map['controlDeviceModels'] as List<dynamic>).map<ControlDeviceModel>(
+          (x) => ControlDeviceModel.fromMap(x as Map<String, dynamic>),
         ),
       ),
-      sensors: List<Sensor>.from(
-        (map['sensors'] as List<dynamic>).map<Sensor>(
-          (x) => Sensor.fromMap(x as Map<String, dynamic>),
+      sensorDeviceModels: List<SensorDeviceModel>.from(
+        (map['sensorDeviceModels'] as List<dynamic>).map<SensorDeviceModel>(
+          (x) => SensorDeviceModel.fromMap(x as Map<String, dynamic>),
         ),
       ),
     );

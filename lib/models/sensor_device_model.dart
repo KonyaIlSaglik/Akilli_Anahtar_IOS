@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
+import 'package:akilli_anahtar/utils/hive_constants.dart';
 
 part '../hive_adapters/sensor_device_model.g.dart';
 
@@ -58,6 +59,9 @@ class SensorDeviceModel {
   @HiveField(16)
   String? boxOrganisationName;
 
+  @HiveField(17)
+  List<String>? rfCodes;
+
   bool isSub;
 
   SensorDeviceModel({
@@ -78,6 +82,7 @@ class SensorDeviceModel {
     this.boxName,
     this.boxOrganisationId,
     this.boxOrganisationName,
+    this.rfCodes,
     this.isSub = false,
   });
 
@@ -100,32 +105,46 @@ class SensorDeviceModel {
       'boxName': boxName,
       'boxOrganisationId': boxOrganisationId,
       'boxOrganisationName': boxOrganisationName,
+      'rfCodes': json.encode(rfCodes),
     };
   }
 
   factory SensorDeviceModel.fromMap(Map<String, dynamic> map) {
     return SensorDeviceModel(
-      id: map['id'] as int?,
-      name: map['name'] as String?,
-      deviceTypeId: map['deviceTypeId'] as int?,
-      topicStat: map['topicStat'] as String?,
-      description: map['description'] as String?,
-      boxId: map['boxId'] as int?,
-      pin: map['pin'] as String?,
-      active: map['active'] as int?,
-      unit: map['unit'] as String?,
-      valueRangeId: map['valueRangeId'] as int?,
-      valueRangeMin: (map['valueRangeMin'] is num)
-          ? (map['valueRangeMin'] as num).toDouble()
+      id: map['id'] != null ? map['id'] as int : null,
+      name: map['name'] != null ? map['name'] as String : null,
+      deviceTypeId:
+          map['deviceTypeId'] != null ? map['deviceTypeId'] as int : null,
+      topicStat: map['topicStat'] != null ? map['topicStat'] as String : null,
+      description:
+          map['description'] != null ? map['description'] as String : null,
+      boxId: map['boxId'] != null ? map['boxId'] as int : null,
+      pin: map['pin'] != null ? map['pin'] as String : null,
+      active: map['active'] != null ? map['active'] as int : null,
+      unit: map['unit'] != null ? map['unit'] as String : null,
+      valueRangeId:
+          map['valueRangeId'] != null ? map['valueRangeId'] as int : null,
+      valueRangeMin:
+          map['valueRangeMin'] != null ? map['valueRangeMin'] as double : null,
+      valueRangeMax:
+          map['valueRangeMax'] != null ? map['valueRangeMax'] as double : null,
+      deviceTypeName: map['deviceTypeName'] != null
+          ? map['deviceTypeName'] as String
           : null,
-      valueRangeMax: (map['valueRangeMax'] is num)
-          ? (map['valueRangeMax'] as num).toDouble()
+      deviceTypeMenuId: map['deviceTypeMenuId'] != null
+          ? map['deviceTypeMenuId'] as int
           : null,
-      deviceTypeName: map['deviceTypeName'] as String?,
-      deviceTypeMenuId: map['deviceTypeMenuId'] as int?,
-      boxName: map['boxName'] as String?,
-      boxOrganisationId: map['boxOrganisationId'] as int?,
-      boxOrganisationName: map['boxOrganisationName'] as String?,
+      boxName: map['boxName'] != null ? map['boxName'] as String : null,
+      boxOrganisationId: map['boxOrganisationId'] != null
+          ? map['boxOrganisationId'] as int
+          : null,
+      boxOrganisationName: map['boxOrganisationName'] != null
+          ? map['boxOrganisationName'] as String
+          : null,
+      rfCodes: map['rfCodes'] != null
+          ? List<String>.from(
+              (map['rfCodes'] as List<dynamic>).map((item) => item.toString()))
+          : null,
     );
   }
 
