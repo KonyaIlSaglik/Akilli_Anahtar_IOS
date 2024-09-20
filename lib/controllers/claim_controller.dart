@@ -1,11 +1,33 @@
+import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
+import 'package:akilli_anahtar/entities/organisation.dart';
+import 'package:akilli_anahtar/entities/relay.dart';
+import 'package:akilli_anahtar/entities/sensor.dart';
+import 'package:akilli_anahtar/entities/user_device.dart';
 import 'package:akilli_anahtar/entities/user_operation_claim.dart';
+import 'package:akilli_anahtar/services/api/box_service.dart';
 import 'package:akilli_anahtar/services/api/operation_claim_service.dart';
+import 'package:akilli_anahtar/services/api/organisation_service.dart';
+import 'package:akilli_anahtar/services/api/relay_service.dart';
+import 'package:akilli_anahtar/services/api/user_device_service.dart';
 import 'package:akilli_anahtar/services/api/user_operation_claim_service.dart';
 import 'package:get/get.dart';
 
 class ClaimController extends GetxController {
   var operationClaims = <OperationClaim>[].obs;
+  var organisations = <Organisation>[].obs;
+  var boxes = <Box>[].obs;
+  var filteredBoxes = <Box>[].obs;
+  var selectedOrganisationId = 0.obs;
+  var selectedBoxId = 0.obs;
+
+  var userDevices = <UserDevice>[].obs;
+
+  var relays = <Relay>[].obs;
+  var filteredRelays = <Relay>[].obs;
+
+  var sensors = <Sensor>[].obs;
+  var filteredSensors = <Sensor>[].obs;
 
   Future<void> getAllClaims() async {
     var claimsResult = await OperationClaimService.getAll();
@@ -36,5 +58,76 @@ class ClaimController extends GetxController {
       return true;
     }
     return false;
+  }
+
+  Future<void> getOrganisations() async {
+    var result = await OrganisationService.getAll();
+    if (result != null) {
+      organisations.value = result;
+    }
+  }
+
+  Future<void> getBoxes() async {
+    var result = await BoxService.getAll();
+    if (result != null) {
+      boxes.value = result;
+    }
+  }
+
+  void filterBoxes() {
+    filteredBoxes.value = selectedOrganisationId.value == 0
+        ? boxes
+        : boxes
+            .where((b) => b.organisationId == selectedOrganisationId.value)
+            .toList();
+  }
+
+  Future<void> getAllUserDevice(int userId) async {
+    var userDevicesResult = await UserDeviceService.getAllByUserId(userId);
+    if (userDevicesResult != null) {
+      userDevices.value = userDevicesResult;
+    }
+  }
+
+  Future<UserDevice?> addUserDevice(UserDevice device) async {
+    var userDeviceResult = await UserDeviceService.add(device);
+    if (userDeviceResult.success && userDeviceResult.data != null) {
+      return userDeviceResult.data;
+    }
+    return null;
+  }
+
+  Future<bool> deleteUserDevice(int id) async {
+    var userDeviceResult = await UserDeviceService.delete(id);
+    if (userDeviceResult.success) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> getRelays() async {
+    var result = await RelayService.getAll();
+    if (result != null) {
+      relays.value = result;
+    }
+  }
+
+  void filterRelays() {
+    filteredRelays.value = selectedBoxId.value == 0
+        ? relays
+        : relays.where((b) => b.boxId == selectedBoxId.value).toList();
+  }
+
+  Future<void> getSensors() async {
+    var result = await RelayService.getAll();
+    if (result != null) {
+      relays.value = result;
+    }
+  }
+
+  void filterSensors() {
+    filteredSensors.value = selectedBoxId.value == 0
+        ? sensors
+        : sensors.where((b) => b.boxId == selectedBoxId.value).toList();
   }
 }

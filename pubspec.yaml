@@ -73,6 +73,7 @@ dependencies:
   hive_flutter: ^1.1.0
   flutter_background_service: ^5.0.10
   flutter_local_notifications: ^17.2.2
+  dropdown_search: ^5.0.6
 
 flutter_icons:
   android: "launcher_icon"

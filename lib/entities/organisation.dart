@@ -41,9 +41,11 @@ class Organisation {
       address: map['address'] as String,
       cityId: map['cityId'] as int,
       districtId: map['districtId'] as int,
-      type: map['type'] as int,
-      maxUserCount: map['maxUserCount'] as int,
-      maxSessionCount: map['maxSessionCount'] as int,
+      type: map['type'] != null ? map['type'] as int : 0,
+      maxUserCount:
+          map['maxUserCount'] != null ? map['maxUserCount'] as int : 0,
+      maxSessionCount:
+          map['maxSessionCount'] != null ? map['maxSessionCount'] as int : 0,
     );
   }
 

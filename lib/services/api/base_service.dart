@@ -37,6 +37,7 @@ class BaseService {
       },
     );
     client.close();
+    print("Burada");
     if (response.statusCode == 200) {
       return response.body;
     }
@@ -90,10 +91,11 @@ class BaseService {
   }
 
   static Future<Result> delete(String url, int id) async {
-    var uri = Uri.parse("$url/delete?id$id");
+    var uri = Uri.parse("$url/delete?id=$id");
     var client = http.Client();
     var authController = Get.find<AuthController>();
     var tokenModel = authController.tokenModel.value;
+    print(uri.toString());
     var response = await client.delete(
       uri,
       headers: {
@@ -102,6 +104,7 @@ class BaseService {
       },
     );
     client.close();
+    print(response.statusCode);
     var result = Result();
     if (response.statusCode == 200) {
       var body = json.decode(response.body) as Map<String, dynamic>;

@@ -1,9 +1,9 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/data_result.dart';
 import 'package:akilli_anahtar/models/register_model.dart';
 import 'package:akilli_anahtar/models/result.dart';
+import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'dart:convert';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
@@ -37,20 +37,9 @@ class UserService {
   }
 
   static Future<User?> get(int id) async {
-    var uri = Uri.parse("$url/get?id=$id");
-    var client = http.Client();
-    var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
-    var response = await client.get(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
-      },
-    );
-    client.close();
-    if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
+    var response = await BaseService.get(url, id);
+    if (response != null) {
+      var result = json.decode(response) as Map<String, dynamic>;
       var user = User.fromJson(json.encode(result["data"]));
       return user;
     }
@@ -58,20 +47,9 @@ class UserService {
   }
 
   static Future<List<User>?> getAll() async {
-    var uri = Uri.parse("$url/getall");
-    var client = http.Client();
-    var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
-    var response = await client.get(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
-      },
-    );
-    client.close();
-    if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
+    var response = await BaseService.getAll(url);
+    if (response != null) {
+      var result = json.decode(response) as Map<String, dynamic>;
       var userList = List<User>.from((result["data"] as List<dynamic>)
           .map((e) => User.fromJson(json.encode(e))));
       return userList;
@@ -133,29 +111,7 @@ class UserService {
   }
 
   static Future<Result> delete(id) async {
-    var uri = Uri.parse("$url/delete?id=$id");
-    var client = http.Client();
-    var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
-    var response = await client.delete(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
-      },
-    );
-    client.close();
-    print(response.body);
-    var result = Result();
-    if (response.statusCode == 200) {
-      var jsonResult = json.decode(response.body) as Map<String, dynamic>;
-      result.success = jsonResult["success"];
-      result.message = jsonResult["message"];
-    } else {
-      result.success = false;
-      result.message = response.body;
-    }
-    return result;
+    return BaseService.delete(url, id);
   }
 
   static Future<Result> passUpdate(int id, String password) async {

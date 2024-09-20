@@ -1,10 +1,15 @@
 import 'package:akilli_anahtar/controllers/claim_controller.dart';
 import 'package:akilli_anahtar/controllers/user_controller.dart';
+import 'package:akilli_anahtar/entities/box.dart';
+import 'package:akilli_anahtar/entities/organisation.dart';
+import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/entities/user_device.dart';
 import 'package:akilli_anahtar/entities/user_operation_claim.dart';
 import 'package:akilli_anahtar/models/register_model.dart';
-import 'package:akilli_anahtar/pages/admin/admin_index_page.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:turkish/turkish.dart';
 
 class UserAddEditPage extends StatefulWidget {
   const UserAddEditPage({Key? key}) : super(key: key);
@@ -13,7 +18,8 @@ class UserAddEditPage extends StatefulWidget {
   State<UserAddEditPage> createState() => _UserAddEditPageState();
 }
 
-class _UserAddEditPageState extends State<UserAddEditPage> {
+class _UserAddEditPageState extends State<UserAddEditPage>
+    with TickerProviderStateMixin {
   UserController userController = Get.find();
   ClaimController claimController = Get.put(ClaimController());
   final _formKey = GlobalKey<FormState>();
@@ -31,6 +37,10 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
       if (claims != null) {
         userController.selectedUserClaims.value = claims;
       }
+      claimController.getOrganisations();
+      claimController.getBoxes();
+      claimController.getRelays();
+      claimController.getSensors();
     });
   }
 
@@ -78,7 +88,9 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
               onPressed: () async {
                 await userController
                     .delete(userController.selectedUser.value.id);
-                Get.to(() => AdminIndexPage());
+                userController.users.remove(userController.selectedUser.value);
+                userController.selectedUser.value = User();
+                Navigator.pop(context);
               },
             ),
           ],
@@ -168,15 +180,15 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
                         initialValue: userController.selectedUser.value.mail,
                         onChanged: (value) =>
                             userController.selectedUser.value.mail = value,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter an email';
-                          }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
+                        // validator: (value) {
+                        //   if (value == null || value.isEmpty) {
+                        //     return 'Please enter an email';
+                        //   }
+                        //   if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        //     return 'Please enter a valid email';
+                        //   }
+                        //   return null;
+                        // },
                       ),
                       SizedBox(height: 8),
                       TextFormField(
@@ -185,12 +197,12 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
                             userController.selectedUser.value.telephone,
                         onChanged: (value) =>
                             userController.selectedUser.value.telephone = value,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a telephone number';
-                          }
-                          return null;
-                        },
+                        // validator: (value) {
+                        //   if (value == null || value.isEmpty) {
+                        //     return 'Please enter a telephone number';
+                        //   }
+                        //   return null;
+                        // },
                       ),
                       if (userController.selectedUser.value.id == 0)
                         Column(
@@ -249,22 +261,32 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
                             return ListTile(
                               title: Text(c.name),
                               trailing: Checkbox(
-                                onChanged: (value) {
-                                  if (value!) {
-                                    claimController
-                                        .addUserClaim(UserOperationClaim(
-                                      id: 0,
-                                      userId:
-                                          userController.selectedUser.value.id,
-                                      operationClaimId: c.id,
-                                    ));
-                                  } else {
-                                    var claim = userController
-                                        .selectedUserClaims
-                                        .firstWhereOrNull((uc) =>
-                                            uc.operationClaimId == c.id);
-                                    claimController.deleteUserClaim(
-                                        claim != null ? claim.id : 0);
+                                onChanged: (value) async {
+                                  if (value != null) {
+                                    if (value) {
+                                      var addedClaim = await claimController
+                                          .addUserClaim(UserOperationClaim(
+                                        id: 0,
+                                        userId: userController
+                                            .selectedUser.value.id,
+                                        operationClaimId: c.id,
+                                      ));
+                                      if (addedClaim != null) {
+                                        userController.selectedUserClaims
+                                            .add(addedClaim);
+                                      }
+                                    } else {
+                                      var claim = userController
+                                          .selectedUserClaims
+                                          .firstWhere((uc) =>
+                                              uc.operationClaimId == c.id);
+                                      var isDeleted = await claimController
+                                          .deleteUserClaim(claim.id);
+                                      if (isDeleted) {
+                                        userController.selectedUserClaims
+                                            .remove(claim);
+                                      }
+                                    }
                                   }
                                 },
                                 value: userController.selectedUserClaims
@@ -274,8 +296,226 @@ class _UserAddEditPageState extends State<UserAddEditPage> {
                           }).toList(),
                         ),
                         Divider(),
-                        ExpansionTile(
+                        ListTile(
                           title: Text("Cihaz Yetkileri"),
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.95,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: AlertDialog(
+                                    content: Column(
+                                      children: [
+                                        claimController.organisations.isEmpty
+                                            ? CircularProgressIndicator()
+                                            : DropdownSearch<Organisation>(
+                                                dropdownDecoratorProps:
+                                                    DropDownDecoratorProps(
+                                                        dropdownSearchDecoration:
+                                                            InputDecoration(
+                                                  hintText: "Kurum Seç",
+                                                  border: OutlineInputBorder(),
+                                                )),
+                                                popupProps: PopupProps.menu(
+                                                  showSearchBox: true,
+                                                ),
+                                                items: claimController
+                                                    .organisations,
+                                                selectedItem: claimController
+                                                    .organisations
+                                                    .firstWhereOrNull((o) =>
+                                                        o.id ==
+                                                        claimController
+                                                            .selectedOrganisationId
+                                                            .value),
+                                                itemAsString: (item) =>
+                                                    item.name,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    claimController
+                                                        .selectedOrganisationId
+                                                        .value = value!.id;
+                                                    claimController
+                                                        .filterBoxes();
+                                                  });
+                                                },
+                                                filterFn: (item, filter) {
+                                                  return item.name
+                                                      .toLowerCaseTr()
+                                                      .contains(filter
+                                                          .toLowerCaseTr());
+                                                },
+                                              ),
+                                        SizedBox(height: 8),
+                                        claimController.boxes.isEmpty
+                                            ? CircularProgressIndicator()
+                                            : DropdownSearch<Box>(
+                                                popupProps: PopupProps.menu(
+                                                  showSearchBox: true,
+                                                ),
+                                                items: claimController
+                                                    .filteredBoxes,
+                                                selectedItem: claimController
+                                                    .filteredBoxes
+                                                    .firstWhereOrNull((o) =>
+                                                        o.id ==
+                                                        claimController
+                                                            .selectedBoxId
+                                                            .value),
+                                                itemAsString: (item) =>
+                                                    item.name,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    claimController
+                                                        .selectedBoxId
+                                                        .value = value!.id;
+                                                  });
+                                                },
+                                                filterFn: (item, filter) {
+                                                  return item.name
+                                                      .toLowerCaseTr()
+                                                      .contains(filter
+                                                          .toLowerCaseTr());
+                                                },
+                                              ),
+                                        SizedBox(height: 8),
+                                        Expanded(
+                                          child: DefaultTabController(
+                                            initialIndex: 0,
+                                            length: 2,
+                                            child: Scaffold(
+                                              appBar: AppBar(
+                                                toolbarHeight: 0,
+                                                automaticallyImplyLeading:
+                                                    false,
+                                                bottom: const TabBar(
+                                                  tabs: <Widget>[
+                                                    Tab(
+                                                      text: "Röleler",
+                                                    ),
+                                                    Tab(
+                                                      text: "Sensörler",
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              body: TabBarView(
+                                                children: <Widget>[
+                                                  ListView.separated(
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return ListTile(
+                                                        title: Text(
+                                                            claimController
+                                                                .relays[index]
+                                                                .name),
+                                                        trailing: Checkbox(
+                                                          onChanged:
+                                                              (value) async {
+                                                            if (value != null) {
+                                                              if (value) {
+                                                                var addedUserDevice =
+                                                                    await claimController
+                                                                        .addUserDevice(
+                                                                  UserDevice(
+                                                                    id: 0,
+                                                                    userId: userController
+                                                                        .selectedUser
+                                                                        .value
+                                                                        .id,
+                                                                    boxId: claimController
+                                                                        .relays[
+                                                                            index]
+                                                                        .boxId,
+                                                                    deviceId: claimController
+                                                                        .relays[
+                                                                            index]
+                                                                        .id,
+                                                                    deviceTypeId: claimController
+                                                                        .relays[
+                                                                            index]
+                                                                        .deviceTypeId,
+                                                                  ),
+                                                                );
+                                                                if (addedUserDevice !=
+                                                                    null) {
+                                                                  claimController
+                                                                      .userDevices
+                                                                      .add(
+                                                                          addedUserDevice);
+                                                                }
+                                                              } else {
+                                                                var userDevice = claimController.userDevices.firstWhere((ud) =>
+                                                                    ud.deviceId ==
+                                                                        claimController
+                                                                            .relays[
+                                                                                index]
+                                                                            .id &&
+                                                                    ud.deviceTypeId ==
+                                                                        claimController
+                                                                            .relays[index]
+                                                                            .deviceTypeId);
+                                                                var isDeleted =
+                                                                    await claimController
+                                                                        .deleteUserDevice(
+                                                                            userDevice.id);
+                                                                if (isDeleted) {
+                                                                  claimController
+                                                                      .userDevices
+                                                                      .remove(
+                                                                          userDevice);
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          value: claimController.userDevices.any((ud) =>
+                                                              ud.deviceId ==
+                                                                  claimController
+                                                                      .relays[
+                                                                          index]
+                                                                      .id &&
+                                                              ud.deviceTypeId ==
+                                                                  claimController
+                                                                      .relays[
+                                                                          index]
+                                                                      .deviceTypeId),
+                                                        ),
+                                                      );
+                                                    },
+                                                    separatorBuilder:
+                                                        (context, index) {
+                                                      return Divider();
+                                                    },
+                                                    itemCount: claimController
+                                                        .relays.length,
+                                                  ),
+                                                  Center(
+                                                    child:
+                                                        Text("It's rainy here"),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        child: Text("Kapat"),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                      )
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
                       ],
                     ),

@@ -1,28 +1,15 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'dart:convert';
 import 'package:akilli_anahtar/models/result.dart';
+import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
-import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 
 class OrganisationService {
   static String url = "$apiUrlOut/Organisation";
   static Future<Organisation?> get(int id) async {
-    var uri = Uri.parse("$url/get?id=$id");
-    var client = http.Client();
-    var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
-    var response = await client.get(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
-      },
-    );
-    client.close();
-    if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
+    var response = await BaseService.get(url, id);
+    if (response != null) {
+      var result = json.decode(response) as Map<String, dynamic>;
       var organisation = Organisation.fromJson(json.encode(result["data"]));
       return organisation;
     }
@@ -30,20 +17,9 @@ class OrganisationService {
   }
 
   static Future<List<Organisation>?> getAll() async {
-    var uri = Uri.parse("$url/getall");
-    var client = http.Client();
-    var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
-    var response = await client.get(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
-      },
-    );
-    client.close();
-    if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
+    var response = await BaseService.getAll(url);
+    if (response != null) {
+      var result = json.decode(response) as Map<String, dynamic>;
       var organisationList = List<Organisation>.from(
           (result["data"] as List<dynamic>)
               .map((e) => Organisation.fromJson(json.encode(e))));
@@ -53,48 +29,14 @@ class OrganisationService {
   }
 
   static Future<Result> add(Organisation organisation) async {
-    var uri = Uri.parse("$url/add");
-    var client = http.Client();
-    var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
-    var response = await client.post(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
-      },
-      body: organisation.toJson(),
-    );
-    client.close();
-    var result = Result();
-    if (response.statusCode == 200) {
-      var body = json.decode(response.body) as Map<String, dynamic>;
-      result.success = body["success"] as bool;
-      result.message = body["message"] ?? "";
-    }
-    return result;
+    return BaseService.add(url, organisation.toJson());
   }
 
   static Future<Result> update(Organisation organisation) async {
-    var uri = Uri.parse("$url/update");
-    var client = http.Client();
-    var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
-    var response = await client.put(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
-      },
-      body: organisation.toJson(),
-    );
-    client.close();
-    var result = Result();
-    if (response.statusCode == 200) {
-      var body = json.decode(response.body) as Map<String, dynamic>;
-      result.success = body["success"] as bool;
-      result.message = body["message"] ?? "";
-    }
-    return result;
+    return BaseService.update(url, organisation.toJson());
+  }
+
+  static Future<Result> delete(int id) async {
+    return BaseService.delete(url, id);
   }
 }

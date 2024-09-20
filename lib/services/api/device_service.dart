@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/entities/device_type.dart';
 import 'package:akilli_anahtar/models/box_with_devices.dart';
 import 'package:akilli_anahtar/models/control_device_model.dart';
 import 'package:akilli_anahtar/models/sensor_device_model.dart';
@@ -81,31 +80,6 @@ class DeviceService {
         ),
       );
       return boxWithDevicesList;
-    }
-    return null;
-  }
-
-  static Future<List<DeviceType>?> getDeviceTypes() async {
-    var uri = Uri.parse("$url/getdevicetypes");
-    var client = http.Client();
-    var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
-    var response = await client.get(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
-      },
-    );
-    client.close();
-    if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
-      var types = List<DeviceType>.from(
-        (result["data"] as List<dynamic>).map<DeviceType>(
-          (b) => DeviceType.fromMap(b as Map<String, dynamic>),
-        ),
-      );
-      return types;
     }
     return null;
   }
