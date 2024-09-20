@@ -1,6 +1,6 @@
-import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/entities/user_device.dart';
+import 'package:akilli_anahtar/entities/user_operation_claim.dart';
 import 'package:akilli_anahtar/models/register_model.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -12,7 +12,7 @@ class UserController extends GetxController {
   var users = <User>[].obs;
   var selectedUser = User().obs;
   var searchQuery = "".obs;
-  var selectedUserClaims = <OperationClaim>[].obs;
+  var selectedUserClaims = <UserOperationClaim>[].obs;
   var selectedUserDevices = <UserDevice>[].obs;
 
   Future<void> getAll() async {
@@ -59,10 +59,10 @@ class UserController extends GetxController {
     errorSnackbar("Başarısız", "Bilgiler Güncellenemedi");
   }
 
-  Future<void> delete(User user) async {
-    var response = await UserService.delete(user);
+  Future<void> delete(int id) async {
+    var response = await UserService.delete(id);
     if (response.success) {
-      users.remove(user);
+      users.remove(selectedUser.value);
       successSnackbar("Başarılı", "Silindi");
       return;
     }

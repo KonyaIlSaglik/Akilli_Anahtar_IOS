@@ -38,9 +38,9 @@ class OperationClaim {
       OperationClaim.fromMap(json.decode(source) as Map<String, dynamic>);
 
   static List<OperationClaim> fromJsonList(String source) =>
-      List<OperationClaim>.from(json
-          .decode(source)
+      List<OperationClaim>.from((json.decode(source) as List<dynamic>)
           .map((x) => OperationClaim.fromJson(json.encode(x))));
+
   static String toJsonList(List<OperationClaim> claims) {
     return json.encode(claims.map((c) => c.toJson()).toList());
   }

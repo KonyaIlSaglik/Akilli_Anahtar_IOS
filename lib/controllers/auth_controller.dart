@@ -118,11 +118,21 @@ class AuthController extends GetxController {
       await userManager.clear();
       await userManager.add(userResult);
       user.value = userResult;
-      var claims = await claimController.getUserClaims(user.value);
+      var claims = await getUserClaims(user.value);
       if (claims != null) {
         operationClaims.value = claims;
       }
     }
+  }
+
+  Future<List<OperationClaim>?> getUserClaims(User user) async {
+    if (user.id > 0) {
+      var claimsResult = await AuthService.getClaims(user);
+      if (claimsResult.success) {
+        return claimsResult.data!;
+      }
+    }
+    return null;
   }
 
   Future<void> logOut() async {

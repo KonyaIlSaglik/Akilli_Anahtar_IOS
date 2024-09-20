@@ -94,44 +94,47 @@ class _AdminIndexPageState extends State<AdminIndexPage> {
             ),
           ),
         ),
-        body: Obx(() {
-          if (userController.loadingUser.value) {
-            return Center(child: CircularProgressIndicator());
-          } else if (userController.users.isEmpty) {
-            return Center(child: Text("No users found."));
-          } else {
-            // Filter users based on the search query
-            final filteredUsers = userController.users.where((user) {
-              return user.fullName.toLowerCaseTr().contains(
-                      userController.searchQuery.value.toLowerCaseTr()) ||
-                  user.userName.toLowerCaseTr().contains(
-                      userController.searchQuery.value.toLowerCaseTr());
-            }).toList();
-            return ListView.separated(
-              itemBuilder: (context, i) {
-                return ListTile(
-                  leading: CircleAvatar(
-                    child:
-                        Text(filteredUsers[i].id.toString()), // Display user ID
-                  ),
-                  title: Text(filteredUsers[i].fullName),
-                  subtitle: Text(filteredUsers[i].userName),
-                  trailing: IconButton(
-                    icon: Icon(Icons.chevron_right),
-                    onPressed: () {
-                      userController.selectedUser.value = filteredUsers[i];
-                      Get.to(() => UserAddEditPage());
-                    },
-                  ),
-                );
-              },
-              separatorBuilder: (context, index) {
-                return Divider();
-              },
-              itemCount: filteredUsers.length,
-            );
-          }
-        }),
+        body: RefreshIndicator(
+          onRefresh: userController.getAll,
+          child: Obx(() {
+            if (userController.loadingUser.value) {
+              return Center(child: CircularProgressIndicator());
+            } else if (userController.users.isEmpty) {
+              return Center(child: Text("No users found."));
+            } else {
+              // Filter users based on the search query
+              final filteredUsers = userController.users.where((user) {
+                return user.fullName.toLowerCaseTr().contains(
+                        userController.searchQuery.value.toLowerCaseTr()) ||
+                    user.userName.toLowerCaseTr().contains(
+                        userController.searchQuery.value.toLowerCaseTr());
+              }).toList();
+              return ListView.separated(
+                itemBuilder: (context, i) {
+                  return ListTile(
+                    leading: CircleAvatar(
+                      child: Text(
+                          filteredUsers[i].id.toString()), // Display user ID
+                    ),
+                    title: Text(filteredUsers[i].fullName),
+                    subtitle: Text(filteredUsers[i].userName),
+                    trailing: IconButton(
+                      icon: Icon(Icons.chevron_right),
+                      onPressed: () {
+                        userController.selectedUser.value = filteredUsers[i];
+                        Get.to(() => UserAddEditPage());
+                      },
+                    ),
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return Divider();
+                },
+                itemCount: filteredUsers.length,
+              );
+            }
+          }),
+        ),
       ),
     );
   }

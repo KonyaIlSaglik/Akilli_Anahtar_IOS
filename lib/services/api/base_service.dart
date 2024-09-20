@@ -1,15 +1,11 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'dart:convert';
 import 'package:akilli_anahtar/models/result.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
-class OperationClaimService {
-  static String url = "$apiUrlOut/OperationClaim";
-
-  static Future<OperationClaim?> get(int id) async {
+class BaseService {
+  static Future<String?> get(String url, int id) async {
     var uri = Uri.parse("$url/get?id=$id");
     var client = http.Client();
     var authController = Get.find<AuthController>();
@@ -23,14 +19,12 @@ class OperationClaimService {
     );
     client.close();
     if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
-      var operationClaim = OperationClaim.fromJson(json.encode(result["data"]));
-      return operationClaim;
+      return response.body;
     }
     return null;
   }
 
-  static Future<List<OperationClaim>?> getAll() async {
+  static Future<String?> getAll(String url) async {
     var uri = Uri.parse("$url/getall");
     var client = http.Client();
     var authController = Get.find<AuthController>();
@@ -44,16 +38,12 @@ class OperationClaimService {
     );
     client.close();
     if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
-      var operationClaimList = List<OperationClaim>.from(
-          (result["data"] as List<dynamic>)
-              .map((e) => OperationClaim.fromJson(json.encode(e))));
-      return operationClaimList;
+      return response.body;
     }
     return null;
   }
 
-  static Future<Result> add(OperationClaim operationClaim) async {
+  static Future<Result> add(String url, String jsonData) async {
     var uri = Uri.parse("$url/add");
     var client = http.Client();
     var authController = Get.find<AuthController>();
@@ -64,7 +54,7 @@ class OperationClaimService {
         'content-type': 'application/json; charset=utf-8',
         'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
-      body: operationClaim.toJson(),
+      body: jsonData,
     );
     client.close();
     var result = Result();
@@ -76,7 +66,7 @@ class OperationClaimService {
     return result;
   }
 
-  static Future<Result> update(OperationClaim operationClaim) async {
+  static Future<Result> update(String url, String jsonData) async {
     var uri = Uri.parse("$url/update");
     var client = http.Client();
     var authController = Get.find<AuthController>();
@@ -87,7 +77,29 @@ class OperationClaimService {
         'content-type': 'application/json; charset=utf-8',
         'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
-      body: operationClaim.toJson(),
+      body: jsonData,
+    );
+    client.close();
+    var result = Result();
+    if (response.statusCode == 200) {
+      var body = json.decode(response.body) as Map<String, dynamic>;
+      result.success = body["success"] as bool;
+      result.message = body["message"] ?? "";
+    }
+    return result;
+  }
+
+  static Future<Result> delete(String url, int id) async {
+    var uri = Uri.parse("$url/delete?id$id");
+    var client = http.Client();
+    var authController = Get.find<AuthController>();
+    var tokenModel = authController.tokenModel.value;
+    var response = await client.delete(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
+      },
     );
     client.close();
     var result = Result();

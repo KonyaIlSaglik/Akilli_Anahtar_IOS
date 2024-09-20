@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/data_result.dart';
 import 'package:akilli_anahtar/models/register_model.dart';
@@ -131,8 +132,8 @@ class UserService {
     return dataResult;
   }
 
-  static Future<DataResult<User>> delete(User user) async {
-    var uri = Uri.parse("$url/delete");
+  static Future<Result> delete(id) async {
+    var uri = Uri.parse("$url/delete?id=$id");
     var client = http.Client();
     var authController = Get.find<AuthController>();
     var tokenModel = authController.tokenModel.value;
@@ -142,20 +143,19 @@ class UserService {
         'content-type': 'application/json; charset=utf-8',
         'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
-      body: user.toJson(),
     );
     client.close();
-    var dataResult = DataResult<User>();
+    print(response.body);
+    var result = Result();
     if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
-      dataResult.data = User.fromJson(json.encode(result["data"]));
-      dataResult.success = result["success"];
-      dataResult.message = result["message"];
+      var jsonResult = json.decode(response.body) as Map<String, dynamic>;
+      result.success = jsonResult["success"];
+      result.message = jsonResult["message"];
     } else {
-      dataResult.success = false;
-      dataResult.message = response.body;
+      result.success = false;
+      result.message = response.body;
     }
-    return dataResult;
+    return result;
   }
 
   static Future<Result> passUpdate(int id, String password) async {

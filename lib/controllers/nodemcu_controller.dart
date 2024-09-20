@@ -126,7 +126,7 @@ class NodemcuController extends GetxController {
   Future<void> sendConnectionSettings() async {
     var uri = Uri.parse("http://192.168.4.1/connectionsettings");
     var client = http.Client();
-    var response = await client.post(
+    await client.post(
       uri,
       headers: {
         'content-type': 'application/json',

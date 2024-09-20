@@ -99,10 +99,10 @@ class BoxService {
     return result;
   }
 
-  static Future<Result> delete(Box box) async {
+  static Future<Result> delete(int id) async {
     var authController = Get.find<AuthController>();
     var tokenModel = authController.tokenModel.value;
-    var uri = Uri.parse("$url/delete");
+    var uri = Uri.parse("$url/delete?id=$id");
     var client = http.Client();
     var response = await client.delete(
       uri,
@@ -110,7 +110,6 @@ class BoxService {
         'content-type': 'application/json; charset=utf-8',
         'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
-      body: box.toJson(),
     );
     client.close();
     var result = Result();
