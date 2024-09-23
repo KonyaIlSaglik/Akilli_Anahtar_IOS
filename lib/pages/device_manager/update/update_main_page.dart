@@ -58,6 +58,33 @@ class _UpdateMainPageState extends State<UpdateMainPage> {
                     ),
                   ),
                 ),
+                Obx(() {
+                  return updateController.checkingNewVersion.value
+                      ? CircularProgressIndicator()
+                      : Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: width * 0.05),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                children: [
+                                  Text(
+                                      "Versiyon: ${updateController.newVersion.value.version}"),
+                                  Text(updateController.newVersion.value.date),
+                                ],
+                              ),
+                              ElevatedButton.icon(
+                                label: Text("Yenile"),
+                                icon: Icon(Icons.refresh),
+                                onPressed: () {
+                                  updateController.checkNewVersion();
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                }),
               ],
             ),
           ),
@@ -75,17 +102,17 @@ class _UpdateMainPageState extends State<UpdateMainPage> {
                           "Cihaz Listesi",
                           style: TextStyle(fontSize: 20, color: Colors.white),
                         ),
-                        TextButton(
-                          onPressed: () {
-                            //
-                          },
-                          child: Text(
-                            "Tümünü Güncelle",
-                            style: TextStyle(
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ),
+                        // TextButton(
+                        //   onPressed: () {
+                        //     //
+                        //   },
+                        //   child: Text(
+                        //     "Tümünü Güncelle",
+                        //     style: TextStyle(
+                        //       color: Colors.white70,
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

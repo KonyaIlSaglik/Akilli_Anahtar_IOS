@@ -142,7 +142,7 @@ class _DrawerPageState extends State<DrawerPage> {
                               c.name == "device_install"))
                             ListTile(
                               leading: Icon(FontAwesomeIcons.upload),
-                              title: Text("Cihaz Güncelleme"),
+                              title: Text("Cihaz Yönetimi"),
                               onTap: () {
                                 Navigator.push(
                                   context,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:akilli_anahtar/models/box_with_devices.dart';
+
 class NodemcuInfoModel {
   String chipId;
   String wifiSsid;
@@ -9,9 +10,7 @@ class NodemcuInfoModel {
   String localIp;
   String serviceInfo;
   bool serviceConnected;
-  int relayCount;
-  int sensorCount;
-  bool haveDevices;
+  BoxWithDevices? boxWithDevices;
   String version;
   NodemcuInfoModel({
     this.chipId = "",
@@ -21,9 +20,7 @@ class NodemcuInfoModel {
     this.localIp = "",
     this.serviceInfo = "",
     this.serviceConnected = false,
-    this.relayCount = 0,
-    this.sensorCount = 0,
-    this.haveDevices = false,
+    this.boxWithDevices,
     this.version = "",
   });
 
@@ -36,9 +33,7 @@ class NodemcuInfoModel {
       'local_ip': localIp,
       'service_info': serviceInfo,
       'service_connected': serviceConnected,
-      'relay_count': relayCount,
-      'sensor_count': sensorCount,
-      'have_devices': haveDevices,
+      'box': boxWithDevices,
       'version': version,
     };
   }
@@ -57,10 +52,7 @@ class NodemcuInfoModel {
       serviceConnected: map['service_connected'] != null
           ? map['service_connected'] as bool
           : false,
-      relayCount: map['relay_count'] != null ? map['relay_count'] as int : 0,
-      sensorCount: map['sensor_count'] != null ? map['sensor_count'] as int : 0,
-      haveDevices:
-          map['have_devices'] != null ? map['have_devices'] as bool : false,
+      boxWithDevices: BoxWithDevices.fromMap(map["box"]),
       version: map['version'] != null ? map['version'] as String : "",
     );
   }

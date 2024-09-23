@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:akilli_anahtar/controllers/device_controller.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/bahce/sulama_card.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -47,7 +45,7 @@ class _BahcePageState extends State<BahcePage> {
                           stones: deviceController.gardenDevices
                               .map((gardenDevice) {
                             return Stone(
-                              id: 4,
+                              id: gardenDevice.id!,
                               height: 1,
                               width: 4,
                               child: BahceSulamaCard(

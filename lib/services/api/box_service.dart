@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/models/result.dart';
+import 'package:akilli_anahtar/models/version_model.dart';
 import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:http/http.dart' as http;
@@ -42,20 +43,19 @@ class BoxService {
     return BaseService.delete(url, id);
   }
 
-  static Future<String> checkNewVersion() async {
+  static Future<VersionModel> checkNewVersion() async {
+    var model = VersionModel();
     try {
       var uri = Uri.parse("https://www.ossbs.com/update/version.html");
       var client = http.Client();
       var response = await client.get(uri);
       if (response.statusCode == 200) {
-        var s1 = response.body.split(":");
-        var s2 = s1[1].split("-");
-        return s2[0];
+        return VersionModel.fromString(response.body);
       }
     } catch (e) {
       print(e);
-      return "";
+      return model;
     }
-    return "";
+    return model;
   }
 }
