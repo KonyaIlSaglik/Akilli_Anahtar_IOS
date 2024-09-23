@@ -35,7 +35,7 @@ class UserDeviceService {
     return null;
   }
 
-  static Future<DataResult<UserDevice>> add(UserDevice operationClaim) async {
+  static Future<DataResult<UserDevice>> add(UserDevice userDevice) async {
     var uri = Uri.parse("$url/add");
     var client = http.Client();
     var authController = Get.find<AuthController>();
@@ -46,9 +46,12 @@ class UserDeviceService {
         'content-type': 'application/json; charset=utf-8',
         'Authorization': 'Bearer ${tokenModel.accessToken}',
       },
-      body: operationClaim.toJson(),
+      body: userDevice.toJson(),
     );
     client.close();
+    print(userDevice.toJson());
+    print(uri.toString());
+    print(response.body);
     var dataResult = DataResult<UserDevice>();
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;

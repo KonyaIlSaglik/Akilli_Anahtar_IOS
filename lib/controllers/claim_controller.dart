@@ -9,9 +9,11 @@ import 'package:akilli_anahtar/services/api/box_service.dart';
 import 'package:akilli_anahtar/services/api/operation_claim_service.dart';
 import 'package:akilli_anahtar/services/api/organisation_service.dart';
 import 'package:akilli_anahtar/services/api/relay_service.dart';
+import 'package:akilli_anahtar/services/api/sensor_service.dart';
 import 'package:akilli_anahtar/services/api/user_device_service.dart';
 import 'package:akilli_anahtar/services/api/user_operation_claim_service.dart';
 import 'package:get/get.dart';
+import 'package:turkish/turkish.dart';
 
 class ClaimController extends GetxController {
   var operationClaims = <OperationClaim>[].obs;
@@ -64,6 +66,8 @@ class ClaimController extends GetxController {
     var result = await OrganisationService.getAll();
     if (result != null) {
       organisations.value = result;
+      organisations.sort(
+          ((a, b) => a.name.toLowerCaseTr().compareTo(b.name.toLowerCaseTr())));
     }
   }
 
@@ -71,15 +75,23 @@ class ClaimController extends GetxController {
     var result = await BoxService.getAll();
     if (result != null) {
       boxes.value = result;
+      boxes.sort(
+          ((a, b) => a.name.toLowerCaseTr().compareTo(b.name.toLowerCaseTr())));
     }
   }
 
   void filterBoxes() {
+    selectedBoxId.value = 0;
     filteredBoxes.value = selectedOrganisationId.value == 0
         ? boxes
         : boxes
             .where((b) => b.organisationId == selectedOrganisationId.value)
             .toList();
+    filteredRelays.value =
+        relays.where((r) => filteredBoxes.any((b) => b.id == r.boxId)).toList();
+    filteredSensors.value = sensors
+        .where((s) => filteredBoxes.any((b) => b.id == s.boxId))
+        .toList();
   }
 
   Future<void> getAllUserDevice(int userId) async {
@@ -119,9 +131,9 @@ class ClaimController extends GetxController {
   }
 
   Future<void> getSensors() async {
-    var result = await RelayService.getAll();
+    var result = await SensorService.getAll();
     if (result != null) {
-      relays.value = result;
+      sensors.value = result;
     }
   }
 

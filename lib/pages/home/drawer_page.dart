@@ -82,57 +82,6 @@ class _DrawerPageState extends State<DrawerPage> {
               Expanded(
                 child: ListView(
                   children: [
-                    if (_authController.operationClaims.any((c) =>
-                        c.name == "developer" || c.name == "device_install"))
-                      ExpansionTile(
-                        title: Text("Cihaz Yönetimi"),
-                        children: [
-                          ListTile(
-                            leading: Icon(Icons.settings_input_component),
-                            title: Text("Kurulum"),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute<void>(
-                                  builder: (BuildContext context) =>
-                                      IntroductionPage(),
-                                ),
-                              );
-                            },
-                            trailing: Icon(Icons.chevron_right),
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.upgrade),
-                            title: Text("Yazılım Güncelleme"),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute<void>(
-                                  builder: (BuildContext context) =>
-                                      UpdateMainPage(),
-                                ),
-                              );
-                            },
-                            trailing: Icon(Icons.chevron_right),
-                          ),
-                        ],
-                      ),
-                    if (_authController.operationClaims
-                        .any((c) => c.name == "developer" || c.name == "admin"))
-                      ListTile(
-                        leading: Icon(FontAwesomeIcons.userShield),
-                        title: Text("Admin"),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (BuildContext context) =>
-                                  AdminIndexPage(),
-                            ),
-                          );
-                        },
-                        trailing: Icon(Icons.chevron_right),
-                      ),
                     ListTile(
                       leading: Icon(Icons.lock),
                       title: Text("Şifre Değiştir"),
@@ -163,7 +112,64 @@ class _DrawerPageState extends State<DrawerPage> {
                       },
                       trailing: Icon(Icons.chevron_right),
                     ),
-                    Divider(),
+                    if (_authController.operationClaims.any((c) =>
+                        c.name == "developer" ||
+                        c.name == "device_install" ||
+                        c.name == "admin"))
+                      ExpansionTile(
+                        leading: Icon(FontAwesomeIcons.userShield),
+                        title: Text("Admin"),
+                        children: [
+                          if (_authController.operationClaims.any((c) =>
+                              c.name == "developer" ||
+                              c.name == "device_install"))
+                            ListTile(
+                              leading: Icon(Icons.settings_input_component),
+                              title: Text("Cihaz Kurulum"),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute<void>(
+                                    builder: (BuildContext context) =>
+                                        IntroductionPage(),
+                                  ),
+                                );
+                              },
+                              trailing: Icon(Icons.chevron_right),
+                            ),
+                          if (_authController.operationClaims.any((c) =>
+                              c.name == "developer" ||
+                              c.name == "device_install"))
+                            ListTile(
+                              leading: Icon(FontAwesomeIcons.upload),
+                              title: Text("Cihaz Güncelleme"),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute<void>(
+                                    builder: (BuildContext context) =>
+                                        UpdateMainPage(),
+                                  ),
+                                );
+                              },
+                              trailing: Icon(Icons.chevron_right),
+                            ),
+                          ListTile(
+                            leading: Icon(FontAwesomeIcons.users),
+                            title: Text("Kullanıcı Yönetimi"),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (BuildContext context) =>
+                                      AdminIndexPage(),
+                                ),
+                              );
+                            },
+                            trailing: Icon(Icons.chevron_right),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),

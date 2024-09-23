@@ -72,6 +72,7 @@ class DeviceService {
       },
     );
     client.close();
+    print(response.body);
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
       var boxWithDevicesList = List<BoxWithDevices>.from(
@@ -124,6 +125,8 @@ class DeviceService {
       },
     );
     client.close();
+    print("home");
+    print(response.body);
     if (response.statusCode == 200) {
       var result = json.decode(response.body) as Map<String, dynamic>;
       try {

@@ -1,7 +1,8 @@
 import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/entities/user.dart';
-import 'package:akilli_anahtar/pages/admin/user_detail_page.dart';
+import 'package:akilli_anahtar/pages/admin/user_add_edit_page.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
 
@@ -47,8 +48,10 @@ class _AdminIndexPageState extends State<AdminIndexPage> {
           title: Text("Kullanıcılar"),
           actions: [
             DropdownButton<String>(
-              value: selectedSortOption,
-              icon: Icon(Icons.sort),
+              icon: Icon(
+                FontAwesomeIcons.listUl,
+                color: Colors.blue,
+              ),
               dropdownColor: Colors.white,
               padding: EdgeInsets.only(top: 10),
               onChanged: (String? newValue) {
@@ -65,12 +68,18 @@ class _AdminIndexPageState extends State<AdminIndexPage> {
                 );
               }).toList(),
             ),
-            IconButton(
-              onPressed: () {
-                userController.selectedUser.value = User();
-                Get.to(() => UserAddEditPage());
-              },
-              icon: Icon(Icons.person_add_alt),
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: IconButton(
+                onPressed: () {
+                  userController.selectedUser.value = User();
+                  Get.to(() => UserAddEditPage());
+                },
+                icon: Icon(
+                  FontAwesomeIcons.userPlus,
+                  color: Colors.green,
+                ),
+              ),
             ),
           ],
           bottom: PreferredSize(

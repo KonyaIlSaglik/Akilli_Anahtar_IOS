@@ -56,11 +56,12 @@ class _IntroductionPageState extends State<IntroductionPage> {
                     ),
                   ),
                   controlsPadding: EdgeInsets.only(top: 50),
-                  showNextButton:
-                      (page == 0 && _nodemcuController.downloaded.value) ||
-                          (page == 1 &&
-                              _wifiController.isConnected.value &&
-                              _nodemcuController.boxDevices.isNotEmpty),
+                  showNextButton: (page == 0 &&
+                          _nodemcuController.downloaded.value &&
+                          !_nodemcuController.boxDevicesIsEmpty.value) ||
+                      (page == 1 &&
+                          _wifiController.isConnected.value &&
+                          _nodemcuController.boxDevices.isNotEmpty),
                   next: Text(
                     page == 0 ? "Başla" : "Sonraki",
                     style: TextStyle(
@@ -130,7 +131,9 @@ class _IntroductionPageState extends State<IntroductionPage> {
                     });
                     if (page == 2) {
                       await _nodemcuController.getChipId();
-                      await _nodemcuController.getNodemcuApList();
+                      if (_nodemcuController.selectedDevice.value.box != null) {
+                        await _nodemcuController.getNodemcuApList();
+                      }
                     }
                   },
                   pages: [

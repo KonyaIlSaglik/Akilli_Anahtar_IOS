@@ -1,6 +1,5 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/device_type.dart';
-import 'package:akilli_anahtar/models/box_with_devices.dart';
 import 'package:akilli_anahtar/models/control_device_model.dart';
 import 'package:akilli_anahtar/models/sensor_device_model.dart';
 import 'package:akilli_anahtar/services/api/device_service.dart';
@@ -13,18 +12,12 @@ class DeviceController extends GetxController {
   var loadingDeviceTypes = false.obs;
   var loadingControlDevices = false.obs;
   var loadingSensorDevices = false.obs;
+  var loadingGardenDevices = false.obs;
   var deviceTypes = <DeviceType>[].obs;
-  var boxWithDevices = <BoxWithDevices>[].obs;
 
   var controlDevices = <ControlDeviceModel>[].obs;
   var sensorDevices = <SensorDeviceModel>[].obs;
-
-  @override
-  void onInit() async {
-    super.onInit();
-    await getControlDevices();
-    await getSensorDevices();
-  }
+  var gardenDevices = <ControlDeviceModel>[].obs;
 
   Future<void> getControlDevices() async {
     print("loadingControlDevices");
@@ -61,12 +54,29 @@ class DeviceController extends GetxController {
     }
   }
 
+  Future<void> getGardenDevices() async {
+    print("loadingGardenDevices");
+    loadingGardenDevices.value = true;
+    var id = _authController.user.value.id;
+    if (id > 0) {
+      try {
+        var response = await DeviceService.getControlDevices(id, 3);
+        if (response != null) {
+          gardenDevices.value = response;
+        }
+      } catch (e) {
+        errorSnackbar('Error', '1- Bir hata oluştu');
+      } finally {
+        loadingGardenDevices.value = false;
+      }
+    }
+  }
+
   void clearController() {
     loadingDeviceTypes.value = false;
     loadingControlDevices.value = false;
     loadingSensorDevices.value = false;
     deviceTypes.value = <DeviceType>[];
-    boxWithDevices.value = <BoxWithDevices>[];
 
     controlDevices.value = <ControlDeviceModel>[];
     sensorDevices.value = <SensorDeviceModel>[];

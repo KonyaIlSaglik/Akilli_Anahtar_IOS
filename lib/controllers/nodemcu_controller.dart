@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 
 class NodemcuController extends GetxController {
   var boxDevices = <BoxWithDevices>[].obs;
+  var boxDevicesIsEmpty = false.obs;
   var connModel = NodemcuConnectionModel().obs;
   var downloaded = false.obs;
   var chipId = "".obs;
@@ -21,17 +22,11 @@ class NodemcuController extends GetxController {
   var wifiPASS = "".obs;
   var uploading = false.obs;
 
-  @override
-  void onInit() async {
-    super.onInit();
-    await getDeviceList();
-    await getConnModel();
-  }
-
   Future<void> getDeviceList() async {
     var result = await DeviceService.getDevicesForInstall();
     if (result != null) {
       boxDevices.value = result;
+      boxDevicesIsEmpty.value = boxDevices.isEmpty;
     }
   }
 
@@ -71,6 +66,9 @@ class NodemcuController extends GetxController {
       selectedDevice.value = boxDevices.firstWhereOrNull(
               (e) => e.box!.chipId.toString() == chipId.value) ??
           BoxWithDevices();
+      if (selectedDevice.value.box == null) {
+        apScanning.value = false;
+      }
     }
   }
 
@@ -91,7 +89,9 @@ class NodemcuController extends GetxController {
   }
 
   void reviseConnModel() {
-    connModel.value.apSsid = "${connModel.value.apSsid}_${chipId.value}";
+    if (!connModel.value.apSsid!.endsWith(chipId.value)) {
+      connModel.value.apSsid = "${connModel.value.apSsid}_${chipId.value}";
+    }
     connModel.value.wifiSsid = wifiSSID.value;
     connModel.value.wifiPass = wifiPASS.value;
     connModel.value.mqttClientId = "AA${chipId.value}";
@@ -105,6 +105,7 @@ class NodemcuController extends GetxController {
   Future<void> sendDeviceSetting() async {
     uploading.value = true;
     await WiFiForIoTPlugin.forceWifiUsage(true);
+    print(selectedDevice.value.toJson());
     var uri = Uri.parse("http://192.168.4.1/devicesettings");
     var client = http.Client();
     var response = await client.post(

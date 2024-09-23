@@ -26,11 +26,17 @@ class StartPageViewModel {
                   ? CircularProgressIndicator(
                       color: goldColor,
                     )
-                  : Icon(
-                      Icons.done,
-                      color: Colors.green,
-                      size: 50,
-                    ),
+                  : nodemcuController.boxDevicesIsEmpty.value
+                      ? Icon(
+                          Icons.remove_circle_outline,
+                          color: Colors.grey,
+                          size: 50,
+                        )
+                      : Icon(
+                          Icons.done,
+                          color: Colors.green,
+                          size: 50,
+                        ),
             ),
             SizedBox(
               height: height * 0.01,
@@ -38,31 +44,33 @@ class StartPageViewModel {
             Center(
               child: !nodemcuController.downloaded.value
                   ? Text("Lütfen bekleyin...")
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Devam etmek için ",
-                          style: TextStyle(
-                            fontSize: 18,
-                          ),
+                  : nodemcuController.boxDevicesIsEmpty.value
+                      ? Text("Cihaz Listesi Bulunamadı. Destek ile görüşün.")
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Devam etmek için ",
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(
+                              "'Başla'",
+                              style: TextStyle(
+                                color: goldColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(
+                              " butonuna basınız.",
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          "'Başla'",
-                          style: TextStyle(
-                            color: goldColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        Text(
-                          " butonuna basınız.",
-                          style: TextStyle(
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
             ),
           ],
         );

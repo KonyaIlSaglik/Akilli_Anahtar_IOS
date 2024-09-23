@@ -37,7 +37,10 @@ class BaseService {
       },
     );
     client.close();
-    print("Burada");
+    print(uri.toString());
+    print(response.statusCode);
+    print(response.body);
+    print("");
     if (response.statusCode == 200) {
       return response.body;
     }

@@ -1,15 +1,19 @@
+import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/models/control_device_model.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/bahce/zamanlama_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mqtt5_client/mqtt5_client.dart';
 
 class BahceSulamaCard extends StatefulWidget {
-  final String title;
+  final ControlDeviceModel device;
   const BahceSulamaCard({
     Key? key,
-    required this.title,
+    required this.device,
   }) : super(key: key);
 
   @override
@@ -17,6 +21,10 @@ class BahceSulamaCard extends StatefulWidget {
 }
 
 class _BahceSulamaCardState extends State<BahceSulamaCard> {
+  late ControlDeviceModel device;
+  final MqttController _mqttController = Get.find<MqttController>();
+  bool isSub = false;
+
   final controller = ValueNotifier<bool>(false);
   bool _checked = false;
 
@@ -30,8 +38,40 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
         } else {
           _checked = false;
         }
+        if (_mqttController.isConnected.value) {
+          _mqttController.publishMessage(
+              device.topicRec!, _checked == true ? "0" : "1");
+        }
       });
     });
+    device = widget.device;
+    _mqttController.subscribeToTopic(device.topicStat!);
+    _mqttController.onMessage((topic, message) {
+      if (topic == device.topicStat) {
+        if (mounted) {
+          setState(() {
+            controller.value = message == "0" ? true : false;
+          });
+        }
+      }
+    });
+    _mqttController.subListenerList.add((topic) {
+      if (mounted) {
+        setState(() {
+          if (topic == device.topicStat) {
+            isSub = true;
+          }
+        });
+      }
+    });
+    var result = _mqttController.getSubscriptionTopicStatus(device.topicStat);
+    if (result == MqttSubscriptionStatus.active) {
+      if (mounted) {
+        setState(() {
+          isSub = true;
+        });
+      }
+    }
   }
 
   @override
@@ -65,7 +105,7 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
                         ),
                       ),
                       Text(
-                        widget.title,
+                        device.name!,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -113,7 +153,7 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
                       context,
                       MaterialPageRoute<void>(
                         builder: (BuildContext context) =>
-                            ZamanlamaPage(hat: widget.title),
+                            ZamanlamaPage(hat: device.name!),
                       ),
                     );
                   },

@@ -1,5 +1,6 @@
 import 'package:akilli_anahtar/controllers/device_controller.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/barrier_door_item_4.dart';
+import 'package:akilli_anahtar/pages/home/tab_page/kapi/led_pin_item_9.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/light_item_5.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/null_item.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/rf_command_item_6.dart';
@@ -23,6 +24,11 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
   void initState() {
     super.initState();
     print("ControlDevicesPage Started.");
+    Future.delayed(Duration.zero, () async {
+      await deviceController.getControlDevices();
+      await deviceController.getSensorDevices();
+      await deviceController.getGardenDevices();
+    });
   }
 
   @override
@@ -91,6 +97,9 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
       }
       if (device.deviceTypeId == 6) {
         tempList.add(RfCommandItem6(device: device));
+      }
+      if (device.deviceTypeId == 9) {
+        tempList.add(LedPinItem9(device: device));
       }
     }
     toEnd();

@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class UserDevice {
@@ -26,11 +27,12 @@ class UserDevice {
 
   factory UserDevice.fromMap(Map<String, dynamic> map) {
     return UserDevice(
-      id: map['id'] as int,
-      userId: map['userId'] as int,
-      deviceId: map['deviceId'] as int,
-      deviceTypeId: map['deviceTypeId'] as int,
-      boxId: map['boxId'] as int,
+      id: map['id'] != null ? map['id'] as int : 0,
+      userId: map['userId'] != null ? map['userId'] as int : 0,
+      deviceId: map['deviceId'] != null ? map['deviceId'] as int : 0,
+      deviceTypeId:
+          map['deviceTypeId'] != null ? map['deviceTypeId'] as int : 0,
+      boxId: map['boxId'] != null ? map['boxId'] as int : 0,
     );
   }
 
@@ -38,4 +40,20 @@ class UserDevice {
 
   factory UserDevice.fromJson(String source) =>
       UserDevice.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  UserDevice copyWith({
+    int? id,
+    int? userId,
+    int? deviceId,
+    int? deviceTypeId,
+    int? boxId,
+  }) {
+    return UserDevice(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      deviceId: deviceId ?? this.deviceId,
+      deviceTypeId: deviceTypeId ?? this.deviceTypeId,
+      boxId: boxId ?? this.boxId,
+    );
+  }
 }

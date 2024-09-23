@@ -31,4 +31,16 @@ class UserOperationClaim {
 
   factory UserOperationClaim.fromJson(String source) =>
       UserOperationClaim.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  UserOperationClaim copyWith({
+    int? id,
+    int? userId,
+    int? operationClaimId,
+  }) {
+    return UserOperationClaim(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      operationClaimId: operationClaimId ?? this.operationClaimId,
+    );
+  }
 }

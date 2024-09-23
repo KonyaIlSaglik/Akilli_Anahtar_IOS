@@ -1,8 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
+import 'package:akilli_anahtar/utils/hive_constants.dart';
 
 part '../hive_adapters/user.g.dart';
 
@@ -81,4 +82,28 @@ class User {
 
   factory User.fromJson(String source) =>
       User.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  User copyWith({
+    int? id,
+    String? userName,
+    String? password,
+    String? passwordHash,
+    String? passwordSalt,
+    String? fullName,
+    int? active,
+    String? telephone,
+    String? mail,
+  }) {
+    return User(
+      id: id ?? this.id,
+      userName: userName ?? this.userName,
+      password: password ?? this.password,
+      passwordHash: passwordHash ?? this.passwordHash,
+      passwordSalt: passwordSalt ?? this.passwordSalt,
+      fullName: fullName ?? this.fullName,
+      active: active ?? this.active,
+      telephone: telephone ?? this.telephone,
+      mail: mail ?? this.mail,
+    );
+  }
 }
