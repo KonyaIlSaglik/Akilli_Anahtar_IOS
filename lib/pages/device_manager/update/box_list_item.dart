@@ -33,6 +33,7 @@ class _BoxListItemState extends State<BoxListItem> {
         updateController.boxList[i].box.topicRec, "getinfo");
     mqttController.onMessage((topic, message) {
       if (topic == updateController.boxList[i].box.topicRes) {
+        print(updateController.boxList[i].infoModel!.toJson());
         if (message.isNotEmpty) {
           if (message == "boxConnected") {
             updateController.boxList[i].isSub = true;
@@ -42,13 +43,11 @@ class _BoxListItemState extends State<BoxListItem> {
           }
           if (isJson(message)) {
             updateController.boxList[i].isSub = true;
-            print(message);
             updateController.boxList[i].infoModel =
                 NodemcuInfoModel.fromJson(message);
-            var jsonData = json.decode(message);
-            if (jsonData != null && jsonData["version"] != null) {
-              var info = NodemcuInfoModel.fromJson(message);
-              updateController.boxList[i].box.version = info.version;
+            if (updateController.boxList[i].infoModel!.version.isNotEmpty) {
+              updateController.boxList[i].box.version =
+                  updateController.boxList[i].infoModel!.version;
               var bv = updateController.boxList[i].box.version;
               var nv = updateController.newVersion.value;
               if (nv.version.isNotEmpty) {
@@ -218,7 +217,7 @@ class _BoxListItemState extends State<BoxListItem> {
                                     ListTile(
                                       title: Text("Cihaz Adı:"),
                                       trailing: Text(
-                                          infoModel!.boxWithDevices!.box!.name),
+                                          infoModel!.devicesInfo!.box!.name),
                                     )
                                   ],
                                 ),

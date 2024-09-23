@@ -32,7 +32,6 @@ class _SensorListItemState extends State<SensorListItem> {
 
     _mqttController.onMessage((topic, message) {
       if (topic == sensor.topicStat) {
-        print(message);
         var result = json.decode(message);
         if (mounted) {
           setState(() {

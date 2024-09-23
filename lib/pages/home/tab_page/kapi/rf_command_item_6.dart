@@ -61,7 +61,6 @@ class _RfCommandItem6State extends State<RfCommandItem6>
     return InkWell(
       onTap: () {
         if (_mqttController.isConnected.value) {
-          print(device.rfCodes![0]);
           _mqttController.publishMessage(device.topicRec!, device.rfCodes![0]);
         }
       },

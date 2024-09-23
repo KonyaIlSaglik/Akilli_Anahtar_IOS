@@ -29,7 +29,6 @@ class _LedPinItem9State extends State<LedPinItem9>
     _mqttController.subscribeToTopic(device.topicStat!);
     _mqttController.onMessage((topic, message) {
       if (topic == device.topicStat) {
-        print("Topic: $topic, Message: $message");
         if (mounted) {
           setState(() {
             status = message;

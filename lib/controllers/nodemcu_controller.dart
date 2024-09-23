@@ -105,7 +105,6 @@ class NodemcuController extends GetxController {
   Future<void> sendDeviceSetting() async {
     uploading.value = true;
     await WiFiForIoTPlugin.forceWifiUsage(true);
-    print(selectedDevice.value.toJson());
     var uri = Uri.parse("http://192.168.4.1/devicesettings");
     var client = http.Client();
     var response = await client.post(
