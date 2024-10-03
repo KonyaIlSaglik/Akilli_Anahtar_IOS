@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
-import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
 import 'package:akilli_anahtar/pages/home/datetime/date_view.dart';
 import 'package:akilli_anahtar/pages/home/datetime/time_view.dart';
 import 'package:akilli_anahtar/pages/home/index/index_page.dart';
@@ -20,18 +19,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final MqttController _mqttController = Get.put(MqttController());
-  final NodemcuController _nodemcuController = Get.put(NodemcuController());
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(
-      Duration.zero,
-      () async {
-        await _nodemcuController.getDeviceList();
-        await _nodemcuController.getConnModel();
-      },
-    );
   }
 
   @override

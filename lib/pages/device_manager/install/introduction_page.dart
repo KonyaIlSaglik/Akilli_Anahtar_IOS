@@ -27,6 +27,13 @@ class _IntroductionPageState extends State<IntroductionPage> {
   @override
   void initState() {
     super.initState();
+    Future.delayed(
+      Duration.zero,
+      () async {
+        await _nodemcuController.getDeviceList();
+        await _nodemcuController.getConnModel();
+      },
+    );
   }
 
   @override

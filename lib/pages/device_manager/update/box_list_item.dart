@@ -33,16 +33,14 @@ class _BoxListItemState extends State<BoxListItem> {
         updateController.boxList[i].box.topicRec, "getinfo");
     mqttController.onMessage((topic, message) {
       if (topic == updateController.boxList[i].box.topicRes) {
-        print(updateController.boxList[i].infoModel!.toJson());
         if (message.isNotEmpty) {
+          updateController.boxList[i].isSub = true;
           if (message == "boxConnected") {
-            updateController.boxList[i].isSub = true;
             updateController.boxList[i].upgrading = false;
             mqttController.publishMessage(
                 updateController.boxList[i].box.topicRec, "getinfo");
           }
           if (isJson(message)) {
-            updateController.boxList[i].isSub = true;
             updateController.boxList[i].infoModel =
                 NodemcuInfoModel.fromJson(message);
             if (updateController.boxList[i].infoModel!.version.isNotEmpty) {
@@ -66,6 +64,12 @@ class _BoxListItemState extends State<BoxListItem> {
                 }
               }
             }
+          } else {
+            errorSnackbar(updateController.boxList[i].box.name,
+                "veri uygun formatta değil.");
+          }
+          if (updateController.boxList[i].isSub) {
+            updateController.sortBoxList();
           }
         } else {
           updateController.boxList[i].isSub = false;
@@ -110,7 +114,7 @@ class _BoxListItemState extends State<BoxListItem> {
                 : updateController.boxList[i].isSub
                     ? updateController.boxList[i].isOld
                         ? Text(
-                            "(Yeni sürüm mevcut: ${updateController.newVersion})",
+                            "(Yeni sürüm mevcut: ${updateController.newVersion.value.version})",
                             style: TextStyle(
                               color: Colors.red,
                             ),
@@ -177,55 +181,178 @@ class _BoxListItemState extends State<BoxListItem> {
                     context: context,
                     isScrollControlled: true,
                     builder: (context) {
-                      var infoModel = updateController.boxList[i].infoModel;
-                      return SizedBox(
-                        height: MediaQuery.of(context).size.height *
-                            0.80, // Adjust height as needed
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              // Title for the modal
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8.0),
-                                    child: Text(
-                                      "Cihaz Bilgileri",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+                      return Obx(() {
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height *
+                              0.80, // Adjust height as needed
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                // Title for the modal
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Text(
+                                        "Cihaz Bilgileri",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.close),
-                                    onPressed: () {
-                                      Navigator.pop(
-                                          context); // Closes the modal
-                                    },
-                                  ),
-                                ],
-                              ),
-                              Divider(), // Optional divider for separation
-                              Expanded(
-                                child: ListView(
-                                  children: [
-                                    ListTile(
-                                      title: Text("Cihaz Adı:"),
-                                      trailing: Text(
-                                          infoModel!.devicesInfo!.box!.name),
-                                    )
+                                    IconButton(
+                                      icon: Icon(Icons.close),
+                                      onPressed: () {
+                                        Navigator.pop(
+                                            context); // Closes the modal
+                                      },
+                                    ),
                                   ],
                                 ),
-                              ),
-                            ],
+                                Divider(thickness: 2),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    ElevatedButton(
+                                      child: Text(updateController
+                                              .boxList[i].infoModel!.apEnable
+                                          ? "AP Kapat"
+                                          : "AP Aç"),
+                                      onPressed: () {
+                                        mqttController.publishMessage(
+                                            updateController
+                                                .boxList[i].box.topicRec,
+                                            updateController.boxList[i]
+                                                    .infoModel!.apEnable
+                                                ? "apdisable"
+                                                : "apenable");
+                                      },
+                                    ),
+                                    ElevatedButton(
+                                      child: Text("Restart"),
+                                      onPressed: () {
+                                        mqttController.publishMessage(
+                                            updateController
+                                                .boxList[i].box.topicRec,
+                                            "reboot");
+                                      },
+                                    ),
+                                    ElevatedButton(
+                                      child: Text("Güncelle"),
+                                      onPressed: () {
+                                        updateController.boxList[i].upgrading =
+                                            true;
+                                        mqttController.publishMessage(
+                                            updateController
+                                                .boxList[i].box.topicRec,
+                                            "doUpgrade");
+                                        setState(() {});
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                Divider(), // Optional divider for separation
+                                Expanded(
+                                  child: ListView(
+                                    children: [
+                                      ListTile(
+                                        title: Text("Cihaz Adı:"),
+                                        trailing: Text(
+                                          updateController.boxList[i].box.name,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: Text("Host Adı:"),
+                                        trailing: Text(
+                                          updateController
+                                              .boxList[i].infoModel!.hostName,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: Text("Chip Id:"),
+                                        trailing: Text(
+                                          updateController
+                                              .boxList[i].infoModel!.chipId,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: Text("Local Ip:"),
+                                        trailing: Text(
+                                          updateController
+                                              .boxList[i].infoModel!.localIp,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: Text("Mac Adresi:"),
+                                        trailing: Text(
+                                          updateController
+                                              .boxList[i].infoModel!.macAddress,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: Text("Wifi SSID:"),
+                                        trailing: Text(
+                                          updateController
+                                              .boxList[i].infoModel!.wifiSsid,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: Text("Wifi Şifre:"),
+                                        trailing: Text(
+                                          updateController.boxList[i].infoModel!
+                                              .wifiPassword,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: Text("Servis Bağlantısı:"),
+                                        trailing: Text(
+                                          updateController.boxList[i].infoModel!
+                                                  .serviceConnected
+                                              ? "Bağlı"
+                                              : "Bağlantı Yok",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: Text("Access Point"),
+                                        trailing: Text(
+                                          updateController.boxList[i].infoModel!
+                                                  .apEnable
+                                              ? "Açık"
+                                              : "Kapalı",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      });
                     },
                   );
                 } else {

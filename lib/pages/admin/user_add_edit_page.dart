@@ -2,10 +2,9 @@ import 'package:akilli_anahtar/controllers/claim_controller.dart';
 import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/register_model.dart';
-import 'package:akilli_anahtar/pages/admin/box_select_widget.dart';
-import 'package:akilli_anahtar/pages/admin/device_tab_controller_widget.dart';
-import 'package:akilli_anahtar/pages/admin/organisation_select_widget.dart';
+import 'package:akilli_anahtar/pages/admin/user_device_claim_widget.dart';
 import 'package:akilli_anahtar/pages/admin/user_operation_claim_list_view_widget.dart';
+import 'package:akilli_anahtar/pages/admin/user_organisation_claim_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -35,6 +34,11 @@ class _UserAddEditPageState extends State<UserAddEditPage>
           .getAllUserClaims(userController.selectedUser.value.id);
       if (claims != null) {
         userController.selectedUserClaims.value = claims;
+      }
+      var userOrganisations = await claimController
+          .getAllUserOrganisations(userController.selectedUser.value.id);
+      if (userOrganisations != null) {
+        userController.selectedUserOrganisations.value = userOrganisations;
       }
       await claimController.getOrganisations();
       await claimController.getBoxes();
@@ -297,68 +301,11 @@ class _UserAddEditPageState extends State<UserAddEditPage>
                           child: Text('Güncelle'),
                         ),
                         Divider(),
-                        UserOperationClaimListViewWidget(),
+                        UserOperationClaimListViewWidget(), // İşlem Yetkileri Butonu
                         Divider(),
-                        ListTile(
-                          title: Text("Cihaz Yetkileri"),
-                          onTap: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled:
-                                  true, // Allows for scrolling if content is large
-                              builder: (context) {
-                                return SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.95, // Makes it responsive
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(
-                                        16.0), // Optional padding
-                                    child: Column(
-                                      mainAxisSize:
-                                          MainAxisSize.min, // Wraps content
-                                      children: [
-                                        // Title for the modal
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 8.0),
-                                              child: Text(
-                                                "Cihaz Yetkileri",
-                                                style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: Icon(Icons.close),
-                                              onPressed: () {
-                                                Navigator.pop(
-                                                    context); // Closes the modal
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                        Divider(), // Optional divider for separation
-                                        OrganisationSelectWidget(),
-                                        SizedBox(height: 8),
-                                        BoxSelectWidget(),
-                                        SizedBox(height: 8),
-                                        Expanded(
-                                          child: DeviceTabControllerWidget(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
+                        UserDeviceClaimWidget(),
+                        Divider(),
+                        UserOrganisationClaimWidget(),
                       ],
                     ),
                   ),

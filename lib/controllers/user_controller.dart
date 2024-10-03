@@ -1,6 +1,7 @@
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/entities/user_device.dart';
 import 'package:akilli_anahtar/entities/user_operation_claim.dart';
+import 'package:akilli_anahtar/entities/user_organisation.dart';
 import 'package:akilli_anahtar/models/register_model.dart';
 import 'package:akilli_anahtar/services/api/user_device_service.dart';
 import 'package:akilli_anahtar/services/api/user_operation_claim_service.dart';
@@ -16,6 +17,7 @@ class UserController extends GetxController {
   var searchQuery = "".obs;
   var selectedUserClaims = <UserOperationClaim>[].obs;
   var selectedUserDevices = <UserDevice>[].obs;
+  var selectedUserOrganisations = <UserOrganisation>[].obs;
 
   Future<void> getAll() async {
     loadingUser.value = true;

@@ -11,6 +11,7 @@ class VersionModel {
 
   factory VersionModel.fromString(String data) {
     // string -->  Ver:1.13-01.09.2023_11.30
+    print(data);
     var model = VersionModel();
     if (data.contains(":")) {
       data = data.split(":")[1];

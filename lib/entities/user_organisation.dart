@@ -21,9 +21,10 @@ class UserOrganisation {
 
   factory UserOrganisation.fromMap(Map<String, dynamic> map) {
     return UserOrganisation(
-      id: map['id'] as int,
-      userId: map['userId'] as int,
-      organisationId: map['organisationId'] as int,
+      id: map['id'] != null ? map['id'] as int : 0,
+      userId: map['userId'] != null ? map['userId'] as int : 0,
+      organisationId:
+          map['organisationId'] != null ? map['organisationId'] as int : 0,
     );
   }
 

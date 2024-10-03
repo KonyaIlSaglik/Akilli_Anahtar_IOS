@@ -5,6 +5,7 @@ import 'package:akilli_anahtar/entities/relay.dart';
 import 'package:akilli_anahtar/entities/sensor.dart';
 import 'package:akilli_anahtar/entities/user_device.dart';
 import 'package:akilli_anahtar/entities/user_operation_claim.dart';
+import 'package:akilli_anahtar/entities/user_organisation.dart';
 import 'package:akilli_anahtar/services/api/box_service.dart';
 import 'package:akilli_anahtar/services/api/operation_claim_service.dart';
 import 'package:akilli_anahtar/services/api/organisation_service.dart';
@@ -12,6 +13,7 @@ import 'package:akilli_anahtar/services/api/relay_service.dart';
 import 'package:akilli_anahtar/services/api/sensor_service.dart';
 import 'package:akilli_anahtar/services/api/user_device_service.dart';
 import 'package:akilli_anahtar/services/api/user_operation_claim_service.dart';
+import 'package:akilli_anahtar/services/api/user_organisation_service.dart';
 import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
 
@@ -69,6 +71,33 @@ class ClaimController extends GetxController {
       organisations.sort(
           ((a, b) => a.name.toLowerCaseTr().compareTo(b.name.toLowerCaseTr())));
     }
+  }
+
+  Future<List<UserOrganisation>?> getAllUserOrganisations(int userId) async {
+    var userOrganisationResult =
+        await UserOrganisationService.getAllByUserId(userId);
+    if (userOrganisationResult != null) {
+      return userOrganisationResult;
+    }
+    return null;
+  }
+
+  Future<UserOrganisation?> addUserOrganisation(
+      UserOrganisation userOrganisation) async {
+    var userOrganisationResult =
+        await UserOrganisationService.add(userOrganisation);
+    if (userOrganisationResult.success && userOrganisationResult.data != null) {
+      return userOrganisationResult.data;
+    }
+    return null;
+  }
+
+  Future<bool> deleteUserOrganisation(int id) async {
+    var userOrganisationResult = await UserOrganisationService.delete(id);
+    if (userOrganisationResult.success) {
+      return true;
+    }
+    return false;
   }
 
   Future<void> getBoxes() async {

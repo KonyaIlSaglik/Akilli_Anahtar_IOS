@@ -1,8 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:akilli_anahtar/models/box_with_devices.dart';
-
 class NodemcuInfoModel {
   String hostName;
   String chipId;
@@ -13,7 +11,6 @@ class NodemcuInfoModel {
   String localIp;
   bool serviceConnected;
   String version;
-  BoxWithDevices? devicesInfo;
 
   NodemcuInfoModel({
     this.hostName = "",
@@ -25,7 +22,6 @@ class NodemcuInfoModel {
     this.localIp = "",
     this.serviceConnected = false,
     this.version = "",
-    this.devicesInfo,
   });
 
   Map<String, dynamic> toMap() {
@@ -39,7 +35,6 @@ class NodemcuInfoModel {
       'localIp': localIp,
       'serviceConnected': serviceConnected,
       'version': version,
-      'devicesInfo': devicesInfo?.toMap(),
     };
   }
 
@@ -57,9 +52,6 @@ class NodemcuInfoModel {
           ? map['serviceConnected'] as bool
           : false,
       version: map['version'] != null ? map['version'] as String : "",
-      devicesInfo: map['devicesInfo'] != null
-          ? BoxWithDevices.fromMap(map['devicesInfo'] as Map<String, dynamic>)
-          : BoxWithDevices(),
     );
   }
 
