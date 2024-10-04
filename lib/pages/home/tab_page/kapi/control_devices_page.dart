@@ -25,9 +25,7 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
     super.initState();
     print("ControlDevicesPage Started.");
     Future.delayed(Duration.zero, () async {
-      await deviceController.getControlDevices();
-      await deviceController.getSensorDevices();
-      await deviceController.getGardenDevices();
+      await deviceController.getUserDevices();
     });
   }
 
@@ -36,7 +34,7 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
     return RefreshIndicator(
       color: goldColor,
       onRefresh: () async {
-        await deviceController.getControlDevices();
+        await deviceController.getUserDevices();
       },
       child: ListView(
         children: [
@@ -89,16 +87,16 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
       }
     }
     for (var device in deviceController.controlDevices) {
-      if (device.deviceTypeId == 4) {
+      if (device.typeId == 4) {
         tempList.add(BarrierDoorItem4(device: device));
       }
-      if (device.deviceTypeId == 5) {
+      if (device.typeId == 5) {
         tempList.add(LightItem5(device: device));
       }
-      if (device.deviceTypeId == 6) {
+      if (device.typeId == 6) {
         tempList.add(RfCommandItem6(device: device));
       }
-      if (device.deviceTypeId == 9) {
+      if (device.typeId == 9) {
         tempList.add(LedPinItem9(device: device));
       }
     }

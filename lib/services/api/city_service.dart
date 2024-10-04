@@ -1,41 +1,90 @@
+import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/city.dart';
+import 'package:akilli_anahtar/entities/district.dart';
 import 'dart:convert';
-import 'package:akilli_anahtar/models/result.dart';
-import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 class CityService {
   static String url = "$apiUrlOut/City";
-  static Future<City?> get(int id) async {
-    var response = await BaseService.get(url, id);
-    if (response != null) {
-      var result = json.decode(response) as Map<String, dynamic>;
-      var city = City.fromJson(json.encode(result["data"]));
+  static Future<City?> getCity(int id) async {
+    var uri = Uri.parse("$url/getCity?id=$id");
+    var client = http.Client();
+    var authController = Get.find<AuthController>();
+    var tokenModel = authController.tokenModel.value;
+    var response = await client.get(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
+      },
+    );
+    client.close();
+    if (response.statusCode == 200) {
+      var city = City.fromJson(response.body);
       return city;
     }
     return null;
   }
 
-  static Future<List<City>?> getAll() async {
-    var response = await BaseService.getAll(url);
-    if (response != null) {
-      var result = json.decode(response) as Map<String, dynamic>;
-      var cityList = List<City>.from((result["data"] as List<dynamic>)
-          .map((e) => City.fromJson(json.encode(e))));
+  static Future<List<City>?> getAllCity() async {
+    var uri = Uri.parse("$url/getAllCity");
+    var client = http.Client();
+    var authController = Get.find<AuthController>();
+    var tokenModel = authController.tokenModel.value;
+    var response = await client.get(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
+      },
+    );
+    client.close();
+    if (response.statusCode == 200) {
+      var cityList = City.fromJsonList(json.encode(response.body));
       return cityList;
     }
     return null;
   }
 
-  static Future<Result> add(City city) async {
-    return BaseService.add(url, city.toJson());
+  static Future<District?> getDistrict(int id) async {
+    var uri = Uri.parse("$url/getDistrict?id=$id");
+    var client = http.Client();
+    var authController = Get.find<AuthController>();
+    var tokenModel = authController.tokenModel.value;
+    var response = await client.get(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
+      },
+    );
+    client.close();
+    if (response.statusCode == 200) {
+      var district = District.fromJson(response.body);
+      return district;
+    }
+    return null;
   }
 
-  static Future<Result> update(City city) async {
-    return BaseService.update(url, city.toJson());
-  }
-
-  static Future<Result> delete(int id) async {
-    return BaseService.delete(url, id);
+  static Future<List<District>?> getAllDistrict() async {
+    var uri = Uri.parse("$url/getAllDistrict");
+    var client = http.Client();
+    var authController = Get.find<AuthController>();
+    var tokenModel = authController.tokenModel.value;
+    var response = await client.get(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${tokenModel.accessToken}',
+      },
+    );
+    client.close();
+    if (response.statusCode == 200) {
+      var districtList = District.fromJsonList(json.encode(response.body));
+      return districtList;
+    }
+    return null;
   }
 }

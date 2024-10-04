@@ -1,5 +1,5 @@
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
-import 'package:akilli_anahtar/models/control_device_model.dart';
+import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_text_scroll.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +8,7 @@ import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:turkish/turkish.dart';
 
 class RfCommandItem6 extends StatefulWidget {
-  final ControlDeviceModel device;
+  final Device device;
   const RfCommandItem6({Key? key, required this.device}) : super(key: key);
 
   @override
@@ -17,7 +17,7 @@ class RfCommandItem6 extends StatefulWidget {
 
 class _RfCommandItem6State extends State<RfCommandItem6>
     with AutomaticKeepAliveClientMixin {
-  late ControlDeviceModel device;
+  late Device device;
   final MqttController _mqttController = Get.find<MqttController>();
 
   bool isSub = false;
@@ -26,7 +26,7 @@ class _RfCommandItem6State extends State<RfCommandItem6>
   void initState() {
     super.initState();
     device = widget.device;
-    _mqttController.subscribeToTopic(device.topicStat!);
+    _mqttController.subscribeToTopic(device.topicStat);
     _mqttController.onMessage((topic, message) {
       if (topic == device.topicStat) {
         if (mounted) {
@@ -121,7 +121,7 @@ class _RfCommandItem6State extends State<RfCommandItem6>
           child: Padding(
             padding: const EdgeInsets.only(bottom: 5, left: 5),
             child: CustomTextScroll(
-              text: device.name!.toUpperCaseTr(),
+              text: device.name.toUpperCaseTr(),
             ),
           ),
         ),
@@ -130,7 +130,7 @@ class _RfCommandItem6State extends State<RfCommandItem6>
           child: Padding(
             padding: const EdgeInsets.only(left: 5, bottom: 0),
             child: CustomTextScroll(
-              text: device.boxOrganisationName ?? "",
+              text: "",
             ),
           ),
         ),

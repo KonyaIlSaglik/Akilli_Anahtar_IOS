@@ -1,4 +1,3 @@
-import 'package:akilli_anahtar/controllers/claim_controller.dart';
 import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:dropdown_search/dropdown_search.dart';

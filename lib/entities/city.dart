@@ -27,4 +27,8 @@ class City {
 
   factory City.fromJson(String source) =>
       City.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  static List<City> fromJsonList(String source) =>
+      List<City>.from((json.decode(source) as List<dynamic>)
+          .map((x) => City.fromJson(json.encode(x))));
 }

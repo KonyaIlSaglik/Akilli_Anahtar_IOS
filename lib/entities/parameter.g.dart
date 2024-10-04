@@ -1,35 +1,41 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../entities/operation_claim.dart';
+part of 'parameter.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class OperationClaimAdapter extends TypeAdapter<OperationClaim> {
+class ParameterAdapter extends TypeAdapter<Parameter> {
   @override
-  final int typeId = 4;
+  final int typeId = 5;
 
   @override
-  OperationClaim read(BinaryReader reader) {
+  Parameter read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return OperationClaim(
+    return Parameter(
       id: fields[0] as int,
       name: fields[1] as String,
+      value: fields[2] as String,
+      type: fields[3] as int,
     );
   }
 
   @override
-  void write(BinaryWriter writer, OperationClaim obj) {
+  void write(BinaryWriter writer, Parameter obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name);
+      ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.value)
+      ..writeByte(3)
+      ..write(obj.type);
   }
 
   @override
@@ -38,7 +44,7 @@ class OperationClaimAdapter extends TypeAdapter<OperationClaim> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is OperationClaimAdapter &&
+      other is ParameterAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -31,4 +31,8 @@ class District {
 
   factory District.fromJson(String source) =>
       District.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  static List<District> fromJsonList(String source) =>
+      List<District>.from((json.decode(source) as List<dynamic>)
+          .map((x) => District.fromJson(json.encode(x))));
 }

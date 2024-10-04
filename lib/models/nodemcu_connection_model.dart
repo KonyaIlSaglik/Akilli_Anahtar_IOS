@@ -10,12 +10,7 @@ class NodemcuConnectionModel {
   String? apNetmask;
   String? wifiSsid;
   String? wifiPass;
-  String? mqttHostLocal;
-  String? mqttHostPublic;
-  int? mqttPort;
-  String? mqttClientId;
-  String? mqttUser;
-  String? mqttPass;
+  String? apiHost;
 
   NodemcuConnectionModel({
     this.wifiMode = 2,
@@ -26,12 +21,7 @@ class NodemcuConnectionModel {
     this.apNetmask,
     this.wifiSsid,
     this.wifiPass,
-    this.mqttHostLocal,
-    this.mqttHostPublic,
-    this.mqttPort,
-    this.mqttClientId,
-    this.mqttUser,
-    this.mqttPass,
+    this.apiHost,
   });
 
   Map<String, dynamic> toMap() {
@@ -44,12 +34,7 @@ class NodemcuConnectionModel {
       'apNetmask': apNetmask,
       'wifiSsid': wifiSsid,
       'wifiPass': wifiPass,
-      'mqttHostLocal': mqttHostLocal,
-      'mqttHostPublic': mqttHostPublic,
-      'mqttPort': mqttPort,
-      'mqttClientId': mqttClientId,
-      'mqttUser': mqttUser,
-      'mqttPass': mqttPass,
+      'apiHost': apiHost,
     };
   }
 
@@ -63,16 +48,7 @@ class NodemcuConnectionModel {
       apNetmask: map['apNetmask'] != null ? map['apNetmask'] as String : null,
       wifiSsid: map['wifiSsid'] != null ? map['wifiSsid'] as String : null,
       wifiPass: map['wifiPass'] != null ? map['wifiPass'] as String : null,
-      mqttHostLocal:
-          map['mqttHostLocal'] != null ? map['mqttHostLocal'] as String : null,
-      mqttHostPublic: map['mqttHostPublic'] != null
-          ? map['mqttHostPublic'] as String
-          : null,
-      mqttPort: map['mqttPort'] != null ? map['mqttPort'] as int : null,
-      mqttClientId:
-          map['mqttClientId'] != null ? map['mqttClientId'] as String : null,
-      mqttUser: map['mqttUser'] != null ? map['mqttUser'] as String : null,
-      mqttPass: map['mqttPass'] != null ? map['mqttPass'] as String : null,
+      apiHost: map['apiHost'] != null ? map['apiHost'] as String : null,
     );
   }
 

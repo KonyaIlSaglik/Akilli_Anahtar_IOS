@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:akilli_anahtar/entities/box.dart';
-import 'package:akilli_anahtar/models/result.dart';
 import 'package:akilli_anahtar/models/version_model.dart';
 import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -12,9 +11,8 @@ class BoxService {
 
   static Future<Box?> get(int id) async {
     var response = await BaseService.get(url, id);
-    if (response != null) {
-      var result = json.decode(response) as Map<String, dynamic>;
-      var box = Box.fromJson(json.encode(result["data"]));
+    if (response.statusCode == 200) {
+      var box = Box.fromJson(response.body);
       return box;
     }
     return null;
@@ -22,25 +20,39 @@ class BoxService {
 
   static Future<List<Box>?> getAll() async {
     var response = await BaseService.getAll(url);
-    if (response != null) {
-      var result = json.decode(response) as Map<String, dynamic>;
-      var boxList = List<Box>.from((result["data"] as List<dynamic>)
-          .map((e) => Box.fromJson(json.encode(e))));
-      return boxList;
+    if (response.statusCode == 200) {
+      var boxList = List<Box>.from(response.body as List<dynamic>)
+          .map((e) => Box.fromJson(json.encode(e)));
+      return boxList.toList();
     }
     return null;
   }
 
-  static Future<Result> add(Box box) async {
-    return BaseService.add(url, box.toJson());
+  static Future<Box?> add(Box box) async {
+    var response = await BaseService.add(url, box.toJson());
+    if (response.statusCode == 200) {
+      var box = Box.fromJson(response.body);
+      return box;
+    }
+    return null;
   }
 
-  static Future<Result> update(Box box) async {
-    return BaseService.update(url, box.toJson());
+  static Future<Box?> update(Box box) async {
+    var response = await BaseService.update(url, box.toJson());
+    if (response.statusCode == 200) {
+      var box = Box.fromJson(response.body);
+      return box;
+    }
+    return null;
   }
 
-  static Future<Result> delete(int id) async {
-    return BaseService.delete(url, id);
+  static Future<Box?> delete(int id) async {
+    var response = await BaseService.delete(url, id);
+    if (response.statusCode == 200) {
+      var box = Box.fromJson(response.body);
+      return box;
+    }
+    return null;
   }
 
   static Future<VersionModel> checkNewVersion() async {

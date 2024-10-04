@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-part '../hive_adapters/login_model.g.dart';
+part 'login_model.g.dart';
 
 @HiveType(typeId: HiveConstants.loginModelTypeId)
 class LoginModel {

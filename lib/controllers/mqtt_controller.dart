@@ -40,7 +40,7 @@ class MqttController extends GetxController {
     await paramsManager.init();
     var params = paramsManager.getAll();
     if (params == null || params.isEmpty) {
-      var paramsResult = await ParameterService.getParametersbyType(1);
+      var paramsResult = await ParameterService.getAllByTypeId(1);
       if (paramsResult != null) {
         params = paramsResult;
         await paramsManager.clear();

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
-import 'package:akilli_anahtar/models/data_result.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/token_model.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -42,8 +41,8 @@ class AuthService {
     return null;
   }
 
-  static Future<DataResult<List<OperationClaim>>> getClaims(User user) async {
-    var uri = Uri.parse("$url/getuserclaims");
+  static Future<List<OperationClaim>?> getUserClaims(User user) async {
+    var uri = Uri.parse("$url/getUserClaims");
     var client = http.Client();
     var authController = Get.find<AuthController>();
     var tokenModel = authController.tokenModel.value;
@@ -56,18 +55,13 @@ class AuthService {
       body: user.toJson(),
     );
     client.close();
-    var dataResult = DataResult<List<OperationClaim>>();
+    print("claims");
+    print(response.body);
     if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
-      dataResult.data =
-          OperationClaim.fromJsonList(json.encode(result["data"]));
-      dataResult.success = result["success"];
-      dataResult.message = result["message"] ?? "";
-    } else {
-      dataResult.success = false;
-      dataResult.message = response.body;
+      var claims = OperationClaim.fromJsonList(json.encode(response.body));
+      return claims;
     }
-    return dataResult;
+    return null;
   }
 
   static Future<void> logOut() async {
@@ -89,7 +83,7 @@ class AuthService {
     }
   }
 
-  static Future<DataResult<TokenModel>> changePassword(
+  static Future<TokenModel?> changePassword(
       String oldPassword, String newPassword) async {
     var authController = Get.find<AuthController>();
     var tokenModel = authController.tokenModel.value;
@@ -111,16 +105,10 @@ class AuthService {
     );
     client.close();
     print(response.body);
-    var dataResult = DataResult<TokenModel>();
     if (response.statusCode == 200) {
-      var result = json.decode(response.body) as Map<String, dynamic>;
-      dataResult.data = TokenModel.fromJson(json.encode(result["data"]));
-      dataResult.success = result["success"];
-      dataResult.message = result["message"];
-    } else {
-      dataResult.success = false;
-      dataResult.message = response.body;
+      var data = TokenModel.fromJson(json.encode(response.body));
+      return data;
     }
-    return dataResult;
+    return null;
   }
 }

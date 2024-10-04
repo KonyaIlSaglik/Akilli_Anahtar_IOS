@@ -1,14 +1,14 @@
 import 'dart:convert';
 
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
-import 'package:akilli_anahtar/models/sensor_device_model.dart';
+import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 
 class SensorListItem extends StatefulWidget {
-  final SensorDeviceModel sensor;
+  final Device sensor;
   const SensorListItem({
     Key? key,
     required this.sensor,
@@ -19,7 +19,7 @@ class SensorListItem extends StatefulWidget {
 }
 
 class _SensorListItemState extends State<SensorListItem> {
-  late SensorDeviceModel sensor;
+  late Device sensor;
   final MqttController _mqttController = Get.find<MqttController>();
   String status = "-";
   bool isSub = false;
@@ -28,7 +28,7 @@ class _SensorListItemState extends State<SensorListItem> {
   void initState() {
     super.initState();
     sensor = widget.sensor;
-    _mqttController.subscribeToTopic(sensor.topicStat!);
+    _mqttController.subscribeToTopic(sensor.topicStat);
 
     _mqttController.onMessage((topic, message) {
       if (topic == sensor.topicStat) {
@@ -37,17 +37,17 @@ class _SensorListItemState extends State<SensorListItem> {
           setState(() {
             status = result["deger"].toString();
           });
-          if (sensor.deviceTypeId == 1) {
+          if (sensor.typeId == 1) {
             var deger = (result["deger"] is num)
                 ? (result["deger"] as num).toDouble()
                 : null;
             //var id = result["sensor_id"] as int?;
             if (deger != null &&
-                (sensor.valueRangeMin != null ||
-                    sensor.valueRangeMax != null)) {
+                (sensor.normalMinValue != null ||
+                    sensor.normalMaxValue != null)) {
               setState(() {
-                onAlarm = deger < sensor.valueRangeMin! ||
-                    deger > sensor.valueRangeMax!;
+                onAlarm = deger < sensor.normalMinValue! ||
+                    deger > sensor.normalMaxValue!;
               });
             }
           }
@@ -100,7 +100,7 @@ class _SensorListItemState extends State<SensorListItem> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    sensor.name!,
+                    sensor.name,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
@@ -111,8 +111,9 @@ class _SensorListItemState extends State<SensorListItem> {
                   //   style: TextStyle(color: Colors.white),
                   // ),
                   Text(
-                    sensor.valueRangeId != null && sensor.valueRangeId! > 0
-                        ? "${sensor.valueRangeMin} - ${sensor.valueRangeMax}"
+                    sensor.normalValueRangeId != null &&
+                            sensor.normalValueRangeId! > 0
+                        ? "${sensor.normalMinValue} - ${sensor.normalMaxValue}"
                         : "-",
                     style: TextStyle(color: Colors.white),
                   ),

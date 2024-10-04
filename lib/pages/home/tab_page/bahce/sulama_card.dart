@@ -1,5 +1,5 @@
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
-import 'package:akilli_anahtar/models/control_device_model.dart';
+import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/bahce/zamanlama_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 
 class BahceSulamaCard extends StatefulWidget {
-  final ControlDeviceModel device;
+  final Device device;
   const BahceSulamaCard({
     Key? key,
     required this.device,
@@ -21,7 +21,7 @@ class BahceSulamaCard extends StatefulWidget {
 }
 
 class _BahceSulamaCardState extends State<BahceSulamaCard> {
-  late ControlDeviceModel device;
+  late Device device;
   final MqttController _mqttController = Get.find<MqttController>();
   bool isSub = false;
 
@@ -45,7 +45,7 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
       });
     });
     device = widget.device;
-    _mqttController.subscribeToTopic(device.topicStat!);
+    _mqttController.subscribeToTopic(device.topicStat);
     _mqttController.onMessage((topic, message) {
       if (topic == device.topicStat) {
         if (mounted) {
@@ -105,7 +105,7 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
                         ),
                       ),
                       Text(
-                        device.name!,
+                        device.name,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -153,7 +153,7 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
                       context,
                       MaterialPageRoute<void>(
                         builder: (BuildContext context) =>
-                            ZamanlamaPage(hat: device.name!),
+                            ZamanlamaPage(hat: device.name),
                       ),
                     );
                   },

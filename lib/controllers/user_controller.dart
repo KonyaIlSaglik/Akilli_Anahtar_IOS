@@ -2,9 +2,6 @@ import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/entities/user_device.dart';
 import 'package:akilli_anahtar/entities/user_operation_claim.dart';
 import 'package:akilli_anahtar/entities/user_organisation.dart';
-import 'package:akilli_anahtar/models/register_model.dart';
-import 'package:akilli_anahtar/services/api/user_device_service.dart';
-import 'package:akilli_anahtar/services/api/user_operation_claim_service.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
@@ -34,15 +31,15 @@ class UserController extends GetxController {
         a.fullName.toLowerCaseTr().compareToTr(b.fullName.toLowerCaseTr()));
   }
 
-  Future<User?> register(RegisterModel registerModel) async {
+  Future<User?> register(User user) async {
     try {
-      var response = await UserService.register(registerModel);
-      if (response.success) {
+      var response = await UserService.register(user);
+      if (response != null) {
         successSnackbar("Başarılı", "Kayıt yapıldı.");
-        users.add(response.data!);
+        users.add(response);
         sort();
-        selectedUser.value = users.firstWhere((u) => u.id == response.data!.id);
-        return response.data;
+        selectedUser.value = users.firstWhere((u) => u.id == response.id);
+        return response;
       } else {
         errorSnackbar("Başarısız", "Kayıt yapılamadı");
         return null;
@@ -55,8 +52,8 @@ class UserController extends GetxController {
 
   Future<void> updateUser(User user) async {
     var response = await UserService.update(user);
-    if (response.success) {
-      selectedUser.value = response.data!;
+    if (response != null) {
+      selectedUser.value = response;
       successSnackbar("Başarılı", "Bilgiler Güncellendi");
       return;
     }
@@ -64,62 +61,62 @@ class UserController extends GetxController {
   }
 
   Future<void> delete(int id) async {
-    for (UserOperationClaim claim in selectedUserClaims) {
-      await UserOperationClaimService.delete(claim.id);
-    }
-    for (UserDevice userDevice in selectedUserDevices) {
-      await UserDeviceService.delete(userDevice.id);
-    }
-    var response = await UserService.delete(id);
-    if (response.success) {
-      users.remove(selectedUser.value);
-      successSnackbar("Başarılı", "Silindi");
-      return;
-    }
-    errorSnackbar("Başarısız", "Silinemedi");
+    // for (UserOperationClaim claim in selectedUserClaims) {
+    //   await UserOperationClaimService.delete(claim.id);
+    // }
+    // for (UserDevice userDevice in selectedUserDevices) {
+    //   await UserDeviceService.delete(userDevice.id);
+    // }
+    // var response = await UserService.delete(id);
+    // if (response.success) {
+    //   users.remove(selectedUser.value);
+    //   successSnackbar("Başarılı", "Silindi");
+    //   return;
+    // }
+    // errorSnackbar("Başarısız", "Silinemedi");
   }
 
   Future<void> passUpdate(int id, String password) async {
-    var response = await UserService.passUpdate(id, password);
-    if (response.success) {
-      successSnackbar("Başarılı", " Şifre Güncellendi");
-      return;
-    }
-    errorSnackbar("Başarısız", "Şifre Güncellenemedi");
+    // var response = await UserService.passUpdate(id, password);
+    // if (response.success) {
+    //   successSnackbar("Başarılı", " Şifre Güncellendi");
+    //   return;
+    // }
+    // errorSnackbar("Başarısız", "Şifre Güncellenemedi");
   }
 
   Future<void> copySelectedUser() async {
-    var addedUserResult = await UserService.register(RegisterModel(
-      userName: "Kopya(${selectedUser.value.userName})",
-      fullName: selectedUser.value.fullName,
-      email: selectedUser.value.mail,
-      password: "12345",
-      tel: selectedUser.value.telephone,
-    ));
+    // var addedUserResult = await UserService.register(RegisterModel(
+    //   userName: "Kopya(${selectedUser.value.userName})",
+    //   fullName: selectedUser.value.fullName,
+    //   email: selectedUser.value.mail,
+    //   password: "12345",
+    //   tel: selectedUser.value.telephone,
+    // ));
 
-    if (addedUserResult.success) {
-      users.add(addedUserResult.data!);
-      selectedUser.value = addedUserResult.data!;
+    // if (addedUserResult.success) {
+    //   users.add(addedUserResult.data!);
+    //   selectedUser.value = addedUserResult.data!;
 
-      var copyUserDevices = <UserDevice>[];
-      for (UserDevice userDevice in selectedUserDevices) {
-        var added = await UserDeviceService.add(
-            userDevice.copyWith(id: 0, userId: selectedUser.value.id));
-        if (added.success) {
-          copyUserDevices.add(added.data!);
-        }
-      }
-      selectedUserDevices.value = copyUserDevices;
+    //   var copyUserDevices = <UserDevice>[];
+    //   for (UserDevice userDevice in selectedUserDevices) {
+    //     var added = await UserDeviceService.add(
+    //         userDevice.copyWith(id: 0, userId: selectedUser.value.id));
+    //     if (added.success) {
+    //       copyUserDevices.add(added.data!);
+    //     }
+    //   }
+    //   selectedUserDevices.value = copyUserDevices;
 
-      var copyUserClaims = <UserOperationClaim>[];
-      for (UserOperationClaim claim in selectedUserClaims) {
-        var added = await UserOperationClaimService.add(
-            claim.copyWith(id: 0, userId: selectedUser.value.id));
-        if (added.success) {
-          copyUserClaims.add(added.data!);
-        }
-      }
-      selectedUserClaims.value = copyUserClaims;
-    }
+    //   var copyUserClaims = <UserOperationClaim>[];
+    //   for (UserOperationClaim claim in selectedUserClaims) {
+    //     var added = await UserOperationClaimService.add(
+    //         claim.copyWith(id: 0, userId: selectedUser.value.id));
+    //     if (added.success) {
+    //       copyUserClaims.add(added.data!);
+    //     }
+    //   }
+    //   selectedUserClaims.value = copyUserClaims;
+    // }
   }
 }

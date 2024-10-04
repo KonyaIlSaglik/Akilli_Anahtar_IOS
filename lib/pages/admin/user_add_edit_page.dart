@@ -1,7 +1,6 @@
 import 'package:akilli_anahtar/controllers/claim_controller.dart';
 import 'package:akilli_anahtar/controllers/user_controller.dart';
 import 'package:akilli_anahtar/entities/user.dart';
-import 'package:akilli_anahtar/models/register_model.dart';
 import 'package:akilli_anahtar/pages/admin/user_device_claim_widget.dart';
 import 'package:akilli_anahtar/pages/admin/user_operation_claim_list_view_widget.dart';
 import 'package:akilli_anahtar/pages/admin/user_organisation_claim_widget.dart';
@@ -56,11 +55,11 @@ class _UserAddEditPageState extends State<UserAddEditPage>
     if (isValidate) {
       if (_formKey.currentState!.validate()) {
         if (userController.selectedUser.value.id == 0) {
-          final newUser = RegisterModel(
+          final newUser = User(
             userName: userController.selectedUser.value.userName,
             fullName: userController.selectedUser.value.fullName,
-            email: userController.selectedUser.value.mail,
-            tel: userController.selectedUser.value.telephone,
+            mail: userController.selectedUser.value.mail,
+            telephone: userController.selectedUser.value.telephone,
             password: password,
           );
           password = "";

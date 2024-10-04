@@ -1,38 +1,35 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../models/login_model.dart';
+part of 'operation_claim.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class LoginModelAdapter extends TypeAdapter<LoginModel> {
+class OperationClaimAdapter extends TypeAdapter<OperationClaim> {
   @override
-  final int typeId = 2;
+  final int typeId = 4;
 
   @override
-  LoginModel read(BinaryReader reader) {
+  OperationClaim read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return LoginModel(
-      userName: fields[0] as String,
-      password: fields[1] as String,
-      identity: fields[2] as String,
+    return OperationClaim(
+      id: fields[0] as int,
+      name: fields[1] as String,
     );
   }
 
   @override
-  void write(BinaryWriter writer, LoginModel obj) {
+  void write(BinaryWriter writer, OperationClaim obj) {
     writer
-      ..writeByte(3)
-      ..writeByte(0)
-      ..write(obj.userName)
-      ..writeByte(1)
-      ..write(obj.password)
       ..writeByte(2)
-      ..write(obj.identity);
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.name);
   }
 
   @override
@@ -41,7 +38,7 @@ class LoginModelAdapter extends TypeAdapter<LoginModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LoginModelAdapter &&
+      other is OperationClaimAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

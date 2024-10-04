@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:akilli_anahtar/controllers/claim_controller.dart';
 import 'package:akilli_anahtar/controllers/device_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
@@ -35,7 +34,6 @@ class AuthController extends GetxController {
   var tokenModel = TokenModel.epmty().obs;
   var user = User().obs;
   var operationClaims = <OperationClaim>[].obs;
-  late ClaimController claimController = Get.put(ClaimController());
 
   Future<void> loadToken() async {
     await tokenManager.init();
@@ -57,26 +55,6 @@ class AuthController extends GetxController {
       loginModel.value = lm;
     }
   }
-
-  // Future<void> loadUser() async {
-  //   await userManager.init();
-  //   var usr = userManager.get();
-  //   if (usr != null) {
-  //     user.value = usr;
-  //   } else {
-  //     await getUser();
-  //   }
-  // }
-
-  // Future<void> loadClaims() async {
-  //   await claimsManager.init();
-  //   var claims = claimsManager.getAll();
-  //   if (claims!.isNotEmpty) {
-  //     operationClaims.value = claims;
-  //   } else {
-  //     await getClaims();
-  //   }
-  // }
 
   Future<void> login(String userName, String password) async {
     isLoggedIn.value = false;
@@ -127,9 +105,9 @@ class AuthController extends GetxController {
 
   Future<List<OperationClaim>?> getUserClaims(User user) async {
     if (user.id > 0) {
-      var claimsResult = await AuthService.getClaims(user);
-      if (claimsResult.success) {
-        return claimsResult.data!;
+      var claimsResult = await AuthService.getUserClaims(user);
+      if (claimsResult != null) {
+        return claimsResult;
       }
     }
     return null;
@@ -155,8 +133,8 @@ class AuthController extends GetxController {
     isLoading.value = true;
     try {
       var response = await AuthService.changePassword(oldPassword, newPassword);
-      if (response.success) {
-        tokenModel.value = response.data!;
+      if (response != null) {
+        tokenModel.value = response;
         isChanged.value = true;
         loginModel.value.password = newPassword;
         await loginManager.clear();

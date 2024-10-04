@@ -1,6 +1,5 @@
 import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
 import 'package:akilli_anahtar/controllers/wifi_controller.dart';
-import 'package:akilli_anahtar/pages/device_manager/install/a_start_page_view_model.dart';
 import 'package:akilli_anahtar/pages/device_manager/install/b_wifi_page_view_model.dart';
 import 'package:akilli_anahtar/pages/device_manager/install/d_online_page_view_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
@@ -27,13 +26,6 @@ class _IntroductionPageState extends State<IntroductionPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(
-      Duration.zero,
-      () async {
-        await _nodemcuController.getDeviceList();
-        await _nodemcuController.getConnModel();
-      },
-    );
   }
 
   @override
@@ -63,12 +55,8 @@ class _IntroductionPageState extends State<IntroductionPage> {
                     ),
                   ),
                   controlsPadding: EdgeInsets.only(top: 50),
-                  showNextButton: (page == 0 &&
-                          _nodemcuController.downloaded.value &&
-                          !_nodemcuController.boxDevicesIsEmpty.value) ||
-                      (page == 1 &&
-                          _wifiController.isConnected.value &&
-                          _nodemcuController.boxDevices.isNotEmpty),
+                  showNextButton:
+                      (page == 0 && _wifiController.isConnected.value),
                   next: Text(
                     page == 0 ? "Başla" : "Sonraki",
                     style: TextStyle(
@@ -128,8 +116,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                     }
                   },
                   onDone: () async {
-                    _nodemcuController.reviseConnModel();
-                    await _nodemcuController.sendDeviceSetting();
+                    await _nodemcuController.sendConnectionSettings();
                     Get.to(() => HomePage());
                   },
                   onChange: (value) async {
@@ -137,14 +124,10 @@ class _IntroductionPageState extends State<IntroductionPage> {
                       page = value;
                     });
                     if (page == 2) {
-                      await _nodemcuController.getChipId();
-                      if (_nodemcuController.selectedDevice.value.box != null) {
-                        await _nodemcuController.getNodemcuApList();
-                      }
+                      await _nodemcuController.getNodemcuApList();
                     }
                   },
                   pages: [
-                    StartPageViewModel.get(context),
                     WifiPageViewModel.get(context),
                     // NodemcuPageViewModel.get(context),
                     OnlinePageViewModel.get(context),

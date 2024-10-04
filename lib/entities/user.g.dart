@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../entities/user.dart';
+part of 'user.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -19,38 +19,32 @@ class UserAdapter extends TypeAdapter<User> {
     return User(
       id: fields[0] as int,
       userName: fields[1] as String,
-      password: fields[2] as String,
-      passwordHash: fields[3] as String,
-      passwordSalt: fields[4] as String,
-      fullName: fields[5] as String,
+      fullName: fields[2] as String,
+      password: fields[3] as String,
+      mail: fields[4] as String,
+      telephone: fields[5] as String,
       active: fields[6] as int,
-      telephone: fields[7] as String,
-      mail: fields[8] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, User obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.userName)
       ..writeByte(2)
-      ..write(obj.password)
-      ..writeByte(3)
-      ..write(obj.passwordHash)
-      ..writeByte(4)
-      ..write(obj.passwordSalt)
-      ..writeByte(5)
       ..write(obj.fullName)
-      ..writeByte(6)
-      ..write(obj.active)
-      ..writeByte(7)
+      ..writeByte(3)
+      ..write(obj.password)
+      ..writeByte(4)
+      ..write(obj.mail)
+      ..writeByte(5)
       ..write(obj.telephone)
-      ..writeByte(8)
-      ..write(obj.mail);
+      ..writeByte(6)
+      ..write(obj.active);
   }
 
   @override

@@ -105,60 +105,41 @@ class OnlinePageViewModel {
       ),
       footer: Padding(
         padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-        child: nodemcuController.selectedDevice.value.box == null
+        child: nodemcuController.wifiSSID.value.isEmpty
             ? Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.block,
-                    color: Colors.red,
+                    Icons.router_outlined,
+                    color: Colors.blue,
+                    size: 75,
+                  ),
+                  SizedBox(
+                    height: height * 0.01,
+                  ),
+                  Text(
+                    "Cihazınızı İnternete bağlayabilirya da \nkurulumu tamamlayabilirsiniz.",
+                  ),
+                ],
+              )
+            : Column(
+                children: [
+                  Icon(
+                    Icons.done,
+                    color: Colors.green,
                     size: 50,
                   ),
                   SizedBox(
                     height: height * 0.01,
                   ),
                   Text(
-                    "Bu cihazı kurma yetkiniz yoktur.",
+                    "Herşey Hazır",
                     style: TextStyle(
                       fontSize: 18,
                     ),
                   ),
                 ],
-              )
-            : nodemcuController.wifiSSID.value.isEmpty
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.router_outlined,
-                        color: Colors.blue,
-                        size: 75,
-                      ),
-                      SizedBox(
-                        height: height * 0.01,
-                      ),
-                      Text(
-                        "Cihazınızı İnternete bağlayabilirya da \nkurulumu tamamlayabilirsiniz.",
-                      ),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      Icon(
-                        Icons.done,
-                        color: Colors.green,
-                        size: 50,
-                      ),
-                      SizedBox(
-                        height: height * 0.01,
-                      ),
-                      Text(
-                        "Herşey Hazır",
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
       ),
       decoration: PageDecoration(
         footerFlex: 25,

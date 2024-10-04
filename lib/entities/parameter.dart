@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-part '../hive_adapters/parameter.g.dart';
+part 'parameter.g.dart';
 
 @HiveType(typeId: HiveConstants.parametersTypeId)
 class Parameter {
@@ -48,4 +48,8 @@ class Parameter {
 
   factory Parameter.fromJson(String source) =>
       Parameter.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  static List<Parameter> fromJsonList(String source) =>
+      List<Parameter>.from((json.decode(source) as List<dynamic>)
+          .map((x) => Parameter.fromJson(json.encode(x))));
 }
