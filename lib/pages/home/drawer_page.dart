@@ -1,18 +1,19 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/pages/admin/admin_index_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
+import 'package:akilli_anahtar/pages/device_manager/box_index_page.dart';
 import 'package:akilli_anahtar/pages/device_manager/install/introduction_page.dart';
-import 'package:akilli_anahtar/pages/device_manager/update/update_main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class DrawerPage extends StatefulWidget {
   DrawerPage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<DrawerPage> createState() => _DrawerPageState();
@@ -20,10 +21,17 @@ class DrawerPage extends StatefulWidget {
 
 class _DrawerPageState extends State<DrawerPage> {
   final AuthController _authController = Get.find<AuthController>();
-
+  String version = "-";
   @override
   void initState() {
     super.initState();
+    PackageInfo.fromPlatform().then(
+      (info) {
+        setState(() {
+          version = info.version;
+        });
+      },
+    );
   }
 
   @override
@@ -35,142 +43,160 @@ class _DrawerPageState extends State<DrawerPage> {
         return Drawer(
           child: Column(
             children: [
-              Container(
-                color: goldColor,
-                height: height * 0.30,
-                child: SizedBox(
-                  width: width,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(bottom: height * 0.05),
-                        child: SizedBox(
-                          height: height * 0.10,
-                          child: FittedBox(
-                            child: CircleAvatar(
-                              backgroundColor: Colors.white,
-                              child: Icon(
-                                Icons.person,
-                                color: goldColor,
+              Expanded(
+                child: Column(
+                  children: [
+                    Container(
+                      color: goldColor,
+                      height: height * 0.30,
+                      child: SizedBox(
+                        width: width,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(bottom: height * 0.05),
+                              child: SizedBox(
+                                height: height * 0.10,
+                                child: FittedBox(
+                                  child: CircleAvatar(
+                                    backgroundColor: Colors.white,
+                                    child: Icon(
+                                      Icons.person,
+                                      color: goldColor,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: height * 0.05,
-                        child: Center(
-                          child: Text(
-                            _authController.user.value.fullName.trim(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall!
-                                  .fontSize,
-                              fontWeight: FontWeight.bold,
+                            SizedBox(
+                              height: height * 0.05,
+                              child: Center(
+                                child: Text(
+                                  _authController.user.value.fullName.trim(),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall!
+                                        .fontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  children: [
-                    ListTile(
-                      leading: Icon(Icons.lock),
-                      title: Text("Şifre Değiştir"),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (BuildContext context) =>
-                                SifreDegistirPage(),
-                          ),
-                        );
-                      },
-                      trailing: Icon(Icons.chevron_right),
                     ),
-                    ListTile(
-                      leading: Icon(FontAwesomeIcons.shieldHalved),
-                      title: Text("Gizlilik Politikası"),
-                      onTap: () {
-                        gizlilikSozlesmesi();
-                      },
-                      trailing: Icon(Icons.chevron_right),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.exit_to_app),
-                      title: Text("Oturumdan Çık"),
-                      onTap: () async {
-                        await _authController.logOut();
-                      },
-                      trailing: Icon(Icons.chevron_right),
-                    ),
-                    if (_authController.operationClaims.any((c) =>
-                        c.name == "developer" ||
-                        c.name == "device_install" ||
-                        c.name == "admin"))
-                      ExpansionTile(
-                        leading: Icon(FontAwesomeIcons.userShield),
-                        title: Text("Admin"),
+                    Expanded(
+                      child: ListView(
                         children: [
-                          if (_authController.operationClaims.any((c) =>
-                              c.name == "developer" ||
-                              c.name == "device_install"))
-                            ListTile(
-                              leading: Icon(Icons.settings_input_component),
-                              title: Text("Cihaz Kurulum"),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute<void>(
-                                    builder: (BuildContext context) =>
-                                        IntroductionPage(),
-                                  ),
-                                );
-                              },
-                              trailing: Icon(Icons.chevron_right),
-                            ),
-                          if (_authController.operationClaims.any((c) =>
-                              c.name == "developer" ||
-                              c.name == "device_install"))
-                            ListTile(
-                              leading: Icon(FontAwesomeIcons.upload),
-                              title: Text("Cihaz Yönetimi"),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute<void>(
-                                    builder: (BuildContext context) =>
-                                        UpdateMainPage(),
-                                  ),
-                                );
-                              },
-                              trailing: Icon(Icons.chevron_right),
-                            ),
                           ListTile(
-                            leading: Icon(FontAwesomeIcons.users),
-                            title: Text("Kullanıcı Yönetimi"),
+                            leading: Icon(Icons.lock),
+                            title: Text("Şifre Değiştir"),
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute<void>(
                                   builder: (BuildContext context) =>
-                                      AdminIndexPage(),
+                                      SifreDegistirPage(),
                                 ),
                               );
                             },
                             trailing: Icon(Icons.chevron_right),
                           ),
+                          ListTile(
+                            leading: Icon(FontAwesomeIcons.shieldHalved),
+                            title: Text("Gizlilik Politikası"),
+                            onTap: () {
+                              gizlilikSozlesmesi();
+                            },
+                            trailing: Icon(Icons.chevron_right),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.exit_to_app),
+                            title: Text("Oturumdan Çık"),
+                            onTap: () async {
+                              await _authController.logOut();
+                            },
+                            trailing: Icon(Icons.chevron_right),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.upload_outlined),
+                            title: Text("Uygulamayı Güncelle"),
+                            onTap: () async {
+                              checkNewVersion(context, true);
+                            },
+                            trailing: Icon(Icons.chevron_right),
+                          ),
+                          if (_authController.operationClaims.any((c) =>
+                              c.name == "developer" ||
+                              c.name == "device_install" ||
+                              c.name == "admin"))
+                            ExpansionTile(
+                              leading: Icon(FontAwesomeIcons.userShield),
+                              title: Text("Admin"),
+                              children: [
+                                if (_authController.operationClaims.any((c) =>
+                                    c.name == "developer" ||
+                                    c.name == "device_install"))
+                                  ListTile(
+                                    leading:
+                                        Icon(Icons.settings_input_component),
+                                    title: Text("Kutu Kurulum"),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute<void>(
+                                          builder: (BuildContext context) =>
+                                              IntroductionPage(),
+                                        ),
+                                      );
+                                    },
+                                    trailing: Icon(Icons.chevron_right),
+                                  ),
+                                if (_authController.operationClaims.any((c) =>
+                                    c.name == "developer" ||
+                                    c.name == "device_install"))
+                                  ListTile(
+                                    leading: Icon(FontAwesomeIcons.upload),
+                                    title: Text("Kutu Yönetimi"),
+                                    onTap: () {
+                                      Get.to(() => BoxIndexPage());
+                                    },
+                                    trailing: Icon(Icons.chevron_right),
+                                  ),
+                                ListTile(
+                                  leading: Icon(FontAwesomeIcons.users),
+                                  title: Text("Kullanıcı Yönetimi"),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute<void>(
+                                        builder: (BuildContext context) =>
+                                            AdminIndexPage(),
+                                      ),
+                                    );
+                                  },
+                                  trailing: Icon(Icons.chevron_right),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
+                    ),
                   ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Text(
+                  "V$version",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
                 ),
               ),
             ],
@@ -181,7 +207,7 @@ class _DrawerPageState extends State<DrawerPage> {
   }
 
   gizlilikSozlesmesi() {
-    final Uri url = Uri.parse(gizlilikUrl);
+    final WebUri url = WebUri(gizlilikUrl);
     showDialog(
       context: context,
       builder: (context) {

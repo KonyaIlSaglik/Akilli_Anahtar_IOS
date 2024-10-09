@@ -1,11 +1,9 @@
-import 'package:akilli_anahtar/controllers/claim_controller.dart';
-import 'package:akilli_anahtar/controllers/user_controller.dart';
-import 'package:akilli_anahtar/entities/user_operation_claim.dart';
+import 'package:akilli_anahtar/controllers/user_management_control.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class UserOperationClaimListViewWidget extends StatefulWidget {
-  const UserOperationClaimListViewWidget({Key? key}) : super(key: key);
+  const UserOperationClaimListViewWidget({super.key});
 
   @override
   State<UserOperationClaimListViewWidget> createState() =>
@@ -14,14 +12,7 @@ class UserOperationClaimListViewWidget extends StatefulWidget {
 
 class _UserOperationClaimListViewWidgetState
     extends State<UserOperationClaimListViewWidget> {
-  UserController userController = Get.find();
-  ClaimController claimController = Get.find();
-
-  @override
-  void initState() {
-    super.initState();
-    claimController.getAllClaims();
-  }
+  UserManagementController userManagementController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +57,8 @@ class _UserOperationClaimListViewWidgetState
                     Expanded(
                       child: Obx(() {
                         return ListView(
-                          children: claimController.operationClaims.map((c) {
+                          children:
+                              userManagementController.operationClaims.map((c) {
                             return ListTile(
                               title: Text(c.name),
                               trailing: Checkbox(
@@ -74,32 +66,17 @@ class _UserOperationClaimListViewWidgetState
                                   if (value != null) {
                                     if (value) {
                                       // Adding claim
-                                      var addedClaim =
-                                          await claimController.addUserClaim(
-                                        UserOperationClaim(
-                                          id: 0,
-                                          userId: userController
-                                              .selectedUser.value.id,
-                                          operationClaimId: c.id,
-                                        ),
-                                      );
-                                      if (addedClaim != null) {
-                                        userController.selectedUserClaims
-                                            .add(addedClaim);
-                                      }
+                                      await userManagementController
+                                          .addUserClaim(c.id);
                                     } else {
                                       // Removing claim
                                       try {
-                                        var claim = userController
-                                            .selectedUserClaims
+                                        var claim = userManagementController
+                                            .userOperationClaims
                                             .firstWhere((uc) =>
                                                 uc.operationClaimId == c.id);
-                                        var isDeleted = await claimController
+                                        await userManagementController
                                             .deleteUserClaim(claim.id);
-                                        if (isDeleted) {
-                                          userController.selectedUserClaims
-                                              .remove(claim);
-                                        }
                                       } catch (e) {
                                         // Handle the case where the claim is not found
                                         print("Claim not found: $e");
@@ -107,7 +84,8 @@ class _UserOperationClaimListViewWidgetState
                                     }
                                   }
                                 },
-                                value: userController.selectedUserClaims
+                                value: userManagementController
+                                    .userOperationClaims
                                     .any((uc) => uc.operationClaimId == c.id),
                               ),
                             );

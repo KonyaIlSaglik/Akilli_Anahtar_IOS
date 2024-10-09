@@ -1,5 +1,4 @@
-import 'package:akilli_anahtar/controllers/claim_controller.dart';
-import 'package:akilli_anahtar/controllers/user_controller.dart';
+import 'package:akilli_anahtar/controllers/user_management_control.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/pages/admin/user_device_claim_widget.dart';
 import 'package:akilli_anahtar/pages/admin/user_operation_claim_list_view_widget.dart';
@@ -9,7 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class UserAddEditPage extends StatefulWidget {
-  const UserAddEditPage({Key? key}) : super(key: key);
+  const UserAddEditPage({super.key});
 
   @override
   State<UserAddEditPage> createState() => _UserAddEditPageState();
@@ -17,61 +16,81 @@ class UserAddEditPage extends StatefulWidget {
 
 class _UserAddEditPageState extends State<UserAddEditPage>
     with TickerProviderStateMixin {
-  UserController userController = Get.find();
-  ClaimController claimController = Get.put(ClaimController());
+  UserManagementController userManagementControl =
+      Get.put(UserManagementController());
   final _formKey = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
+  late String userName;
+  late String fullName;
+  late String mail;
+  late String telephone;
   late String password;
 
   @override
   void initState() {
     super.initState();
+    userName = "";
+    fullName = "";
+    mail = "";
+    telephone = "";
     password = "";
-    Future.delayed(Duration.zero, () async {
-      claimController.getAllClaims();
-      var claims = await claimController
-          .getAllUserClaims(userController.selectedUser.value.id);
-      if (claims != null) {
-        userController.selectedUserClaims.value = claims;
-      }
-      var userOrganisations = await claimController
-          .getAllUserOrganisations(userController.selectedUser.value.id);
-      if (userOrganisations != null) {
-        userController.selectedUserOrganisations.value = userOrganisations;
-      }
-      await claimController.getOrganisations();
-      await claimController.getBoxes();
-      claimController.filterBoxes();
-      await claimController.getRelays();
-      claimController.filterRelays();
-      await claimController.getSensors();
-      claimController.filterSensors();
-      await claimController
-          .getAllUserDevice(userController.selectedUser.value.id);
-    });
+    if (userManagementControl.selectedUser.value.id > 0) {
+      userName = userManagementControl.selectedUser.value.userName;
+      fullName = userManagementControl.selectedUser.value.fullName;
+      mail = userManagementControl.selectedUser.value.mail;
+      telephone = userManagementControl.selectedUser.value.telephone;
+      Future.delayed(Duration.zero, () async {
+        userManagementControl.getOperationClaims();
+        await userManagementControl.getUserClaims();
+        await userManagementControl.getOrganisations();
+        await userManagementControl.getUserOrganisations();
+        await userManagementControl.getBoxes();
+        userManagementControl.filterBoxes();
+        await userManagementControl.getDevices();
+        userManagementControl.filterDevices();
+        await userManagementControl.getUserDevices();
+      });
+    }
   }
 
-  void _saveUser({bool isValidate = true}) async {
+  void _saveUser({bool isValidate = true, saveAs = false}) async {
     if (isValidate) {
       if (_formKey.currentState!.validate()) {
-        if (userController.selectedUser.value.id == 0) {
+        if (userManagementControl.selectedUser.value.id == 0) {
           final newUser = User(
-            userName: userController.selectedUser.value.userName,
-            fullName: userController.selectedUser.value.fullName,
-            mail: userController.selectedUser.value.mail,
-            telephone: userController.selectedUser.value.telephone,
+            id: 0,
+            userName: userName,
+            fullName: fullName,
+            mail: mail,
+            telephone: telephone,
             password: password,
           );
           password = "";
-          userController.register(newUser);
+          await userManagementControl.register(newUser);
         } else {
-          userController.updateUser(userController.selectedUser.value);
+          if (saveAs) {
+            if (_formKey2.currentState!.validate()) {
+              final newUser = User(
+                id: userManagementControl.selectedUser.value.id,
+                userName: userName,
+                fullName: fullName,
+                mail: mail,
+                telephone: telephone,
+                password: password,
+              );
+              password = "";
+              await userManagementControl.saveAs(newUser);
+            }
+          } else {
+            userManagementControl
+                .updateUser(userManagementControl.selectedUser.value);
+          }
         }
       }
     } else {
       if (_formKey2.currentState!.validate()) {
-        userController.passUpdate(
-            userController.selectedUser.value.id, password);
+        userManagementControl.passUpdate(
+            userManagementControl.selectedUser.value.id, password);
       }
     }
   }
@@ -81,7 +100,7 @@ class _UserAddEditPageState extends State<UserAddEditPage>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(userController.selectedUser.value.fullName),
+          title: Text(userManagementControl.selectedUser.value.fullName),
           content: Text("Kullanıcıya ait tüm bilgiler sistemden silinecektir"),
           actions: [
             TextButton(
@@ -93,11 +112,36 @@ class _UserAddEditPageState extends State<UserAddEditPage>
             TextButton(
               child: Text("Sil"),
               onPressed: () async {
-                await userController
-                    .delete(userController.selectedUser.value.id);
-                userController.users.remove(userController.selectedUser.value);
-                userController.selectedUser.value = User();
+                await userManagementControl
+                    .delete(userManagementControl.selectedUser.value.id);
                 Navigator.pop(context);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _saveAsUser() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(userManagementControl.selectedUser.value.fullName),
+          content: Text("Yeni kullanıcı olarak farklı kaydedilsin mi"),
+          actions: [
+            TextButton(
+              child: Text("Vazgeç"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: Text("Sil"),
+              onPressed: () async {
+                _saveUser(saveAs: true);
               },
             ),
           ],
@@ -111,64 +155,30 @@ class _UserAddEditPageState extends State<UserAddEditPage>
     return Obx(() {
       return Scaffold(
         appBar: AppBar(
-          title: Text(userController.selectedUser.value.id == 0
+          title: Text(userManagementControl.selectedUser.value.id == 0
               ? 'Kullanıcı Ekle'
               : 'Kullanıcı Düzenle'),
           actions: [
-            if (userController.selectedUser.value.id > 0)
+            if (userManagementControl.selectedUser.value.id > 0)
               IconButton(
                 icon: Icon(
-                  FontAwesomeIcons.solidCopy,
-                  color: Colors.blue,
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text("Kullanıcı Kopyalama"),
-                        content: Text(
-                            "Kopya(${userController.selectedUser.value.userName}) kullanıcısı oluşturulsun mu?"),
-                        actions: [
-                          TextButton(
-                            child: Text("Vazgeç"),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          TextButton(
-                            child: Text("Kopyala"),
-                            onPressed: () async {
-                              await userController.copySelectedUser();
-                              setState(() {});
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-            if (userController.selectedUser.value.id > 0)
-              IconButton(
-                icon: Icon(
-                  userController.selectedUser.value.active == 1
+                  userManagementControl.selectedUser.value.active == 1
                       ? FontAwesomeIcons.userCheck
                       : FontAwesomeIcons.userLock,
-                  color: userController.selectedUser.value.active == 1
+                  color: userManagementControl.selectedUser.value.active == 1
                       ? Colors.green
                       : Colors.grey,
                 ),
                 onPressed: () async {
-                  userController.selectedUser.value.active =
-                      userController.selectedUser.value.active == 1 ? 0 : 1;
-                  await userController
-                      .updateUser(userController.selectedUser.value);
-                  setState(() {});
+                  userManagementControl.selectedUser.value.active =
+                      userManagementControl.selectedUser.value.active == 1
+                          ? 0
+                          : 1;
+                  await userManagementControl
+                      .updateUser(userManagementControl.selectedUser.value);
                 },
               ),
-            if (userController.selectedUser.value.id > 0)
+            if (userManagementControl.selectedUser.value.id > 0)
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: IconButton(
@@ -194,13 +204,16 @@ class _UserAddEditPageState extends State<UserAddEditPage>
                     children: [
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Kullanıcı Adı'),
-                        initialValue:
-                            userController.selectedUser.value.userName,
-                        onChanged: (value) =>
-                            userController.selectedUser.value.userName = value,
+                        initialValue: userName,
+                        onChanged: (value) => userName = value,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a username';
+                          }
+                          var existsUser = userManagementControl.users
+                              .firstWhereOrNull((u) => u.userName == value);
+                          if (existsUser != null) {
+                            return 'Kullanıcı adı daha önce kullanılmış';
                           }
                           return null;
                         },
@@ -208,10 +221,8 @@ class _UserAddEditPageState extends State<UserAddEditPage>
                       SizedBox(height: 8),
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Ad Soyad'),
-                        initialValue:
-                            userController.selectedUser.value.fullName,
-                        onChanged: (value) =>
-                            userController.selectedUser.value.fullName = value,
+                        initialValue: fullName,
+                        onChanged: (value) => fullName = value,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a full name';
@@ -222,9 +233,8 @@ class _UserAddEditPageState extends State<UserAddEditPage>
                       SizedBox(height: 8),
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Email'),
-                        initialValue: userController.selectedUser.value.mail,
-                        onChanged: (value) =>
-                            userController.selectedUser.value.mail = value,
+                        initialValue: mail,
+                        onChanged: (value) => mail = value,
                         // validator: (value) {
                         //   if (value == null || value.isEmpty) {
                         //     return 'Please enter an email';
@@ -238,10 +248,8 @@ class _UserAddEditPageState extends State<UserAddEditPage>
                       SizedBox(height: 8),
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Telefon'),
-                        initialValue:
-                            userController.selectedUser.value.telephone,
-                        onChanged: (value) =>
-                            userController.selectedUser.value.telephone = value,
+                        initialValue: telephone,
+                        onChanged: (value) => telephone = value,
                         // validator: (value) {
                         //   if (value == null || value.isEmpty) {
                         //     return 'Please enter a telephone number';
@@ -249,7 +257,7 @@ class _UserAddEditPageState extends State<UserAddEditPage>
                         //   return null;
                         // },
                       ),
-                      if (userController.selectedUser.value.id == 0)
+                      if (userManagementControl.selectedUser.value.id == 0)
                         Column(
                           children: [
                             SizedBox(height: 8),
@@ -267,14 +275,23 @@ class _UserAddEditPageState extends State<UserAddEditPage>
                           ],
                         ),
                       SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _saveUser,
-                        child: Text('Kaydet'),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: _saveUser,
+                            child: Text('Kaydet'),
+                          ),
+                          if (userManagementControl.selectedUser.value.id > 0)
+                            ElevatedButton(
+                              onPressed: _saveAsUser,
+                              child: Text('Farklı Kaydet'),
+                            ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                if (userController.selectedUser.value.id > 0)
+                if (userManagementControl.selectedUser.value.id > 0)
                   Form(
                     key: _formKey2,
                     child: Column(

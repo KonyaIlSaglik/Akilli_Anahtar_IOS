@@ -9,6 +9,8 @@ class Box {
   String topicRec;
   String topicRes;
   String version;
+  bool isSub = false;
+  bool isOld = false;
 
   Box({
     this.id = 0,
@@ -51,4 +53,8 @@ class Box {
 
   factory Box.fromJson(String source) =>
       Box.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  static List<Box> fromJsonList(String source) =>
+      List<Box>.from((json.decode(source) as List<dynamic>)
+          .map((x) => Box.fromJson(json.encode(x))));
 }

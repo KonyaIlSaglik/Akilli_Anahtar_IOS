@@ -10,7 +10,7 @@ import 'package:akilli_anahtar/widgets/custom_text_field.dart';
 import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -202,7 +202,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   gizlilikSozlesmesi() {
-    final Uri url = Uri.parse(gizlilikUrl);
+    final WebUri url = WebUri(gizlilikUrl);
     showDialog(
       context: context,
       builder: (context) {

@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'sensor_list_item.dart';
 
 class SensorPage extends StatefulWidget {
-  const SensorPage({Key? key}) : super(key: key);
+  const SensorPage({super.key});
 
   @override
   State<SensorPage> createState() => _SensorPageState();

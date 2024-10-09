@@ -12,9 +12,9 @@ import 'package:mqtt5_client/mqtt5_client.dart';
 class BahceSulamaCard extends StatefulWidget {
   final Device device;
   const BahceSulamaCard({
-    Key? key,
+    super.key,
     required this.device,
-  }) : super(key: key);
+  });
 
   @override
   State<BahceSulamaCard> createState() => _BahceSulamaCardState();

@@ -10,7 +10,7 @@ import 'package:flutter_wall_layout/flutter_wall_layout.dart';
 import 'package:get/get.dart';
 
 class ControlDevicesPage extends StatefulWidget {
-  const ControlDevicesPage({Key? key}) : super(key: key);
+  const ControlDevicesPage({super.key});
 
   @override
   State<ControlDevicesPage> createState() => _ControlDevicesPageState();

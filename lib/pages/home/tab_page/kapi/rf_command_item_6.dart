@@ -9,7 +9,7 @@ import 'package:turkish/turkish.dart';
 
 class RfCommandItem6 extends StatefulWidget {
   final Device device;
-  const RfCommandItem6({Key? key, required this.device}) : super(key: key);
+  const RfCommandItem6({super.key, required this.device});
 
   @override
   State<RfCommandItem6> createState() => _RfCommandItem6State();

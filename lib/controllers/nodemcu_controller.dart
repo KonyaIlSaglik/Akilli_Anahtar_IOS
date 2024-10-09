@@ -16,11 +16,13 @@ class NodemcuController extends GetxController {
   var uploading = false.obs;
 
   Future<void> createConnectionModel() async {
-    connModel.value.wifiMode = 2;
+    connModel.value.wifiMode = wifiSSID.isEmpty ? 2 : 1;
     connModel.value.apIp = "192.168.4.1";
     connModel.value.apGateway = "192.168.4.1";
     connModel.value.apNetmask = "255.255.255.0";
     connModel.value.apiHost = apiUrlOut;
+    connModel.value.wifiSsid = wifiSSID.value;
+    connModel.value.wifiPass = wifiPASS.value;
   }
 
   Future<void> getNodemcuApList() async {
@@ -40,6 +42,7 @@ class NodemcuController extends GetxController {
   }
 
   Future<void> sendConnectionSettings() async {
+    createConnectionModel();
     var uri = Uri.parse("http://192.168.4.1/connectionsettings");
     var client = http.Client();
     await client.post(

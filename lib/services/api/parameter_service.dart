@@ -6,9 +6,12 @@ class ParameterService {
   static String url = "$apiUrlOut/Parameter";
 
   static Future<List<Parameter>?> getAllByTypeId(int id) async {
-    return BaseService.get2(
-      "$url/getAllBytype?id=$id",
-      (json) => Parameter.fromJsonList(json),
+    var response = await BaseService.get(
+      "$url/getAllByTypeId?id=$id",
     );
+    if (response.statusCode == 200) {
+      return Parameter.fromJsonList(response.body);
+    }
+    return null;
   }
 }

@@ -1,12 +1,11 @@
-import 'package:akilli_anahtar/controllers/claim_controller.dart';
-import 'package:akilli_anahtar/controllers/user_controller.dart';
+import 'package:akilli_anahtar/controllers/user_management_control.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OrganisationSelectWidget extends StatefulWidget {
-  const OrganisationSelectWidget({Key? key}) : super(key: key);
+  const OrganisationSelectWidget({super.key});
 
   @override
   State<OrganisationSelectWidget> createState() =>
@@ -14,18 +13,17 @@ class OrganisationSelectWidget extends StatefulWidget {
 }
 
 class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
-  UserController userController = Get.find();
-  ClaimController claimController = Get.find();
+  UserManagementController userManagementControl = Get.find();
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      return claimController.organisations.isEmpty
+      return userManagementControl.organisations.isEmpty
           ? CircularProgressIndicator()
           : SizedBox(
               height: 60,
               child: DropdownSearch<Organisation>(
-                dropdownDecoratorProps: DropDownDecoratorProps(
-                  dropdownSearchDecoration: InputDecoration(
+                decoratorProps: DropDownDecoratorProps(
+                  decoration: InputDecoration(
                     hintText: "Kurum Seç",
                     border: OutlineInputBorder(),
                     // The suffix icon can be added to the decoration directly
@@ -34,19 +32,26 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
                 popupProps: PopupProps.menu(
                   showSearchBox: true,
                 ),
-                items: claimController.organisations,
-                selectedItem: claimController.organisations.firstWhereOrNull(
-                    (o) =>
-                        o.id == claimController.selectedOrganisationId.value),
+                items: (filter, loadProps) {
+                  return userManagementControl.organisations;
+                },
+                selectedItem: userManagementControl.organisations
+                    .firstWhereOrNull((o) =>
+                        o.id ==
+                        userManagementControl.selectedOrganisationId.value),
                 itemAsString: (item) => item.name,
                 onChanged: (value) {
                   if (value != null) {
-                    claimController.selectedOrganisationId.value = value.id;
-                    claimController.filterBoxes();
+                    userManagementControl.selectedOrganisationId.value =
+                        value.id;
+                    userManagementControl.filterBoxes();
                   }
                 },
                 filterFn: (item, filter) {
                   return item.name.toLowerCase().contains(filter.toLowerCase());
+                },
+                compareFn: (item1, item2) {
+                  return item1.id == item2.id; // Compare based on the unique ID
                 },
                 // Add a clear button in the dropdown menu
                 dropdownBuilder: (context, selectedItem) {
@@ -70,9 +75,9 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
                           icon: Icon(Icons.clear),
                           onPressed: () {
                             // Clear selection
-                            claimController.selectedOrganisationId.value =
+                            userManagementControl.selectedOrganisationId.value =
                                 0; // Resetting the selected ID
-                            claimController
+                            userManagementControl
                                 .filterBoxes(); // Optionally re-filter boxes
                           },
                         ),

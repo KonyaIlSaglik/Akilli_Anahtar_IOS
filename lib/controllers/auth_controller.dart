@@ -39,8 +39,6 @@ class AuthController extends GetxController {
     await tokenManager.init();
     var model = tokenManager.get();
     if (model != null) {
-      print("tokenModel: ${model.toJson()}");
-
       tokenModel.value = model;
       isLoggedIn.value = true;
       await loadLoginInfo();
@@ -51,7 +49,6 @@ class AuthController extends GetxController {
     await loginManager.init();
     var lm = loginManager.get();
     if (lm != null) {
-      print("loginModel: ${lm.toJson()}");
       loginModel.value = lm;
     }
   }
@@ -75,7 +72,6 @@ class AuthController extends GetxController {
         tokenModel.value = tokenResult;
         await tokenManager.clear();
         await tokenManager.add(tokenResult);
-        print(lm.toJson());
         await loginManager.clear();
         await loginManager.add(lm);
         await getUser();
@@ -96,19 +92,17 @@ class AuthController extends GetxController {
       await userManager.clear();
       await userManager.add(userResult);
       user.value = userResult;
-      var claims = await getUserClaims(user.value);
+      var claims = await getUserClaims();
       if (claims != null) {
         operationClaims.value = claims;
       }
     }
   }
 
-  Future<List<OperationClaim>?> getUserClaims(User user) async {
-    if (user.id > 0) {
-      var claimsResult = await AuthService.getUserClaims(user);
-      if (claimsResult != null) {
-        return claimsResult;
-      }
+  Future<List<OperationClaim>?> getUserClaims() async {
+    var claimsResult = await AuthService.getUserClaims();
+    if (claimsResult != null) {
+      return claimsResult;
     }
     return null;
   }

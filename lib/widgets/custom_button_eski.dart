@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 class CustomButtonEski extends StatelessWidget {
   final String text;
   final Function()? onTap;
-  const CustomButtonEski({Key? key, required this.text, this.onTap})
-      : super(key: key);
+  const CustomButtonEski({super.key, required this.text, this.onTap});
 
   @override
   Widget build(BuildContext context) {

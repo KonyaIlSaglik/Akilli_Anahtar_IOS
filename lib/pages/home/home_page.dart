@@ -11,7 +11,7 @@ import 'package:get/get.dart';
 import 'drawer_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -54,11 +54,11 @@ class _HomePageState extends State<HomePage> {
         body: Column(
           children: [
             SizedBox(
-              height: height * 0.12,
+              height: height * 0.1,
               child: TimeView(),
             ),
             SizedBox(
-              height: height * 0.08,
+              height: height * 0.06,
               child: DateView(),
             ),
             Expanded(

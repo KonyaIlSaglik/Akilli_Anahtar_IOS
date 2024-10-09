@@ -10,9 +10,9 @@ import 'package:mqtt5_client/mqtt5_client.dart';
 class SensorListItem extends StatefulWidget {
   final Device sensor;
   const SensorListItem({
-    Key? key,
+    super.key,
     required this.sensor,
-  }) : super(key: key);
+  });
 
   @override
   State<SensorListItem> createState() => _SensorListItemState();

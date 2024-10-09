@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
-import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/token_model.dart';
+import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +14,6 @@ class AuthService {
   static Future<TokenModel?> login(LoginModel loginModel) async {
     AuthController authController = Get.find();
     loginModel.identity = await authController.getDeviceId();
-    print(loginModel.identity);
     var uri = Uri.parse("$url/login");
     var client = http.Client();
     try {
@@ -27,8 +26,7 @@ class AuthService {
       );
       client.close();
       if (response.statusCode == 200) {
-        var result = json.decode(response.body) as Map<String, dynamic>;
-        var tokenModel = TokenModel.fromJson(json.encode(result["data"]));
+        var tokenModel = TokenModel.fromJson(response.body);
         return tokenModel;
       }
       if (response.statusCode == 400) {
@@ -41,25 +39,12 @@ class AuthService {
     return null;
   }
 
-  static Future<List<OperationClaim>?> getUserClaims(User user) async {
-    var uri = Uri.parse("$url/getUserClaims");
-    var client = http.Client();
+  static Future<List<OperationClaim>?> getUserClaims() async {
     var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
-    var response = await client.post(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
-      },
-      body: user.toJson(),
-    );
-    client.close();
-    print("claims");
-    print(response.body);
+    var response = await BaseService.get(
+        "$url/getUserClaims?id=${authController.user.value.id}");
     if (response.statusCode == 200) {
-      var claims = OperationClaim.fromJsonList(json.encode(response.body));
-      return claims;
+      return OperationClaim.fromJsonList(response.body);
     }
     return null;
   }
@@ -94,7 +79,6 @@ class AuthService {
     };
     var uri = Uri.parse("$url/changepassword");
     var client = http.Client();
-    print(uri.path);
     var response = await client.put(
       uri,
       headers: {
@@ -104,7 +88,6 @@ class AuthService {
       body: json.encode(requestBody),
     );
     client.close();
-    print(response.body);
     if (response.statusCode == 200) {
       var data = TokenModel.fromJson(json.encode(response.body));
       return data;

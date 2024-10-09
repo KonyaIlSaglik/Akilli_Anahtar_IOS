@@ -1,27 +1,28 @@
-import 'package:akilli_anahtar/controllers/user_management_control.dart';
-import 'package:akilli_anahtar/entities/user.dart';
-import 'package:akilli_anahtar/pages/admin/user_add_edit_page.dart';
+import 'package:akilli_anahtar/controllers/box_management_controller.dart';
+import 'package:akilli_anahtar/entities/box.dart';
+import 'package:akilli_anahtar/pages/device_manager/box_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
 
-class AdminIndexPage extends StatefulWidget {
-  const AdminIndexPage({super.key});
+class BoxIndexPage extends StatefulWidget {
+  const BoxIndexPage({super.key});
 
   @override
-  State<AdminIndexPage> createState() => _AdminIndexPageState();
+  State<BoxIndexPage> createState() => _BoxIndexPageState();
 }
 
-class _AdminIndexPageState extends State<AdminIndexPage> {
-  UserManagementController userManagementController =
-      Get.put(UserManagementController());
+class _BoxIndexPageState extends State<BoxIndexPage> {
+  BoxManagementController boxManagementController =
+      Get.put(BoxManagementController());
 
   @override
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
-      userManagementController.getUsers();
+      boxManagementController.getBoxes();
+      boxManagementController.checkNewVersion();
     });
   }
 
@@ -29,7 +30,7 @@ class _AdminIndexPageState extends State<AdminIndexPage> {
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
-        userManagementController.searchQuery.value = "";
+        boxManagementController.searchQuery.value = "";
       },
       child: Scaffold(
         appBar: AppBar(
@@ -46,8 +47,8 @@ class _AdminIndexPageState extends State<AdminIndexPage> {
               padding: EdgeInsets.only(top: 10),
               onChanged: (String? newValue) {
                 setState(() {
-                  userManagementController.selectedSortOption.value = newValue!;
-                  userManagementController.sortUsers();
+                  boxManagementController.selectedSortOption.value = newValue!;
+                  boxManagementController.sortBoxes();
                 });
               },
               items: <String>['Sıra No', 'Ad Soyad', 'Kullanıcı Adı']
@@ -62,8 +63,8 @@ class _AdminIndexPageState extends State<AdminIndexPage> {
               padding: const EdgeInsets.only(right: 10),
               child: IconButton(
                 onPressed: () {
-                  userManagementController.selectedUser.value = User();
-                  Get.to(() => UserAddEditPage());
+                  boxManagementController.selectedBox.value = Box();
+                  //Get.to(() => BoxAddEditPage());
                 },
                 icon: Icon(
                   FontAwesomeIcons.userPlus,
@@ -86,7 +87,7 @@ class _AdminIndexPageState extends State<AdminIndexPage> {
                 ),
                 onChanged: (value) {
                   setState(() {
-                    userManagementController.searchQuery.value =
+                    boxManagementController.searchQuery.value =
                         value.toLowerCase();
                   });
                 },
@@ -95,46 +96,30 @@ class _AdminIndexPageState extends State<AdminIndexPage> {
           ),
         ),
         body: RefreshIndicator(
-          onRefresh: userManagementController.getUsers,
+          onRefresh: boxManagementController.getBoxes,
           child: Obx(() {
-            if (userManagementController.loadingUser.value) {
+            if (boxManagementController.loadingBox.value) {
               return Center(child: CircularProgressIndicator());
-            } else if (userManagementController.users.isEmpty) {
+            } else if (boxManagementController.boxes.isEmpty) {
               return Center(child: Text("No users found."));
             } else {
               // Filter users based on the search query
-              final filteredUsers =
-                  userManagementController.users.where((user) {
-                return user.fullName.toLowerCaseTr().contains(
-                        userManagementController.searchQuery.value
+              final filteredBoxes = boxManagementController.boxes.where((user) {
+                return user.name.toLowerCaseTr().contains(
+                        boxManagementController.searchQuery.value
                             .toLowerCaseTr()) ||
-                    user.userName.toLowerCaseTr().contains(
-                        userManagementController.searchQuery.value
-                            .toLowerCaseTr());
+                    user.name.toLowerCaseTr().contains(boxManagementController
+                        .searchQuery.value
+                        .toLowerCaseTr());
               }).toList();
               return ListView.separated(
                 itemBuilder: (context, i) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      child: Text(
-                          filteredUsers[i].id.toString()), // Display user ID
-                    ),
-                    title: Text(filteredUsers[i].fullName),
-                    subtitle: Text(filteredUsers[i].userName),
-                    trailing: IconButton(
-                      icon: Icon(Icons.chevron_right),
-                      onPressed: () {
-                        userManagementController.selectedUser.value =
-                            filteredUsers[i];
-                        Get.to(() => UserAddEditPage());
-                      },
-                    ),
-                  );
+                  return BoxListItem(box: filteredBoxes[i]);
                 },
                 separatorBuilder: (context, index) {
                   return Divider();
                 },
-                itemCount: filteredUsers.length,
+                itemCount: filteredBoxes.length,
               );
             }
           }),

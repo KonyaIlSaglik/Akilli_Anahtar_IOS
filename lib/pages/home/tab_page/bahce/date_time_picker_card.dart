@@ -5,10 +5,10 @@ class DateTimePickerCard extends StatefulWidget {
   final String title;
   final Function(DateTime date) onSelected;
   const DateTimePickerCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.onSelected,
-  }) : super(key: key);
+  });
 
   @override
   State<DateTimePickerCard> createState() => _DateTimePickerCardState();

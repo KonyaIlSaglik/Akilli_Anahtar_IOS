@@ -1,10 +1,10 @@
 import 'package:akilli_anahtar/pages/admin/box_select_widget.dart';
-import 'package:akilli_anahtar/pages/admin/device_tab_controller_widget.dart';
 import 'package:akilli_anahtar/pages/admin/organisation_select_widget.dart';
+import 'package:akilli_anahtar/pages/admin/device_list_view_widget.dart';
 import 'package:flutter/material.dart';
 
 class UserDeviceClaimWidget extends StatefulWidget {
-  const UserDeviceClaimWidget({Key? key}) : super(key: key);
+  const UserDeviceClaimWidget({super.key});
 
   @override
   State<UserDeviceClaimWidget> createState() => _UserDeviceClaimWidgetState();
@@ -56,7 +56,7 @@ class _UserDeviceClaimWidgetState extends State<UserDeviceClaimWidget> {
                     BoxSelectWidget(),
                     SizedBox(height: 8),
                     Expanded(
-                      child: DeviceTabControllerWidget(),
+                      child: DeviceListViewWidget(),
                     ),
                   ],
                 ),

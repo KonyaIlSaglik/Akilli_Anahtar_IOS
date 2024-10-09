@@ -111,9 +111,9 @@ class Device {
       pinMode: map['pinMode'] != null ? map['pinMode'] as int : null,
       pinStart: map['pinStart'] != null ? map['pinStart'] as int : null,
       active: map['active'] as int,
-      rfCodes: map['rfCodes'] != null
-          ? List<String>.from((map['rfCodes'] as List<String>))
-          : null,
+      rfCodes: (map['rfCodes'] as List<dynamic>?)
+          ?.map((item) => item.toString())
+          .toList(),
       normalValueRangeId: map['normalValueRangeId'] != null
           ? map['normalValueRangeId'] as int
           : null,

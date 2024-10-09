@@ -1,26 +1,25 @@
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:one_clock/one_clock.dart';
 
 class DateView extends StatelessWidget {
-  const DateView({Key? key}) : super(key: key);
+  const DateView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
-    var fontSize = height > 768
-        ? Theme.of(context).textTheme.headlineMedium!.fontSize!
-        : Theme.of(context).textTheme.headlineSmall!.fontSize!;
-    return Container(
-      color: goldColor,
-      alignment: Alignment.center,
-      width: MediaQuery.of(context).size.width,
-      child: Text(
-        DateFormat("dd MMMM yyyy EEEE", "tr_TR").format(DateTime.now()),
-        style: TextStyle(
-          fontSize: fontSize,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
+    var width = MediaQuery.of(context).size.width;
+    return SizedBox(
+      width: width * 0.95,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        color: goldColor,
+        child: DigitalClock(
+          isLive: true,
+          showSeconds: false,
+          format: "dd MMMM yyyy EEEE",
+          digitalClockTextColor: Colors.white,
         ),
       ),
     );

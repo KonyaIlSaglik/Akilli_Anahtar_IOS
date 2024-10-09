@@ -6,7 +6,7 @@ import 'package:flutter_wall_layout/flutter_wall_layout.dart';
 import 'package:get/get.dart';
 
 class BahcePage extends StatefulWidget {
-  const BahcePage({Key? key}) : super(key: key);
+  const BahcePage({super.key});
 
   @override
   State<BahcePage> createState() => _BahcePageState();

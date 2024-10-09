@@ -7,12 +7,12 @@ class SensorCard extends StatelessWidget {
   final String value;
   final String birim;
   const SensorCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.icon,
     required this.value,
     required this.birim,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

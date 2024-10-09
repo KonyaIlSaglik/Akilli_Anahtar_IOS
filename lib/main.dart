@@ -4,11 +4,10 @@ import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:akilli_anahtar/pages/splash_page.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:upgrader/upgrader.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
@@ -37,7 +36,7 @@ class MyApp extends StatelessWidget {
     },
   );
   final ThemeData theme;
-  const MyApp({Key? key, required this.theme}) : super(key: key);
+  const MyApp({super.key, required this.theme});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +44,7 @@ class MyApp extends StatelessWidget {
       data:
           MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(0.90)),
       child: GetMaterialApp(
-        title: 'Flutter Demo',
+        title: 'Akıllı Anahtar',
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
@@ -62,11 +61,7 @@ class MyApp extends StatelessWidget {
               .dialogTheme
               .copyWith(backgroundColor: Colors.white),
         ),
-        home: UpgradeAlert(
-          dialogStyle: UpgradeDialogStyle.cupertino,
-          cupertinoButtonTextStyle: TextStyle(color: Colors.black),
-          child: SplashPage(),
-        ),
+        home: SplashPage(),
       ),
     );
   }

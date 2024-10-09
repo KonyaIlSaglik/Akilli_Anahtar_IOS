@@ -9,7 +9,7 @@ class CustomTextField extends StatefulWidget {
   final FocusNode? nextFocus;
   final bool autoFocus;
   const CustomTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.icon,
     this.hintText,
@@ -17,7 +17,7 @@ class CustomTextField extends StatefulWidget {
     this.nextFocus,
     this.isPassword = false,
     this.autoFocus = false,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();

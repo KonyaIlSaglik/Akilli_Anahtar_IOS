@@ -6,8 +6,7 @@ import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 class BahceSuTankCard extends StatelessWidget {
   final double value;
   final double top;
-  const BahceSuTankCard({Key? key, this.value = 0, this.top = 100})
-      : super(key: key);
+  const BahceSuTankCard({super.key, this.value = 0, this.top = 100});
   @override
   Widget build(BuildContext context) {
     return Card(

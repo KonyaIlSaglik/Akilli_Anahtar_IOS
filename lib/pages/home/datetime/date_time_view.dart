@@ -3,7 +3,7 @@ import 'package:akilli_anahtar/pages/home/datetime/time_view.dart';
 import 'package:flutter/material.dart';
 
 class DatetimeView extends StatelessWidget {
-  const DatetimeView({Key? key}) : super(key: key);
+  const DatetimeView({super.key});
 
   @override
   Widget build(BuildContext context) {

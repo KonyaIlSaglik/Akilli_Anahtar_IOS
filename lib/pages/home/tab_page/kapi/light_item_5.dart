@@ -10,7 +10,7 @@ import 'package:turkish/turkish.dart';
 
 class LightItem5 extends StatefulWidget {
   final Device device;
-  const LightItem5({Key? key, required this.device}) : super(key: key);
+  const LightItem5({super.key, required this.device});
 
   @override
   State<LightItem5> createState() => _LightItem5State();

@@ -1,30 +1,29 @@
-import 'package:akilli_anahtar/controllers/user_controller.dart';
+import 'package:akilli_anahtar/controllers/user_management_control.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class BoxSelectWidget extends StatefulWidget {
-  const BoxSelectWidget({Key? key}) : super(key: key);
+  const BoxSelectWidget({super.key});
 
   @override
   State<BoxSelectWidget> createState() => _BoxSelectWidgetState();
 }
 
 class _BoxSelectWidgetState extends State<BoxSelectWidget> {
-  UserController userController = Get.find();
-  ClaimController claimController = Get.find();
+  UserManagementController userManagementControl = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      return claimController.boxes.isEmpty
+      return userManagementControl.boxes.isEmpty
           ? CircularProgressIndicator()
           : SizedBox(
               height: 60,
               child: DropdownSearch<Box>(
-                dropdownDecoratorProps: DropDownDecoratorProps(
-                  dropdownSearchDecoration: InputDecoration(
+                decoratorProps: DropDownDecoratorProps(
+                  decoration: InputDecoration(
                     hintText: "Kutu Seç",
                     border: OutlineInputBorder(),
                   ),
@@ -32,20 +31,24 @@ class _BoxSelectWidgetState extends State<BoxSelectWidget> {
                 popupProps: PopupProps.menu(
                   showSearchBox: true,
                 ),
-                items: claimController.filteredBoxes,
-                selectedItem: claimController.filteredBoxes.firstWhereOrNull(
-                    (o) => o.id == claimController.selectedBoxId.value),
+                items: (filter, loadProps) {
+                  return userManagementControl.filteredBoxes;
+                },
+                selectedItem: userManagementControl.filteredBoxes
+                    .firstWhereOrNull((o) =>
+                        o.id == userManagementControl.selectedBoxId.value),
                 itemAsString: (item) => item.name,
                 onChanged: (value) {
                   if (value != null) {
-                    claimController.selectedBoxId.value = value.id;
-                    claimController.filterRelays();
-                    claimController.filterSensors();
-                    // No need for setState() if using GetX
+                    userManagementControl.selectedBoxId.value = value.id;
+                    userManagementControl.filterDevices();
                   }
                 },
                 filterFn: (item, filter) {
                   return item.name.toLowerCase().contains(filter.toLowerCase());
+                },
+                compareFn: (item1, item2) {
+                  return item1.id == item2.id; // Compare based on the unique ID
                 },
                 dropdownBuilder: (context, selectedItem) {
                   return Row(
@@ -68,12 +71,10 @@ class _BoxSelectWidgetState extends State<BoxSelectWidget> {
                           icon: Icon(Icons.clear),
                           onPressed: () {
                             // Clear selection
-                            claimController.selectedBoxId.value =
+                            userManagementControl.selectedBoxId.value =
                                 0; // Resetting the selected ID
-                            claimController
-                                .filterRelays(); // Optionally re-filter relays
-                            claimController
-                                .filterSensors(); // Optionally re-filter sensors
+                            userManagementControl
+                                .filterDevices(); // Optionally re-filter sensors
                           },
                         ),
                     ],

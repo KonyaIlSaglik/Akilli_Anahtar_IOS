@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'bahce/bahce_page.dart';
 
 class TabView extends StatefulWidget {
-  const TabView({Key? key}) : super(key: key);
+  const TabView({super.key});
 
   @override
   State<TabView> createState() => _TabViewState();

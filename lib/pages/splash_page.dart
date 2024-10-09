@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SplashPage extends StatefulWidget {
-  const SplashPage({Key? key}) : super(key: key);
+  const SplashPage({super.key});
 
   @override
   State<SplashPage> createState() => _SplashPageState();
@@ -28,6 +28,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   init() async {
+    checkNewVersion(context, false);
     await _authController.loadToken();
     if (_authController.isLoggedIn.value) {
       Get.put(MqttController());
@@ -42,41 +43,36 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      onPopInvoked: (didPop) async {
-        //
-      },
-      child: Scaffold(
-        body: CustomContainer(
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(flex: 20, child: SizedBox(height: 0)),
-              Expanded(flex: 20, child: Image.asset("assets/anahtar1.png")),
-              Expanded(flex: 15, child: SizedBox(height: 0)),
-              Expanded(
-                flex: 15,
-                child: SizedBox(
-                  height: 0,
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: goldColor,
-                    ),
+    return Scaffold(
+      body: CustomContainer(
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Expanded(flex: 20, child: SizedBox(height: 0)),
+            Expanded(flex: 20, child: Image.asset("assets/anahtar1.png")),
+            Expanded(flex: 15, child: SizedBox(height: 0)),
+            Expanded(
+              flex: 15,
+              child: SizedBox(
+                height: 0,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: goldColor,
                   ),
                 ),
               ),
-              Expanded(
-                flex: 10,
-                child: Text(
-                  "Giriş yapılıyor...",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+            ),
+            Expanded(
+              flex: 10,
+              child: Text(
+                "Giriş yapılıyor...",
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              Expanded(flex: 10, child: SizedBox(height: 0)),
-              Expanded(flex: 1, child: Image.asset("assets/rdiot1.png")),
-              Expanded(flex: 10, child: SizedBox(height: 0)),
-            ],
-          ),
+            ),
+            Expanded(flex: 10, child: SizedBox(height: 0)),
+            Expanded(flex: 1, child: Image.asset("assets/rdiot1.png")),
+            Expanded(flex: 10, child: SizedBox(height: 0)),
+          ],
         ),
       ),
     );

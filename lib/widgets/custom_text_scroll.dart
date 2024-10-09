@@ -5,9 +5,9 @@ class CustomTextScroll extends StatelessWidget {
   final String text;
 
   CustomTextScroll({
-    Key? key,
+    super.key,
     required this.text,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class CustomTextScroll extends StatelessWidget {
         velocity: Velocity(pixelsPerSecond: Offset(10, 0)),
         style: TextStyle(color: Colors.white),
         textAlign: TextAlign.right,
-        selectable: true,
+        selectable: false,
       ),
     );
   }

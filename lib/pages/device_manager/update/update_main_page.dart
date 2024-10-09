@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class UpdateMainPage extends StatefulWidget {
-  const UpdateMainPage({Key? key}) : super(key: key);
+  const UpdateMainPage({super.key});
 
   @override
   State<UpdateMainPage> createState() => _UpdateMainPageState();

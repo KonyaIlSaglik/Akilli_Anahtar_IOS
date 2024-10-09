@@ -41,6 +41,10 @@ class UserDevice {
   factory UserDevice.fromJson(String source) =>
       UserDevice.fromMap(json.decode(source) as Map<String, dynamic>);
 
+  static List<UserDevice> fromJsonList(String source) =>
+      List<UserDevice>.from((json.decode(source) as List<dynamic>)
+          .map((x) => UserDevice.fromJson(json.encode(x))));
+
   UserDevice copyWith({
     int? id,
     int? userId,

@@ -4,7 +4,7 @@ import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 
 class ZamanlamaPage extends StatefulWidget {
   final String hat;
-  const ZamanlamaPage({Key? key, required this.hat}) : super(key: key);
+  const ZamanlamaPage({super.key, required this.hat});
   @override
   State<ZamanlamaPage> createState() => _ZamanlamaPageState();
 }

@@ -10,7 +10,7 @@ import 'package:turkish/turkish.dart';
 
 class LedPinItem9 extends StatefulWidget {
   final Device device;
-  const LedPinItem9({Key? key, required this.device}) : super(key: key);
+  const LedPinItem9({super.key, required this.device});
 
   @override
   State<LedPinItem9> createState() => _LedPinItem9State();

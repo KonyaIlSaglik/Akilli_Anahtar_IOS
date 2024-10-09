@@ -9,7 +9,7 @@ import 'package:turkish/turkish.dart';
 
 class BarrierDoorItem4 extends StatefulWidget {
   final Device device;
-  const BarrierDoorItem4({Key? key, required this.device}) : super(key: key);
+  const BarrierDoorItem4({super.key, required this.device});
 
   @override
   State<BarrierDoorItem4> createState() => _BarrierDoorItem4State();

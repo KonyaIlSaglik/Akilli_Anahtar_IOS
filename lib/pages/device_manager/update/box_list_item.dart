@@ -12,9 +12,9 @@ import 'package:get/get.dart';
 class BoxListItem extends StatefulWidget {
   final int index;
   const BoxListItem({
-    Key? key,
+    super.key,
     this.index = 0,
-  }) : super(key: key);
+  });
 
   @override
   State<BoxListItem> createState() => _BoxListItemState();

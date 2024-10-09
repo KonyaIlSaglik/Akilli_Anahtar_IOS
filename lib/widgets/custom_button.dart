@@ -9,12 +9,12 @@ class CustomButton extends StatelessWidget {
   bool? loading = false;
   Color? color;
   CustomButton({
-    Key? key,
+    super.key,
     required this.title,
     required this.onPressed,
     this.loading,
     this.color,
-  }) : super(key: key);
+  });
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;

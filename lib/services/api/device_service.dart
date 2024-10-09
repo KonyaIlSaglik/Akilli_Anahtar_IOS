@@ -6,54 +6,75 @@ class DeviceService {
   static String url = "$apiUrlOut/Device";
 
   static Future<List<Device>?> getAllByBoxId(int id) async {
-    return await BaseService.get2(
+    var response = await BaseService.get(
       "$url/getAllByBoxId?id=$id",
-      (json) => Device.fromJsonList(json),
     );
+    if (response.statusCode == 200) {
+      return Device.fromJsonList(response.body);
+    }
+    return null;
   }
 
   static Future<List<Device>?> getAllByUserId(int id) async {
-    return await BaseService.get2(
+    var response = await BaseService.get(
       "$url/getAllByUserId?id=$id",
-      (json) => Device.fromJsonList(json),
     );
+    if (response.statusCode == 200) {
+      return Device.fromJsonList(response.body);
+    }
+    return null;
   }
 
   static Future<Device?> get(int id) async {
-    return await BaseService.get2(
+    var response = await BaseService.get(
       "$url/get?id=$id",
-      (json) => Device.fromJson(json),
     );
+    if (response.statusCode == 200) {
+      return Device.fromJson(response.body);
+    }
+    return null;
   }
 
   static Future<List<Device>?> getAll() async {
-    return await BaseService.get2(
+    var response = await BaseService.get(
       "$url/getAll",
-      (json) => Device.fromJsonList(json),
     );
+    if (response.statusCode == 200) {
+      return Device.fromJsonList(response.body);
+    }
+    return null;
   }
 
   static Future<Device?> add(Device box) async {
-    return BaseService.add2(
+    var response = await BaseService.add(
       "$url/add",
       box.toJson(),
-      (json) => Device.fromJson(json),
     );
+    if (response.statusCode == 200) {
+      return Device.fromJson(response.body);
+    }
+    return null;
   }
 
   static Future<Device?> update(Device box) async {
-    return BaseService.update2(
+    var response = await BaseService.update(
       "$url/update",
       box.toJson(),
-      (json) => Device.fromJson(json),
     );
+    if (response.statusCode == 200) {
+      return Device.fromJson(response.body);
+    }
+    return null;
   }
 
-  static Future<Device?> delete(int id) async {
-    return BaseService.delete2(
+  static Future<bool> delete(int id) async {
+    var response = await BaseService.delete(
       "$url/delete?id=$id",
-      (json) => Device.fromJson(json),
     );
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return false;
   }
 
   // static Future<List<Device>?> getAllByUserId(String id) async {

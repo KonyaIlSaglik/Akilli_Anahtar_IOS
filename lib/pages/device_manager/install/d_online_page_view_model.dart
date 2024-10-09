@@ -69,13 +69,13 @@ class OnlinePageViewModel {
                                       ),
                                       TextButton(
                                         onPressed: () async {
-                                          Navigator.pop(context);
                                           nodemcuController.wifiSSID.value =
                                               nodemcuController
                                                   .apList[i].ssidName;
 
                                           nodemcuController.wifiPASS.value =
                                               passController.text;
+                                          Navigator.pop(context);
                                         },
                                         child: Text(
                                           "Bağlan",

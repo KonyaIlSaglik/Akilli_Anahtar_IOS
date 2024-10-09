@@ -8,7 +8,7 @@ import 'package:akilli_anahtar/widgets/custom_text_field.dart';
 import 'package:get/get.dart';
 
 class SifreDegistirPage extends StatefulWidget {
-  const SifreDegistirPage({Key? key}) : super(key: key);
+  const SifreDegistirPage({super.key});
 
   @override
   State<SifreDegistirPage> createState() => _SifreDegistirPageState();

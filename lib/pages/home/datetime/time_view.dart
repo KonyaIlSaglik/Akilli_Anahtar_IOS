@@ -1,32 +1,26 @@
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:slide_digital_clock/slide_digital_clock.dart';
+import 'package:one_clock/one_clock.dart';
 
 class TimeView extends StatelessWidget {
-  const TimeView({Key? key}) : super(key: key);
+  const TimeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
-    var fontSize = height > 768
-        ? Theme.of(context).textTheme.displayLarge!.fontSize! * 1.5
-        : Theme.of(context).textTheme.displayLarge!.fontSize!;
-    return Container(
-      color: goldColor,
-      width: MediaQuery.of(context).size.width,
-      child: DigitalClock(
-        showSecondsDigit: false,
-        is24HourTimeFormat: true,
-        hourMinuteDigitTextStyle: TextStyle(
-          color: Colors.white,
-          fontSize: fontSize,
-          fontWeight: FontWeight.bold,
+    var width = MediaQuery.of(context).size.width;
+    return SizedBox(
+      width: width * 0.95,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
-        colon: Text(
-          ":",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: fontSize,
+        color: goldColor,
+        child: FittedBox(
+          child: DigitalClock(
+            isLive: true,
+            showSeconds: false,
+            format: "HH:mm",
+            digitalClockTextColor: Colors.white,
           ),
         ),
       ),

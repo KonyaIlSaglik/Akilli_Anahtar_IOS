@@ -32,4 +32,8 @@ class UserOrganisation {
 
   factory UserOrganisation.fromJson(String source) =>
       UserOrganisation.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  static List<UserOrganisation> fromJsonList(String source) =>
+      List<UserOrganisation>.from((json.decode(source) as List<dynamic>)
+          .map((x) => UserOrganisation.fromJson(json.encode(x))));
 }

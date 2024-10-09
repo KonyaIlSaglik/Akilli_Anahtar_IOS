@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Toolbar extends StatelessWidget {
-  const Toolbar({Key? key}) : super(key: key);
+  const Toolbar({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 
 class IntroductionPage extends StatefulWidget {
-  const IntroductionPage({Key? key}) : super(key: key);
+  const IntroductionPage({super.key});
 
   @override
   State<IntroductionPage> createState() => _IntroductionPageState();
@@ -115,17 +115,17 @@ class _IntroductionPageState extends State<IntroductionPage> {
                       _introKey.currentState?.skipToEnd();
                     }
                   },
-                  onDone: () async {
-                    await _nodemcuController.sendConnectionSettings();
-                    Get.to(() => HomePage());
-                  },
                   onChange: (value) async {
                     setState(() {
                       page = value;
                     });
-                    if (page == 2) {
+                    if (page == 1) {
                       await _nodemcuController.getNodemcuApList();
                     }
+                  },
+                  onDone: () async {
+                    await _nodemcuController.sendConnectionSettings();
+                    Get.to(() => HomePage());
                   },
                   pages: [
                     WifiPageViewModel.get(context),

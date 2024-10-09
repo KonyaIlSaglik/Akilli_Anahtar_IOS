@@ -1,11 +1,9 @@
-import 'package:akilli_anahtar/controllers/claim_controller.dart';
-import 'package:akilli_anahtar/controllers/user_controller.dart';
-import 'package:akilli_anahtar/entities/user_organisation.dart';
+import 'package:akilli_anahtar/controllers/user_management_control.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class UserOrganisationClaimWidget extends StatefulWidget {
-  const UserOrganisationClaimWidget({Key? key}) : super(key: key);
+  const UserOrganisationClaimWidget({super.key});
 
   @override
   State<UserOrganisationClaimWidget> createState() =>
@@ -14,14 +12,7 @@ class UserOrganisationClaimWidget extends StatefulWidget {
 
 class _UserOrganisationClaimWidgetState
     extends State<UserOrganisationClaimWidget> {
-  UserController userController = Get.find();
-  ClaimController claimController = Get.find();
-
-  @override
-  void initState() {
-    super.initState();
-    claimController.getAllClaims();
-  }
+  UserManagementController userManagementController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +57,8 @@ class _UserOrganisationClaimWidgetState
                     Expanded(
                       child: Obx(() {
                         return ListView(
-                          children: claimController.organisations.map((o) {
+                          children:
+                              userManagementController.organisations.map((o) {
                             return ListTile(
                               title: Text(o.name),
                               trailing: Checkbox(
@@ -74,35 +66,19 @@ class _UserOrganisationClaimWidgetState
                                   if (value != null) {
                                     if (value) {
                                       // Adding claim
-                                      var addedUserOrganisation =
-                                          await claimController
-                                              .addUserOrganisation(
-                                        UserOrganisation(
-                                          id: 0,
-                                          userId: userController
-                                              .selectedUser.value.id,
-                                          organisationId: o.id,
-                                        ),
-                                      );
-                                      if (addedUserOrganisation != null) {
-                                        userController.selectedUserOrganisations
-                                            .add(addedUserOrganisation);
-                                      }
+                                      await userManagementController
+                                          .addUserOrganisation(o.id);
                                     } else {
                                       // Removing claim
                                       try {
-                                        var organisation = userController
-                                            .selectedUserOrganisations
-                                            .firstWhere((uo) =>
-                                                uo.organisationId == o.id);
-                                        var isDeleted = await claimController
+                                        var organisation =
+                                            userManagementController
+                                                .userOrganisations
+                                                .firstWhere((uo) =>
+                                                    uo.organisationId == o.id);
+                                        await userManagementController
                                             .deleteUserOrganisation(
                                                 organisation.id);
-                                        if (isDeleted) {
-                                          userController
-                                              .selectedUserOrganisations
-                                              .remove(organisation);
-                                        }
                                       } catch (e) {
                                         // Handle the case where the claim is not found
                                         print("Claim not found: $e");
@@ -110,7 +86,8 @@ class _UserOrganisationClaimWidgetState
                                     }
                                   }
                                 },
-                                value: userController.selectedUserOrganisations
+                                value: userManagementController
+                                    .userOrganisations
                                     .any((uo) => uo.organisationId == o.id),
                               ),
                             );
