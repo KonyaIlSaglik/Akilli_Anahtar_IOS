@@ -257,8 +257,8 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         toolbarHeight: 0,
       ),
-      body: PopScope(
-        onPopInvoked: (didPop) async {
+      body: PopScope<Object>(
+        onPopInvokedWithResult: (didPop, result) {
           exitApp(context);
         },
         child: SingleChildScrollView(

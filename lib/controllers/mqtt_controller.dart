@@ -115,10 +115,8 @@ class MqttController extends GetxController {
   }
 
   void subscribeToTopic(String topic) {
-    if (client.getSubscriptionTopicStatus(topic) !=
-        MqttSubscriptionStatus.active) {
-      client.subscribe(topic, MqttQos.atMostOnce);
-    }
+    client.unsubscribeStringTopic(topic);
+    client.subscribe(topic, MqttQos.atMostOnce);
   }
 
   void onMessage(Function(String topic, String message) onMessage) {

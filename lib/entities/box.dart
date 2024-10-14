@@ -9,8 +9,12 @@ class Box {
   String topicRec;
   String topicRes;
   String version;
+  int restartTimeout;
   bool isSub = false;
-  bool isOld = false;
+  String? organisationName;
+  int isOld = -1;
+  bool upgrading = false;
+  bool apEnable = false;
 
   Box({
     this.id = 0,
@@ -21,6 +25,7 @@ class Box {
     this.topicRec = "",
     this.topicRes = "",
     this.version = "",
+    this.restartTimeout = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -33,6 +38,7 @@ class Box {
       'topicRec': topicRec,
       'topicRes': topicRes,
       'version': version,
+      'restartTimeout': restartTimeout,
     };
   }
 
@@ -46,6 +52,7 @@ class Box {
       topicRec: map['topicRec'] as String,
       topicRes: map['topicRes'] as String,
       version: map['version'] != null ? map['version'] as String : "",
+      restartTimeout: map['restartTimeout'] as int,
     );
   }
 

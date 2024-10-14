@@ -52,7 +52,7 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
         toolbarHeight: 0,
       ),
       body: PopScope(
-        onPopInvoked: (didPop) async {
+        onPopInvokedWithResult: (didPop, result) {
           Navigator.pop(context);
         },
         child: SingleChildScrollView(

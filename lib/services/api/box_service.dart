@@ -52,8 +52,7 @@ class BoxService {
     return false;
   }
 
-  static Future<VersionModel> checkNewVersion() async {
-    var model = VersionModel();
+  static Future<VersionModel?> checkNewVersion() async {
     try {
       var uri = Uri.parse("https://www.ossbs.com/update/version.html");
       var client = http.Client();
@@ -63,8 +62,8 @@ class BoxService {
       }
     } catch (e) {
       print(e);
-      return model;
+      return null;
     }
-    return model;
+    return null;
   }
 }

@@ -1,30 +1,81 @@
+import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
+import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/models/version_model.dart';
 import 'package:akilli_anahtar/services/api/box_service.dart';
+import 'package:akilli_anahtar/services/api/home_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
 
 class BoxManagementController extends GetxController {
   var boxes = <Box>[].obs;
-  var selectedSortOption = "Name".obs;
+  var organisations = <Organisation>[].obs;
+  var selectedSortOption = "Cihaz Adı".obs;
   var selectedBox = Box().obs;
   var searchQuery = "".obs;
-  var loadingBox = false.obs;
+  var loading = false.obs;
 
   var checkingNewVersion = false.obs;
   var newVersion = VersionModel().obs;
 
   Future<void> checkNewVersion() async {
-    checkingNewVersion.value = true;
-    newVersion.value = await BoxService.checkNewVersion();
-    checkingNewVersion.value = false;
+    loading.value = true;
+    var result = await BoxService.checkNewVersion();
+    if (result != null) {
+      newVersion.value = result;
+    }
+    loading.value = false;
   }
 
   Future<void> getBoxes() async {
-    loadingBox.value = true;
+    loading.value = true;
     boxes.value = await BoxService.getAll() ?? <Box>[];
-    loadingBox.value = false;
+    MqttController mqttController = Get.find();
+    for (var box in boxes) {
+      mqttController.subListenerList.add(
+        (topic) {
+          if (topic == box.topicRes) {
+            box.isSub = true;
+          }
+        },
+      );
+      mqttController.subscribeToTopic(box.topicRes);
+      box.organisationName =
+          organisations.singleWhere((o) => o.id == box.organisationId).name;
+      if (newVersion.value.version.isNotEmpty) {
+        var bv = box.version;
+        var nv = newVersion.value;
+        if (nv.version.isNotEmpty) {
+          var bv1 = int.tryParse(bv.split(".")[0]) ?? 0;
+          var nv1 = int.tryParse(nv.version.split(".")[0]) ?? 0;
+          if (bv1 < nv1) {
+            box.isOld = -1;
+          } else if (bv1 == nv1) {
+            var bv2 = int.tryParse(bv.split(".")[1]) ?? 0;
+            var nv2 = int.tryParse(nv.version.split(".")[1]) ?? 0;
+            if (bv2 < nv2) {
+              box.isOld = -1;
+            } else if (bv2 == nv2) {
+              box.isOld = 0;
+            } else {
+              box.isOld = 1;
+            }
+          } else {
+            box.isOld = 1;
+          }
+        }
+      }
+    }
+
+    loading.value = false;
+  }
+
+  Future<void> getOrganisations() async {
+    loading.value = true;
+    organisations.value =
+        await HomeService.getAllOrganisation() ?? <Organisation>[];
+    loading.value = false;
   }
 
   void sortBoxes() {
@@ -34,7 +85,7 @@ class BoxManagementController extends GetxController {
       if (subComparison != 0) return subComparison;
 
       // If both isSub and box.name are the same, sort by isOld
-      int oldComparison = a.isOld == b.isOld ? 0 : (a.isOld ? -1 : 1);
+      int oldComparison = a.isOld == b.isOld ? 0 : (a.isOld == -1 ? -1 : 1);
       if (oldComparison != 0) return oldComparison;
 
       // If isSub is the same, sort by box.name

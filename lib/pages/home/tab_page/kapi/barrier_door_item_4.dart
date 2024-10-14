@@ -21,7 +21,7 @@ class _BarrierDoorItem4State extends State<BarrierDoorItem4>
   final MqttController _mqttController = Get.find<MqttController>();
 
   bool isSub = false;
-  String status = "KAPALI";
+  String status = "1";
   @override
   void initState() {
     super.initState();
@@ -93,22 +93,26 @@ class _BarrierDoorItem4State extends State<BarrierDoorItem4>
             elevation: 0,
             color: !isSub
                 ? Colors.grey
-                : status == "AÇILIYOR"
+                : status == "2"
                     ? Colors.yellow
-                    : status == "AÇIK"
-                        ? Colors.green[400]
-                        : status == "KAPANIYOR"
+                    : status == "3"
+                        ? Colors.green
+                        : status == "4"
                             ? Colors.yellow
                             : Colors.red,
             child: Center(
               child: Text(
-                status == "0"
-                    ? "AÇIK"
-                    : status == "1"
-                        ? "KAPALI"
-                        : status,
+                status == "2"
+                    ? "AÇILIYOR"
+                    : status == "3"
+                        ? "AÇIK"
+                        : status == "4"
+                            ? "KAPANIYOR"
+                            : "KAPALI",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: status == "2" || status == "4"
+                      ? Colors.black
+                      : Colors.white,
                   fontSize: Theme.of(context).textTheme.labelLarge!.fontSize,
                 ),
               ),

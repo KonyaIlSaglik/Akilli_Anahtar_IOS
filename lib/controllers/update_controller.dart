@@ -19,7 +19,7 @@ class UpdateController extends GetxController {
 
   Future<void> checkNewVersion() async {
     checkingNewVersion.value = true;
-    newVersion.value = await BoxService.checkNewVersion();
+    //newVersion.value = await BoxService.checkNewVersion();
     checkingNewVersion.value = false;
   }
 

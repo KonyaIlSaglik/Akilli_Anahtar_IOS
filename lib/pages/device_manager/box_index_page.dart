@@ -20,23 +20,29 @@ class _BoxIndexPageState extends State<BoxIndexPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      boxManagementController.getBoxes();
-      boxManagementController.checkNewVersion();
-    });
+    print("box_index_page.dart started");
+    init();
+  }
+
+  void init() async {
+    await boxManagementController.checkNewVersion();
+    await boxManagementController.getOrganisations();
+    boxManagementController.getBoxes();
   }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
-        boxManagementController.searchQuery.value = "";
+        if (mounted) {
+          boxManagementController.searchQuery.value = "";
+        }
       },
       child: Scaffold(
         appBar: AppBar(
           elevation: 3,
           shadowColor: Colors.black,
-          title: Text("Kullanıcılar"),
+          title: Text("Kutu Yönetimi"),
           actions: [
             DropdownButton<String>(
               icon: Icon(
@@ -51,7 +57,7 @@ class _BoxIndexPageState extends State<BoxIndexPage> {
                   boxManagementController.sortBoxes();
                 });
               },
-              items: <String>['Sıra No', 'Ad Soyad', 'Kullanıcı Adı']
+              items: <String>['Sıra No', 'Cihaz Adı', 'Kurum Adı']
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
@@ -96,12 +102,14 @@ class _BoxIndexPageState extends State<BoxIndexPage> {
           ),
         ),
         body: RefreshIndicator(
-          onRefresh: boxManagementController.getBoxes,
+          onRefresh: () async {
+            init();
+          },
           child: Obx(() {
-            if (boxManagementController.loadingBox.value) {
+            if (boxManagementController.loading.value) {
               return Center(child: CircularProgressIndicator());
             } else if (boxManagementController.boxes.isEmpty) {
-              return Center(child: Text("No users found."));
+              return Center(child: Text("Kutu listesi boş"));
             } else {
               // Filter users based on the search query
               final filteredBoxes = boxManagementController.boxes.where((user) {

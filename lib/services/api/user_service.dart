@@ -78,10 +78,10 @@ class UserService {
       'id': id,
       'password': password,
     };
+    print(json.encode(requestBody));
     var response = await BaseService.update(
-      url,
-      json.encode(requestBody),
-    );
+        "$url/passwordUpdate?id=$id&password=$password", null);
+    print(response.body);
     if (response.statusCode == 200) {
       return true;
     }

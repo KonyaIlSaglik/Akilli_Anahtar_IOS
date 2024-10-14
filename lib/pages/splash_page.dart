@@ -2,6 +2,7 @@ import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/connectivity_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
+import 'package:akilli_anahtar/pages/device_manager/box_index_page.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_container.dart';
@@ -34,7 +35,8 @@ class _SplashPageState extends State<SplashPage> {
       Get.put(MqttController());
       await _authController.getUser();
       print("Go to HomePage");
-      Get.to(() => HomePage());
+      //Get.to(() => HomePage());
+      Get.to(() => BoxIndexPage());
     } else {
       print("Go to LoginPage");
       Get.to(() => LoginPage());
