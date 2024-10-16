@@ -60,9 +60,7 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
                     children: [
                       Expanded(
                         child: Text(
-                          selectedItem != null
-                              ? selectedItem.name
-                              : "Kurum Seç",
+                          selectedItem != null ? selectedItem.name : "",
                           style: TextStyle(
                               color: selectedItem != null
                                   ? Colors.black

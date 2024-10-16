@@ -16,7 +16,7 @@ class MqttController extends GetxController {
   var isConnected = false.obs;
   var status = 'Disconnected'.obs;
   List<Function(String topic)> subListenerList = <Function(String topic)>[].obs;
-
+  var globalTopic = "".obs;
   late FlutterLocalNotificationsPlugin localNotifications;
 
   @override
@@ -73,6 +73,8 @@ class MqttController extends GetxController {
           .withClientIdentifier(identifier)
           .withWillQos(MqttQos.atMostOnce);
       client.connectionMessage = connMess;
+
+      globalTopic.value = params.firstWhere((p) => p.name == "mqtt_user").value;
     }
     print("Mqtt initialized");
     connect();
@@ -95,6 +97,9 @@ class MqttController extends GetxController {
     isConnected.value = true;
     status.value = 'Connected';
     print('MQTT client connected');
+    if (globalTopic.value.isNotEmpty) {
+      subscribeToTopic(globalTopic.value);
+    }
   }
 
   void onDisconnected() {

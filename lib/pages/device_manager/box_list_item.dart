@@ -1,11 +1,9 @@
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
-import 'package:akilli_anahtar/models/nodemcu_info_model.dart';
 import 'package:akilli_anahtar/pages/device_manager/box_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mqtt5_client/mqtt5_client.dart';
 
 class BoxListItem extends StatefulWidget {
   final Box box;
@@ -24,51 +22,6 @@ class _BoxListItemState extends State<BoxListItem> {
   void initState() {
     super.initState();
     box = widget.box;
-    if (mqttController.getSubscriptionTopicStatus(box.topicRec) ==
-        MqttSubscriptionStatus.active) {
-      print("${box.topicRec} active");
-      box.isSub = true;
-      setState(() {});
-    } else {
-      mqttController.subListenerList.add(
-        (topic) {
-          if (topic == box.topicRes) {
-            box.isSub = true;
-            if (mounted) {
-              setState(() {});
-            }
-          }
-        },
-      );
-      mqttController.subscribeToTopic(box.topicRes);
-    }
-    mqttController.publishMessage(box.topicRec, "getinfo");
-    mqttController.onMessage(
-      (topic, message) {
-        if (topic == box.topicRes) {
-          if (message == "boxConnected") {
-            box.isSub = true;
-            box.upgrading = false;
-          }
-          if (message == "upgrading") {
-            box.upgrading = true;
-          }
-          try {
-            var infoModel = NodemcuInfoModel();
-            infoModel = NodemcuInfoModel.fromJson(message);
-            if (infoModel.chipId.isNotEmpty) {
-              boxManagementController.selectedBox.value.apEnable =
-                  infoModel.apEnable;
-            }
-          } catch (e) {
-            print(e);
-          }
-          if (mounted) {
-            setState(() {});
-          }
-        }
-      },
-    );
   }
 
   @override
@@ -108,21 +61,6 @@ class _BoxListItemState extends State<BoxListItem> {
             Text(
               "Test Sürüm",
               style: TextStyle(color: Colors.blue),
-            ),
-        ],
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (box.isOld == -1 && box.isSub)
-            IconButton(
-              icon: Icon(
-                Icons.upload_outlined,
-                color: Colors.red,
-              ),
-              onPressed: () {
-                mqttController.publishMessage(box.topicRec, "doUpgrade");
-              },
             ),
         ],
       ),

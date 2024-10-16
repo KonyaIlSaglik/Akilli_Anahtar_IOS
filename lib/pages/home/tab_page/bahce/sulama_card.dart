@@ -3,7 +3,6 @@ import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/bahce/zamanlama_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -25,32 +24,19 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
   final MqttController _mqttController = Get.find<MqttController>();
   bool isSub = false;
 
-  final controller = ValueNotifier<bool>(false);
   bool _checked = false;
 
   @override
   void initState() {
     super.initState();
-    controller.addListener(() {
-      setState(() {
-        if (controller.value) {
-          _checked = true;
-        } else {
-          _checked = false;
-        }
-        if (_mqttController.isConnected.value) {
-          _mqttController.publishMessage(
-              device.topicRec!, _checked == true ? "0" : "1");
-        }
-      });
-    });
+
     device = widget.device;
     _mqttController.subscribeToTopic(device.topicStat);
     _mqttController.onMessage((topic, message) {
       if (topic == device.topicStat) {
         if (mounted) {
           setState(() {
-            controller.value = message == "0" ? true : false;
+            _checked = message == "0" ? true : false;
           });
         }
       }
@@ -134,14 +120,22 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
             ),
             Row(
               children: [
-                AdvancedSwitch(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  inactiveChild: Text("OFF"),
-                  activeChild: Text("ON"),
-                  width: 70,
-                  controller: controller,
-                  activeColor: Colors.blue,
-                  inactiveColor: Colors.white60,
+                IconButton(
+                  icon: Icon(
+                    _checked
+                        ? FontAwesomeIcons.toggleOn
+                        : FontAwesomeIcons.toggleOff,
+                    color: _checked ? Colors.blue : Colors.white,
+                    size: 30,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _mqttController.publishMessage(
+                        device.topicRec!,
+                        _checked ? "1" : "0",
+                      );
+                    });
+                  },
                 ),
                 IconButton(
                   icon: Icon(

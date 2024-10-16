@@ -1,23 +1,18 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
-import 'package:akilli_anahtar/entities/device_type.dart';
 import 'package:akilli_anahtar/services/api/device_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 
-class DeviceController extends GetxController {
+class HomeController extends GetxController {
   final AuthController _authController = Get.find();
 
-  var loadingDeviceTypes = false.obs;
-  var loadingControlDevices = false.obs;
-  var loadingSensorDevices = false.obs;
-  var loadingGardenDevices = false.obs;
-  var deviceTypes = <DeviceType>[].obs;
+  var loadingDevices = false.obs;
   var devices = <Device>[].obs;
 
   Future<void> getUserDevices() async {
     print("loadingControlDevices");
-    loadingControlDevices.value = true;
+    loadingDevices.value = true;
     var id = _authController.user.value.id;
     if (id > 0) {
       try {
@@ -28,7 +23,7 @@ class DeviceController extends GetxController {
       } catch (e) {
         errorSnackbar('Error', '1- Bir hata oluştu');
       } finally {
-        loadingControlDevices.value = false;
+        loadingDevices.value = false;
       }
     }
   }
@@ -59,11 +54,6 @@ class DeviceController extends GetxController {
   }
 
   void clearController() {
-    loadingDeviceTypes.value = false;
-    loadingControlDevices.value = false;
-    loadingSensorDevices.value = false;
-    deviceTypes.value = <DeviceType>[];
-
     devices.value = <Device>[];
   }
 }

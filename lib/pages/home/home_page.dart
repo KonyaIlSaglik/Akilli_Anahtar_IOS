@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/home/datetime/date_view.dart';
 import 'package:akilli_anahtar/pages/home/datetime/time_view.dart';
 import 'package:akilli_anahtar/pages/home/index/index_page.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/tab_view.dart';
 import 'package:akilli_anahtar/pages/home/toolbar/toolbar_view.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -23,6 +26,31 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    init();
+  }
+
+  void init() async {
+    var info = DeviceInfoPlugin();
+    String deviceId = "";
+    if (Platform.isAndroid) {
+      var androidInfo = await info.androidInfo;
+      print("1 - ${androidInfo.device}");
+      print("2 - ${androidInfo.display}");
+      print("3 - ${androidInfo.host}");
+      print("4 - ${androidInfo.model}");
+      print("5 - ${androidInfo.product}");
+      print("6 - ${androidInfo.board}");
+      print("7 - ${androidInfo.bootloader}");
+      print("8 - ${androidInfo.brand}");
+      print("9 - ${androidInfo.fingerprint}");
+      print("10 - ${androidInfo.tags}");
+      print("11 - ${androidInfo.type}");
+    }
+    if (Platform.isIOS) {
+      var iosInfo = await info.iosInfo;
+      deviceId =
+          iosInfo.identifierForVendor ?? "${iosInfo.name}-${iosInfo.model}";
+    }
   }
 
   @override

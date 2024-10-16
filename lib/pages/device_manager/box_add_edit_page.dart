@@ -7,6 +7,7 @@ import 'package:akilli_anahtar/models/nodemcu_info_model.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:mqtt5_client/mqtt5_client.dart';
 
 class BoxAddEditPage extends StatefulWidget {
   const BoxAddEditPage({super.key});
@@ -52,40 +53,47 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
       restartTimeOut =
           (boxManagementController.selectedBox.value.restartTimeout ~/ 60000)
               .toString();
-      mqttController.subListenerList.add(
-        (topic) {
-          if (topic == boxManagementController.selectedBox.value.topicRes) {
-            boxManagementController.selectedBox.value.isSub = true;
-            if (mounted) {
-              setState(() {});
+      if (mqttController.getSubscriptionTopicStatus(
+              boxManagementController.selectedBox.value.topicRec) ==
+          MqttSubscriptionStatus.active) {
+        print("${boxManagementController.selectedBox.value.topicRec} active");
+        boxManagementController.selectedBox.value.isSub = true;
+        setState(() {});
+      } else {
+        mqttController.subListenerList.add(
+          (topic) {
+            if (topic == boxManagementController.selectedBox.value.topicRes) {
+              boxManagementController.selectedBox.value.isSub = true;
+              if (mounted) {
+                setState(() {});
+              }
             }
-          }
-        },
-      );
-      mqttController
-          .subscribeToTopic(boxManagementController.selectedBox.value.topicRes);
+          },
+        );
+        mqttController.subscribeToTopic(
+            boxManagementController.selectedBox.value.topicRes);
+      }
+      mqttController.publishMessage(
+          boxManagementController.selectedBox.value.topicRec, "getinfo");
       mqttController.onMessage(
         (topic, message) {
-          print(message);
           if (topic == boxManagementController.selectedBox.value.topicRes) {
-            switch (message) {
-              case "boxConnected":
-                boxManagementController.selectedBox.value.isSub = true;
-                boxManagementController.selectedBox.value.upgrading = false;
-                break;
-              case "upgrading":
-                boxManagementController.selectedBox.value.upgrading = true;
-                break;
-              default:
-                if (isJson(message)) {
-                  var infoModel = NodemcuInfoModel();
-                  infoModel = NodemcuInfoModel.fromJson(message);
-                  if (infoModel.chipId.isNotEmpty) {
-                    boxManagementController.selectedBox.value.apEnable =
-                        infoModel.apEnable;
-                  }
-                }
-                break;
+            if (message == "boxConnected") {
+              boxManagementController.selectedBox.value.isSub = true;
+              boxManagementController.selectedBox.value.upgrading = false;
+            }
+            if (message == "upgrading") {
+              boxManagementController.selectedBox.value.upgrading = true;
+            }
+            try {
+              var infoModel = NodemcuInfoModel();
+              infoModel = NodemcuInfoModel.fromJson(message);
+              if (infoModel.chipId.isNotEmpty) {
+                boxManagementController.selectedBox.value.apEnable =
+                    infoModel.apEnable;
+              }
+            } catch (e) {
+              print(e);
             }
             if (mounted) {
               setState(() {});
@@ -252,7 +260,10 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
                   ListTile(
                     title: Text("Yeniden Başlat"),
                     trailing: IconButton(
-                      icon: Icon(FontAwesomeIcons.rotate),
+                      icon: Icon(
+                        FontAwesomeIcons.rotate,
+                        color: Colors.orange,
+                      ),
                       onPressed: () {
                         mqttController.publishMessage(
                             boxManagementController.selectedBox.value.topicRec,
@@ -264,19 +275,59 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
                   ListTile(
                     title: Text(
                         "V:${boxManagementController.selectedBox.value.version}"),
-                    trailing: IconButton(
-                      icon: Icon(FontAwesomeIcons.upload),
-                      onPressed: () {
-                        mqttController.publishMessage(
-                            boxManagementController.selectedBox.value.topicRec,
-                            "reboot");
-                      },
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (boxManagementController.selectedBox.value.isOld ==
+                            -1)
+                          Text(
+                            "Yeni Version: ${boxManagementController.newVersion.value.version}",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        if (boxManagementController.selectedBox.value.isOld ==
+                            0)
+                          Text(
+                            "Sürüm Güncel",
+                            style: TextStyle(color: Colors.green),
+                          ),
+                        if (boxManagementController.selectedBox.value.isOld ==
+                            1)
+                          Text(
+                            "Test Sürüm",
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                      ],
                     ),
-                    onTap: () {
-                      mqttController.publishMessage(
-                          boxManagementController.selectedBox.value.topicRec,
-                          "doUpgrade");
-                    },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (boxManagementController.selectedBox.value.isOld ==
+                                -1 &&
+                            boxManagementController.selectedBox.value.isSub)
+                          IconButton(
+                            icon: Icon(
+                              Icons.upload_outlined,
+                              color: Colors.red,
+                            ),
+                            onPressed: () {
+                              mqttController.publishMessage(
+                                  boxManagementController
+                                      .selectedBox.value.topicRec,
+                                  "doUpgrade");
+                            },
+                          ),
+                        if (boxManagementController
+                                .selectedBox.value.upgrading &&
+                            boxManagementController.selectedBox.value.isSub)
+                          RotatedBox(
+                            quarterTurns: 2,
+                            child: Icon(
+                              FontAwesomeIcons.clockRotateLeft,
+                              color: Colors.blue,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                   Divider(),
                 ],

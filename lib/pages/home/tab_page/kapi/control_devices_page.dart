@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/device_controller.dart';
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/barrier_door_item_4.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/led_pin_item_9.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/light_item_5.dart';
@@ -17,7 +17,7 @@ class ControlDevicesPage extends StatefulWidget {
 }
 
 class _ControlDevicesPageState extends State<ControlDevicesPage> {
-  DeviceController deviceController = Get.put(DeviceController());
+  HomeController deviceController = Get.put(HomeController());
   ScrollController scrollController = ScrollController();
 
   @override
@@ -39,12 +39,8 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
       child: ListView(
         children: [
           Obx(() {
-            return deviceController.loadingControlDevices.value
-                ? Center(
-                    child: CircularProgressIndicator(
-                      color: goldColor,
-                    ),
-                  )
+            return deviceController.loadingDevices.value
+                ? Center(child: Center())
                 : WallLayout(
                     stonePadding: 20,
                     reverse: false,

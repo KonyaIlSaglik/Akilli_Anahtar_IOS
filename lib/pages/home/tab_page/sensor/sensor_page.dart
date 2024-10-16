@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/device_controller.dart';
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_wall_layout/flutter_wall_layout.dart';
 import 'package:get/get.dart';
@@ -13,7 +13,7 @@ class SensorPage extends StatefulWidget {
 }
 
 class _SensorPageState extends State<SensorPage> {
-  DeviceController deviceController = Get.find();
+  HomeController deviceController = Get.find();
   @override
   void initState() {
     super.initState();
@@ -25,38 +25,42 @@ class _SensorPageState extends State<SensorPage> {
       onRefresh: () async {
         await deviceController.getUserDevices();
       },
-      child: Obx(() {
-        return deviceController.loadingSensorDevices.value
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : deviceController.sensorDevices.isEmpty
+      child: ListView(
+        children: [
+          Obx(() {
+            return deviceController.loadingDevices.value
                 ? Center(
-                    child: Text("Sensor Listesi Boş"),
+                    child: Center(),
                   )
-                : MediaQuery(
-                    data: MediaQuery.of(context)
-                        .copyWith(textScaler: TextScaler.linear(0.90)),
-                    child: WallLayout(
-                      stonePadding: 5,
-                      reverse: false,
-                      layersCount: 4,
-                      scrollDirection: Axis.vertical,
-                      stones: List<Stone>.generate(
-                          deviceController.sensorDevices.length, (index) {
-                        var sensor = deviceController.sensorDevices[index];
-                        return Stone(
-                          id: sensor.id,
-                          height: 1,
-                          width: 4,
-                          child: SensorListItem(
-                            sensor: sensor,
-                          ),
-                        );
-                      }),
-                    ),
-                  );
-      }),
+                : deviceController.sensorDevices.isEmpty
+                    ? Center(
+                        child: Text("Sensor Listesi Boş"),
+                      )
+                    : MediaQuery(
+                        data: MediaQuery.of(context)
+                            .copyWith(textScaler: TextScaler.linear(0.90)),
+                        child: WallLayout(
+                          stonePadding: 5,
+                          reverse: false,
+                          layersCount: 4,
+                          scrollDirection: Axis.vertical,
+                          stones: List<Stone>.generate(
+                              deviceController.sensorDevices.length, (index) {
+                            var sensor = deviceController.sensorDevices[index];
+                            return Stone(
+                              id: sensor.id,
+                              height: 1,
+                              width: 4,
+                              child: SensorListItem(
+                                sensor: sensor,
+                              ),
+                            );
+                          }),
+                        ),
+                      );
+          }),
+        ],
+      ),
     );
   }
 

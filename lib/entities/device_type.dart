@@ -11,9 +11,6 @@ class DeviceType {
     this.menuId = 0,
   });
 
-  static List<DeviceType> fromJsonList(String source) => List<DeviceType>.from(
-      json.decode(source).map((x) => DeviceType.fromJson(json.encode(x))));
-
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
@@ -34,4 +31,8 @@ class DeviceType {
 
   factory DeviceType.fromJson(String source) =>
       DeviceType.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  static List<DeviceType> fromJsonList(String source) =>
+      List<DeviceType>.from((json.decode(source) as List<dynamic>)
+          .map((x) => DeviceType.fromJson(json.encode(x))));
 }

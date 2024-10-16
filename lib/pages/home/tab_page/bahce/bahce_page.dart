@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/device_controller.dart';
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/bahce/sulama_card.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ class BahcePage extends StatefulWidget {
 }
 
 class _BahcePageState extends State<BahcePage> {
-  DeviceController deviceController = Get.put(DeviceController());
+  HomeController deviceController = Get.put(HomeController());
   ScrollController scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
@@ -28,12 +28,8 @@ class _BahcePageState extends State<BahcePage> {
         child: ListView(
           children: [
             Obx(() {
-              return deviceController.loadingGardenDevices.value
-                  ? Center(
-                      child: CircularProgressIndicator(
-                        color: goldColor,
-                      ),
-                    )
+              return deviceController.loadingDevices.value
+                  ? Center(child: Center())
                   : deviceController.gardenDevices.isEmpty
                       ? Center(
                           child: Text("Liste Boş"),

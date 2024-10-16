@@ -5,7 +5,7 @@ class Device {
   int id;
   String name;
   int typeId;
-  String typeName;
+  String? typeName;
   int boxId;
   String topicStat;
   String? topicRec;
@@ -33,7 +33,7 @@ class Device {
     this.id = 0,
     this.name = "",
     this.typeId = 0,
-    this.typeName = "",
+    this.typeName,
     this.boxId = 0,
     this.topicStat = "",
     this.topicRec,
@@ -94,7 +94,7 @@ class Device {
       id: map['id'] as int,
       name: map['name'] as String,
       typeId: map['typeId'] as int,
-      typeName: map['typeName'] as String,
+      typeName: map['typeName'] != null ? map['typeName'] as String : null,
       boxId: map['boxId'] as int,
       topicStat: map['topicStat'] as String,
       topicRec: map['topicRec'] != null ? map['topicRec'] as String : null,

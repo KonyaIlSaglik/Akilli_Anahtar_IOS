@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:akilli_anahtar/controllers/device_controller.dart';
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
@@ -117,7 +117,7 @@ class AuthController extends GetxController {
     await userManager.clear();
     await claimsManager.clear();
 
-    DeviceController deviceController = Get.find();
+    HomeController deviceController = Get.find();
     deviceController.clearController();
     Get.to(() => LoginPage());
   }
@@ -156,5 +156,19 @@ class AuthController extends GetxController {
           iosInfo.identifierForVendor ?? "${iosInfo.name}-${iosInfo.model}";
     }
     return deviceId;
+  }
+
+  Future<String> getDeviceName() async {
+    var info = DeviceInfoPlugin();
+    String deviceName = "";
+    if (Platform.isAndroid) {
+      var androidInfo = await info.androidInfo;
+      deviceName = "${androidInfo.brand} ${androidInfo.model}";
+    }
+    if (Platform.isIOS) {
+      var iosInfo = await info.iosInfo;
+      deviceName = "I Phone ${iosInfo.name}";
+    }
+    return deviceName;
   }
 }

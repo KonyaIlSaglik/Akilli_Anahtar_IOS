@@ -1,5 +1,7 @@
 import 'package:akilli_anahtar/controllers/user_management_control.dart';
+import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/pages/admin/organisation_select_widget.dart';
 import 'package:akilli_anahtar/pages/admin/user_add_edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -16,12 +18,14 @@ class AdminIndexPage extends StatefulWidget {
 class _AdminIndexPageState extends State<AdminIndexPage> {
   UserManagementController userManagementController =
       Get.put(UserManagementController());
+  Organisation? selectedOrganisation;
 
   @override
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
       userManagementController.getUsers();
+      userManagementController.getOrganisations();
     });
   }
 
@@ -73,23 +77,32 @@ class _AdminIndexPageState extends State<AdminIndexPage> {
             ),
           ],
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(60.0),
+            preferredSize: Size.fromHeight(120.0),
             child: Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Ara',
-                  border: OutlineInputBorder(),
-                  fillColor: Colors.white,
-                  filled: true,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    userManagementController.searchQuery.value =
-                        value.toLowerCase();
-                  });
-                },
+              child: Column(
+                children: [
+                  // TODO   Kuruma göre filtrele
+                  OrganisationSelectWidget(),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Ara',
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.transparent,
+                      filled: true,
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        userManagementController.searchQuery.value =
+                            value.toLowerCase();
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
           ),
