@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
+import 'package:akilli_anahtar/controllers/device_management_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/models/nodemcu_info_model.dart';
@@ -18,6 +19,7 @@ class BoxAddEditPage extends StatefulWidget {
 
 class _BoxAddEditPageState extends State<BoxAddEditPage> {
   BoxManagementController boxManagementController = Get.find();
+  DeviceManagementController deviceManagementController = Get.find();
   MqttController mqttController = Get.find();
   final _formKey = GlobalKey<FormState>();
   late String boxName;

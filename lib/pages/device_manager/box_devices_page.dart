@@ -20,33 +20,43 @@ class _BoxDevicesPageState extends State<BoxDevicesPage> {
       () {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 15),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                DropdownButtonFormField<DeviceType>(
-                  decoration: InputDecoration(
-                    labelText: "Cihaz Türü",
-                  ),
-                  value: deviceManagementController.selectedTypeId.value > 0
-                      ? deviceManagementController.deviceTypes.singleWhere(
-                          (o) =>
-                              o.id ==
-                              deviceManagementController.selectedTypeId.value,
-                        )
-                      : deviceManagementController.deviceTypes.first,
-                  items: deviceManagementController.deviceTypes.map(
-                    (deviceType) {
-                      return DropdownMenuItem<DeviceType>(
-                        value: deviceType,
-                        child: Text(deviceType.name),
-                      );
-                    },
-                  ).toList(),
-                  onChanged: (value) => deviceManagementController
-                      .selectedTypeId.value = value?.id ?? 0,
+          child: Column(
+            children: [
+              DropdownButtonFormField<DeviceType>(
+                decoration: InputDecoration(
+                  labelText: "Cihaz Türü",
                 ),
-              ],
-            ),
+                value: deviceManagementController.selectedTypeId.value > 0
+                    ? deviceManagementController.deviceTypes.singleWhere(
+                        (o) =>
+                            o.id ==
+                            deviceManagementController.selectedTypeId.value,
+                      )
+                    : deviceManagementController.deviceTypes.first,
+                items: deviceManagementController.deviceTypes.map(
+                  (deviceType) {
+                    return DropdownMenuItem<DeviceType>(
+                      value: deviceType,
+                      child: Text(deviceType.name),
+                    );
+                  },
+                ).toList(),
+                onChanged: (value) => deviceManagementController
+                    .selectedTypeId.value = value?.id ?? 0,
+              ),
+              Expanded(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemBuilder: (context, i) {
+                    return ListTile(
+                      title: Text(deviceManagementController.devices[i].name),
+                    );
+                  },
+                  separatorBuilder: (context, index) => Divider(),
+                  itemCount: deviceManagementController.devices.length,
+                ),
+              )
+            ],
           ),
         );
       },

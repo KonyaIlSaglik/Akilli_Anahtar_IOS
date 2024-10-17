@@ -7,6 +7,7 @@ class DeviceManagementController extends GetxController {
   var loading = false.obs;
   var deviceTypes = <DeviceType>[].obs;
   var selectedTypeId = 0.obs;
+  var devices = <Device>[].obs;
   Future<List<Device>?> getAllByBoxId(int id) async {
     return await DeviceService.getAllByBoxId(id);
   }

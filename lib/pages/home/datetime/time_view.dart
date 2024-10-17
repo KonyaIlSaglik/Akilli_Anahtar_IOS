@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/widgets/custom_digital_clock.dart';
 import 'package:flutter/material.dart';
-import 'package:one_clock/one_clock.dart';
 
 class TimeView extends StatelessWidget {
   const TimeView({super.key});
@@ -16,7 +16,7 @@ class TimeView extends StatelessWidget {
         ),
         color: goldColor,
         child: FittedBox(
-          child: DigitalClock(
+          child: CustomDigitalClock(
             isLive: true,
             showSeconds: false,
             format: "HH:mm",

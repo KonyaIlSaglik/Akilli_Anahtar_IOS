@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
-import 'package:akilli_anahtar/controllers/device_management_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/pages/device_manager/box_list_item.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +16,6 @@ class BoxIndexPage extends StatefulWidget {
 class _BoxIndexPageState extends State<BoxIndexPage> {
   BoxManagementController boxManagementController =
       Get.put(BoxManagementController());
-  DeviceManagementController deviceManagementController =
-      Get.put(DeviceManagementController());
 
   @override
   void initState() {

@@ -17,14 +17,14 @@ class LoginModel {
   @HiveField(2)
   String identity;
 
-  @HiveField(3)
-  String platformName;
+  // @HiveField(3)
+  // String platformName;
 
   LoginModel({
     this.userName = "",
     this.password = "",
     this.identity = "",
-    this.platformName = "",
+    //this.platformName = "",
   });
 
   Map<String, dynamic> toMap() {
@@ -32,7 +32,7 @@ class LoginModel {
       'userName': userName,
       'password': password,
       'identity': identity,
-      'platformName': platformName,
+      //'platformName': platformName,
     };
   }
 
@@ -41,7 +41,7 @@ class LoginModel {
       userName: map['userName'] as String,
       password: map['password'] as String,
       identity: map['identity'] as String,
-      platformName: map['platfromName'] as String,
+      //platformName: map['platfromName'] as String,
     );
   }
 

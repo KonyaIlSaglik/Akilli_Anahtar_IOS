@@ -20,7 +20,7 @@ class LoginModelAdapter extends TypeAdapter<LoginModel> {
       userName: fields[0] as String,
       password: fields[1] as String,
       identity: fields[2] as String,
-      platformName: fields[3] as String,
+      //platformName: fields[3] as String,
     );
   }
 
@@ -33,9 +33,9 @@ class LoginModelAdapter extends TypeAdapter<LoginModel> {
       ..writeByte(1)
       ..write(obj.password)
       ..writeByte(2)
-      ..write(obj.identity)
-      ..writeByte(3)
-      ..write(obj.platformName);
+      ..write(obj.identity);
+    // ..writeByte(3)
+    // ..write(obj.platformName);
   }
 
   @override
