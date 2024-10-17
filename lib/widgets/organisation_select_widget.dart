@@ -1,11 +1,13 @@
-import 'package:akilli_anahtar/controllers/user_management_control.dart';
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OrganisationSelectWidget extends StatefulWidget {
-  const OrganisationSelectWidget({super.key});
+  final Function() onChanged;
+
+  const OrganisationSelectWidget({super.key, required this.onChanged});
 
   @override
   State<OrganisationSelectWidget> createState() =>
@@ -13,11 +15,11 @@ class OrganisationSelectWidget extends StatefulWidget {
 }
 
 class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
-  UserManagementController userManagementControl = Get.find();
+  HomeController homeManagementControl = Get.find();
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      return userManagementControl.organisations.isEmpty
+      return homeManagementControl.loadingOrganisations.value
           ? CircularProgressIndicator()
           : SizedBox(
               height: 60,
@@ -33,18 +35,18 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
                   showSearchBox: true,
                 ),
                 items: (filter, loadProps) {
-                  return userManagementControl.organisations;
+                  return homeManagementControl.organisations;
                 },
-                selectedItem: userManagementControl.organisations
+                selectedItem: homeManagementControl.organisations
                     .firstWhereOrNull((o) =>
                         o.id ==
-                        userManagementControl.selectedOrganisationId.value),
+                        homeManagementControl.selectedOrganisationId.value),
                 itemAsString: (item) => item.name,
                 onChanged: (value) {
                   if (value != null) {
-                    userManagementControl.selectedOrganisationId.value =
+                    homeManagementControl.selectedOrganisationId.value =
                         value.id;
-                    userManagementControl.filterBoxes();
+                    widget.onChanged();
                   }
                 },
                 filterFn: (item, filter) {
@@ -73,10 +75,9 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
                           icon: Icon(Icons.clear),
                           onPressed: () {
                             // Clear selection
-                            userManagementControl.selectedOrganisationId.value =
-                                0; // Resetting the selected ID
-                            userManagementControl
-                                .filterBoxes(); // Optionally re-filter boxes
+                            homeManagementControl.selectedOrganisationId.value =
+                                0;
+                            widget.onChanged();
                           },
                         ),
                     ],

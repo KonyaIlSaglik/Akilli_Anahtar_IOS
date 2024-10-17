@@ -1,7 +1,7 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/pages/user_manager/admin_index_page.dart';
+import 'package:akilli_anahtar/pages/user_manager/user_list_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
-import 'package:akilli_anahtar/pages/box_devices_manager/box_detail/box_index_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_list_page.dart';
 import 'package:akilli_anahtar/pages/box_install/introduction_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -164,7 +164,7 @@ class _DrawerPageState extends State<DrawerPage> {
                                     leading: Icon(FontAwesomeIcons.upload),
                                     title: Text("Kutu Yönetimi"),
                                     onTap: () {
-                                      Get.to(() => BoxIndexPage());
+                                      Get.to(() => BoxListPage());
                                     },
                                     trailing: Icon(Icons.chevron_right),
                                   ),
@@ -176,7 +176,7 @@ class _DrawerPageState extends State<DrawerPage> {
                                       context,
                                       MaterialPageRoute<void>(
                                         builder: (BuildContext context) =>
-                                            AdminIndexPage(),
+                                            UserListPage(),
                                       ),
                                     );
                                   },

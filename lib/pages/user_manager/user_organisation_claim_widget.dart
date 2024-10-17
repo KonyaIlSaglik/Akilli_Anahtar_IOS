@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/controllers/user_management_control.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,6 +14,7 @@ class UserOrganisationClaimWidget extends StatefulWidget {
 class _UserOrganisationClaimWidgetState
     extends State<UserOrganisationClaimWidget> {
   UserManagementController userManagementController = Get.find();
+  HomeController homeController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +59,7 @@ class _UserOrganisationClaimWidgetState
                     Expanded(
                       child: Obx(() {
                         return ListView(
-                          children:
-                              userManagementController.organisations.map((o) {
+                          children: homeController.organisations.map((o) {
                             return ListTile(
                               title: Text(o.name),
                               trailing: Checkbox(

@@ -1,20 +1,20 @@
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/device_management_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
-import 'package:akilli_anahtar/pages/box_devices_manager/box_detail/box_add_edit_page.dart';
-import 'package:akilli_anahtar/pages/box_devices_manager/box_detail/box_devices_page.dart';
-import 'package:akilli_anahtar/pages/box_devices_manager/device_add_edit_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_detail/box_add_edit_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_list_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_add_edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class BoxListPage extends StatefulWidget {
-  const BoxListPage({super.key});
+class BoxDetailPage extends StatefulWidget {
+  const BoxDetailPage({super.key});
 
   @override
-  State<BoxListPage> createState() => _BoxListPageState();
+  State<BoxDetailPage> createState() => _BoxDetailPageState();
 }
 
-class _BoxListPageState extends State<BoxListPage>
+class _BoxDetailPageState extends State<BoxDetailPage>
     with SingleTickerProviderStateMixin {
   BoxManagementController boxManagementController = Get.find();
   DeviceManagementController deviceManagementController =

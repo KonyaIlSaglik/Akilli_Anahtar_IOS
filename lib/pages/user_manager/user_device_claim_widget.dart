@@ -1,6 +1,6 @@
-import 'package:akilli_anahtar/pages/admin/box_select_widget.dart';
-import 'package:akilli_anahtar/pages/admin/device_list_view_widget.dart';
-import 'package:akilli_anahtar/pages/admin/organisation_select_widget.dart';
+import 'package:akilli_anahtar/pages/user_manager/box_select_widget.dart';
+import 'package:akilli_anahtar/widgets/organisation_select_widget.dart';
+import 'package:akilli_anahtar/pages/user_manager/device_list_view_widget.dart';
 import 'package:flutter/material.dart';
 
 class UserDeviceClaimWidget extends StatefulWidget {
@@ -51,7 +51,9 @@ class _UserDeviceClaimWidgetState extends State<UserDeviceClaimWidget> {
                       ],
                     ),
                     Divider(), // Optional divider for separation
-                    OrganisationSelectWidget(),
+                    OrganisationSelectWidget(
+                      onChanged: () {},
+                    ),
                     SizedBox(height: 8),
                     BoxSelectWidget(),
                     SizedBox(height: 8),

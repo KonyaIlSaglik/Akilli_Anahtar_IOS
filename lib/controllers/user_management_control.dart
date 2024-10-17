@@ -1,7 +1,7 @@
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
-import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/entities/user_device.dart';
 import 'package:akilli_anahtar/entities/user_operation_claim.dart';
@@ -15,7 +15,9 @@ import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
 
 class UserManagementController extends GetxController {
+  HomeController homeController = Get.find();
   var users = <User>[].obs;
+  var filteredUsers = <User>[].obs;
   var selectedSortOption = "Ad Soyad".obs;
   var selectedUser = User().obs;
   var searchQuery = "".obs;
@@ -31,13 +33,34 @@ class UserManagementController extends GetxController {
   var filteredDevices = <Device>[].obs;
   var userDevices = <UserDevice>[].obs;
 
-  var organisations = <Organisation>[].obs;
-  var selectedOrganisationId = 0.obs;
   var userOrganisations = <UserOrganisation>[].obs;
+
+  var organisationUsers = <UserOrganisation>[].obs;
 
   Future<void> getUsers() async {
     loadingUser.value = true;
-    users.value = await UserService.getAll() ?? <User>[];
+    var allUsers = await UserService.getAll() ?? <User>[];
+    if (allUsers.isNotEmpty) {
+      if (homeController.selectedOrganisationId > 0) {
+        var result = await HomeService.getUserOrganisationsByOrganisationId(
+            homeController.selectedOrganisationId.value);
+        if (result != null) {
+          organisationUsers.value = result;
+
+          users.value = allUsers
+              .where(
+                (u) => organisationUsers.any(
+                  (ou) => ou.userId == u.id,
+                ),
+              )
+              .toList();
+          loadingUser.value = false;
+          return;
+        }
+      }
+      users.value = allUsers;
+    }
+    filterUsers();
     loadingUser.value = false;
   }
 
@@ -51,6 +74,18 @@ class UserManagementController extends GetxController {
       users.sort((a, b) =>
           a.userName.toLowerCaseTr().compareTo(b.userName.toLowerCaseTr()));
     }
+  }
+
+  void filterUsers() {
+    print("users filtering");
+    filteredUsers.value = searchQuery.value.isEmpty
+        ? users
+        : users
+            .where((u) => u.fullName
+                .toLowerCaseTr()
+                .contains(searchQuery.value.toLowerCase()))
+            .toList();
+    print("users filtered");
   }
 
   Future<User?> register(User user) async {
@@ -155,11 +190,13 @@ class UserManagementController extends GetxController {
   }
 
   void filterBoxes() {
+    HomeController homeController = Get.find();
     selectedBoxId.value = 0;
-    filteredBoxes.value = selectedOrganisationId.value == 0
+    filteredBoxes.value = homeController.selectedOrganisationId.value == 0
         ? boxes
         : boxes
-            .where((b) => b.organisationId == selectedOrganisationId.value)
+            .where((b) =>
+                b.organisationId == homeController.selectedOrganisationId.value)
             .toList();
     filteredDevices.value = devices
         .where((d) => filteredBoxes.any((b) => b.id == d.boxId))
@@ -201,11 +238,6 @@ class UserManagementController extends GetxController {
       userDevices.remove(userDevices.firstWhere((ud) => ud.id == userDeviceId));
       filterDevices();
     }
-  }
-
-  Future<void> getOrganisations() async {
-    organisations.value =
-        await HomeService.getAllOrganisation() ?? <Organisation>[];
   }
 
   Future<void> getUserOrganisations() async {

@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/device_management_controller.dart';
-import 'package:akilli_anahtar/pages/box_devices_manager/device_add_edit_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_add_edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

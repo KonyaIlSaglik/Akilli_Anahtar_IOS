@@ -1,37 +1,37 @@
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
-import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/models/version_model.dart';
 import 'package:akilli_anahtar/services/api/box_service.dart';
-import 'package:akilli_anahtar/services/api/home_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
 
 class BoxManagementController extends GetxController {
   var boxes = <Box>[].obs;
-  var organisations = <Organisation>[].obs;
+  var filteredBoxes = <Box>[].obs;
   var selectedSortOption = "Cihaz Adı".obs;
   var selectedBox = Box().obs;
   var searchQuery = "".obs;
-  var loading = false.obs;
+  var loadingBox = false.obs;
 
   var checkingNewVersion = false.obs;
   var newVersion = VersionModel().obs;
 
   Future<void> checkNewVersion() async {
-    loading.value = true;
+    loadingBox.value = true;
     var result = await BoxService.checkNewVersion();
     if (result != null) {
       newVersion.value = result;
     }
-    loading.value = false;
+    loadingBox.value = false;
   }
 
   Future<void> getBoxes() async {
-    loading.value = true;
+    loadingBox.value = true;
     boxes.value = await BoxService.getAll() ?? <Box>[];
     MqttController mqttController = Get.find();
+    HomeController homeController = Get.find();
     for (var box in boxes) {
       mqttController.subListenerList.add(
         (topic) {
@@ -41,8 +41,9 @@ class BoxManagementController extends GetxController {
         },
       );
       mqttController.subscribeToTopic(box.topicRes);
-      box.organisationName =
-          organisations.singleWhere((o) => o.id == box.organisationId).name;
+      box.organisationName = homeController.organisations
+          .singleWhere((o) => o.id == box.organisationId)
+          .name;
       if (newVersion.value.version.isNotEmpty) {
         var bv = box.version;
         var nv = newVersion.value;
@@ -68,14 +69,7 @@ class BoxManagementController extends GetxController {
       }
     }
 
-    loading.value = false;
-  }
-
-  Future<void> getOrganisations() async {
-    loading.value = true;
-    organisations.value =
-        await HomeService.getAllOrganisation() ?? <Organisation>[];
-    loading.value = false;
+    loadingBox.value = false;
   }
 
   void sortBoxes() {
@@ -93,6 +87,18 @@ class BoxManagementController extends GetxController {
       return b.name.toLowerCaseTr().compareTo(a.name.toLowerCaseTr());
       //if (nameComparison != 0) return nameComparison;
     });
+  }
+
+  void filterBoxes() {
+    print("users filtering");
+    filteredBoxes.value = searchQuery.value.isEmpty
+        ? boxes
+        : boxes
+            .where((b) => b.name
+                .toLowerCaseTr()
+                .contains(searchQuery.value.toLowerCase()))
+            .toList();
+    print("boxes filtered");
   }
 
   Future<Box?> register(Box box) async {

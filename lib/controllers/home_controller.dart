@@ -1,6 +1,8 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
+import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/services/api/device_service.dart';
+import 'package:akilli_anahtar/services/api/home_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 
@@ -10,8 +12,18 @@ class HomeController extends GetxController {
   var loadingDevices = false.obs;
   var devices = <Device>[].obs;
 
+  var loadingOrganisations = false.obs;
+  var organisations = <Organisation>[].obs;
+  var selectedOrganisationId = 0.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    getUserDevices();
+    getOrganisations();
+  }
+
   Future<void> getUserDevices() async {
-    print("loadingControlDevices");
     loadingDevices.value = true;
     var id = _authController.user.value.id;
     if (id > 0) {
@@ -55,5 +67,14 @@ class HomeController extends GetxController {
 
   void clearController() {
     devices.value = <Device>[];
+  }
+
+  Future<void> getOrganisations() async {
+    loadingOrganisations.value = true;
+    var result = await HomeService.getAllOrganisation();
+    if (result != null) {
+      organisations.value = result;
+    }
+    loadingOrganisations.value = false;
   }
 }

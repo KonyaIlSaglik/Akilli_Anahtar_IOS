@@ -1,7 +1,7 @@
 import 'package:akilli_anahtar/controllers/user_management_control.dart';
 import 'package:akilli_anahtar/entities/user.dart';
-import 'package:akilli_anahtar/pages/admin/user_operation_claim_list_view_widget.dart';
-import 'package:akilli_anahtar/pages/admin/user_organisation_claim_widget.dart';
+import 'package:akilli_anahtar/pages/user_manager/user_operation_claim_list_view_widget.dart';
+import 'package:akilli_anahtar/pages/user_manager/user_organisation_claim_widget.dart';
 import 'package:akilli_anahtar/pages/user_manager/user_device_claim_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -42,7 +42,6 @@ class _UserAddEditPageState extends State<UserAddEditPage>
       Future.delayed(Duration.zero, () async {
         userManagementControl.getOperationClaims();
         await userManagementControl.getUserClaims();
-        await userManagementControl.getOrganisations();
         await userManagementControl.getUserOrganisations();
         await userManagementControl.getBoxes();
         userManagementControl.filterBoxes();

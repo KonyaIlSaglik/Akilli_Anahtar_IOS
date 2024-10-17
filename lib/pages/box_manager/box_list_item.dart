@@ -1,7 +1,8 @@
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
-import 'package:akilli_anahtar/pages/box_devices_manager/box_list_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/box_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,6 +17,7 @@ class BoxListItem extends StatefulWidget {
 class _BoxListItemState extends State<BoxListItem> {
   BoxManagementController boxManagementController = Get.find();
   MqttController mqttController = Get.find();
+  HomeController homeController = Get.find();
   late Box box;
 
   @override
@@ -41,8 +43,8 @@ class _BoxListItemState extends State<BoxListItem> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(boxManagementController.organisations.isNotEmpty
-              ? boxManagementController.organisations
+          Text(homeController.organisations.isNotEmpty
+              ? homeController.organisations
                   .singleWhere((o) => o.id == box.organisationId)
                   .name
               : "-"),
@@ -66,7 +68,7 @@ class _BoxListItemState extends State<BoxListItem> {
       ),
       onTap: () {
         boxManagementController.selectedBox.value = box;
-        Get.to(() => BoxListPage());
+        Get.to(() => BoxDetailPage());
       },
     );
   }
