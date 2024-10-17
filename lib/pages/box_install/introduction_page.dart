@@ -1,7 +1,7 @@
 import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
 import 'package:akilli_anahtar/controllers/wifi_controller.dart';
-import 'package:akilli_anahtar/pages/device_manager/install/b_wifi_page_view_model.dart';
-import 'package:akilli_anahtar/pages/device_manager/install/d_online_page_view_model.dart';
+import 'package:akilli_anahtar/pages/box_install/b_wifi_page_view_model.dart';
+import 'package:akilli_anahtar/pages/box_install/d_online_page_view_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';

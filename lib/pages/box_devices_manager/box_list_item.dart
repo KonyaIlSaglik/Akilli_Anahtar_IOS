@@ -1,7 +1,7 @@
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
-import 'package:akilli_anahtar/pages/device_manager/box_page.dart';
+import 'package:akilli_anahtar/pages/box_devices_manager/box_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -66,7 +66,7 @@ class _BoxListItemState extends State<BoxListItem> {
       ),
       onTap: () {
         boxManagementController.selectedBox.value = box;
-        Get.to(() => BoxPage());
+        Get.to(() => BoxListPage());
       },
     );
   }

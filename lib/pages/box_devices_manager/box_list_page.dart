@@ -1,19 +1,21 @@
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/device_management_controller.dart';
-import 'package:akilli_anahtar/pages/device_manager/box_add_edit_page.dart';
-import 'package:akilli_anahtar/pages/device_manager/box_devices_page.dart';
-import 'package:akilli_anahtar/pages/device_manager/device_add_edit_page.dart';
+import 'package:akilli_anahtar/entities/device.dart';
+import 'package:akilli_anahtar/pages/box_devices_manager/box_detail/box_add_edit_page.dart';
+import 'package:akilli_anahtar/pages/box_devices_manager/box_detail/box_devices_page.dart';
+import 'package:akilli_anahtar/pages/box_devices_manager/device_add_edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class BoxPage extends StatefulWidget {
-  const BoxPage({super.key});
+class BoxListPage extends StatefulWidget {
+  const BoxListPage({super.key});
 
   @override
-  State<BoxPage> createState() => _BoxPageState();
+  State<BoxListPage> createState() => _BoxListPageState();
 }
 
-class _BoxPageState extends State<BoxPage> with SingleTickerProviderStateMixin {
+class _BoxListPageState extends State<BoxListPage>
+    with SingleTickerProviderStateMixin {
   BoxManagementController boxManagementController = Get.find();
   DeviceManagementController deviceManagementController =
       Get.put(DeviceManagementController());
@@ -82,6 +84,7 @@ class _BoxPageState extends State<BoxPage> with SingleTickerProviderStateMixin {
                   Icons.add_circle,
                 ),
                 onPressed: () {
+                  deviceManagementController.selectedDevice.value = Device();
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,

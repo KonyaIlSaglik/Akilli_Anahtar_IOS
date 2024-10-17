@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart' as INTL;
+import 'package:intl/intl.dart' as intl;
 
 class CustomDigitalClockPainter extends CustomPainter {
   DateTime datetime;
@@ -33,10 +33,10 @@ class CustomDigitalClockPainter extends CustomPainter {
 
   void _paintDigitalClock(Canvas canvas, Size size, double scaleFactor) {
     String textToBeDisplayed = (!(format?.isEmpty ?? true))
-        ? INTL.DateFormat(format, "tr-TR").format(datetime)
+        ? intl.DateFormat(format, "tr-TR").format(datetime)
         : showSeconds
-            ? INTL.DateFormat('h:mm:ss a', "tr-TR").format(datetime)
-            : INTL.DateFormat('h:mm a', "tr-TR").format(datetime);
+            ? intl.DateFormat('h:mm:ss a', "tr-TR").format(datetime)
+            : intl.DateFormat('h:mm a', "tr-TR").format(datetime);
     TextSpan digitalClockSpan = TextSpan(
         style: textStyle ??
             TextStyle(

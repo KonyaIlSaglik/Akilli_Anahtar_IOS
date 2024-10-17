@@ -7,7 +7,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:akilli_anahtar/pages/splash_page.dart';
+import 'package:akilli_anahtar/splash_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {

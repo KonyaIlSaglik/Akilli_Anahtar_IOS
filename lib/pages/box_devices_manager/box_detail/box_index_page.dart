@@ -1,6 +1,7 @@
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
-import 'package:akilli_anahtar/pages/device_manager/box_list_item.dart';
+import 'package:akilli_anahtar/pages/box_devices_manager/box_detail/box_add_edit_page.dart';
+import 'package:akilli_anahtar/pages/box_devices_manager/box_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -57,7 +58,7 @@ class _BoxIndexPageState extends State<BoxIndexPage> {
                   boxManagementController.sortBoxes();
                 });
               },
-              items: <String>['Sıra No', 'Cihaz Adı', 'Kurum Adı']
+              items: <String>['Sıra No', 'Kutu Adı', 'Kurum Adı']
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
@@ -70,7 +71,7 @@ class _BoxIndexPageState extends State<BoxIndexPage> {
               child: IconButton(
                 onPressed: () {
                   boxManagementController.selectedBox.value = Box();
-                  //Get.to(() => BoxAddEditPage());
+                  Get.to(() => BoxAddEditPage());
                 },
                 icon: Icon(
                   FontAwesomeIcons.userPlus,

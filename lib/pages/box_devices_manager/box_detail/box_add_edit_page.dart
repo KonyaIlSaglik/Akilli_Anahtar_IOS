@@ -19,7 +19,7 @@ class BoxAddEditPage extends StatefulWidget {
 
 class _BoxAddEditPageState extends State<BoxAddEditPage> {
   BoxManagementController boxManagementController = Get.find();
-  DeviceManagementController deviceManagementController = Get.find();
+  late DeviceManagementController deviceManagementController;
   MqttController mqttController = Get.find();
   final _formKey = GlobalKey<FormState>();
   late String boxName;
@@ -45,6 +45,7 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
     restartTimeOut = "";
 
     if (boxManagementController.selectedBox.value.id > 0) {
+      deviceManagementController = Get.find();
       boxName = boxManagementController.selectedBox.value.name;
       chipId = boxManagementController.selectedBox.value.chipId.toString();
       topicRec = boxManagementController.selectedBox.value.topicRec;
@@ -103,6 +104,8 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
           }
         },
       );
+    } else {
+      deviceManagementController = Get.put(DeviceManagementController());
     }
   }
 

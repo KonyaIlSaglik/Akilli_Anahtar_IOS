@@ -28,9 +28,8 @@ class CustomDigitalClock extends StatefulWidget {
       this.digitalClockTextColor = Colors.black,
       this.textScaleFactor = 1.0,
       isLive,
-      Key? key})
-      : this.isLive = isLive ?? (datetime == null),
-        super(key: key);
+      super.key})
+      : isLive = isLive ?? (datetime == null);
   const CustomDigitalClock.dark(
       {this.format,
       this.datetime,
@@ -43,8 +42,7 @@ class CustomDigitalClock extends StatefulWidget {
       this.digitalClockTextColor = Colors.white,
       this.textScaleFactor = 1.0,
       this.isLive = false,
-      Key? key})
-      : super(key: key);
+      super.key});
   const CustomDigitalClock.light(
       {this.format,
       this.datetime,
@@ -57,11 +55,10 @@ class CustomDigitalClock extends StatefulWidget {
       this.digitalClockTextColor = Colors.black,
       this.textScaleFactor = 1.0,
       this.isLive = false,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
-  _DigitalClockState createState() => _DigitalClockState(datetime);
+  State<CustomDigitalClock> createState() => _DigitalClockState();
 }
 
 class _DigitalClockState extends State<CustomDigitalClock> {
@@ -69,10 +66,11 @@ class _DigitalClockState extends State<CustomDigitalClock> {
   DateTime datetime;
 
   Duration updateDuration = const Duration(seconds: 1); // repaint frequency
-  _DigitalClockState(datetime)
-      : this.datetime = datetime ?? DateTime.now(),
-        initialDatetime = datetime ?? DateTime.now();
+  _DigitalClockState()
+      : datetime = DateTime.now(),
+        initialDatetime = DateTime.now();
 
+  @override
   initState() {
     super.initState();
 
@@ -87,7 +85,7 @@ class _DigitalClockState extends State<CustomDigitalClock> {
   update(Timer timer) {
     if (mounted) {
       // update is only called on live clocks. So, it's safe to update datetime.
-      this.datetime = this.initialDatetime.add(updateDuration * timer.tick);
+      datetime = initialDatetime.add(updateDuration * timer.tick);
       setState(() {});
     }
   }
