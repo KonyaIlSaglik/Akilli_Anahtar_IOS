@@ -8,6 +8,8 @@ import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
 
 class BoxManagementController extends GetxController {
+  MqttController mqttController = Get.find();
+  HomeController homeController = Get.find();
   var boxes = <Box>[].obs;
   var filteredBoxes = <Box>[].obs;
   var selectedSortOption = "Cihaz Adı".obs;
@@ -29,46 +31,58 @@ class BoxManagementController extends GetxController {
 
   Future<void> getBoxes() async {
     loadingBox.value = true;
-    boxes.value = await BoxService.getAll() ?? <Box>[];
-    MqttController mqttController = Get.find();
-    HomeController homeController = Get.find();
-    for (var box in boxes) {
-      mqttController.subListenerList.add(
-        (topic) {
-          if (topic == box.topicRes) {
-            box.isSub = true;
-          }
-        },
-      );
-      mqttController.subscribeToTopic(box.topicRes);
-      box.organisationName = homeController.organisations
-          .singleWhere((o) => o.id == box.organisationId)
-          .name;
-      if (newVersion.value.version.isNotEmpty) {
-        var bv = box.version;
-        var nv = newVersion.value;
-        if (nv.version.isNotEmpty) {
-          var bv1 = int.tryParse(bv.split(".")[0]) ?? 0;
-          var nv1 = int.tryParse(nv.version.split(".")[0]) ?? 0;
-          if (bv1 < nv1) {
-            box.isOld = -1;
-          } else if (bv1 == nv1) {
-            var bv2 = int.tryParse(bv.split(".")[1]) ?? 0;
-            var nv2 = int.tryParse(nv.version.split(".")[1]) ?? 0;
-            if (bv2 < nv2) {
+    var allBoxes = await BoxService.getAll() ?? <Box>[];
+    if (allBoxes.isNotEmpty) {
+      if (homeController.selectedOrganisationId > 0) {
+        boxes.value = allBoxes
+            .where(
+              (b) =>
+                  b.organisationId ==
+                  homeController.selectedOrganisationId.value,
+            )
+            .toList();
+      } else {
+        boxes.value = allBoxes;
+      }
+
+      for (var box in boxes) {
+        mqttController.subListenerList.add(
+          (topic) {
+            if (topic == box.topicRes) {
+              box.isSub = true;
+            }
+          },
+        );
+        mqttController.subscribeToTopic(box.topicRes);
+        box.organisationName = homeController.organisations
+            .singleWhere((o) => o.id == box.organisationId)
+            .name;
+        if (newVersion.value.version.isNotEmpty) {
+          var bv = box.version;
+          var nv = newVersion.value;
+          if (nv.version.isNotEmpty) {
+            var bv1 = int.tryParse(bv.split(".")[0]) ?? 0;
+            var nv1 = int.tryParse(nv.version.split(".")[0]) ?? 0;
+            if (bv1 < nv1) {
               box.isOld = -1;
-            } else if (bv2 == nv2) {
-              box.isOld = 0;
+            } else if (bv1 == nv1) {
+              var bv2 = int.tryParse(bv.split(".")[1]) ?? 0;
+              var nv2 = int.tryParse(nv.version.split(".")[1]) ?? 0;
+              if (bv2 < nv2) {
+                box.isOld = -1;
+              } else if (bv2 == nv2) {
+                box.isOld = 0;
+              } else {
+                box.isOld = 1;
+              }
             } else {
               box.isOld = 1;
             }
-          } else {
-            box.isOld = 1;
           }
         }
       }
     }
-
+    filterBoxes();
     loadingBox.value = false;
   }
 
@@ -90,7 +104,7 @@ class BoxManagementController extends GetxController {
   }
 
   void filterBoxes() {
-    print("users filtering");
+    print("boxes filtering");
     filteredBoxes.value = searchQuery.value.isEmpty
         ? boxes
         : boxes

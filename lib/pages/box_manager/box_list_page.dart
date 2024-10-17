@@ -2,6 +2,7 @@ import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/box_add_edit_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_list_item.dart';
 import 'package:akilli_anahtar/widgets/organisation_select_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -22,7 +23,8 @@ class _BoxListPageState extends State<BoxListPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
+    Future.delayed(Duration.zero, () async {
+      await boxManagementController.checkNewVersion();
       boxManagementController.getBoxes();
       setState(() {});
     });
@@ -122,24 +124,8 @@ class _BoxListPageState extends State<BoxListPage> {
                       ? Center(child: Text("No boxes found."))
                       : ListView.separated(
                           itemBuilder: (context, i) {
-                            return ListTile(
-                              leading: CircleAvatar(
-                                child: Text(boxManagementController
-                                    .filteredBoxes[i].id
-                                    .toString()), // Display user ID
-                              ),
-                              title: Text(boxManagementController
-                                  .filteredBoxes[i].name),
-                              subtitle: Text(boxManagementController
-                                  .filteredBoxes[i].name),
-                              trailing: IconButton(
-                                icon: Icon(Icons.chevron_right),
-                                onPressed: () {
-                                  boxManagementController.selectedBox.value =
-                                      boxManagementController.filteredBoxes[i];
-                                  Get.to(() => BoxAddEditPage());
-                                },
-                              ),
+                            return BoxListItem(
+                              box: boxManagementController.filteredBoxes[i],
                             );
                           },
                           separatorBuilder: (context, index) {
