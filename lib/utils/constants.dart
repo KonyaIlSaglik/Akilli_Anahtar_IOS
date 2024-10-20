@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -31,6 +32,15 @@ Future<void> checkNewVersion(context, showForce) async {
       context: context,
       versionStatus: versionStatus,
     );
+  }
+}
+
+bool isJson(String data) {
+  try {
+    json.decode(data);
+    return true;
+  } catch (e) {
+    return false;
   }
 }
 

@@ -11,10 +11,8 @@ class BoxManagementController extends GetxController {
   MqttController mqttController = Get.find();
   HomeController homeController = Get.find();
   var boxes = <Box>[].obs;
-  var filteredBoxes = <Box>[].obs;
   var selectedSortOption = "Cihaz Adı".obs;
   var selectedBox = Box().obs;
-  var searchQuery = "".obs;
   var loadingBox = false.obs;
 
   var checkingNewVersion = false.obs;
@@ -82,7 +80,6 @@ class BoxManagementController extends GetxController {
         }
       }
     }
-    filterBoxes();
     loadingBox.value = false;
   }
 
@@ -103,18 +100,6 @@ class BoxManagementController extends GetxController {
     });
   }
 
-  void filterBoxes() {
-    print("boxes filtering");
-    filteredBoxes.value = searchQuery.value.isEmpty
-        ? boxes
-        : boxes
-            .where((b) => b.name
-                .toLowerCaseTr()
-                .contains(searchQuery.value.toLowerCase()))
-            .toList();
-    print("boxes filtered");
-  }
-
   Future<Box?> register(Box box) async {
     try {
       var response = await BoxService.add(box);
@@ -122,7 +107,7 @@ class BoxManagementController extends GetxController {
         successSnackbar("Başarılı", "Kayıt yapıldı.");
         boxes.add(response);
         sortBoxes();
-        selectedBox.value = boxes.firstWhere((u) => u.id == response.id);
+        selectedBox.value = response;
         return response;
       } else {
         errorSnackbar("Başarısız", "Kayıt yapılamadı");

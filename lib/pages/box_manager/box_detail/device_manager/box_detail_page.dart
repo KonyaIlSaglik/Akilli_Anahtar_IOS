@@ -20,7 +20,6 @@ class _BoxDetailPageState extends State<BoxDetailPage>
   DeviceManagementController deviceManagementController =
       Get.put(DeviceManagementController());
   late TabController _tabController;
-  bool visibleAddButton = false;
   @override
   void initState() {
     super.initState();
@@ -28,9 +27,7 @@ class _BoxDetailPageState extends State<BoxDetailPage>
 
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
-        setState(() {
-          visibleAddButton = _tabController.index == 1;
-        });
+        setState(() {});
       }
     });
     init();
@@ -38,8 +35,10 @@ class _BoxDetailPageState extends State<BoxDetailPage>
 
   void init() async {
     await deviceManagementController.getDeviceTypes();
-    await deviceManagementController
-        .getAllByBoxId(boxManagementController.selectedBox.value.id);
+    if (boxManagementController.selectedBox.value.id > 0) {
+      await deviceManagementController
+          .getAllByBoxId(boxManagementController.selectedBox.value.id);
+    }
   }
 
   @override
@@ -55,7 +54,9 @@ class _BoxDetailPageState extends State<BoxDetailPage>
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Kutu ve Cihaz Bilgileri"),
+          title: Text(boxManagementController.selectedBox.value.id > 0
+              ? "Kutu Düzenle"
+              : "Kutu Ekle"),
           actions: [
             //
           ],
@@ -78,13 +79,15 @@ class _BoxDetailPageState extends State<BoxDetailPage>
             BoxDevicesPage(),
           ],
         ),
-        floatingActionButton: visibleAddButton
+        floatingActionButton: _tabController.index == 1 &&
+                boxManagementController.selectedBox.value.id > 0
             ? FloatingActionButton(
                 child: Icon(
                   Icons.add_circle,
                 ),
                 onPressed: () {
                   deviceManagementController.selectedDevice.value = Device();
+                  deviceManagementController.selectedTypeId.value = 0;
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,

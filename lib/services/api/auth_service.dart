@@ -14,7 +14,8 @@ class AuthService {
   static Future<TokenModel?> login(LoginModel loginModel) async {
     AuthController authController = Get.find();
     loginModel.identity = await authController.getDeviceId();
-    var uri = Uri.parse("$url/login");
+    loginModel.platformName = await authController.getDeviceName();
+    var uri = Uri.parse("$url/login2");
     var client = http.Client();
     try {
       var response = await client.post(

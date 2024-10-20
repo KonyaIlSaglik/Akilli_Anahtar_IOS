@@ -1,9 +1,8 @@
-import 'dart:convert';
-
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/device_management_controller.dart';
 import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/models/nodemcu_info_model.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +44,6 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
     version = "";
     organisationId = 0;
     restartTimeOut = "";
-
     if (boxManagementController.selectedBox.value.id > 0) {
       boxName = boxManagementController.selectedBox.value.name;
       chipId = boxManagementController.selectedBox.value.chipId.toString();
@@ -108,12 +106,38 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
     }
   }
 
-  bool isJson(String data) {
-    try {
-      json.decode(data);
-      return true;
-    } catch (e) {
-      return false;
+  void _saveBox() async {
+    if (_formKey.currentState!.validate()) {
+      if (boxManagementController.selectedBox.value.id == 0) {
+        var newBox = Box(
+          id: 0,
+          active: 1,
+          name: boxName,
+          chipId: int.tryParse(chipId) ?? 0,
+          organisationId: organisationId,
+          restartTimeout: (int.tryParse(restartTimeOut) ?? 0) * 60000,
+          topicRec: "",
+          topicRes: "",
+          version: "",
+        );
+        await boxManagementController.register(newBox);
+      } else {
+        boxManagementController.selectedBox.value.name = boxName;
+        boxManagementController.selectedBox.value.chipId =
+            int.tryParse(chipId) ?? 0;
+        boxManagementController.selectedBox.value.active = active ? 1 : 0;
+        boxManagementController.selectedBox.value.organisationId =
+            organisationId;
+        boxManagementController.selectedBox.value.restartTimeout =
+            (int.tryParse(restartTimeOut) ?? 0) * 60000;
+        boxManagementController.selectedBox.value.topicRec = "";
+        boxManagementController.selectedBox.value.topicRes = "";
+        boxManagementController.selectedBox.value.version = "";
+
+        await boxManagementController
+            .updateBox(boxManagementController.selectedBox.value);
+      }
+      setState(() {});
     }
   }
 
@@ -121,11 +145,6 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
   Widget build(BuildContext context) {
     var width = MediaQuery.sizeOf(context).width;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(boxManagementController.selectedBox.value.id == 0
-            ? 'Kutu Ekle'
-            : 'Kutu Düzenle'),
-      ),
       body: Obx(
         () {
           return Padding(
@@ -139,11 +158,12 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
                       decoration: InputDecoration(
                         labelText: "Kurum",
                       ),
+                      hint: Text("Kurum Seç"),
                       value: organisationId > 0
                           ? homeController.organisations.singleWhere(
                               (o) => o.id == organisationId,
                             )
-                          : homeController.organisations.first,
+                          : null,
                       items: homeController.organisations.map(
                         (organisation) {
                           return DropdownMenuItem<Organisation>(
@@ -153,6 +173,12 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
                         },
                       ).toList(),
                       onChanged: (value) => organisationId = value?.id ?? 0,
+                      validator: (value) {
+                        if (value == null) {
+                          return "Kurum seçimi zorunlu";
+                        }
+                        return null;
+                      },
                     ),
                     SizedBox(height: 8),
                     TextFormField(
@@ -236,10 +262,8 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
                     ),
                     SizedBox(height: 16),
                     ElevatedButton(
+                      onPressed: _saveBox,
                       child: Text("Kaydet"),
-                      onPressed: () {
-                        //
-                      },
                     ),
                     if (boxManagementController.selectedBox.value.id > 0)
                       Column(
@@ -268,7 +292,9 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
                                         "apenable");
                               },
                             ),
-                            onTap: () {},
+                            onTap: () {
+                              //
+                            },
                           ),
                           Divider(),
                           ListTile(

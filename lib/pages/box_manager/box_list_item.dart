@@ -30,13 +30,11 @@ class _BoxListItemState extends State<BoxListItem> {
   Widget build(BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: !box.isSub
-            ? Colors.grey
-            : box.isOld == -1
-                ? Colors.red
-                : box.isOld == 0
-                    ? Colors.green
-                    : Colors.blue,
+        backgroundColor: box.isOld == -1
+            ? Colors.red
+            : box.isOld == 0
+                ? Colors.green
+                : Colors.blue,
         child: Text(box.id.toString()), // Display user ID
       ),
       title: Text(box.name),
