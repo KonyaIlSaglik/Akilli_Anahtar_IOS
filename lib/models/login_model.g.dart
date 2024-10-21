@@ -20,22 +20,19 @@ class LoginModelAdapter extends TypeAdapter<LoginModel> {
       userName: fields[0] as String,
       password: fields[1] as String,
       identity: fields[2] as String,
-      platformName: fields[3] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, LoginModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.userName)
       ..writeByte(1)
       ..write(obj.password)
       ..writeByte(2)
-      ..write(obj.identity)
-      ..writeByte(3)
-      ..write(obj.platformName);
+      ..write(obj.identity);
   }
 
   @override

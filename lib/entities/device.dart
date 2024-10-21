@@ -45,7 +45,7 @@ class Device {
     this.closingTime,
     this.pinMode,
     this.pinStart,
-    this.active = 0,
+    this.active = 1,
     this.rfCodes,
     this.normalValueRangeId,
     this.criticalValueRangeId,

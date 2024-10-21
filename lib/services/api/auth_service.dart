@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
+import 'package:akilli_anahtar/models/login_model2_dart';
 import 'package:akilli_anahtar/models/token_model.dart';
 import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -12,6 +13,34 @@ class AuthService {
   static String url = "$apiUrlOut/Auth";
 
   static Future<TokenModel?> login(LoginModel loginModel) async {
+    AuthController authController = Get.find();
+    loginModel.identity = await authController.getDeviceId();
+    var uri = Uri.parse("$url/login");
+    var client = http.Client();
+    try {
+      var response = await client.post(
+        uri,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+        },
+        body: loginModel.toJson(),
+      );
+      client.close();
+      if (response.statusCode == 200) {
+        var tokenModel = TokenModel.fromJson(response.body);
+        return tokenModel;
+      }
+      if (response.statusCode == 400) {
+        errorSnackbar("Hata", response.body);
+      }
+    } catch (e) {
+      errorSnackbar("Hata", "Oturum Açma Sırasında bir hata oluştu.");
+      print(e);
+    }
+    return null;
+  }
+
+  static Future<TokenModel?> login2(LoginModel2 loginModel) async {
     AuthController authController = Get.find();
     loginModel.identity = await authController.getDeviceId();
     loginModel.platformName = await authController.getDeviceName();
