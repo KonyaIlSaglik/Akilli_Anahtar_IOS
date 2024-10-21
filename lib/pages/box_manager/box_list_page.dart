@@ -1,7 +1,7 @@
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
-import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/box_detail_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_detail/box_detail_page.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_list_item.dart';
 import 'package:akilli_anahtar/widgets/organisation_select_widget.dart';
 import 'package:flutter/material.dart';

@@ -18,6 +18,18 @@ class BoxManagementController extends GetxController {
   var checkingNewVersion = false.obs;
   var newVersion = VersionModel().obs;
 
+  var espPins = [
+    "D0",
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+  ];
+
   Future<void> checkNewVersion() async {
     loadingBox.value = true;
     var result = await BoxService.checkNewVersion();

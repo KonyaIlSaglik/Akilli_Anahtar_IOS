@@ -2,7 +2,7 @@ import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
-import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/box_detail_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_detail/box_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

@@ -4,7 +4,7 @@ import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/device_type.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/box_add_edit_page.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_list_page.dart';
-import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_add_edit_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/device_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -89,7 +89,7 @@ class _BoxDetailPageState extends State<BoxDetailPage>
                 onPressed: () {
                   deviceManagementController.selectedDevice.value = Device();
                   deviceManagementController.selectedType.value = DeviceType();
-                  Get.to(() => DeviceAddEditPage());
+                  Get.to(() => DeviceDetailPage());
                 },
               )
             : null,
