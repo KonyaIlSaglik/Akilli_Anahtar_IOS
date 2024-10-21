@@ -50,13 +50,7 @@ class _BoxDevicesPageState extends State<BoxDevicesPage> {
                       onTap: () {
                         deviceManagementController.selectedDevice.value =
                             deviceManagementController.devices[i];
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (context) {
-                            return DeviceAddEditPage();
-                          },
-                        );
+                        Get.to(() => DeviceAddEditPage());
                       },
                     );
                   },

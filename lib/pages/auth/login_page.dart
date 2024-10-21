@@ -40,8 +40,8 @@ class _LoginPageState extends State<LoginPage> {
     });
     _authController.loadLoginInfo().then(
       (value) {
-        usercon.text = _authController.loginModel.value.userName;
-        passwordcon.text = _authController.loginModel.value.password;
+        usercon.text = _authController.loginModel2.value.userName;
+        passwordcon.text = _authController.loginModel2.value.password;
       },
     );
   }

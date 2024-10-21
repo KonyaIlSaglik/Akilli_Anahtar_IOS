@@ -1,6 +1,7 @@
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/device_management_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
+import 'package:akilli_anahtar/entities/device_type.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/box_add_edit_page.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_list_page.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_add_edit_page.dart';
@@ -87,14 +88,8 @@ class _BoxDetailPageState extends State<BoxDetailPage>
                 ),
                 onPressed: () {
                   deviceManagementController.selectedDevice.value = Device();
-                  deviceManagementController.selectedTypeId.value = 0;
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) {
-                      return DeviceAddEditPage();
-                    },
-                  );
+                  deviceManagementController.selectedType.value = DeviceType();
+                  Get.to(() => DeviceAddEditPage());
                 },
               )
             : null,

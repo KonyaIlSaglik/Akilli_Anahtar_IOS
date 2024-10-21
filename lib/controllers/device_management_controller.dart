@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 class DeviceManagementController extends GetxController {
   var loading = false.obs;
   var deviceTypes = <DeviceType>[].obs;
-  var selectedTypeId = 0.obs;
+  var selectedType = DeviceType().obs;
   var devices = <Device>[].obs;
   var selectedDevice = Device().obs;
   Future<void> getAllByBoxId(int id) async {

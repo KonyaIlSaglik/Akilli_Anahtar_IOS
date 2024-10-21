@@ -1,7 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
+import 'package:akilli_anahtar/utils/hive_constants.dart';
 
 part 'login_model2.g.dart';
 
@@ -40,7 +42,7 @@ class LoginModel2 {
       userName: map['userName'] as String,
       password: map['password'] as String,
       identity: map['identity'] as String,
-      platformName: map['platfromName'] as String,
+      platformName: map['platformName'] as String,
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
+import 'package:akilli_anahtar/models/login_model2.dart';
 import 'package:akilli_anahtar/models/token_model.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
@@ -18,8 +19,11 @@ class AuthController extends GetxController {
   var tokenManager = CacheManager<TokenModel>(HiveConstants.tokenModelKey,
       HiveConstants.tokenModelTypeId, TokenModelAdapter());
 
-  var loginManager = CacheManager<LoginModel>(HiveConstants.loginModelKey,
+  var loginManager1 = CacheManager<LoginModel>(HiveConstants.loginModelKey,
       HiveConstants.loginModelTypeId, LoginModelAdapter());
+
+  var loginManager2 = CacheManager<LoginModel2>(HiveConstants.loginModel2Key,
+      HiveConstants.loginModel2TypeId, LoginModel2Adapter());
 
   var claimsManager = CacheManager<OperationClaim>(HiveConstants.claimsKey,
       HiveConstants.claimsTypeId, OperationClaimAdapter());
@@ -27,7 +31,8 @@ class AuthController extends GetxController {
   var userManager = CacheManager<User>(
       HiveConstants.userKey, HiveConstants.userTypeId, UserAdapter());
 
-  var loginModel = LoginModel().obs;
+  var loginModel1 = LoginModel().obs;
+  var loginModel2 = LoginModel2().obs;
   var isLoading = false.obs;
   var isLoggedIn = false.obs;
   var isChanged = false.obs;
@@ -46,10 +51,22 @@ class AuthController extends GetxController {
   }
 
   Future<void> loadLoginInfo() async {
-    await loginManager.init();
-    var lm = loginManager.get();
-    if (lm != null) {
-      loginModel.value = lm;
+    await loginManager2.init();
+    var lm2 = loginManager2.get();
+    if (lm2 == null) {
+      await loginManager1.init();
+      var lm = loginManager1.get();
+      if (lm != null) {
+        loginModel2.value.userName = lm.userName;
+        loginModel2.value.password = lm.password;
+        loginModel2.value.identity = await getDeviceId();
+        loginModel2.value.platformName = await getDeviceName();
+        loginManager2.clear();
+        loginManager2.add(loginModel2.value);
+        return;
+      }
+    } else {
+      loginModel2.value = lm2;
     }
   }
 
@@ -61,19 +78,19 @@ class AuthController extends GetxController {
     operationClaims.value = <OperationClaim>[];
 
     try {
-      var lm = LoginModel(
+      var lm2 = LoginModel2(
         userName: userName,
         password: password,
       );
-      var tokenResult = await AuthService.login(lm);
+      var tokenResult = await AuthService.login2(lm2);
       if (tokenResult != null) {
         successSnackbar('Başarılı', 'Oturum açıldı.');
-        loginModel.value = lm;
+        loginModel2.value = lm2;
         tokenModel.value = tokenResult;
         await tokenManager.clear();
         await tokenManager.add(tokenResult);
-        await loginManager.clear();
-        await loginManager.add(lm);
+        await loginManager2.clear();
+        await loginManager2.add(lm2);
         await getUser();
         isLoggedIn.value = true;
       } else {
@@ -87,7 +104,8 @@ class AuthController extends GetxController {
   }
 
   Future<void> getUser() async {
-    var userResult = await UserService.getbyUserName(loginModel.value.userName);
+    var userResult =
+        await UserService.getbyUserName(loginModel2.value.userName);
     if (userResult != null) {
       await userManager.clear();
       await userManager.add(userResult);
@@ -130,9 +148,9 @@ class AuthController extends GetxController {
       if (response != null) {
         tokenModel.value = response;
         isChanged.value = true;
-        loginModel.value.password = newPassword;
-        await loginManager.clear();
-        loginManager.add(loginModel.value);
+        loginModel2.value.password = newPassword;
+        await loginManager2.clear();
+        loginManager2.add(loginModel2.value);
         await tokenManager.clear();
         tokenManager.add(tokenModel.value);
       }

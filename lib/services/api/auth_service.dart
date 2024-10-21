@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
-import 'package:akilli_anahtar/models/login_model2_dart';
+import 'package:akilli_anahtar/models/login_model2.dart';
 import 'package:akilli_anahtar/models/token_model.dart';
 import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
