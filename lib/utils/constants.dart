@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:akilli_anahtar/pages/new_home/new_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_version_plus/new_version_plus.dart';
@@ -111,3 +112,16 @@ infoSnackbar(String title, String message) {
     ),
   );
 }
+
+Color primaryColor = Colors.deepPurple[900]!;
+const double minWidth = 361;
+textTheme(context) => Theme.of(context).textTheme;
+width(context) => MediaQuery.sizeOf(context).width;
+height(context) => MediaQuery.sizeOf(context).height;
+
+const String homePage = "home";
+
+const Map<String, Widget> pagesList = {
+  homePage: NewHomePage(),
+  //ziyaretlerPage: Ziyaretler(),
+};

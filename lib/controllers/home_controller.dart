@@ -9,6 +9,8 @@ import 'package:get/get.dart';
 class HomeController extends GetxController {
   final AuthController _authController = Get.find();
 
+  var currentPage = homePage.obs;
+
   var loadingDevices = false.obs;
   var devices = <Device>[].obs;
 

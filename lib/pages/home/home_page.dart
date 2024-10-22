@@ -28,31 +28,60 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
-    var width = MediaQuery.of(context).size.width;
+    //var width = MediaQuery.of(context).size.width;
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
         exitApp(context);
       },
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: height * 0.10,
-          leadingWidth: width * 0.15,
-          title: SizedBox(
-            height: height * 0.10,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Toolbar(),
-                SizedBox(
-                  width: width * 0.05,
-                ),
-              ],
-            ),
+          backgroundColor: goldColor,
+          iconTheme: Theme.of(context).iconTheme.copyWith(color: Colors.white),
+          title: Text(
+            "AKILLI ANAHTAR",
+            style: width(context) < minWidth
+                ? textTheme(context).titleMedium!.copyWith(color: Colors.white)
+                : textTheme(context).titleLarge!.copyWith(color: Colors.white),
           ),
         ),
         drawer: DrawerPage(),
         body: Column(
           children: [
+            SizedBox(
+              height: height * 0.01,
+            ),
+            SizedBox(
+              height: height * 0.07,
+              width: width(context) * 0.95,
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                color: goldColor,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Konya İl Sağlık Müdürlüğü",
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium!
+                            .copyWith(color: Colors.white),
+                      ),
+                      // Text(
+                      //   "Değiştir",
+                      //   style: Theme.of(context)
+                      //       .textTheme
+                      //       .titleSmall!
+                      //       .copyWith(color: Colors.white),
+                      // ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             SizedBox(
               height: height * 0.1,
               child: TimeView(),
@@ -71,6 +100,27 @@ class _HomePageState extends State<HomePage> {
                         ? TabView()
                         : IndexPage();
               }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  AppBar logoAppBar() {
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+    return AppBar(
+      toolbarHeight: height * 0.10,
+      leadingWidth: width * 0.15,
+      title: SizedBox(
+        height: height * 0.10,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Toolbar(),
+            SizedBox(
+              width: width * 0.05,
             ),
           ],
         ),
