@@ -31,15 +31,37 @@ class DeviceManagementController extends GetxController {
   }
 
   Future<Device?> add(Device device) async {
-    return await DeviceService.add(device);
+    var result = await DeviceService.add(device);
+    if (result != null) {
+      devices.add(result);
+      selectedDevice.value = result;
+      return result;
+    }
+    return null;
   }
 
   Future<Device?> updateDevice(Device device) async {
-    return await DeviceService.update(device);
+    var result = await DeviceService.update(device);
+    if (result != null) {
+      devices.remove(device);
+      devices.add(result);
+      selectedDevice.value = result;
+      return result;
+    }
+    return null;
   }
 
   Future<bool> delete(int id) async {
-    return await DeviceService.delete(id);
+    var result = await DeviceService.delete(id);
+    if (result) {
+      devices.remove(
+        devices.firstWhere(
+          (d) => d.id == id,
+        ),
+      );
+      return true;
+    }
+    return false;
   }
 
   Future<void> getDeviceTypes() async {

@@ -19,9 +19,9 @@ class Device {
   int? pinStart;
   int active;
   List<String>? rfCodes;
-  int? normalValueRangeId;
-  int? criticalValueRangeId;
-  int? unitId;
+  int normalValueRangeId;
+  int criticalValueRangeId;
+  int unitId;
   String? unit;
   double? normalMinValue;
   double? normalMaxValue;
@@ -47,9 +47,9 @@ class Device {
     this.pinStart,
     this.active = 1,
     this.rfCodes,
-    this.normalValueRangeId,
-    this.criticalValueRangeId,
-    this.unitId,
+    this.normalValueRangeId = 0,
+    this.criticalValueRangeId = 0,
+    this.unitId = 0,
     this.unit,
     this.normalMinValue,
     this.normalMaxValue,
@@ -116,23 +116,23 @@ class Device {
           .toList(),
       normalValueRangeId: map['normalValueRangeId'] != null
           ? map['normalValueRangeId'] as int
-          : null,
+          : 0,
       criticalValueRangeId: map['criticalValueRangeId'] != null
           ? map['criticalValueRangeId'] as int
-          : null,
-      unitId: map['unitId'] != null ? map['unitId'] as int : null,
+          : 0,
+      unitId: map['unitId'] != null ? map['unitId'] as int : 0,
       unit: map['unit'] != null ? map['unit'] as String : null,
       normalMinValue: map['normalMinValue'] != null
-          ? map['normalMinValue'] as double
+          ? double.tryParse(map['normalMinValue'].toString()) ?? 0.0
           : null,
       normalMaxValue: map['normalMaxValue'] != null
-          ? map['normalMaxValue'] as double
+          ? double.tryParse(map['normalMaxValue'].toString()) ?? 0.0
           : null,
       criticalMinValue: map['criticalMinValue'] != null
-          ? map['criticalMinValue'] as double
+          ? double.tryParse(map['criticalMinValue'].toString()) ?? 0.0
           : null,
       criticalMaxValue: map['criticalMaxValue'] != null
-          ? map['criticalMaxValue'] as double
+          ? double.tryParse(map['criticalMaxValue'].toString()) ?? 0.0
           : null,
       repeatTransmit:
           map['repeatTransmit'] != null ? map['repeatTransmit'] as int : null,

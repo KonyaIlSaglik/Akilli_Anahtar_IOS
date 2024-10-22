@@ -132,8 +132,62 @@ class _DeviceAddEditPageState extends State<DeviceAddEditPage> {
                   );
                 },
               ).toList(),
-              onChanged: (value) =>
-                  deviceManagementController.selectedType.value = value!,
+              onChanged: (value) {
+                deviceManagementController.selectedType.value = value!;
+                deviceManagementController.selectedDevice.value.typeId =
+                    value.id;
+                deviceManagementController.selectedDevice.value.typeName =
+                    value.name;
+                if ([1, 2, 3, 7].any(
+                  (t) => t == deviceManagementController.selectedType.value.id,
+                )) {
+                  deviceManagementController.selectedDevice.value.pinMode = 0;
+                }
+                if ([4, 5, 6, 8, 9].any(
+                  (t) => t == deviceManagementController.selectedType.value.id,
+                )) {
+                  deviceManagementController.selectedDevice.value.pinMode = 1;
+                }
+                if ([1, 2, 3, 6].any(
+                  (t) => t == deviceManagementController.selectedType.value.id,
+                )) {
+                  deviceManagementController.selectedDevice.value.pinStart = 0;
+                }
+                if ([4, 5, 8, 9].any(
+                  (t) => t == deviceManagementController.selectedType.value.id,
+                )) {
+                  deviceManagementController.selectedDevice.value.pinStart = 1;
+                }
+                if (deviceManagementController.selectedType.value.id == 7) {
+                  {
+                    deviceManagementController.selectedDevice.value.pinStart =
+                        -1;
+                  }
+                }
+                deviceManagementController.selectedDevice.value.repeatTransmit =
+                    null;
+                deviceManagementController.selectedDevice.value.rfCodes = null;
+                deviceManagementController.selectedDevice.value.openingTime =
+                    null;
+                deviceManagementController.selectedDevice.value.waitingTime =
+                    null;
+                deviceManagementController.selectedDevice.value.closingTime =
+                    null;
+                deviceManagementController
+                    .selectedDevice.value.normalValueRangeId = 0;
+                deviceManagementController.selectedDevice.value.normalMinValue =
+                    null;
+                deviceManagementController.selectedDevice.value.normalMaxValue =
+                    null;
+                deviceManagementController
+                    .selectedDevice.value.criticalValueRangeId = 0;
+                deviceManagementController
+                    .selectedDevice.value.criticalMinValue = null;
+                deviceManagementController
+                    .selectedDevice.value.criticalMaxValue = null;
+                deviceManagementController.selectedDevice.value.unitId = 0;
+                deviceManagementController.selectedDevice.value.unit = null;
+              },
               validator: (value) {
                 if (value == null) {
                   return 'Cihaz Türü Zorunlu';

@@ -3,6 +3,7 @@ import 'package:akilli_anahtar/controllers/device_management_controller.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/device_add_edit_page.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/device_timing_page.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/rf_options_page.dart';
+import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/topic_detail.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/value_range_add_edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,8 +20,6 @@ class _DeviceDetailPageState extends State<DeviceDetailPage>
   BoxManagementController boxManagementController = Get.find();
   DeviceManagementController deviceManagementController = Get.find();
 
-  final _formKey = GlobalKey<FormState>();
-
   @override
   void initState() {
     super.initState();
@@ -33,8 +32,15 @@ class _DeviceDetailPageState extends State<DeviceDetailPage>
   }
 
   void _saveDevice() async {
-    if (_formKey.currentState!.validate()) {
-      if (deviceManagementController.selectedDevice.value.id == 0) {}
+    print(deviceManagementController.selectedDevice.value.toJson());
+    deviceManagementController.selectedDevice.value.boxId =
+        boxManagementController.selectedBox.value.id;
+    if (deviceManagementController.selectedDevice.value.id == 0) {
+      deviceManagementController
+          .add(deviceManagementController.selectedDevice.value);
+    } else {
+      deviceManagementController
+          .updateDevice(deviceManagementController.selectedDevice.value);
     }
   }
 
@@ -65,63 +71,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage>
                     children: [
                       DeviceAddEditPage(),
                       SizedBox(height: 8),
-                      ExpansionTile(
-                        title: Text("Topicler"),
-                        children: [
-                          if ([1, 2, 3].any(
-                            (t) =>
-                                t ==
-                                deviceManagementController
-                                    .selectedType.value.id,
-                          ))
-                            if (deviceManagementController
-                                    .selectedType.value.id ==
-                                4)
-                              if (deviceManagementController
-                                      .selectedType.value.id ==
-                                  6)
-                                SizedBox(height: 8),
-                          if (deviceManagementController
-                                  .selectedDevice.value.id >
-                              0)
-                            TextFormField(
-                              decoration:
-                                  InputDecoration(labelText: 'Topic Stat'),
-                              initialValue: deviceManagementController
-                                  .selectedDevice.value.topicStat,
-                              enabled: false,
-                            ),
-                          if (deviceManagementController
-                                      .selectedDevice.value.id >
-                                  0 &&
-                              [4, 5, 6, 8, 9].any(
-                                (t) =>
-                                    t ==
-                                    deviceManagementController
-                                        .selectedType.value.id,
-                              ))
-                            Column(
-                              children: [
-                                SizedBox(height: 8),
-                                TextFormField(
-                                  decoration:
-                                      InputDecoration(labelText: 'Topic Rec'),
-                                  initialValue: deviceManagementController
-                                      .selectedDevice.value.topicRec,
-                                  enabled: false,
-                                ),
-                                SizedBox(height: 8),
-                                TextFormField(
-                                  decoration:
-                                      InputDecoration(labelText: 'Topic Res'),
-                                  initialValue: deviceManagementController
-                                      .selectedDevice.value.topicRes,
-                                  enabled: false,
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
+                      TopicDetail(),
                       if ([1, 2, 3].any(
                         (t) =>
                             t ==
@@ -155,7 +105,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage>
                           ),
                         ),
                         onPressed: () {
-                          // Your button action here
+                          _saveDevice();
                         },
                       ),
                     ),

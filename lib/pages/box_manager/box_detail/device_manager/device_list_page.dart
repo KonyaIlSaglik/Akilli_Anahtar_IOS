@@ -2,6 +2,7 @@ import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/device_management_controller.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/device_detail_page.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class BoxDevicesPage extends StatefulWidget {
@@ -45,6 +46,21 @@ class _BoxDevicesPageState extends State<BoxDevicesPage> {
                                 .name,
                           ),
                           Text(deviceManagementController.devices[i].pin),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              FontAwesomeIcons.circleMinus,
+                              color: Colors.red,
+                            ),
+                            onPressed: () {
+                              deviceManagementController.delete(
+                                  deviceManagementController.devices[i].id);
+                            },
+                          ),
                         ],
                       ),
                       onTap: () {

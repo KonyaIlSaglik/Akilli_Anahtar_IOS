@@ -111,8 +111,7 @@ class _SensorListItemState extends State<SensorListItem> {
                   //   style: TextStyle(color: Colors.white),
                   // ),
                   Text(
-                    sensor.normalValueRangeId != null &&
-                            sensor.normalValueRangeId! > 0
+                    sensor.normalValueRangeId > 0
                         ? "${sensor.normalMinValue} - ${sensor.normalMaxValue}"
                         : "-",
                     style: TextStyle(color: Colors.white),

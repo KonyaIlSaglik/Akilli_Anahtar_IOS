@@ -41,6 +41,7 @@ class BoxManagementController extends GetxController {
 
   Future<void> getBoxes() async {
     loadingBox.value = true;
+    boxes.clear();
     var allBoxes = await BoxService.getAll() ?? <Box>[];
     if (allBoxes.isNotEmpty) {
       if (homeController.selectedOrganisationId > 0) {
@@ -54,7 +55,6 @@ class BoxManagementController extends GetxController {
       } else {
         boxes.value = allBoxes;
       }
-
       for (var box in boxes) {
         mqttController.subListenerList.add(
           (topic) {
@@ -144,7 +144,11 @@ class BoxManagementController extends GetxController {
   Future<void> delete(int id) async {
     var response = await BoxService.delete(id);
     if (response) {
-      boxes.remove(selectedBox.value);
+      boxes.remove(
+        boxes.firstWhere(
+          (b) => b.id == id,
+        ),
+      );
       sortBoxes();
       successSnackbar("Başarılı", "Silindi");
       return;

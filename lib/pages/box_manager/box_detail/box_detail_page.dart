@@ -6,6 +6,7 @@ import 'package:akilli_anahtar/pages/box_manager/box_detail/box_add_edit_page.da
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_list_page.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/device_detail_page.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class BoxDetailPage extends StatefulWidget {
@@ -50,50 +51,58 @@ class _BoxDetailPageState extends State<BoxDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      initialIndex: 0,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(boxManagementController.selectedBox.value.id > 0
-              ? "Kutu Düzenle"
-              : "Kutu Ekle"),
-          actions: [
-            //
-          ],
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: [
-              Tab(
-                text: "Kutu Detay",
-              ),
-              Tab(
-                text: "Cihazlar",
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(boxManagementController.selectedBox.value.id > 0
+            ? "Kutu Düzenle"
+            : "Kutu Ekle"),
+        actions: [
+          IconButton(
+            icon: Icon(
+              FontAwesomeIcons.trashCan,
+              color: Colors.red,
+            ),
+            onPressed: () async {
+              await boxManagementController
+                  .delete(boxManagementController.selectedBox.value.id);
+              boxManagementController.checkNewVersion();
+              boxManagementController.getBoxes();
+              Navigator.pop(context);
+            },
           ),
-        ),
-        body: TabBarView(
+        ],
+        bottom: TabBar(
           controller: _tabController,
-          children: [
-            BoxAddEditPage(),
-            BoxDevicesPage(),
+          tabs: [
+            Tab(
+              text: "Kutu Detay",
+            ),
+            Tab(
+              text: "Cihazlar",
+            ),
           ],
         ),
-        floatingActionButton: _tabController.index == 1 &&
-                boxManagementController.selectedBox.value.id > 0
-            ? FloatingActionButton(
-                child: Icon(
-                  Icons.add_circle,
-                ),
-                onPressed: () {
-                  deviceManagementController.selectedDevice.value = Device();
-                  deviceManagementController.selectedType.value = DeviceType();
-                  Get.to(() => DeviceDetailPage());
-                },
-              )
-            : null,
       ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          BoxAddEditPage(),
+          BoxDevicesPage(),
+        ],
+      ),
+      floatingActionButton: _tabController.index == 1 &&
+              boxManagementController.selectedBox.value.id > 0
+          ? FloatingActionButton(
+              child: Icon(
+                Icons.add_circle,
+              ),
+              onPressed: () {
+                deviceManagementController.selectedDevice.value = Device();
+                deviceManagementController.selectedType.value = DeviceType();
+                Get.to(() => DeviceDetailPage());
+              },
+            )
+          : null,
     );
   }
 }

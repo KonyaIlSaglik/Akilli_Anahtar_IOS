@@ -191,7 +191,9 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
                         }
                         var existsBox = boxManagementController.boxes
                             .firstWhereOrNull((u) => u.name == value);
-                        if (existsBox != null) {
+                        if (existsBox != null &&
+                            existsBox.id !=
+                                boxManagementController.selectedBox.value.id) {
                           return 'Kutu adı daha önce kullanılmış';
                         }
                         return null;
@@ -214,7 +216,10 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
                               var existsBox = boxManagementController.boxes
                                   .firstWhereOrNull(
                                       (u) => u.chipId.toString() == value);
-                              if (existsBox != null) {
+                              if (existsBox != null &&
+                                  existsBox.id !=
+                                      boxManagementController
+                                          .selectedBox.value.id) {
                                 return 'ID daha önce kullanılmış';
                               }
                               return null;

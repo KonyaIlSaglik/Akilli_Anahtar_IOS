@@ -30,8 +30,9 @@ class _ValueRangeAddEditPageState extends State<ValueRangeAddEditPage> {
                     .selectedDevice.value.normalMinValue
                     ?.toString(),
                 keyboardType: TextInputType.number,
-                onChanged: (value) => deviceManagementController.selectedDevice
-                    .value.normalMinValue = double.tryParse(value) ?? 0,
+                onChanged: (value) => deviceManagementController
+                        .selectedDevice.value.normalMinValue =
+                    value.isEmpty ? null : double.tryParse(value),
               ),
             ),
             SizedBox(
@@ -45,8 +46,9 @@ class _ValueRangeAddEditPageState extends State<ValueRangeAddEditPage> {
                     .selectedDevice.value.normalMaxValue
                     ?.toString(),
                 keyboardType: TextInputType.number,
-                onChanged: (value) => deviceManagementController.selectedDevice
-                    .value.normalMaxValue = double.tryParse(value) ?? 0,
+                onChanged: (value) => deviceManagementController
+                        .selectedDevice.value.normalMaxValue =
+                    value.isEmpty ? null : double.tryParse(value),
               ),
             ),
           ],
@@ -63,8 +65,9 @@ class _ValueRangeAddEditPageState extends State<ValueRangeAddEditPage> {
                     .selectedDevice.value.criticalMinValue
                     ?.toString(),
                 keyboardType: TextInputType.number,
-                onChanged: (value) => deviceManagementController.selectedDevice
-                    .value.criticalMinValue = double.tryParse(value) ?? 0,
+                onChanged: (value) => deviceManagementController
+                        .selectedDevice.value.criticalMinValue =
+                    value.isEmpty ? null : double.tryParse(value),
               ),
             ),
             SizedBox(
@@ -78,8 +81,9 @@ class _ValueRangeAddEditPageState extends State<ValueRangeAddEditPage> {
                     .selectedDevice.value.criticalMaxValue
                     ?.toString(),
                 keyboardType: TextInputType.number,
-                onChanged: (value) => deviceManagementController.selectedDevice
-                    .value.criticalMaxValue = double.tryParse(value) ?? 0,
+                onChanged: (value) => deviceManagementController
+                        .selectedDevice.value.criticalMaxValue =
+                    value.isEmpty ? null : double.tryParse(value),
               ),
             ),
           ],
