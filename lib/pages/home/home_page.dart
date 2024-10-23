@@ -34,16 +34,7 @@ class _HomePageState extends State<HomePage> {
         exitApp(context);
       },
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: goldColor,
-          iconTheme: Theme.of(context).iconTheme.copyWith(color: Colors.white),
-          title: Text(
-            "AKILLI ANAHTAR",
-            style: width(context) < minWidth
-                ? textTheme(context).titleMedium!.copyWith(color: Colors.white)
-                : textTheme(context).titleLarge!.copyWith(color: Colors.white),
-          ),
-        ),
+        appBar: logoAppBar(),
         drawer: DrawerPage(),
         body: Column(
           children: [
@@ -124,6 +115,20 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  AppBar appBar2() {
+    var width = MediaQuery.of(context).size.width;
+    return AppBar(
+      backgroundColor: goldColor,
+      iconTheme: Theme.of(context).iconTheme.copyWith(color: Colors.white),
+      title: Text(
+        "AKILLI ANAHTAR",
+        style: width < minWidth
+            ? textTheme(context).titleMedium!.copyWith(color: Colors.white)
+            : textTheme(context).titleLarge!.copyWith(color: Colors.white),
       ),
     );
   }

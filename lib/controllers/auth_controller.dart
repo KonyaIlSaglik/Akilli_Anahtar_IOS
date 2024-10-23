@@ -51,21 +51,33 @@ class AuthController extends GetxController {
   }
 
   Future<void> loadLoginInfo() async {
+    print("1 ${DateTime.now()}");
     await loginManager2.init();
+    print("2 ${DateTime.now()}");
     var lm2 = loginManager2.get();
+    print("3 ${DateTime.now()}");
     if (lm2 == null) {
       await loginManager1.init();
+      print("4 ${DateTime.now()}");
       var lm = loginManager1.get();
+      print("5 ${DateTime.now()}");
       if (lm != null) {
+        print("6 ${DateTime.now()}");
         loginModel2.value.userName = lm.userName;
         loginModel2.value.password = lm.password;
+        print("7 ${DateTime.now()}");
         loginModel2.value.identity = await getDeviceId();
+        print("8 ${DateTime.now()}");
         loginModel2.value.platformName = await getDeviceName();
+        print("9 ${DateTime.now()}");
         loginManager2.clear();
+        print("10 ${DateTime.now()}");
         loginManager2.add(loginModel2.value);
+        print("11 ${DateTime.now()}");
         return;
       }
     } else {
+      print(DateTime.now());
       loginModel2.value = lm2;
     }
   }

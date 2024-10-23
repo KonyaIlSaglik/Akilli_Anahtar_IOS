@@ -351,10 +351,12 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 if (boxManagementController
-                                            .selectedBox.value.isOld ==
-                                        -1 &&
-                                    boxManagementController
-                                        .selectedBox.value.isSub)
+                                        .selectedBox.value.isSub &&
+                                    (boxManagementController
+                                                .selectedBox.value.isOld ==
+                                            -1 ||
+                                        !boxManagementController
+                                            .selectedBox.value.upgrading))
                                   IconButton(
                                     icon: Icon(
                                       Icons.upload_outlined,

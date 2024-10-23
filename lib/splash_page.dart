@@ -28,18 +28,24 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   init() async {
-    checkNewVersion(context, false);
-    await _authController.loadToken();
+    await _authController.loadLoginInfo();
+    await _authController.login(_authController.loginModel2.value.userName,
+        _authController.loginModel2.value.password);
     if (_authController.isLoggedIn.value) {
-      Get.put(MqttController());
-      await _authController.getUser();
-      print("Go to HomePage");
       Get.to(() => HomePage());
-      //Get.to(() => BoxIndexPage());
-    } else {
-      print("Go to LoginPage");
-      Get.to(() => LoginPage());
     }
+    checkNewVersion(context, false);
+    // await _authController.loadToken();
+    // if (_authController.isLoggedIn.value) {
+    //   Get.put(MqttController());
+    //   await _authController.getUser();
+    //   print("Go to HomePage");
+    //   Get.to(() => HomePage());
+    //   //Get.to(() => BoxIndexPage());
+    // } else {
+    //   print("Go to LoginPage");
+    //   Get.to(() => LoginPage());
+    // }
   }
 
   @override

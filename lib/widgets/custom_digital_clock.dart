@@ -14,6 +14,7 @@ class CustomDigitalClock extends StatefulWidget {
   final EdgeInsets? padding;
   final bool isLive;
   final double textScaleFactor;
+  final TextStyle? textStyle;
 
   ///You can pass INTL date format skeleton here, to choose in what format you want to display the time. Note in case of ui distored please wrap it inside a container with desired padding and margin.
   ///For more info about skeletons please refer to this site https://pub.dev/documentation/intl/latest/intl/DateFormat-class.html
@@ -27,6 +28,7 @@ class CustomDigitalClock extends StatefulWidget {
       this.padding,
       this.digitalClockTextColor = Colors.black,
       this.textScaleFactor = 1.0,
+      this.textStyle,
       isLive,
       super.key})
       : isLive = isLive ?? (datetime == null);
@@ -41,6 +43,7 @@ class CustomDigitalClock extends StatefulWidget {
           borderRadius: BorderRadius.all(Radius.circular(15))),
       this.digitalClockTextColor = Colors.white,
       this.textScaleFactor = 1.0,
+      this.textStyle,
       this.isLive = false,
       super.key});
   const CustomDigitalClock.light(
@@ -54,6 +57,7 @@ class CustomDigitalClock extends StatefulWidget {
           borderRadius: BorderRadius.all(Radius.circular(15))),
       this.digitalClockTextColor = Colors.black,
       this.textScaleFactor = 1.0,
+      this.textStyle,
       this.isLive = false,
       super.key});
 
@@ -104,6 +108,7 @@ class _DigitalClockState extends State<CustomDigitalClock> {
           child: CustomPaint(
             painter: CustomDigitalClockPainter(
                 format: widget.format,
+                textStyle: widget.textStyle,
                 showSeconds: widget.showSeconds,
                 datetime: datetime,
                 digitalClockTextColor: widget.digitalClockTextColor,

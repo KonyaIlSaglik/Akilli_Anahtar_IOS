@@ -1,6 +1,5 @@
 import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

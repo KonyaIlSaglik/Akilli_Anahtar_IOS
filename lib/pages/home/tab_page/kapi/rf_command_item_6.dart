@@ -91,16 +91,28 @@ class _RfCommandItem6State extends State<RfCommandItem6>
           height: height * 0.035,
           child: Card(
             elevation: 0,
-            color: !isSub ? Colors.grey : Colors.blue,
+            color: !isSub
+                ? Colors.grey
+                : status == "2"
+                    ? Colors.yellow
+                    : status == "3"
+                        ? Colors.green
+                        : status == "4"
+                            ? Colors.yellow
+                            : Colors.red,
             child: Center(
               child: Text(
-                status == "0"
-                    ? "AÇIK"
-                    : status == "1"
-                        ? "KAPALI"
-                        : status,
+                status == "2"
+                    ? "AÇILIYOR"
+                    : status == "3"
+                        ? "AÇIK"
+                        : status == "4"
+                            ? "KAPANIYOR"
+                            : "KAPALI",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: status == "2" || status == "4"
+                      ? Colors.black
+                      : Colors.white,
                   fontSize: Theme.of(context).textTheme.labelLarge!.fontSize,
                 ),
               ),

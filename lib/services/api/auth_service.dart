@@ -56,7 +56,8 @@ class AuthService {
       );
       client.close();
       if (response.statusCode == 200) {
-        var tokenModel = TokenModel.fromJson(response.body);
+        var data = json.decode(response.body) as Map<String, dynamic>;
+        var tokenModel = TokenModel.fromJson(data["session"]);
         return tokenModel;
       }
       if (response.statusCode == 400) {

@@ -21,25 +21,19 @@ class _LayoutState extends State<Layout> {
       () {
         return Scaffold(
           appBar: AppBar(
-            iconTheme: IconThemeData(
-              color: Colors.white,
-            ),
+            backgroundColor: Colors.white,
+            shadowColor: Colors.black,
+            elevation: 10,
             title: Text(
               "AKILLI ANAHTAR",
               style: width(context) < minWidth
-                  ? textTheme(context)
-                      .titleMedium!
-                      .copyWith(color: Colors.white)
-                  : textTheme(context)
-                      .titleLarge!
-                      .copyWith(color: Colors.white),
+                  ? textTheme(context).titleMedium!
+                  : textTheme(context).titleLarge!,
             ),
-            backgroundColor: primaryColor,
             actions: [
               IconButton(
                 icon: Icon(
                   FontAwesomeIcons.bell,
-                  color: Colors.white,
                   size: 30,
                 ),
                 onPressed: () {
