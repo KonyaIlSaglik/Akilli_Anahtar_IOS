@@ -4,10 +4,11 @@ import 'package:akilli_anahtar/pages/new_home/new_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_version_plus/new_version_plus.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 const String apiUrlIn = "http://10.42.41.36:85/api";
 const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
-const String tokenModelKey = "tokenModel";
+const String sessionKey = "session";
 const String userKey = "user";
 const String loginModelKey = "loginModel";
 const String userClaimsKey = "userClaims";
@@ -75,6 +76,20 @@ exitApp(context) {
       );
     },
   );
+}
+
+void successBar(BuildContext context, String title, String message) {
+  Flushbar(
+    title: title,
+    message: message,
+    backgroundColor: Colors.green,
+    titleColor: Colors.white,
+    messageColor: Colors.white,
+    icon: Icon(
+      Icons.done_outline,
+      color: Colors.white,
+    ),
+  )..show(context);
 }
 
 errorSnackbar(String title, String message) {

@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:akilli_anahtar/controllers/home_controller.dart';
+import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
+import 'package:akilli_anahtar/entities/organisation.dart';
+import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/login_model2.dart';
@@ -16,94 +19,74 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
-  var tokenManager = CacheManager<TokenModel>(HiveConstants.tokenModelKey,
-      HiveConstants.tokenModelTypeId, TokenModelAdapter());
-
   var loginManager1 = CacheManager<LoginModel>(HiveConstants.loginModelKey,
       HiveConstants.loginModelTypeId, LoginModelAdapter());
 
   var loginManager2 = CacheManager<LoginModel2>(HiveConstants.loginModel2Key,
       HiveConstants.loginModel2TypeId, LoginModel2Adapter());
 
-  var claimsManager = CacheManager<OperationClaim>(HiveConstants.claimsKey,
-      HiveConstants.claimsTypeId, OperationClaimAdapter());
+  var sessionManager = CacheManager<Session>(
+      HiveConstants.sessionKey, HiveConstants.sessionTypeId, SessionAdapter());
 
-  var userManager = CacheManager<User>(
-      HiveConstants.userKey, HiveConstants.userTypeId, UserAdapter());
-
-  var loginModel1 = LoginModel().obs;
   var loginModel2 = LoginModel2().obs;
   var isLoading = false.obs;
   var isLoggedIn = false.obs;
   var isChanged = false.obs;
-  var tokenModel = TokenModel.epmty().obs;
+  var session = Session.epmty().obs;
   var user = User().obs;
   var operationClaims = <OperationClaim>[].obs;
+  var parameters = <Parameter>[].obs;
+  var organisations = <Organisation>[].obs;
+  var devices = <Device>[].obs;
 
-  Future<void> loadToken() async {
-    await tokenManager.init();
-    var model = tokenManager.get();
-    if (model != null) {
-      tokenModel.value = model;
-      isLoggedIn.value = true;
-      await loadLoginInfo();
-    }
-  }
+  // Future<void> loadToken() async {
+  //   await sessionManager.init();
+  //   var model = sessionManager.get();
+  //   if (model != null) {
+  //     session.value = model;
+  //     isLoggedIn.value = true;
+  //     await loadLoginInfo();
+  //   }
+  // }
 
   Future<void> loadLoginInfo() async {
-    print("1 ${DateTime.now()}");
     await loginManager2.init();
-    print("2 ${DateTime.now()}");
     var lm2 = loginManager2.get();
-    print("3 ${DateTime.now()}");
     if (lm2 == null) {
       await loginManager1.init();
-      print("4 ${DateTime.now()}");
       var lm = loginManager1.get();
-      print("5 ${DateTime.now()}");
       if (lm != null) {
-        print("6 ${DateTime.now()}");
         loginModel2.value.userName = lm.userName;
         loginModel2.value.password = lm.password;
-        print("7 ${DateTime.now()}");
-        loginModel2.value.identity = await getDeviceId();
-        print("8 ${DateTime.now()}");
-        loginModel2.value.platformName = await getDeviceName();
-        print("9 ${DateTime.now()}");
         loginManager2.clear();
-        print("10 ${DateTime.now()}");
         loginManager2.add(loginModel2.value);
-        print("11 ${DateTime.now()}");
-        return;
       }
+      loginModel2.value.identity = await getDeviceId();
+      loginModel2.value.platformName = await getDeviceName();
+      return;
     } else {
-      print(DateTime.now());
       loginModel2.value = lm2;
     }
   }
 
-  Future<void> login(String userName, String password) async {
+  Future<void> login(LoginModel2 lm2) async {
     isLoggedIn.value = false;
     isLoading.value = true;
-    tokenModel.value = TokenModel.epmty();
+    session.value = Session.epmty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
 
     try {
-      var lm2 = LoginModel2(
-        userName: userName,
-        password: password,
-      );
-      var tokenResult = await AuthService.login2(lm2);
-      if (tokenResult != null) {
+      var loginResult = await AuthService.login2(lm2);
+      if (loginResult != null) {
         successSnackbar('Başarılı', 'Oturum açıldı.');
         loginModel2.value = lm2;
-        tokenModel.value = tokenResult;
-        await tokenManager.clear();
-        await tokenManager.add(tokenResult);
+        session.value = loginResult;
+        await sessionManager.clear();
+        await sessionManager.add(loginResult);
         await loginManager2.clear();
         await loginManager2.add(lm2);
-        await getUser();
+        //await getUser();
         isLoggedIn.value = true;
       } else {
         errorSnackbar('Başarısız', 'Oturum açılamadı.');
@@ -115,19 +98,19 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> getUser() async {
-    var userResult =
-        await UserService.getbyUserName(loginModel2.value.userName);
-    if (userResult != null) {
-      await userManager.clear();
-      await userManager.add(userResult);
-      user.value = userResult;
-      var claims = await getUserClaims();
-      if (claims != null) {
-        operationClaims.value = claims;
-      }
-    }
-  }
+  // Future<void> getUser() async {
+  //   var userResult =
+  //       await UserService.getbyUserName(loginModel2.value.userName);
+  //   if (userResult != null) {
+  //     await userManager.clear();
+  //     await userManager.add(userResult);
+  //     user.value = userResult;
+  //     var claims = await getUserClaims();
+  //     if (claims != null) {
+  //       operationClaims.value = claims;
+  //     }
+  //   }
+  // }
 
   Future<List<OperationClaim>?> getUserClaims() async {
     var claimsResult = await AuthService.getUserClaims();
@@ -140,12 +123,12 @@ class AuthController extends GetxController {
   Future<void> logOut() async {
     await AuthService.logOut();
     isLoggedIn.value = false;
-    tokenModel.value = TokenModel.epmty();
+    session.value = Session.epmty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
-    await tokenManager.clear();
-    await userManager.clear();
-    await claimsManager.clear();
+    await sessionManager.clear();
+    // await userManager.clear();
+    // await claimsManager.clear();
 
     HomeController deviceController = Get.find();
     deviceController.clearController();
@@ -158,13 +141,13 @@ class AuthController extends GetxController {
     try {
       var response = await AuthService.changePassword(oldPassword, newPassword);
       if (response != null) {
-        tokenModel.value = response;
+        session.value = response;
         isChanged.value = true;
         loginModel2.value.password = newPassword;
         await loginManager2.clear();
         loginManager2.add(loginModel2.value);
-        await tokenManager.clear();
-        tokenManager.add(tokenModel.value);
+        await sessionManager.clear();
+        sessionManager.add(session.value);
       }
     } catch (e) {
       errorSnackbar('Error', 'Bir hata oldu. Tekrar deneyin.');

@@ -120,8 +120,9 @@ class _LoginPageState extends State<LoginPage> {
       errorSnackbar('Hata', 'Gizlilik Sözleşmesinin onaylanması zorunlu');
       return;
     }
-
-    await _authController.login(usercon.text, passwordcon.text);
+    _authController.loginModel2.value.userName = usercon.text;
+    _authController.loginModel2.value.identity = passwordcon.text;
+    await _authController.login(_authController.loginModel2.value);
 
     if (_authController.isLoggedIn.value) {
       Get.to(() => HomePage());

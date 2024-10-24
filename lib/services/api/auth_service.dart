@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
+import 'package:akilli_anahtar/entities/organisation.dart';
+import 'package:akilli_anahtar/entities/parameter.dart';
+import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/login_model2.dart';
 import 'package:akilli_anahtar/models/token_model.dart';
@@ -12,7 +16,7 @@ import 'package:http/http.dart' as http;
 class AuthService {
   static String url = "$apiUrlOut/Auth";
 
-  static Future<TokenModel?> login(LoginModel loginModel) async {
+  static Future<Session?> login(LoginModel loginModel) async {
     AuthController authController = Get.find();
     loginModel.identity = await authController.getDeviceId();
     var uri = Uri.parse("$url/login");
@@ -27,8 +31,8 @@ class AuthService {
       );
       client.close();
       if (response.statusCode == 200) {
-        var tokenModel = TokenModel.fromJson(response.body);
-        return tokenModel;
+        var session = Session.fromJson(response.body);
+        return session;
       }
       if (response.statusCode == 400) {
         errorSnackbar("Hata", response.body);
@@ -40,10 +44,8 @@ class AuthService {
     return null;
   }
 
-  static Future<TokenModel?> login2(LoginModel2 loginModel) async {
+  static Future<Session?> login2(LoginModel2 loginModel) async {
     AuthController authController = Get.find();
-    loginModel.identity = await authController.getDeviceId();
-    loginModel.platformName = await authController.getDeviceName();
     var uri = Uri.parse("$url/login2");
     var client = http.Client();
     try {
@@ -57,8 +59,28 @@ class AuthService {
       client.close();
       if (response.statusCode == 200) {
         var data = json.decode(response.body) as Map<String, dynamic>;
-        var tokenModel = TokenModel.fromJson(data["session"]);
-        return tokenModel;
+        print(response.body);
+        var session = Session.fromJson(json.encode(data["session"]));
+        authController.session.value = session;
+        print("1");
+        var user = User.fromJson(json.encode(data["userDto"]));
+        authController.user.value = user;
+        print("2");
+        var claims =
+            OperationClaim.fromJsonList(json.encode(data["operationClaims"]));
+        authController.operationClaims.value = claims;
+        print("3");
+        var parameters =
+            Parameter.fromJsonList(json.encode(data["parameters"]));
+        authController.parameters.value = parameters;
+        print(json.encode(data["organisations"]));
+        var organisations =
+            Organisation.fromJsonList(json.encode(data["organisations"]));
+        authController.organisations.value = organisations;
+        print("5");
+        var devices = Device.fromJsonList(json.encode(data["devices"]));
+        authController.devices.value = devices;
+        return session;
       }
       if (response.statusCode == 400) {
         errorSnackbar("Hata", response.body);
@@ -82,16 +104,20 @@ class AuthService {
 
   static Future<void> logOut() async {
     AuthController authController = Get.find();
-    var identity = await authController.getDeviceId();
-    var uri = Uri.parse("$url/logout?identity=$identity");
+    var identity = authController.loginModel2.value.identity;
+    var userId = authController.user.value.id;
+    var uri = Uri.parse("$url/logout?userId=$userId&identity=$identity");
     var client = http.Client();
-    var response = await client.post(
+    var response = await client.put(
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
       },
     );
     client.close();
+    print("$url/logout?userId=$userId&identity=$identity");
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       successSnackbar("Başarılı", response.body);
     } else {
@@ -99,10 +125,10 @@ class AuthService {
     }
   }
 
-  static Future<TokenModel?> changePassword(
+  static Future<Session?> changePassword(
       String oldPassword, String newPassword) async {
     var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
+    var session = authController.session.value;
     var requestBody = {
       'userId': authController.user.value.id,
       'oldPassword': oldPassword,
@@ -114,13 +140,13 @@ class AuthService {
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
+        'Authorization': 'Bearer ${session.accessToken}',
       },
       body: json.encode(requestBody),
     );
     client.close();
     if (response.statusCode == 200) {
-      var data = TokenModel.fromJson(json.encode(response.body));
+      var data = Session.fromJson(json.encode(response.body));
       return data;
     }
     return null;

@@ -12,12 +12,12 @@ class CityService {
     var uri = Uri.parse("$url/getCity?id=$id");
     var client = http.Client();
     var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
+    var session = authController.session.value;
     var response = await client.get(
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
+        'Authorization': 'Bearer ${session.accessToken}',
       },
     );
     client.close();
@@ -32,12 +32,12 @@ class CityService {
     var uri = Uri.parse("$url/getAllCity");
     var client = http.Client();
     var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
+    var session = authController.session.value;
     var response = await client.get(
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
+        'Authorization': 'Bearer ${session.accessToken}',
       },
     );
     client.close();
@@ -52,12 +52,12 @@ class CityService {
     var uri = Uri.parse("$url/getDistrict?id=$id");
     var client = http.Client();
     var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
+    var session = authController.session.value;
     var response = await client.get(
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
+        'Authorization': 'Bearer ${session.accessToken}',
       },
     );
     client.close();
@@ -72,12 +72,12 @@ class CityService {
     var uri = Uri.parse("$url/getAllDistrict");
     var client = http.Client();
     var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
+    var session = authController.session.value;
     var response = await client.get(
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
+        'Authorization': 'Bearer ${session.accessToken}',
       },
     );
     client.close();

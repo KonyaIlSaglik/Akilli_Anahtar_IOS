@@ -2,8 +2,8 @@ class HiveConstants {
   static const loginModel2TypeId = 0;
   static const loginModel2Key = "loginCache2";
 
-  static const tokenModelTypeId = 1;
-  static const tokenModelKey = "tokenCache";
+  static const sessionTypeId = 1;
+  static const sessionKey = "tokenCache";
 
   static const loginModelTypeId = 2;
   static const loginModelKey = "loginCache";

@@ -5,8 +5,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 part 'token_model.g.dart';
 
-@HiveType(typeId: HiveConstants.tokenModelTypeId)
-class TokenModel {
+@HiveType(typeId: HiveConstants.sessionTypeId)
+class Session {
   @HiveField(0)
   final int id;
 
@@ -27,7 +27,7 @@ class TokenModel {
 
   @HiveField(6)
   final String? logoutTime;
-  TokenModel({
+  Session({
     required this.id,
     required this.userId,
     required this.loginTime,
@@ -37,8 +37,8 @@ class TokenModel {
     this.logoutTime,
   });
 
-  factory TokenModel.epmty() {
-    return TokenModel(
+  factory Session.epmty() {
+    return Session(
       id: 0,
       userId: 0,
       accessToken: "",
@@ -60,8 +60,8 @@ class TokenModel {
     };
   }
 
-  factory TokenModel.fromMap(Map<String, dynamic> map) {
-    var model = TokenModel(
+  factory Session.fromMap(Map<String, dynamic> map) {
+    var model = Session(
       id: map['id'] as int,
       userId: map['userId'] as int,
       loginTime: map['loginTime'] as String,
@@ -75,6 +75,6 @@ class TokenModel {
 
   String toJson() => json.encode(toMap());
 
-  factory TokenModel.fromJson(String source) =>
-      TokenModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Session.fromJson(String source) =>
+      Session.fromMap(json.decode(source) as Map<String, dynamic>);
 }

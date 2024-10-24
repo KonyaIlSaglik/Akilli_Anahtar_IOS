@@ -16,6 +16,14 @@ class _LayoutState extends State<Layout> {
   HomeController homeController = Get.put(HomeController());
 
   @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      successBar(context, "AAA", "Yeni Anasayfa");
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Obx(
       () {

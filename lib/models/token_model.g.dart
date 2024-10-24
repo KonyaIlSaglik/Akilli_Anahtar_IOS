@@ -6,17 +6,17 @@ part of 'token_model.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class TokenModelAdapter extends TypeAdapter<TokenModel> {
+class SessionAdapter extends TypeAdapter<Session> {
   @override
   final int typeId = 1;
 
   @override
-  TokenModel read(BinaryReader reader) {
+  Session read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return TokenModel(
+    return Session(
       id: fields[0] as int,
       userId: fields[1] as int,
       loginTime: fields[2] as String,
@@ -28,7 +28,7 @@ class TokenModelAdapter extends TypeAdapter<TokenModel> {
   }
 
   @override
-  void write(BinaryWriter writer, TokenModel obj) {
+  void write(BinaryWriter writer, Session obj) {
     writer
       ..writeByte(7)
       ..writeByte(0)
@@ -53,7 +53,7 @@ class TokenModelAdapter extends TypeAdapter<TokenModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TokenModelAdapter &&
+      other is SessionAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

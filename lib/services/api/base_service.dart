@@ -8,12 +8,12 @@ class BaseService {
       var uri = Uri.parse(url);
       var client = http.Client();
       var authController = Get.find<AuthController>();
-      var tokenModel = authController.tokenModel.value;
+      var session = authController.session.value;
       var response = await client.get(
         uri,
         headers: {
           'content-type': 'application/json; charset=utf-8',
-          'Authorization': 'Bearer ${tokenModel.accessToken}',
+          'Authorization': 'Bearer ${session.accessToken}',
         },
       );
       client.close();
@@ -31,12 +31,12 @@ class BaseService {
     var uri = Uri.parse(url);
     var client = http.Client();
     var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
+    var session = authController.session.value;
     var response = await client.post(
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
+        'Authorization': 'Bearer ${session.accessToken}',
       },
       body: jsonData,
     );
@@ -51,12 +51,12 @@ class BaseService {
     var uri = Uri.parse(url);
     var client = http.Client();
     var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
+    var session = authController.session.value;
     var response = await client.put(
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
+        'Authorization': 'Bearer ${session.accessToken}',
       },
       body: jsonData,
     );
@@ -71,12 +71,12 @@ class BaseService {
     var uri = Uri.parse(url);
     var client = http.Client();
     var authController = Get.find<AuthController>();
-    var tokenModel = authController.tokenModel.value;
+    var session = authController.session.value;
     var response = await client.delete(
       uri,
       headers: {
         'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${tokenModel.accessToken}',
+        'Authorization': 'Bearer ${session.accessToken}',
       },
     );
     client.close();

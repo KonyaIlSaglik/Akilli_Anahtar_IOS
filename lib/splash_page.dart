@@ -29,11 +29,18 @@ class _SplashPageState extends State<SplashPage> {
 
   init() async {
     await _authController.loadLoginInfo();
-    await _authController.login(_authController.loginModel2.value.userName,
-        _authController.loginModel2.value.password);
-    if (_authController.isLoggedIn.value) {
-      Get.to(() => HomePage());
+    if (_authController.loginModel2.value.userName.isEmpty ||
+        _authController.loginModel2.value.password.isEmpty) {
+      Get.to(() => LoginPage());
+    } else {
+      await _authController.login(_authController.loginModel2.value);
+      if (_authController.isLoggedIn.value) {
+        Get.to(() => HomePage());
+      } else {
+        Get.to(() => LoginPage());
+      }
     }
+
     checkNewVersion(context, false);
     // await _authController.loadToken();
     // if (_authController.isLoggedIn.value) {
