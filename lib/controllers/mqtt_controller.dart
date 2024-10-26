@@ -1,10 +1,6 @@
 import 'dart:convert';
 
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/entities/parameter.dart';
-import 'package:akilli_anahtar/services/api/parameter_service.dart';
-import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
-import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
@@ -35,28 +31,31 @@ class MqttController extends GetxController {
 
     // localNotifications.initialize(initializationSettings);
 
-    var paramsManager = CacheManager<Parameter>(HiveConstants.parametersKey,
-        HiveConstants.parametersTypeId, ParameterAdapter());
-    await paramsManager.init();
-    var params = paramsManager.getAll();
-    if (params == null || params.isEmpty) {
-      var paramsResult = await ParameterService.getAllByTypeId(1);
-      if (paramsResult != null) {
-        params = paramsResult;
-        await paramsManager.clear();
-        paramsManager.addList(params);
-      }
-    }
+    // var paramsManager = CacheManager<Parameter>(HiveConstants.parametersKey,
+    //     HiveConstants.parametersTypeId, ParameterAdapter());
+    // await paramsManager.init();
+    // var params = paramsManager.getAll();
+    // if (params == null || params.isEmpty) {
+    //   var paramsResult = await ParameterService.getAllByTypeId(1);
+    //   if (paramsResult != null) {
+    //     params = paramsResult;
+    //     await paramsManager.clear();
+    //     paramsManager.addList(params);
+    //   }
+    // }
     AuthController authController = Get.find();
     var deviceId = await authController.getDeviceId();
     var now = DateTime.now().toString();
     var identifier = "$deviceId-$now";
-    if (params != null) {
-      var host = params.firstWhere((p) => p.name == "mqtt_host_public").value;
+    if (authController.parameters.isNotEmpty) {
+      var host = authController.parameters
+          .firstWhere((p) => p.name == "mqtt_host_public")
+          .value;
       client = MqttServerClient(host, identifier);
-      client.port =
-          int.tryParse(params.firstWhere((p) => p.name == "mqtt_port").value) ??
-              1883;
+      client.port = int.tryParse(authController.parameters
+              .firstWhere((p) => p.name == "mqtt_port")
+              .value) ??
+          1883;
       client.keepAlivePeriod = 60;
       client.autoReconnect = true;
       client.resubscribeOnAutoReconnect = true;
@@ -66,15 +65,21 @@ class MqttController extends GetxController {
       client.pongCallback = pong;
       final MqttConnectMessage connMess = MqttConnectMessage()
           .authenticateAs(
-            params.firstWhere((p) => p.name == "mqtt_user").value,
-            params.firstWhere((p) => p.name == "mqtt_password").value,
+            authController.parameters
+                .firstWhere((p) => p.name == "mqtt_user")
+                .value,
+            authController.parameters
+                .firstWhere((p) => p.name == "mqtt_password")
+                .value,
           )
           .startClean()
           .withClientIdentifier(identifier)
           .withWillQos(MqttQos.atMostOnce);
       client.connectionMessage = connMess;
 
-      globalTopic.value = params.firstWhere((p) => p.name == "mqtt_user").value;
+      globalTopic.value = authController.parameters
+          .firstWhere((p) => p.name == "mqtt_session_topic")
+          .value;
     }
     print("Mqtt initialized");
     connect();

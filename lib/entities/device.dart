@@ -7,6 +7,7 @@ class Device {
   int typeId;
   String? typeName;
   int boxId;
+  int organisationId;
   String topicStat;
   String? topicRec;
   String? topicRes;
@@ -35,6 +36,7 @@ class Device {
     this.typeId = 0,
     this.typeName,
     this.boxId = 0,
+    this.organisationId = 0,
     this.topicStat = "",
     this.topicRec,
     this.topicRes,
@@ -65,6 +67,7 @@ class Device {
       'typeId': typeId,
       'typeName': typeName,
       'boxId': boxId,
+      'organisationId': organisationId,
       'topicStat': topicStat,
       'topicRec': topicRec,
       'topicRes': topicRes,
@@ -96,6 +99,7 @@ class Device {
       typeId: map['typeId'] as int,
       typeName: map['typeName'] != null ? map['typeName'] as String : null,
       boxId: map['boxId'] as int,
+      organisationId: map['organisationId'] as int,
       topicStat: map['topicStat'] as String,
       topicRec: map['topicRec'] != null ? map['topicRec'] as String : null,
       topicRes: map['topicRes'] != null ? map['topicRes'] as String : null,

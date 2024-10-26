@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'token_model.dart';
+part of 'session_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -24,13 +24,14 @@ class SessionAdapter extends TypeAdapter<Session> {
       accessToken: fields[4] as String,
       expiration: fields[5] as String,
       logoutTime: fields[6] as String?,
+      platformName: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Session obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class SessionAdapter extends TypeAdapter<Session> {
       ..writeByte(5)
       ..write(obj.expiration)
       ..writeByte(6)
-      ..write(obj.logoutTime);
+      ..write(obj.logoutTime)
+      ..writeByte(7)
+      ..write(obj.platformName);
   }
 
   @override

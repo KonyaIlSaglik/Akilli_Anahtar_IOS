@@ -17,16 +17,13 @@ class ControlDevicesPage extends StatefulWidget {
 }
 
 class _ControlDevicesPageState extends State<ControlDevicesPage> {
-  HomeController deviceController = Get.put(HomeController());
+  HomeController homeController = Get.put(HomeController());
   ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     print("ControlDevicesPage Started.");
-    Future.delayed(Duration.zero, () async {
-      await deviceController.getUserDevices();
-    });
   }
 
   @override
@@ -34,22 +31,20 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
     return RefreshIndicator(
       color: goldColor,
       onRefresh: () async {
-        await deviceController.getUserDevices();
+        //await homeController.getUserDevices();
       },
       child: ListView(
         children: [
           Obx(() {
-            return deviceController.loadingDevices.value
-                ? Center(child: Center())
-                : WallLayout(
-                    stonePadding: 20,
-                    reverse: false,
-                    layersCount: 10,
-                    scrollDirection: Axis.vertical,
-                    scrollController: scrollController,
-                    primary: false,
-                    stones: stoneList(),
-                  );
+            return WallLayout(
+              stonePadding: 20,
+              reverse: false,
+              layersCount: 10,
+              scrollDirection: Axis.vertical,
+              scrollController: scrollController,
+              primary: false,
+              stones: stoneList(),
+            );
           }),
         ],
       ),
@@ -74,15 +69,7 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
 
   List<Widget> createList() {
     List<Widget> tempList = [];
-    for (int i = 0; i < 6; i++) {
-      tempList.add(NullItem());
-    }
-    if (deviceController.controlDevices.length < 6) {
-      for (int i = 0; i < deviceController.controlDevices.length; i++) {
-        tempList.removeLast();
-      }
-    }
-    for (var device in deviceController.controlDevices) {
+    for (var device in homeController.controlDevices) {
       if (device.typeId == 4) {
         tempList.add(BarrierDoorItem4(device: device));
       }
@@ -95,6 +82,9 @@ class _ControlDevicesPageState extends State<ControlDevicesPage> {
       if (device.typeId == 9) {
         tempList.add(LedPinItem9(device: device));
       }
+    }
+    while (tempList.length < 6) {
+      tempList.insert(0, NullItem());
     }
     toEnd();
     return tempList;

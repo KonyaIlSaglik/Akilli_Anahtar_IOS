@@ -44,6 +44,71 @@ class _LoginPageState extends State<LoginPage> {
         passwordcon.text = _authController.loginModel2.value.password;
       },
     );
+
+    Future.delayed(Duration.zero, () {
+      if (_authController.allSessions.isNotEmpty) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              alignment: Alignment.centerLeft,
+              content: SizedBox(
+                width: width(context) * 0.90,
+                height: height(context) * 0.40,
+                child: Obx(
+                  () {
+                    return ListView.separated(
+                      itemBuilder: (context, i) {
+                        return ListTile(
+                          title: Text(
+                              _authController.allSessions[i].platformName ??
+                                  "Bilinmiyor"),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(getDate(
+                                  _authController.allSessions[i].loginTime)),
+                              Text(getTime(
+                                  _authController.allSessions[i].loginTime)),
+                            ],
+                          ),
+                          trailing: TextButton(
+                            child: Text("Sonlandır"),
+                            onPressed: () async {
+                              await _authController.logOut(
+                                _authController.allSessions[i].userId,
+                                _authController.allSessions[i].platformIdentity,
+                              );
+                              _authController.allSessions
+                                  .remove(_authController.allSessions[i]);
+                              if (_authController.allSessions.isEmpty) {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return Divider();
+                      },
+                      itemCount: _authController.allSessions.length,
+                    );
+                  },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: Text("Tekar dene"),
+                  onPressed: () {
+                    login(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    });
   }
 
   sifemiUnuttumDialog() {
@@ -78,34 +143,34 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  girisButon(double height) {
-    return ButtonTheme(
-      child: Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: OutlinedButton(
-          onPressed: () async {
-            setState(() {
-              loading = true;
-            });
-            login(context);
-          },
-          style: ElevatedButton.styleFrom(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            minimumSize: Size(double.infinity, height * 0.075),
-          ),
-          child: Text(
-            "OTURUM AÇ",
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // girisButon(double height) {
+  //   return ButtonTheme(
+  //     child: Card(
+  //       color: Colors.white,
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  //       child: OutlinedButton(
+  //         onPressed: () async {
+  //           setState(() {
+  //             loading = true;
+  //           });
+  //           login(context);
+  //         },
+  //         style: ElevatedButton.styleFrom(
+  //           shape:
+  //               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  //           minimumSize: Size(double.infinity, height * 0.075),
+  //         ),
+  //         child: Text(
+  //           "OTURUM AÇ",
+  //           style: TextStyle(
+  //             color: Colors.black,
+  //             fontSize: Theme.of(context).textTheme.headlineSmall!.fontSize,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   login(context) async {
     if (usercon.text.trim().isEmpty) {
@@ -121,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     _authController.loginModel2.value.userName = usercon.text;
-    _authController.loginModel2.value.identity = passwordcon.text;
+    _authController.loginModel2.value.password = passwordcon.text;
     await _authController.login(_authController.loginModel2.value);
 
     if (_authController.isLoggedIn.value) {

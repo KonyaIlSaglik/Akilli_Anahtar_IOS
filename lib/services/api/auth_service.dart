@@ -7,7 +7,7 @@ import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/login_model2.dart';
-import 'package:akilli_anahtar/models/token_model.dart';
+import 'package:akilli_anahtar/models/session_model.dart';
 import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
@@ -44,7 +44,7 @@ class AuthService {
     return null;
   }
 
-  static Future<Session?> login2(LoginModel2 loginModel) async {
+  static Future<void> login2(LoginModel2 loginModel) async {
     AuthController authController = Get.find();
     var uri = Uri.parse("$url/login2");
     var client = http.Client();
@@ -59,17 +59,13 @@ class AuthService {
       client.close();
       if (response.statusCode == 200) {
         var data = json.decode(response.body) as Map<String, dynamic>;
-        print(response.body);
         var session = Session.fromJson(json.encode(data["session"]));
         authController.session.value = session;
-        print("1");
         var user = User.fromJson(json.encode(data["userDto"]));
         authController.user.value = user;
-        print("2");
         var claims =
             OperationClaim.fromJsonList(json.encode(data["operationClaims"]));
         authController.operationClaims.value = claims;
-        print("3");
         var parameters =
             Parameter.fromJsonList(json.encode(data["parameters"]));
         authController.parameters.value = parameters;
@@ -77,10 +73,14 @@ class AuthService {
         var organisations =
             Organisation.fromJsonList(json.encode(data["organisations"]));
         authController.organisations.value = organisations;
-        print("5");
         var devices = Device.fromJsonList(json.encode(data["devices"]));
         authController.devices.value = devices;
-        return session;
+        return;
+      }
+      if (response.statusCode == 404) {
+        print(response.body);
+        authController.allSessions.value = Session.fromJsonList(response.body);
+        return;
       }
       if (response.statusCode == 400) {
         errorSnackbar("Hata", response.body);
@@ -89,7 +89,7 @@ class AuthService {
       errorSnackbar("Hata", "Oturum Açma Sırasında bir hata oluştu.");
       print(e);
     }
-    return null;
+    return;
   }
 
   static Future<List<OperationClaim>?> getUserClaims() async {
@@ -102,10 +102,7 @@ class AuthService {
     return null;
   }
 
-  static Future<void> logOut() async {
-    AuthController authController = Get.find();
-    var identity = authController.loginModel2.value.identity;
-    var userId = authController.user.value.id;
+  static Future<void> logOut(int userId, String identity) async {
     var uri = Uri.parse("$url/logout?userId=$userId&identity=$identity");
     var client = http.Client();
     var response = await client.put(

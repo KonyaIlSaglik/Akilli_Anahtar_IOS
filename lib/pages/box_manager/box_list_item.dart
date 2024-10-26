@@ -1,5 +1,5 @@
+import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
-import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/box_detail_page.dart';
@@ -17,7 +17,7 @@ class BoxListItem extends StatefulWidget {
 class _BoxListItemState extends State<BoxListItem> {
   BoxManagementController boxManagementController = Get.find();
   MqttController mqttController = Get.find();
-  HomeController homeController = Get.find();
+  AuthController authController = Get.find();
   late Box box;
 
   @override
@@ -41,8 +41,8 @@ class _BoxListItemState extends State<BoxListItem> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(homeController.organisations.isNotEmpty
-              ? homeController.organisations
+          Text(authController.organisations.isNotEmpty
+              ? authController.organisations
                   .singleWhere((o) => o.id == box.organisationId)
                   .name
               : "-"),

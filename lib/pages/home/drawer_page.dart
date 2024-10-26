@@ -132,7 +132,10 @@ class _DrawerPageState extends State<DrawerPage> {
                             leading: Icon(Icons.exit_to_app),
                             title: Text("Oturumdan Çık"),
                             onTap: () async {
-                              await _authController.logOut();
+                              await _authController.logOut(
+                                  _authController.user.value.id,
+                                  _authController
+                                      .session.value.platformIdentity);
                             },
                             trailing: Icon(Icons.chevron_right),
                           ),

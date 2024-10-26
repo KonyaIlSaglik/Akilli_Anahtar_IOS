@@ -23,41 +23,37 @@ class _SensorPageState extends State<SensorPage> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        await deviceController.getUserDevices();
+        //await deviceController.getUserDevices();
       },
       child: ListView(
         children: [
           Obx(() {
-            return deviceController.loadingDevices.value
+            return deviceController.sensorDevices.isEmpty
                 ? Center(
-                    child: Center(),
+                    child: Text("Sensor Listesi Boş"),
                   )
-                : deviceController.sensorDevices.isEmpty
-                    ? Center(
-                        child: Text("Sensor Listesi Boş"),
-                      )
-                    : MediaQuery(
-                        data: MediaQuery.of(context)
-                            .copyWith(textScaler: TextScaler.linear(0.90)),
-                        child: WallLayout(
-                          stonePadding: 5,
-                          reverse: false,
-                          layersCount: 4,
-                          scrollDirection: Axis.vertical,
-                          stones: List<Stone>.generate(
-                              deviceController.sensorDevices.length, (index) {
-                            var sensor = deviceController.sensorDevices[index];
-                            return Stone(
-                              id: sensor.id,
-                              height: 1,
-                              width: 4,
-                              child: SensorListItem(
-                                sensor: sensor,
-                              ),
-                            );
-                          }),
-                        ),
-                      );
+                : MediaQuery(
+                    data: MediaQuery.of(context)
+                        .copyWith(textScaler: TextScaler.linear(0.90)),
+                    child: WallLayout(
+                      stonePadding: 5,
+                      reverse: false,
+                      layersCount: 4,
+                      scrollDirection: Axis.vertical,
+                      stones: List<Stone>.generate(
+                          deviceController.sensorDevices.length, (index) {
+                        var sensor = deviceController.sensorDevices[index];
+                        return Stone(
+                          id: sensor.id,
+                          height: 1,
+                          width: 4,
+                          child: SensorListItem(
+                            sensor: sensor,
+                          ),
+                        );
+                      }),
+                    ),
+                  );
           }),
         ],
       ),

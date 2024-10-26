@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
@@ -8,10 +7,9 @@ import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/login_model2.dart';
-import 'package:akilli_anahtar/models/token_model.dart';
+import 'package:akilli_anahtar/models/session_model.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
-import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
@@ -32,7 +30,8 @@ class AuthController extends GetxController {
   var isLoading = false.obs;
   var isLoggedIn = false.obs;
   var isChanged = false.obs;
-  var session = Session.epmty().obs;
+  var session = Session.empty().obs;
+  var allSessions = <Session>[].obs;
   var user = User().obs;
   var operationClaims = <OperationClaim>[].obs;
   var parameters = <Parameter>[].obs;
@@ -66,30 +65,28 @@ class AuthController extends GetxController {
       return;
     } else {
       loginModel2.value = lm2;
+      if (lm2.identity.isEmpty) {
+        loginModel2.value.identity = await getDeviceId();
+        loginModel2.value.platformName = await getDeviceName();
+      }
     }
   }
 
   Future<void> login(LoginModel2 lm2) async {
     isLoggedIn.value = false;
     isLoading.value = true;
-    session.value = Session.epmty();
+    session.value = Session.empty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
 
     try {
-      var loginResult = await AuthService.login2(lm2);
-      if (loginResult != null) {
-        successSnackbar('Başarılı', 'Oturum açıldı.');
-        loginModel2.value = lm2;
-        session.value = loginResult;
+      await AuthService.login2(lm2);
+      if (session.value.accessToken.isNotEmpty) {
         await sessionManager.clear();
-        await sessionManager.add(loginResult);
+        await sessionManager.add(session.value);
         await loginManager2.clear();
         await loginManager2.add(lm2);
-        //await getUser();
         isLoggedIn.value = true;
-      } else {
-        errorSnackbar('Başarısız', 'Oturum açılamadı.');
       }
     } catch (e) {
       errorSnackbar('Hata', 'Giriş sırasında bir hata oluştu');
@@ -120,18 +117,13 @@ class AuthController extends GetxController {
     return null;
   }
 
-  Future<void> logOut() async {
-    await AuthService.logOut();
+  Future<void> logOut(int userId, String identity) async {
+    await AuthService.logOut(userId, identity);
     isLoggedIn.value = false;
-    session.value = Session.epmty();
+    session.value = Session.empty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
     await sessionManager.clear();
-    // await userManager.clear();
-    // await claimsManager.clear();
-
-    HomeController deviceController = Get.find();
-    deviceController.clearController();
     Get.to(() => LoginPage());
   }
 

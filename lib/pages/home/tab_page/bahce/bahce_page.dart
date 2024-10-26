@@ -23,33 +23,31 @@ class _BahcePageState extends State<BahcePage> {
       child: RefreshIndicator(
         color: goldColor,
         onRefresh: () async {
-          await deviceController.getUserDevices();
+          //await deviceController.getUserDevices();
         },
         child: ListView(
           children: [
             Obx(() {
-              return deviceController.loadingDevices.value
-                  ? Center(child: Center())
-                  : deviceController.gardenDevices.isEmpty
-                      ? Center(
-                          child: Text("Liste Boş"),
-                        )
-                      : WallLayout(
-                          stonePadding: 5,
-                          layersCount: 4,
-                          scrollDirection: Axis.vertical,
-                          stones: deviceController.gardenDevices
-                              .map((gardenDevice) {
-                            return Stone(
-                              id: gardenDevice.id,
-                              height: 1,
-                              width: 4,
-                              child: BahceSulamaCard(
-                                device: gardenDevice,
-                              ),
-                            );
-                          }).toList(),
+              return deviceController.gardenDevices.isEmpty
+                  ? Center(
+                      child: Text("Liste Boş"),
+                    )
+                  : WallLayout(
+                      stonePadding: 5,
+                      layersCount: 4,
+                      scrollDirection: Axis.vertical,
+                      stones:
+                          deviceController.gardenDevices.map((gardenDevice) {
+                        return Stone(
+                          id: gardenDevice.id,
+                          height: 1,
+                          width: 4,
+                          child: BahceSulamaCard(
+                            device: gardenDevice,
+                          ),
                         );
+                      }).toList(),
+                    );
             }),
           ],
         ),

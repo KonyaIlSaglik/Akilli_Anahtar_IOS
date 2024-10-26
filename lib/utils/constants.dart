@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:akilli_anahtar/pages/new_home/new_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:new_version_plus/new_version_plus.dart';
 import 'package:another_flushbar/flushbar.dart';
 
@@ -44,6 +45,26 @@ bool isJson(String data) {
   } catch (e) {
     return false;
   }
+}
+
+String getDate(String isoDate) {
+  // Parse the ISO 8601 string to DateTime
+  DateTime dateTime = DateTime.parse(isoDate);
+
+  // Format the DateTime to the desired format
+  String formattedDate = DateFormat('dd.MM.yyyy').format(dateTime);
+
+  return formattedDate;
+}
+
+String getTime(String isoDate) {
+  // Parse the ISO 8601 string to DateTime
+  DateTime dateTime = DateTime.parse(isoDate);
+
+  // Format the DateTime to the desired format
+  String formattedDate = DateFormat('HH:mm').format(dateTime);
+
+  return formattedDate;
 }
 
 exitApp(context) {
@@ -89,7 +110,7 @@ void successBar(BuildContext context, String title, String message) {
       Icons.done_outline,
       color: Colors.white,
     ),
-  )..show(context);
+  ).show(context);
 }
 
 errorSnackbar(String title, String message) {
