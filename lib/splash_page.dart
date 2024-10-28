@@ -32,7 +32,7 @@ class _SplashPageState extends State<SplashPage> {
         _authController.loginModel2.value.password.isEmpty) {
       Get.to(() => LoginPage());
     } else {
-      await _authController.login(_authController.loginModel2.value);
+      await _authController.login();
       if (_authController.isLoggedIn.value) {
         Get.to(() => HomePage());
       } else {

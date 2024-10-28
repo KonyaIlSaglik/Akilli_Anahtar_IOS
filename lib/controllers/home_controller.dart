@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 class HomeController extends GetxController {
   final AuthController _authController = Get.find();
 
-  var currentPage = homePage.obs;
+  var currentPage = favoritePage.obs;
   var selectedOrganisationId = 0.obs;
 
   List<Device> get controlDevices {

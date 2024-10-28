@@ -77,6 +77,8 @@ dependencies:
   dropdown_search: ^6.0.1
   modal_bottom_sheet: ^3.0.0
   another_flushbar: ^1.12.30
+  animated_toggle_switch: ^0.8.3
+  google_fonts: ^6.2.1
 
 flutter_icons:
   android: "launcher_icon"

@@ -72,20 +72,20 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> login(LoginModel2 lm2) async {
+  Future<void> login() async {
     isLoggedIn.value = false;
     isLoading.value = true;
     session.value = Session.empty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
-
     try {
-      await AuthService.login2(lm2);
+      await AuthService.login2(loginModel2.value);
+      print("object");
       if (session.value.accessToken.isNotEmpty) {
         await sessionManager.clear();
         await sessionManager.add(session.value);
         await loginManager2.clear();
-        await loginManager2.add(lm2);
+        await loginManager2.add(loginModel2.value);
         isLoggedIn.value = true;
       }
     } catch (e) {

@@ -38,77 +38,74 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     });
-    _authController.loadLoginInfo().then(
-      (value) {
-        usercon.text = _authController.loginModel2.value.userName;
-        passwordcon.text = _authController.loginModel2.value.password;
-      },
-    );
 
     Future.delayed(Duration.zero, () {
       if (_authController.allSessions.isNotEmpty) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              alignment: Alignment.centerLeft,
-              content: SizedBox(
-                width: width(context) * 0.90,
-                height: height(context) * 0.40,
-                child: Obx(
-                  () {
-                    return ListView.separated(
-                      itemBuilder: (context, i) {
-                        return ListTile(
-                          title: Text(
-                              _authController.allSessions[i].platformName ??
-                                  "Bilinmiyor"),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(getDate(
-                                  _authController.allSessions[i].loginTime)),
-                              Text(getTime(
-                                  _authController.allSessions[i].loginTime)),
-                            ],
-                          ),
-                          trailing: TextButton(
-                            child: Text("Sonlandır"),
-                            onPressed: () async {
-                              await _authController.logOut(
-                                _authController.allSessions[i].userId,
-                                _authController.allSessions[i].platformIdentity,
-                              );
-                              _authController.allSessions
-                                  .remove(_authController.allSessions[i]);
-                              if (_authController.allSessions.isEmpty) {
-                                Navigator.pop(context);
-                              }
-                            },
-                          ),
-                        );
-                      },
-                      separatorBuilder: (context, index) {
-                        return Divider();
-                      },
-                      itemCount: _authController.allSessions.length,
-                    );
-                  },
-                ),
-              ),
-              actions: [
-                TextButton(
-                  child: Text("Tekar dene"),
-                  onPressed: () {
-                    login(context);
-                  },
-                ),
-              ],
-            );
-          },
-        );
+        checkSessions();
       }
     });
+  }
+
+  void checkSessions() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          alignment: Alignment.centerLeft,
+          content: SizedBox(
+            width: width(context) * 0.90,
+            height: height(context) * 0.40,
+            child: Obx(
+              () {
+                return ListView.separated(
+                  itemBuilder: (context, i) {
+                    return ListTile(
+                      title: Text(_authController.allSessions[i].platformName ??
+                          "Bilinmiyor"),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(getDate(
+                              _authController.allSessions[i].loginTime)),
+                          Text(getTime(
+                              _authController.allSessions[i].loginTime)),
+                        ],
+                      ),
+                      trailing: TextButton(
+                        child: Text("Sonlandır"),
+                        onPressed: () async {
+                          await _authController.logOut(
+                            _authController.allSessions[i].userId,
+                            _authController.allSessions[i].platformIdentity,
+                          );
+                          _authController.allSessions
+                              .remove(_authController.allSessions[i]);
+                          if (_authController.allSessions.isEmpty) {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return Divider();
+                  },
+                  itemCount: _authController.allSessions.length,
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text("Vazgeç"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   sifemiUnuttumDialog() {
@@ -187,8 +184,10 @@ class _LoginPageState extends State<LoginPage> {
     }
     _authController.loginModel2.value.userName = usercon.text;
     _authController.loginModel2.value.password = passwordcon.text;
-    await _authController.login(_authController.loginModel2.value);
-
+    await _authController.login();
+    if (_authController.allSessions.isNotEmpty) {
+      checkSessions();
+    }
     if (_authController.isLoggedIn.value) {
       Get.to(() => HomePage());
     } else {

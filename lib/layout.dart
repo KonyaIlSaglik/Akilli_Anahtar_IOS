@@ -1,5 +1,6 @@
 import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/pages/home/drawer_page.dart';
+import 'package:akilli_anahtar/pages/new_home/new_home_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -25,35 +26,36 @@ class _LayoutState extends State<Layout> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            shadowColor: Colors.black,
-            elevation: 10,
-            title: Text(
-              "AKILLI ANAHTAR",
-              style: width(context) < minWidth
-                  ? textTheme(context).titleMedium!
-                  : textTheme(context).titleLarge!,
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        shadowColor: Colors.black,
+        iconTheme: IconThemeData(
+          size: 30,
+          color: Colors.deepPurple,
+        ),
+        elevation: 10,
+        title: Text(
+          "AKILLI ANAHTAR",
+          style: width(context) < minWidth
+              ? textTheme(context).titleMedium!
+              : textTheme(context).titleLarge!,
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              FontAwesomeIcons.bell,
+              size: 30,
+              color: Colors.deepPurple,
             ),
-            actions: [
-              IconButton(
-                icon: Icon(
-                  FontAwesomeIcons.bell,
-                  size: 30,
-                ),
-                onPressed: () {
-                  //
-                },
-              )
-            ],
-          ),
-          drawer: DrawerPage(),
-          body: pagesList[homeController.currentPage.value],
-        );
-      },
+            onPressed: () {
+              //
+            },
+          )
+        ],
+      ),
+      drawer: DrawerPage(),
+      body: NewHomePage(),
     );
   }
 }

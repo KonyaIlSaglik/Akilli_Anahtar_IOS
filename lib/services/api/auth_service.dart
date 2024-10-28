@@ -46,17 +46,24 @@ class AuthService {
 
   static Future<void> login2(LoginModel2 loginModel) async {
     AuthController authController = Get.find();
+    print("$url/login2");
+    print(loginModel.toJson());
     var uri = Uri.parse("$url/login2");
     var client = http.Client();
     try {
-      var response = await client.post(
-        uri,
-        headers: {
-          'content-type': 'application/json; charset=utf-8',
-        },
-        body: loginModel.toJson(),
-      );
+      var response = await client
+          .post(
+            uri,
+            headers: {
+              'content-type': 'application/json; charset=utf-8',
+            },
+            body: loginModel.toJson(),
+          )
+          .timeout(Duration(seconds: 15));
       client.close();
+      print(response.statusCode);
+      print(response.body);
+
       if (response.statusCode == 200) {
         var data = json.decode(response.body) as Map<String, dynamic>;
         var session = Session.fromJson(json.encode(data["session"]));

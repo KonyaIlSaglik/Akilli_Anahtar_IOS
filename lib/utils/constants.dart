@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:akilli_anahtar/pages/new_home/new_home_page.dart';
+import 'package:akilli_anahtar/pages/new_home/body/favorite_page.dart';
+import 'package:akilli_anahtar/pages/new_home/body/test_body.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -106,6 +107,8 @@ void successBar(BuildContext context, String title, String message) {
     backgroundColor: Colors.green,
     titleColor: Colors.white,
     messageColor: Colors.white,
+    flushbarPosition: FlushbarPosition.TOP,
+    duration: Duration(seconds: 10),
     icon: Icon(
       Icons.done_outline,
       color: Colors.white,
@@ -151,13 +154,15 @@ infoSnackbar(String title, String message) {
 
 Color primaryColor = Colors.deepPurple[900]!;
 const double minWidth = 361;
-textTheme(context) => Theme.of(context).textTheme;
+TextTheme textTheme(context) => Theme.of(context).textTheme;
 width(context) => MediaQuery.sizeOf(context).width;
 height(context) => MediaQuery.sizeOf(context).height;
 
-const String homePage = "home";
+const String testPage = "test";
+const String favoritePage = "favorites";
 
 const Map<String, Widget> pagesList = {
-  homePage: NewHomePage(),
+  testPage: TestBody(),
+  favoritePage: FavoritePage(),
   //ziyaretlerPage: Ziyaretler(),
 };
