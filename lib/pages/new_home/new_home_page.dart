@@ -31,60 +31,31 @@ class _NewHomePageState extends State<NewHomePage> {
                 children: [
                   SizedBox(height: height(context) * 0.02),
                   ProfilCard(),
-                  if (index != 0)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              FontAwesomeIcons.building,
-                              color: Colors.deepPurple,
-                              size: height(context) * 0.03,
-                            ),
-                            SizedBox(width: width(context) * 0.01),
-                            Text(
-                              "Konya İl Sağlık Müdürlüğü",
-                              style: textTheme(context).titleMedium,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                        TextButton(
-                          child: Text(
-                            "Değiştir",
-                            style: textTheme(context)
-                                .titleSmall!
-                                .copyWith(color: Colors.deepPurple),
-                          ),
-                          onPressed: () {
-                            //
-                          },
-                        ),
-                      ],
-                    ),
                   SizedBox(height: height(context) * 0.01),
-                  pagesList[homeController.currentPage.value]!,
+                  Expanded(
+                    child: pagesList[homeController.currentPage.value]!,
+                  ),
                 ],
               );
             },
           ),
         ),
         bottomNavigationBar: BottomNavigationBar(
-          currentIndex: index,
+          currentIndex:
+              homeController.currentPage.value == favoritePage ? 0 : 1,
           onTap: (value) {
-            setState(() {
-              index = value;
-            });
             switch (value) {
               case 0:
                 homeController.currentPage.value = favoritePage;
+                homeController.savePageChanges();
                 break;
               case 1:
                 homeController.currentPage.value = testPage;
+                homeController.savePageChanges();
                 break;
               default:
             }
+            setState(() {});
           },
           items: [
             BottomNavigationBarItem(

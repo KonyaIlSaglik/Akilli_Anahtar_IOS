@@ -1,6 +1,6 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/device_management_controller.dart';
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
@@ -21,7 +21,7 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
   BoxManagementController boxManagementController = Get.find();
   late DeviceManagementController deviceManagementController = Get.find();
   MqttController mqttController = Get.find();
-  AuthController authController = Get.find();
+  HomeController homeController = Get.find();
   final _formKey = GlobalKey<FormState>();
   late String boxName;
   late String chipId;
@@ -160,11 +160,11 @@ class _BoxAddEditPageState extends State<BoxAddEditPage> {
                       ),
                       hint: Text("Kurum Seç"),
                       value: organisationId > 0
-                          ? authController.organisations.singleWhere(
+                          ? homeController.organisations.singleWhere(
                               (o) => o.id == organisationId,
                             )
                           : null,
-                      items: authController.organisations.map(
+                      items: homeController.organisations.map(
                         (organisation) {
                           return DropdownMenuItem<Organisation>(
                             value: organisation,

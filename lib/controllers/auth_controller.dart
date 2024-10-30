@@ -1,9 +1,4 @@
-import 'dart:io';
-
-import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
-import 'package:akilli_anahtar/entities/organisation.dart';
-import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/login_model2.dart';
@@ -13,7 +8,6 @@ import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
@@ -34,9 +28,6 @@ class AuthController extends GetxController {
   var allSessions = <Session>[].obs;
   var user = User().obs;
   var operationClaims = <OperationClaim>[].obs;
-  var parameters = <Parameter>[].obs;
-  var organisations = <Organisation>[].obs;
-  var devices = <Device>[].obs;
 
   // Future<void> loadToken() async {
   //   await sessionManager.init();
@@ -146,34 +137,5 @@ class AuthController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  Future<String> getDeviceId() async {
-    var info = DeviceInfoPlugin();
-    String deviceId = "";
-    if (Platform.isAndroid) {
-      var androidInfo = await info.androidInfo;
-      deviceId = androidInfo.id;
-    }
-    if (Platform.isIOS) {
-      var iosInfo = await info.iosInfo;
-      deviceId =
-          iosInfo.identifierForVendor ?? "${iosInfo.name}-${iosInfo.model}";
-    }
-    return deviceId;
-  }
-
-  Future<String> getDeviceName() async {
-    var info = DeviceInfoPlugin();
-    String deviceName = "";
-    if (Platform.isAndroid) {
-      var androidInfo = await info.androidInfo;
-      deviceName = "${androidInfo.brand} ${androidInfo.model}";
-    }
-    if (Platform.isIOS) {
-      var iosInfo = await info.iosInfo;
-      deviceName = "I Phone ${iosInfo.name}";
-    }
-    return deviceName;
   }
 }

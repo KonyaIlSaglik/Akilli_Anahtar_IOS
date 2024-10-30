@@ -1,24 +1,17 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
+import 'package:akilli_anahtar/entities/device.dart';
+import 'package:akilli_anahtar/pages/new_home/body/card_devices/barrier_device.dart';
+import 'package:akilli_anahtar/pages/new_home/body/card_devices/garden_device.dart';
+import 'package:akilli_anahtar/pages/new_home/body/card_devices/rf_transmitter_device.dart';
+import 'package:akilli_anahtar/pages/new_home/body/card_devices/sensor_device.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:akilli_anahtar/utils/constants.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CustomDeviceCard extends StatefulWidget {
-  final String title;
-  final String status;
-  final String? unit;
-  final IconData iconData;
-  final Color iconColor;
+  final Device device;
   const CustomDeviceCard({
     super.key,
-    required this.title,
-    required this.status,
-    this.unit,
-    required this.iconData,
-    required this.iconColor,
+    required this.device,
   });
 
   @override
@@ -26,148 +19,45 @@ class CustomDeviceCard extends StatefulWidget {
 }
 
 class _CustomDeviceCardState extends State<CustomDeviceCard> {
-  bool positive = false;
-  bool loading = false;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: width(context) * 0.45,
       height: width(context) * 0.45,
-      child: Card.outlined(
-        elevation: 10,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(
-                    widget.iconData,
-                    shadows: <Shadow>[
-                      Shadow(color: widget.iconColor, blurRadius: 15.0)
-                    ],
-                    size: width(context) * 0.07,
-                    color: Colors.white70,
-                  ),
-                  if (widget.unit != null)
-                    Text(
-                      widget.unit ?? "",
-                      style: textTheme(context).titleLarge,
-                    ),
-                ],
-              ),
-              SizedBox(height: 20),
-              if (widget.status == "1") _switch(),
-              if (widget.status != "1")
-                Text(
-                  widget.status,
-                  style: textTheme(context).displaySmall,
-                ),
-              SizedBox(height: 20),
-              Text(
-                widget.title,
-                style: textTheme(context).titleMedium,
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: selectDevice(widget.device),
     );
   }
 
-  _switch() {
-    return AnimatedToggleSwitch<bool>.dual(
-      current: positive,
-      first: false,
-      second: true,
-      spacing: 0.0,
-      loading: loading,
-      animationDuration: const Duration(milliseconds: 600),
-      style: const ToggleStyle(
-        borderColor: Colors.transparent,
-        indicatorColor: Colors.white,
-        backgroundColor: Colors.amber,
-      ),
-      customStyleBuilder: (context, local, global) => ToggleStyle(
-        backgroundColor: positive ? Colors.green : Colors.red,
-      ),
-      height: width(context) * 0.12,
-      loadingIconBuilder: (context, global) => CupertinoActivityIndicator(
-          color: Color.lerp(Colors.blue, Colors.blue, global.spacing)),
-      active: !positive && !loading,
-      onChanged: (b) async {
-        setState(() {
-          positive = true; // Set to true
-          loading = true; // Start loading
-        });
-
-        await Future<dynamic>.delayed(
-            const Duration(seconds: 5)); // Wait for 10 seconds
-
-        setState(() {
-          positive = true; // Set back to false
-          loading = false;
-        });
-
-        await Future<dynamic>.delayed(
-            const Duration(seconds: 5)); // Wait for another 10 seconds
-
-        setState(() {
-          positive = false;
-          loading = true; // End loading
-        });
-
-        await Future<dynamic>.delayed(
-            const Duration(seconds: 5)); // Wait for another 10 seconds
-
-        setState(() {
-          positive = false;
-          loading = false; // End loading
-        });
-      },
-      iconBuilder: (value) => value
-          ? const Icon(
-              FontAwesomeIcons.powerOff,
-              color: Colors.green,
-              size: 32.0,
-            )
-          : const Icon(
-              FontAwesomeIcons.powerOff,
-              color: Colors.red,
-              size: 32.0,
-            ),
-    );
-  }
-
-  _card1() {
-    return Card(
-      elevation: 10,
-      child: Column(
-        children: [
-          SizedBox(
-            height: 20,
-          ),
-          Icon(
-            widget.iconData,
-            shadows: <Shadow>[
-              Shadow(color: widget.iconColor, blurRadius: 15.0)
-            ],
-            size: 40,
-            color: Colors.white70,
-          ),
-          SizedBox(height: 20),
-          Text(
-            widget.title,
-            style: textTheme(context).titleMedium,
-          ),
-          SizedBox(height: 20),
-          Text(
-            widget.status,
-            style: textTheme(context).titleLarge,
-          ),
-        ],
-      ),
-    );
+  selectDevice(Device device) {
+    switch (device.typeId) {
+      case 1:
+        return SensorDevice(
+          device: device,
+        );
+      case 4:
+        return BarrierDevice(
+          device: device,
+        );
+      case 5:
+        return SensorDevice(
+          device: device,
+        );
+      case 6:
+        return RfTransmitterDevice(
+          device: device,
+        );
+      case 7:
+        return SensorDevice(
+          device: device,
+        );
+      case 8:
+        return GardenDevice(
+          device: device,
+        );
+      default:
+        return SensorDevice(
+          device: device,
+        );
+    }
   }
 }

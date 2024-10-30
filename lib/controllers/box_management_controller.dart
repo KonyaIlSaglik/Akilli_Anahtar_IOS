@@ -1,4 +1,3 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
@@ -11,7 +10,6 @@ import 'package:turkish/turkish.dart';
 class BoxManagementController extends GetxController {
   MqttController mqttController = Get.find();
   HomeController homeController = Get.find();
-  AuthController authController = Get.find();
   var boxes = <Box>[].obs;
   var selectedSortOption = "Cihaz Adı".obs;
   var selectedBox = Box().obs;
@@ -66,7 +64,7 @@ class BoxManagementController extends GetxController {
           },
         );
         mqttController.subscribeToTopic(box.topicRes);
-        box.organisationName = authController.organisations
+        box.organisationName = homeController.organisations
             .singleWhere((o) => o.id == box.organisationId)
             .name;
         if (newVersion.value.version.isNotEmpty) {

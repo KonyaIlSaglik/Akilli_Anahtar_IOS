@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,6 +14,8 @@ class ProfilCard extends StatefulWidget {
 
 class _ProfilCardState extends State<ProfilCard> {
   AuthController authController = Get.find();
+  HomeController homeController = Get.find();
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -37,7 +40,13 @@ class _ProfilCardState extends State<ProfilCard> {
                           color: Colors.deepPurple,
                         ),
                         Text(
-                          "KONYA",
+                          homeController.cities
+                              .singleWhere(
+                                (c) =>
+                                    c.id ==
+                                    homeController.organisations.first.cityId,
+                              )
+                              .name,
                           style: textTheme(context).titleMedium,
                         )
                       ],

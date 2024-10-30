@@ -7,6 +7,7 @@ class Device {
   int typeId;
   String? typeName;
   int boxId;
+  String boxName;
   int organisationId;
   String topicStat;
   String? topicRec;
@@ -29,6 +30,7 @@ class Device {
   double? criticalMinValue;
   double? criticalMaxValue;
   int? repeatTransmit;
+  int favoriteSequence;
 
   Device({
     this.id = 0,
@@ -36,6 +38,7 @@ class Device {
     this.typeId = 0,
     this.typeName,
     this.boxId = 0,
+    this.boxName = "",
     this.organisationId = 0,
     this.topicStat = "",
     this.topicRec,
@@ -58,6 +61,7 @@ class Device {
     this.criticalMinValue,
     this.criticalMaxValue,
     this.repeatTransmit,
+    this.favoriteSequence = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -67,6 +71,7 @@ class Device {
       'typeId': typeId,
       'typeName': typeName,
       'boxId': boxId,
+      'boxName': boxName,
       'organisationId': organisationId,
       'topicStat': topicStat,
       'topicRec': topicRec,
@@ -89,6 +94,7 @@ class Device {
       'criticalMinValue': criticalMinValue,
       'criticalMaxValue': criticalMaxValue,
       'repeatTransmit': repeatTransmit,
+      'favoriteSequence': favoriteSequence,
     };
   }
 
@@ -99,6 +105,7 @@ class Device {
       typeId: map['typeId'] as int,
       typeName: map['typeName'] != null ? map['typeName'] as String : null,
       boxId: map['boxId'] as int,
+      boxName: map['boxName'] as String,
       organisationId: map['organisationId'] as int,
       topicStat: map['topicStat'] as String,
       topicRec: map['topicRec'] != null ? map['topicRec'] as String : null,
@@ -140,6 +147,8 @@ class Device {
           : null,
       repeatTransmit:
           map['repeatTransmit'] != null ? map['repeatTransmit'] as int : null,
+      favoriteSequence:
+          map['favoriteSequence'] != null ? map['favoriteSequence'] as int : 0,
     );
   }
 

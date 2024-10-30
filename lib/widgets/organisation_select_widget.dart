@@ -1,4 +1,3 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -16,8 +15,7 @@ class OrganisationSelectWidget extends StatefulWidget {
 }
 
 class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
-  HomeController homeControl = Get.find();
-  AuthController authController = Get.find();
+  HomeController homeController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -35,14 +33,14 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
             showSearchBox: true,
           ),
           items: (filter, loadProps) {
-            return authController.organisations;
+            return homeController.organisations;
           },
-          selectedItem: authController.organisations.firstWhereOrNull(
-              (o) => o.id == homeControl.selectedOrganisationId.value),
+          selectedItem: homeController.organisations.firstWhereOrNull(
+              (o) => o.id == homeController.selectedOrganisationId.value),
           itemAsString: (item) => item.name,
           onChanged: (value) {
             if (value != null) {
-              homeControl.selectedOrganisationId.value = value.id;
+              homeController.selectedOrganisationId.value = value.id;
               widget.onChanged();
             }
           },
@@ -71,7 +69,7 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
                     icon: Icon(Icons.clear),
                     onPressed: () {
                       // Clear selection
-                      homeControl.selectedOrganisationId.value = 0;
+                      homeController.selectedOrganisationId.value = 0;
                       widget.onChanged();
                     },
                   ),

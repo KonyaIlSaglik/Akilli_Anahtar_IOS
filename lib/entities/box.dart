@@ -9,6 +9,7 @@ class Box {
   String topicRec;
   String topicRes;
   String version;
+  String localIp;
   int restartTimeout;
   bool isSub = false;
   String? organisationName;
@@ -25,6 +26,7 @@ class Box {
     this.topicRec = "",
     this.topicRes = "",
     this.version = "",
+    this.localIp = "",
     this.restartTimeout = 0,
   });
 

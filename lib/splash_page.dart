@@ -1,5 +1,6 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/connectivity_controller.dart';
+import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -23,6 +24,7 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     print("SplashPage started");
     Get.put(ConnectivityController());
+    Get.put(HomeController());
     init();
   }
 

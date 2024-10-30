@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/home_controller.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
@@ -43,16 +44,16 @@ class MqttController extends GetxController {
     //     paramsManager.addList(params);
     //   }
     // }
-    AuthController authController = Get.find();
-    var deviceId = await authController.getDeviceId();
+    HomeController homeController = Get.find();
+    var deviceId = await getDeviceId();
     var now = DateTime.now().toString();
     var identifier = "$deviceId-$now";
-    if (authController.parameters.isNotEmpty) {
-      var host = authController.parameters
+    if (homeController.parameters.isNotEmpty) {
+      var host = homeController.parameters
           .firstWhere((p) => p.name == "mqtt_host_public")
           .value;
       client = MqttServerClient(host, identifier);
-      client.port = int.tryParse(authController.parameters
+      client.port = int.tryParse(homeController.parameters
               .firstWhere((p) => p.name == "mqtt_port")
               .value) ??
           1883;
@@ -65,10 +66,10 @@ class MqttController extends GetxController {
       client.pongCallback = pong;
       final MqttConnectMessage connMess = MqttConnectMessage()
           .authenticateAs(
-            authController.parameters
+            homeController.parameters
                 .firstWhere((p) => p.name == "mqtt_user")
                 .value,
-            authController.parameters
+            homeController.parameters
                 .firstWhere((p) => p.name == "mqtt_password")
                 .value,
           )
@@ -77,7 +78,7 @@ class MqttController extends GetxController {
           .withWillQos(MqttQos.atMostOnce);
       client.connectionMessage = connMess;
 
-      globalTopic.value = authController.parameters
+      globalTopic.value = homeController.parameters
           .firstWhere((p) => p.name == "mqtt_session_topic")
           .value;
     }

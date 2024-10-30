@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:akilli_anahtar/pages/new_home/body/favorite_page.dart';
 import 'package:akilli_anahtar/pages/new_home/body/test_body.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -37,6 +38,35 @@ Future<void> checkNewVersion(context, showForce) async {
       versionStatus: versionStatus,
     );
   }
+}
+
+Future<String> getDeviceId() async {
+  var info = DeviceInfoPlugin();
+  String deviceId = "";
+  if (Platform.isAndroid) {
+    var androidInfo = await info.androidInfo;
+    deviceId = androidInfo.id;
+  }
+  if (Platform.isIOS) {
+    var iosInfo = await info.iosInfo;
+    deviceId =
+        iosInfo.identifierForVendor ?? "${iosInfo.name}-${iosInfo.model}";
+  }
+  return deviceId;
+}
+
+Future<String> getDeviceName() async {
+  var info = DeviceInfoPlugin();
+  String deviceName = "";
+  if (Platform.isAndroid) {
+    var androidInfo = await info.androidInfo;
+    deviceName = "${androidInfo.brand} ${androidInfo.model}";
+  }
+  if (Platform.isIOS) {
+    var iosInfo = await info.iosInfo;
+    deviceName = "I Phone ${iosInfo.name}";
+  }
+  return deviceName;
 }
 
 bool isJson(String data) {
