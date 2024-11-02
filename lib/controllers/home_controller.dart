@@ -4,13 +4,12 @@ import 'package:akilli_anahtar/entities/district.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/models/device_group_by_box.dart';
+import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
 
 class HomeController extends GetxController {
-  var currentPage = "".obs;
   var selectedOrganisationId = 0.obs;
 
   var parameters = <Parameter>[].obs;
@@ -25,16 +24,20 @@ class HomeController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    currentPage.value = testPage;
-    var page = await LocalDb.get("currentPage");
-    if (page != null) {
-      currentPage.value = page;
-    }
     selectedOrganisationId.value = 0;
     var oId = await LocalDb.get("selectedOrganisationId");
     if (oId != null) {
       selectedOrganisationId.value = int.tryParse(oId) ?? 0;
     }
+  }
+
+  saveOrganisationChanges() async {
+    await LocalDb.add(
+        "selectedOrganisationId", selectedOrganisationId.value.toString());
+  }
+
+  Future<void> getData() async {
+    await AuthService.getData();
   }
 
   List<Device> get controlDevices {
@@ -45,12 +48,6 @@ class HomeController extends GetxController {
         )
         .toList();
     return selectedOrganisationId.value == 0 ? cd : cd;
-  }
-
-  savePageChanges() async {
-    await LocalDb.add("currentPage", currentPage.value);
-    await LocalDb.add(
-        "selectedOrganisationId", selectedOrganisationId.value.toString());
   }
 
   List<Device> get sensorDevices {
@@ -99,6 +96,7 @@ class HomeController extends GetxController {
     var newList = <DeviceGroupByBox>[];
     for (var boxName in boxNames) {
       newList.add(DeviceGroupByBox(
+          expanded: false,
           boxName: boxName,
           devices: list
               .where(

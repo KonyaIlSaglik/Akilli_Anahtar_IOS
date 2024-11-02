@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/connectivity_controller.dart';
-import 'package:akilli_anahtar/controllers/home_controller.dart';
+import 'package:akilli_anahtar/controllers/login_controller.dart';
+import 'package:akilli_anahtar/controllers/pager_controller.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -17,25 +17,27 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   bool load = false;
-  final AuthController _authController = Get.put(AuthController());
 
   @override
   void initState() {
     super.initState();
     print("SplashPage started");
-    Get.put(ConnectivityController());
-    Get.put(HomeController());
     init();
   }
 
   init() async {
-    await _authController.loadLoginInfo();
-    if (_authController.loginModel2.value.userName.isEmpty ||
-        _authController.loginModel2.value.password.isEmpty) {
-      Get.to(() => LoginPage());
+    Get.put(PagerController());
+    final LoginController loginController = Get.put(LoginController());
+    await loginController.loadLoginInfo();
+    if (loginController.userName.value.isEmpty ||
+        loginController.password.value.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.to(() => LoginPage());
+      });
     } else {
-      await _authController.login();
-      if (_authController.isLoggedIn.value) {
+      AuthController authController = Get.put(AuthController());
+      await authController.login();
+      if (authController.isLoggedIn.value) {
         Get.to(() => HomePage());
       } else {
         Get.to(() => LoginPage());
@@ -43,17 +45,6 @@ class _SplashPageState extends State<SplashPage> {
     }
 
     checkNewVersion(context, false);
-    // await _authController.loadToken();
-    // if (_authController.isLoggedIn.value) {
-    //   Get.put(MqttController());
-    //   await _authController.getUser();
-    //   print("Go to HomePage");
-    //   Get.to(() => HomePage());
-    //   //Get.to(() => BoxIndexPage());
-    // } else {
-    //   print("Go to LoginPage");
-    //   Get.to(() => LoginPage());
-    // }
   }
 
   @override

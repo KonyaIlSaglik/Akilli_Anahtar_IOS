@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
-          textTheme: GoogleFonts.srirachaTextTheme(),
+          textTheme: GoogleFonts.robotoTextTheme(),
           primaryColor: goldColor,
           primarySwatch: goldMaterial,
           dialogTheme: Theme.of(context)

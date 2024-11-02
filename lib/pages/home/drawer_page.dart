@@ -1,15 +1,16 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/pager_controller.dart';
 import 'package:akilli_anahtar/layout.dart';
 import 'package:akilli_anahtar/pages/user_manager/user_list_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_list_page.dart';
 import 'package:akilli_anahtar/pages/box_install/introduction_page.dart';
+import 'package:akilli_anahtar/widgets/version_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 class DrawerPage extends StatefulWidget {
   DrawerPage({
@@ -21,18 +22,12 @@ class DrawerPage extends StatefulWidget {
 }
 
 class _DrawerPageState extends State<DrawerPage> {
-  final AuthController _authController = Get.find<AuthController>();
-  String version = "-";
+  final AuthController _authController = Get.find();
+  final PagerController pagerController = Get.find();
   @override
   void initState() {
     super.initState();
-    PackageInfo.fromPlatform().then(
-      (info) {
-        setState(() {
-          version = info.version;
-        });
-      },
-    );
+    print("Drawer initialized");
   }
 
   @override
@@ -208,12 +203,7 @@ class _DrawerPageState extends State<DrawerPage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
-                child: Text(
-                  "V$version",
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
+                child: VersionText(),
               ),
             ],
           ),

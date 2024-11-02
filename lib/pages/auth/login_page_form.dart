@@ -1,0 +1,113 @@
+import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/login_controller.dart';
+import 'package:akilli_anahtar/layout.dart';
+import 'package:akilli_anahtar/pages/auth/login_page_form_input_text.dart';
+import 'package:akilli_anahtar/pages/auth/login_page_form_privacy_policy.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class LoginPageForm extends StatefulWidget {
+  const LoginPageForm({super.key});
+
+  @override
+  State<LoginPageForm> createState() => _LoginPageFormState();
+}
+
+class _LoginPageFormState extends State<LoginPageForm> {
+  LoginController loginController = Get.find();
+  final TextEditingController userNameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  final formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    print("LoginPageForm initialized");
+    userNameController.text = loginController.userName.value;
+    passwordController.text = loginController.password.value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () {
+        return Form(
+          key: formKey,
+          child: Column(
+            children: [
+              SizedBox(
+                height: height(context) * 0.07,
+                width: width(context) * 0.90,
+                child: LoginPageFormInputText(
+                  controller: userNameController,
+                ),
+              ),
+              SizedBox(
+                height: height(context) * 0.01,
+              ),
+              SizedBox(
+                height: height(context) * 0.07,
+                width: width(context) * 0.90,
+                child: LoginPageFormInputText(
+                  controller: passwordController,
+                  isPassword: true,
+                ),
+              ),
+              SizedBox(
+                height: height(context) * 0.01,
+              ),
+              SizedBox(
+                height: height(context) * 0.05,
+                child: LoginPageFormPrivacyPolicy(),
+              ),
+              SizedBox(
+                height: height(context) * 0.02,
+              ),
+              SizedBox(
+                height: height(context) * 0.07,
+                width: width(context) * 0.50,
+                child: InkWell(
+                  onTap: loginController.privacyPolicy.value
+                      ? () async {
+                          if (formKey.currentState!.validate()) {
+                            loginController.userName.value =
+                                userNameController.text;
+                            loginController.password.value =
+                                passwordController.text;
+                            AuthController authController =
+                                Get.put(AuthController());
+                            await authController.login();
+                            if (authController.isLoggedIn.value) {
+                              Get.to(() => Layout());
+                            } else {
+                              authController.checkSessions(context);
+                              passwordController.text = "";
+                            }
+                          }
+                        }
+                      : null,
+                  child: Card.outlined(
+                    elevation: loginController.privacyPolicy.value ? 10 : 10,
+                    color: loginController.privacyPolicy.value
+                        ? goldColor.withOpacity(0.7)
+                        : goldColor.withOpacity(0.3),
+                    child: Center(
+                      child: Text(
+                        "GİRİŞ",
+                        style: textTheme(context)
+                            .headlineLarge!
+                            .copyWith(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}

@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -137,37 +136,6 @@ class _CustomDeviceCardState extends State<CustomDeviceCard> {
               color: Colors.red,
               size: 32.0,
             ),
-    );
-  }
-
-  _card1() {
-    return Card(
-      elevation: 10,
-      child: Column(
-        children: [
-          SizedBox(
-            height: 20,
-          ),
-          Icon(
-            widget.iconData,
-            shadows: <Shadow>[
-              Shadow(color: widget.iconColor, blurRadius: 15.0)
-            ],
-            size: 40,
-            color: Colors.white70,
-          ),
-          SizedBox(height: 20),
-          Text(
-            widget.title,
-            style: textTheme(context).titleMedium,
-          ),
-          SizedBox(height: 20),
-          Text(
-            widget.status,
-            style: textTheme(context).titleLarge,
-          ),
-        ],
-      ),
     );
   }
 }

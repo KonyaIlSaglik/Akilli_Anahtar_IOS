@@ -134,9 +134,6 @@ class _GardenDeviceState extends State<GardenDevice> {
           color: Color.lerp(Colors.blue, Colors.blue, global.spacing)),
       active: true,
       onTap: (props) {
-        setState(() {
-          status = status == "0" ? "1" : "0";
-        });
         sendMessage();
       },
       iconBuilder: (value) => value
@@ -155,7 +152,8 @@ class _GardenDeviceState extends State<GardenDevice> {
 
   sendMessage() {
     if (_mqttController.isConnected.value) {
-      _mqttController.publishMessage(device.topicRec!, "0");
+      _mqttController.publishMessage(
+          device.topicRec!, status == "0" ? "1" : "0");
     }
   }
 }

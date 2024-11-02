@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/controllers/home_controller.dart';
+import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/home/drawer_page.dart';
 import 'package:akilli_anahtar/pages/new_home/new_home_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -14,14 +15,12 @@ class Layout extends StatefulWidget {
 }
 
 class _LayoutState extends State<Layout> {
-  HomeController homeController = Get.put(HomeController());
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      successBar(context, "AAA", "Yeni Anasayfa");
-    });
+    print("Layout Created");
+    Get.put(HomeController());
+    Get.put(MqttController);
   }
 
   @override

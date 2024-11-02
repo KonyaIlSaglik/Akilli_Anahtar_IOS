@@ -70,7 +70,7 @@ class _OrganisationSelectListState extends State<OrganisationSelectList> {
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 8.0),
                                   child: Text(
-                                    "Kurum Listesi",
+                                    "Lokasyon Listesi",
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -105,7 +105,7 @@ class _OrganisationSelectListState extends State<OrganisationSelectList> {
                                                     .selectedOrganisationId
                                                     .value = o.id;
                                                 homeController
-                                                    .savePageChanges();
+                                                    .saveOrganisationChanges();
                                                 homeController.groupDevices();
                                                 Navigator.pop(context);
                                               },

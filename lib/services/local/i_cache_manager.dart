@@ -35,7 +35,7 @@ class CacheManager<T> {
 
   T? get() {
     if (box!.values.isNotEmpty) {
-      print("$key: value getted");
+      print("$key: ${box!.values.length} value getted");
       return box?.values.first;
     }
     print("$key: value empty");

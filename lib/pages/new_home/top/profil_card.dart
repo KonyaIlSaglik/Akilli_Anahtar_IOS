@@ -17,6 +17,12 @@ class _ProfilCardState extends State<ProfilCard> {
   HomeController homeController = Get.find();
 
   @override
+  void initState() {
+    super.initState();
+    print(homeController.cities.length);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: height(context) * 0.20,

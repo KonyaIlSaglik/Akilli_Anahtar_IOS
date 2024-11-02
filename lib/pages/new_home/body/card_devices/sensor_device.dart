@@ -30,23 +30,25 @@ class _SensorDeviceState extends State<SensorDevice> {
 
     _mqttController.onMessage((topic, message) {
       if (topic == device.topicStat) {
-        var result = json.decode(message);
-        if (mounted) {
-          setState(() {
-            status = result["deger"].toString();
-          });
-          if (device.typeId == 1) {
-            var deger = (result["deger"] is num)
-                ? (result["deger"] as num).toDouble()
-                : null;
-            //var id = result["device_id"] as int?;
-            if (deger != null &&
-                (device.normalMinValue != null ||
-                    device.normalMaxValue != null)) {
-              setState(() {
-                onAlarm = deger < device.normalMinValue! ||
-                    deger > device.normalMaxValue!;
-              });
+        if (message.contains("{")) {
+          var result = json.decode(message);
+          if (mounted) {
+            setState(() {
+              status = result["deger"].toString();
+            });
+            if (device.typeId == 1) {
+              var deger = (result["deger"] is num)
+                  ? (result["deger"] as num).toDouble()
+                  : null;
+              //var id = result["device_id"] as int?;
+              if (deger != null &&
+                  (device.normalMinValue != null ||
+                      device.normalMaxValue != null)) {
+                setState(() {
+                  onAlarm = deger < device.normalMinValue! ||
+                      deger > device.normalMaxValue!;
+                });
+              }
             }
           }
         }

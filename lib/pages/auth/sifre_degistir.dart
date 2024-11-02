@@ -34,7 +34,7 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
         keboardVisible = visible;
       });
     });
-    oldPasswordCont.text = _authController.loginModel2.value.password;
+    //oldPasswordCont.text = _authController.loginModel2.value.password;
   }
 
   @override
@@ -152,10 +152,10 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
   }
 
   sifreDegistir(context) async {
-    if (oldPasswordCont.text != _authController.loginModel2.value.password) {
-      errorSnackbar("Hata", "Eski şifre hatalı.");
-      return;
-    }
+    // if (oldPasswordCont.text != _authController.loginModel2.value.password) {
+    //   errorSnackbar("Hata", "Eski şifre hatalı.");
+    //   return;
+    // }
     if (oldPasswordCont.text.isEmpty) {
       errorSnackbar("Hata", "Eski şifre boş olamaz.");
       return;
@@ -172,10 +172,10 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
     await _authController.changePassword(
         oldPasswordCont.text, newPasswordCont.text);
 
-    if (_authController.isChanged.value) {
-      oldPasswordCont.text = _authController.loginModel2.value.password;
-      infoSnackbar("Bilgilendirme", "Şifre Değiştirildi");
-    }
+    // if (_authController.isChanged.value) {
+    //   oldPasswordCont.text = _authController.loginModel2.value.password;
+    //   infoSnackbar("Bilgilendirme", "Şifre Değiştirildi");
+    // }
 
     newPasswordCont.text = "";
     newPasswordAgainCont.text = "";

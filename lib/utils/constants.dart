@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:akilli_anahtar/pages/new_home/body/favorite_page.dart';
-import 'package:akilli_anahtar/pages/new_home/body/test_body.dart';
+import 'package:akilli_anahtar/pages/new_home/body/grouped_page.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -188,11 +188,11 @@ TextTheme textTheme(context) => Theme.of(context).textTheme;
 width(context) => MediaQuery.sizeOf(context).width;
 height(context) => MediaQuery.sizeOf(context).height;
 
-const String testPage = "test";
+const String groupedPage = "grouped";
 const String favoritePage = "favorites";
 
 const Map<String, Widget> pagesList = {
-  testPage: TestBody(),
+  groupedPage: GroupedPage(),
   favoritePage: FavoritePage(),
   //ziyaretlerPage: Ziyaretler(),
 };
