@@ -8,6 +8,7 @@ import 'package:mqtt5_client/mqtt5_server_client.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class MqttController extends GetxController {
+  var clientIsNull = true.obs;
   var connecting = false.obs;
   late MqttServerClient client;
   var isConnected = false.obs;
@@ -16,11 +17,11 @@ class MqttController extends GetxController {
   var globalTopic = "".obs;
   late FlutterLocalNotificationsPlugin localNotifications;
 
-  @override
-  void onInit() {
-    super.onInit();
-    initClient();
-  }
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  //   initClient();
+  // }
 
   Future<void> initClient() async {
     // localNotifications = FlutterLocalNotificationsPlugin();
@@ -82,8 +83,8 @@ class MqttController extends GetxController {
           .firstWhere((p) => p.name == "mqtt_session_topic")
           .value;
     }
+    clientIsNull.value = false;
     print("Mqtt initialized");
-    connect();
   }
 
   Future<void> connect() async {

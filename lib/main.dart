@@ -55,10 +55,15 @@ class MyApp extends StatelessWidget {
         locale: Locale("tr"),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          progressIndicatorTheme: ProgressIndicatorThemeData(color: goldColor),
+          iconTheme: IconThemeData(color: goldColor),
           useMaterial3: true,
           textTheme: GoogleFonts.robotoTextTheme(),
           primaryColor: goldColor,
           primarySwatch: goldMaterial,
+          textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: goldColor)),
+          cardTheme: CardTheme(shadowColor: goldColor),
           dialogTheme: Theme.of(context)
               .dialogTheme
               .copyWith(backgroundColor: Colors.white),

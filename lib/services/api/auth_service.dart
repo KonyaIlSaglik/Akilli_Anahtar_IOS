@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/home_controller.dart';
 import 'package:akilli_anahtar/controllers/login_controller.dart';
+import 'package:akilli_anahtar/entities/city.dart';
 import 'package:akilli_anahtar/entities/device.dart';
+import 'package:akilli_anahtar/entities/district.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/entities/parameter.dart';
@@ -46,9 +48,7 @@ class AuthService {
   }
 
   static Future<void> login2(LoginModel2 loginModel) async {
-    AuthController authController = Get.find();
-    LoginController loginController = Get.find();
-
+    AuthController authController = Get.put(AuthController());
     print("$url/login2");
     print(loginModel.toJson());
     var uri = Uri.parse("$url/login2");
@@ -66,8 +66,9 @@ class AuthService {
       client.close();
       print(response.statusCode);
       print(response.body);
-
       if (response.statusCode == 200) {
+        LoginController loginController = Get.find();
+        loginController.isLogin.value = true;
         var data = json.decode(response.body) as Map<String, dynamic>;
         var session = Session.fromJson(json.encode(data["session"]));
         authController.session.value = session;
@@ -108,6 +109,10 @@ class AuthService {
       homeController.organisations.value = organisations;
       var devices = Device.fromJsonList(json.encode(data["devices"]));
       homeController.devices.value = devices;
+      var cities = City.fromJsonList(json.encode(data["cities"]));
+      homeController.cities.value = cities;
+      var districts = District.fromJsonList(json.encode(data["districts"]));
+      homeController.districts.value = districts;
     }
   }
 

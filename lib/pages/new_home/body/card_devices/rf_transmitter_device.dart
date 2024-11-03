@@ -115,7 +115,7 @@ class _RfTransmitterDeviceState extends State<RfTransmitterDevice> {
       ),
       customStyleBuilder: (context, local, global) => ToggleStyle(
         backgroundColor:
-            status == "2" || status == "3" ? Colors.green : Colors.red,
+            status == "2" || status == "3" ? Colors.green : Colors.blue[400],
       ),
       height: width(context) * 0.12,
       loadingIconBuilder: (context, global) => CupertinoActivityIndicator(

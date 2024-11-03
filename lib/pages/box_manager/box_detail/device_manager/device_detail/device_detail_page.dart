@@ -32,7 +32,6 @@ class _DeviceDetailPageState extends State<DeviceDetailPage>
   }
 
   void _saveDevice() async {
-    print(deviceManagementController.selectedDevice.value.toJson());
     deviceManagementController.selectedDevice.value.boxId =
         boxManagementController.selectedBox.value.id;
     if (deviceManagementController.selectedDevice.value.id == 0) {

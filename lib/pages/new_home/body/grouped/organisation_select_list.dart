@@ -24,7 +24,6 @@ class _OrganisationSelectListState extends State<OrganisationSelectList> {
               children: [
                 Icon(
                   FontAwesomeIcons.building,
-                  color: Colors.deepPurple,
                   size: height(context) * 0.03,
                 ),
                 SizedBox(width: width(context) * 0.01),
@@ -46,9 +45,6 @@ class _OrganisationSelectListState extends State<OrganisationSelectList> {
             TextButton(
               child: Text(
                 "Değiştir",
-                style: textTheme(context)
-                    .titleSmall!
-                    .copyWith(color: Colors.deepPurple),
               ),
               onPressed: () {
                 showModalBottomSheet(

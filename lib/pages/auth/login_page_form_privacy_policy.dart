@@ -23,6 +23,7 @@ class _LoginPageFormPrivacyPolicyState
       children: [
         Checkbox(
           value: loginController.privacyPolicy.value,
+          activeColor: goldColor,
           onChanged: (value) {
             setState(() {
               loginController.privacyPolicy.value = value!;
@@ -40,7 +41,7 @@ class _LoginPageFormPrivacyPolicyState
                 TextSpan(
                     text: "Gizlilik Sözleşmesini",
                     style: TextStyle(
-                      color: Colors.deepPurple,
+                      color: goldColor,
                       decoration: TextDecoration.underline,
                     ),
                     recognizer: TapGestureRecognizer()

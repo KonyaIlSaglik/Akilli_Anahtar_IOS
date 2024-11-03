@@ -76,12 +76,11 @@ class _LoginPageFormState extends State<LoginPageForm> {
                                 userNameController.text;
                             loginController.password.value =
                                 passwordController.text;
-                            AuthController authController =
-                                Get.put(AuthController());
-                            await authController.login();
-                            if (authController.isLoggedIn.value) {
+                            await loginController.login();
+                            if (loginController.isLogin.value) {
                               Get.to(() => Layout());
                             } else {
+                              AuthController authController = Get.find();
                               authController.checkSessions(context);
                               passwordController.text = "";
                             }

@@ -77,7 +77,6 @@ class UserManagementController extends GetxController {
   }
 
   void filterUsers() {
-    print("users filtering");
     filteredUsers.value = searchQuery.value.isEmpty
         ? users
         : users
@@ -85,7 +84,6 @@ class UserManagementController extends GetxController {
                 .toLowerCaseTr()
                 .contains(searchQuery.value.toLowerCase()))
             .toList();
-    print("users filtered");
   }
 
   Future<User?> register(User user) async {
@@ -224,7 +222,6 @@ class UserManagementController extends GetxController {
   Future<void> addUserDevice(int deviceId) async {
     var result =
         await UserService.addUserDevice(selectedUser.value.id, deviceId);
-    print(result);
     if (result != null) {
       userDevices.add(result);
       filterDevices();
@@ -233,7 +230,6 @@ class UserManagementController extends GetxController {
 
   Future<void> deleteUserDevice(int userDeviceId) async {
     var result = await UserService.deleteUserDevice(userDeviceId);
-    print(result);
     if (result) {
       userDevices.remove(userDevices.firstWhere((ud) => ud.id == userDeviceId));
       filterDevices();

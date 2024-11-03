@@ -19,7 +19,6 @@ class _ProfilCardState extends State<ProfilCard> {
   @override
   void initState() {
     super.initState();
-    print(homeController.cities.length);
   }
 
   @override
@@ -43,7 +42,6 @@ class _ProfilCardState extends State<ProfilCard> {
                         Icon(
                           FontAwesomeIcons.city,
                           size: height(context) * 0.03,
-                          color: Colors.deepPurple,
                         ),
                         Text(
                           homeController.cities
@@ -61,7 +59,7 @@ class _ProfilCardState extends State<ProfilCard> {
                       height: height(context) * 0.08,
                       child: FittedBox(
                         child: CircleAvatar(
-                          backgroundColor: Colors.blueGrey,
+                          backgroundColor: goldColor.withOpacity(0.6),
                           child: Icon(
                             FontAwesomeIcons.userLarge,
                             color: Colors.white,
@@ -74,7 +72,6 @@ class _ProfilCardState extends State<ProfilCard> {
                         Icon(
                           FontAwesomeIcons.cloudSunRain,
                           size: height(context) * 0.03,
-                          color: Colors.deepPurple,
                         ),
                         Text(
                           "- C°",

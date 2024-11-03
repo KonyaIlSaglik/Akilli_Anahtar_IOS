@@ -1,5 +1,5 @@
 import 'package:akilli_anahtar/controllers/pager_controller.dart';
-import 'package:akilli_anahtar/pages/home/home_page.dart';
+import 'package:akilli_anahtar/pages/new_home/new_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -22,7 +22,7 @@ class CustomPopScope extends StatelessWidget {
           pageController.currentPage.value = backPage!;
         } else {
           //exitApp(context);
-          Get.to(HomePage());
+          Get.to(() => NewHomePage());
         }
       },
       child: child,

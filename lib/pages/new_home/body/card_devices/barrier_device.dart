@@ -114,8 +114,9 @@ class _BarrierDeviceState extends State<BarrierDevice> {
         backgroundColor: Colors.amber,
       ),
       customStyleBuilder: (context, local, global) => ToggleStyle(
-        backgroundColor:
-            status == "2" || status == "3" ? Colors.green : Colors.red,
+        backgroundColor: status == "2" || status == "3"
+            ? Colors.green[300]
+            : Colors.red[300],
       ),
       height: width(context) * 0.12,
       loadingIconBuilder: (context, global) => CupertinoActivityIndicator(
@@ -130,7 +131,7 @@ class _BarrierDeviceState extends State<BarrierDevice> {
               color: Colors.green,
               size: 32.0,
             )
-          : const Icon(
+          : Icon(
               FontAwesomeIcons.powerOff,
               color: Colors.red,
               size: 32.0,

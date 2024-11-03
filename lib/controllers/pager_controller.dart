@@ -1,5 +1,5 @@
+import 'package:akilli_anahtar/models/page_model.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -10,10 +10,14 @@ class PagerController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    currentPage.value = groupedPage;
+    currentPage.value = PageModel.groupedPage;
     var page = await LocalDb.get("currentPage");
-    if (page != null) {
-      currentPage.value = page;
+    if (page != null && page == "1") {
+      currentPage.value = PageModel.groupedPage;
+      savePageChanges();
+    } else {
+      currentPage.value = PageModel.favoritePage;
+      savePageChanges();
     }
 
     PackageInfo.fromPlatform().then(
@@ -24,6 +28,7 @@ class PagerController extends GetxController {
   }
 
   savePageChanges() async {
-    await LocalDb.add("currentPage", currentPage.value);
+    await LocalDb.add(
+        "currentPage", currentPage.value == PageModel.favoritePage ? "0" : "1");
   }
 }

@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/controllers/pager_controller.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +9,9 @@ class VersionText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     PagerController pagerController = Get.find();
-    return Text("Versiyon: ${pagerController.appVersion.value}");
+    return Text(
+      "Versiyon: ${pagerController.appVersion.value}",
+      style: TextStyle(color: goldColor),
+    );
   }
 }

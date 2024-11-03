@@ -20,41 +20,38 @@ class _LayoutState extends State<Layout> {
     super.initState();
     print("Layout Created");
     Get.put(HomeController());
-    Get.put(MqttController);
+    Get.put(MqttController());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        shadowColor: Colors.black,
-        iconTheme: IconThemeData(
-          size: 30,
-          color: Colors.deepPurple,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          shadowColor: Colors.black,
+          iconTheme: IconThemeData(
+            size: 30,
+          ),
+          elevation: 10,
+          title: Text(
+            "AKILLI ANAHTAR",
+            style: width(context) < minWidth
+                ? textTheme(context).titleMedium!
+                : textTheme(context).titleLarge!,
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(
+                FontAwesomeIcons.bell,
+                size: 30,
+              ),
+              onPressed: () {
+                //
+              },
+            )
+          ],
         ),
-        elevation: 10,
-        title: Text(
-          "AKILLI ANAHTAR",
-          style: width(context) < minWidth
-              ? textTheme(context).titleMedium!
-              : textTheme(context).titleLarge!,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              FontAwesomeIcons.bell,
-              size: 30,
-              color: Colors.deepPurple,
-            ),
-            onPressed: () {
-              //
-            },
-          )
-        ],
-      ),
-      drawer: DrawerPage(),
-      body: NewHomePage(),
-    );
+        drawer: DrawerPage(),
+        body: NewHomePage());
   }
 }

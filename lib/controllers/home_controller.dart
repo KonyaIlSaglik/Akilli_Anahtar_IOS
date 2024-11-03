@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
 
 class HomeController extends GetxController {
+  var loading = false.obs;
   var selectedOrganisationId = 0.obs;
 
   var parameters = <Parameter>[].obs;
@@ -37,7 +38,10 @@ class HomeController extends GetxController {
   }
 
   Future<void> getData() async {
+    loading.value = true;
     await AuthService.getData();
+    groupDevices();
+    loading.value = false;
   }
 
   List<Device> get controlDevices {

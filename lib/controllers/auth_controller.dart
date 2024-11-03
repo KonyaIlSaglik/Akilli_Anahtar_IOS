@@ -15,28 +15,11 @@ class AuthController extends GetxController {
       HiveConstants.sessionKey, HiveConstants.sessionTypeId, SessionAdapter());
 
   var isLoading = false.obs;
-  var isLoggedIn = false.obs;
   var isChanged = false.obs;
   var session = Session.empty().obs;
   var allSessions = <Session>[].obs;
   var user = User().obs;
   var operationClaims = <OperationClaim>[].obs;
-
-  Future<void> login() async {
-    LoginController loginController = Get.find();
-    isLoggedIn.value = false;
-    isLoading.value = true;
-    session.value = Session.empty();
-    user.value = User();
-    operationClaims.value = <OperationClaim>[];
-    await AuthService.login2(loginController.getLoginModel);
-    if (session.value.accessToken.isNotEmpty) {
-      await loginController.saveLoginInfo();
-      isLoggedIn.value = true;
-    }
-    isLoading.value = false;
-  }
-
   Future<List<OperationClaim>?> getUserClaims() async {
     var claimsResult = await AuthService.getUserClaims();
     if (claimsResult != null) {
@@ -48,7 +31,6 @@ class AuthController extends GetxController {
   Future<void> logOut(int userId, String identity) async {
     LoginController loginController = Get.find();
     await AuthService.logOut(userId, identity);
-    isLoggedIn.value = false;
     session.value = Session.empty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];

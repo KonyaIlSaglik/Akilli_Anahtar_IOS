@@ -25,55 +25,64 @@ class _LoginPageFormInputTextState extends State<LoginPageFormInputText> {
     widget.controller.text = widget.isPassword ? "Mehmet" : "mehmet";
     return Card.outlined(
       elevation: 10,
-      child: TextFormField(
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Zorunlu Alan";
-          }
-          return null;
-        },
-        controller: widget.controller,
-        obscureText: widget.isPassword && !passVisible,
-        cursorColor: Colors.black,
-        textInputAction:
-            widget.isPassword ? TextInputAction.done : TextInputAction.next,
-        focusNode: widget.isPassword
-            ? loginController.passwordFocus
-            : loginController.userNameFocus,
-        onFieldSubmitted: (value) {
-          if (!widget.isPassword) {
-            loginController.passwordFocus.requestFocus();
-          }
-        },
-        style: textTheme(context).titleLarge,
-        decoration: InputDecoration(
-          border: OutlineInputBorder(
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          textSelectionTheme:
+              TextSelectionThemeData(selectionHandleColor: goldColor),
+        ),
+        child: TextFormField(
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return "Zorunlu Alan";
+            }
+            return null;
+          },
+          controller: widget.controller,
+          obscureText: widget.isPassword && !passVisible,
+          cursorColor: Colors.black,
+          textInputAction:
+              widget.isPassword ? TextInputAction.done : TextInputAction.next,
+          focusNode: widget.isPassword
+              ? loginController.passwordFocus
+              : loginController.userNameFocus,
+          onFieldSubmitted: (value) {
+            if (!widget.isPassword) {
+              loginController.passwordFocus.requestFocus();
+            }
+          },
+          style: textTheme(context).titleLarge,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none),
-          prefixIcon: Icon(
-            widget.isPassword
-                ? FontAwesomeIcons.key
-                : FontAwesomeIcons.solidUser,
-            size: 20,
+              borderSide: BorderSide.none,
+            ),
+            prefixIcon: Icon(
+              widget.isPassword
+                  ? FontAwesomeIcons.key
+                  : FontAwesomeIcons.solidUser,
+              size: 20,
+              color: goldColor,
+            ),
+            hintText: !widget.isPassword ? "Kullanıcı adı" : "Şifre",
+            hintStyle:
+                textTheme(context).titleMedium!.copyWith(color: Colors.grey),
+            suffixIcon: widget.isPassword
+                ? IconButton(
+                    icon: Icon(
+                      passVisible
+                          ? FontAwesomeIcons.eyeSlash
+                          : FontAwesomeIcons.eye,
+                      size: 20,
+                      color: goldColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        passVisible = !passVisible;
+                      });
+                    },
+                  )
+                : null,
           ),
-          hintText: !widget.isPassword ? "Kullanıcı adı" : "Şifre",
-          hintStyle:
-              textTheme(context).titleMedium!.copyWith(color: Colors.grey),
-          suffixIcon: widget.isPassword
-              ? IconButton(
-                  icon: Icon(
-                    passVisible
-                        ? FontAwesomeIcons.eyeSlash
-                        : FontAwesomeIcons.eye,
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      passVisible = !passVisible;
-                    });
-                  },
-                )
-              : null,
         ),
       ),
     );

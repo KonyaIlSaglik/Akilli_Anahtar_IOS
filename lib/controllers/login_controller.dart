@@ -48,7 +48,6 @@ class LoginController extends GetxController {
     var loginManagerNew = CacheManager(HiveConstants.loginModel2Key,
         HiveConstants.loginModel2TypeId, LoginModel2Adapter());
     await loginManagerNew.clear();
-    print(getLoginModel.toJson());
     await loginManagerNew.add(getLoginModel);
   }
 

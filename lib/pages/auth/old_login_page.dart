@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/widgets/custom_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -184,15 +183,15 @@ class _OldLoginPageState extends State<OldLoginPage> {
     }
     // _authController.loginModel2.value.userName = usercon.text;
     // _authController.loginModel2.value.password = passwordcon.text;
-    await _authController.login();
-    if (_authController.allSessions.isNotEmpty) {
-      checkSessions();
-    }
-    if (_authController.isLoggedIn.value) {
-      Get.to(() => HomePage());
-    } else {
-      passwordcon.text = "";
-    }
+    // await _authController.login();
+    // if (_authController.allSessions.isNotEmpty) {
+    //   checkSessions();
+    // }
+    // if (_authController.isLoggedIn.value) {
+    //   Get.to(() => HomePage());
+    // } else {
+    //   passwordcon.text = "";
+    // }
   }
 
   otherButtons() {

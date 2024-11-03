@@ -1,13 +1,13 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 import 'dart:io';
-import 'package:akilli_anahtar/pages/new_home/body/favorite_page.dart';
-import 'package:akilli_anahtar/pages/new_home/body/grouped_page.dart';
+
+import 'package:another_flushbar/flushbar.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:new_version_plus/new_version_plus.dart';
-import 'package:another_flushbar/flushbar.dart';
 
 const String apiUrlIn = "http://10.42.41.36:85/api";
 const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
@@ -187,12 +187,3 @@ const double minWidth = 361;
 TextTheme textTheme(context) => Theme.of(context).textTheme;
 width(context) => MediaQuery.sizeOf(context).width;
 height(context) => MediaQuery.sizeOf(context).height;
-
-const String groupedPage = "grouped";
-const String favoritePage = "favorites";
-
-const Map<String, Widget> pagesList = {
-  groupedPage: GroupedPage(),
-  favoritePage: FavoritePage(),
-  //ziyaretlerPage: Ziyaretler(),
-};

@@ -1,8 +1,7 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/login_controller.dart';
 import 'package:akilli_anahtar/controllers/pager_controller.dart';
+import 'package:akilli_anahtar/layout.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
-import 'package:akilli_anahtar/pages/home/home_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_container.dart';
 import 'package:flutter/material.dart';
@@ -35,10 +34,9 @@ class _SplashPageState extends State<SplashPage> {
         Get.to(() => LoginPage());
       });
     } else {
-      AuthController authController = Get.put(AuthController());
-      await authController.login();
-      if (authController.isLoggedIn.value) {
-        Get.to(() => HomePage());
+      await loginController.login();
+      if (loginController.isLogin.value) {
+        Get.to(() => Layout());
       } else {
         Get.to(() => LoginPage());
       }
