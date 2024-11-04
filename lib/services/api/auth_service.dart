@@ -77,7 +77,6 @@ class AuthService {
         authController.user.value = user;
         return;
       } else if (response.statusCode == 422) {
-        print("response.body");
         authController.allSessions.value = Session.fromJsonList(response.body);
         return;
       } else {
@@ -102,7 +101,6 @@ class AuthService {
       authController.operationClaims.value = claims;
       var parameters = Parameter.fromJsonList(json.encode(data["parameters"]));
       homeController.parameters.value = parameters;
-      print(json.encode(data["organisations"]));
       var organisations =
           Organisation.fromJsonList(json.encode(data["organisations"]));
       homeController.organisations.value = organisations;

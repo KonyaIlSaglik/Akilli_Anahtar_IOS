@@ -1,10 +1,6 @@
-import 'dart:async';
-import 'dart:ui';
-
-import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
+import 'package:akilli_anahtar/background_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -71,51 +67,4 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-}
-
-void startBackgroundService() {
-  final service = FlutterBackgroundService();
-  service.startService();
-}
-
-void stopBackgroundService() {
-  final service = FlutterBackgroundService();
-  service.invoke("stop");
-}
-
-Future<void> initializeService() async {
-  final service = FlutterBackgroundService();
-
-  await service.configure(
-    iosConfiguration: IosConfiguration(
-      autoStart: false,
-      onForeground: onStart,
-      onBackground: onIosBackground,
-    ),
-    androidConfiguration: AndroidConfiguration(
-      autoStart: false,
-      onStart: onStart,
-      isForegroundMode: false,
-      autoStartOnBoot: true,
-    ),
-  );
-}
-
-@pragma('vm:entry-point')
-Future<bool> onIosBackground(ServiceInstance service) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  DartPluginRegistrant.ensureInitialized();
-
-  return true;
-}
-
-@pragma('vm:entry-point')
-void onStart(ServiceInstance service) async {
-  MqttController mqttController = Get.find();
-
-  Timer.periodic(const Duration(seconds: 3), (timer) {
-    print("dfawdawdawdaw");
-    mqttController.publishMessage(
-        "AAAAA", "fesmflksemlfksem ${DateTime.now()}");
-  });
 }
