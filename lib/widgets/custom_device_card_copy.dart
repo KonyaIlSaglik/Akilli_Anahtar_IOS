@@ -97,32 +97,29 @@ class _CustomDeviceCardState extends State<CustomDeviceCard> {
       active: !positive && !loading,
       onChanged: (b) async {
         setState(() {
-          positive = true; // Set to true
-          loading = true; // Start loading
+          positive = true;
+          loading = true;
         });
 
-        await Future<dynamic>.delayed(
-            const Duration(seconds: 5)); // Wait for 10 seconds
+        await Future<dynamic>.delayed(const Duration(seconds: 5));
 
         setState(() {
-          positive = true; // Set back to false
+          positive = true;
           loading = false;
         });
 
-        await Future<dynamic>.delayed(
-            const Duration(seconds: 5)); // Wait for another 10 seconds
+        await Future<dynamic>.delayed(const Duration(seconds: 5));
 
         setState(() {
           positive = false;
-          loading = true; // End loading
+          loading = true;
         });
 
-        await Future<dynamic>.delayed(
-            const Duration(seconds: 5)); // Wait for another 10 seconds
+        await Future<dynamic>.delayed(const Duration(seconds: 5));
 
         setState(() {
           positive = false;
-          loading = false; // End loading
+          loading = false;
         });
       },
       iconBuilder: (value) => value

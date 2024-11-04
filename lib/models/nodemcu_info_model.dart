@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class NodemcuInfoModel {
@@ -60,11 +59,3 @@ class NodemcuInfoModel {
   factory NodemcuInfoModel.fromJson(String source) =>
       NodemcuInfoModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }
-
-
-// 'box': boxWithDevices,
-
-
-// boxWithDevices: map["box"] != null
-//           ? BoxWithDevices.fromMap(map["box"])
-//           : BoxWithDevices(),

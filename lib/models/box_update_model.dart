@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/models/nodemcu_info_model.dart';
 

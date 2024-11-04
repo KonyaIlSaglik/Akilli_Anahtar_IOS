@@ -1,5 +1,5 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/login_controller.dart';
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/layout.dart';
 import 'package:akilli_anahtar/pages/auth/login_page_form_input_text.dart';
 import 'package:akilli_anahtar/pages/auth/login_page_form_privacy_policy.dart';
@@ -81,7 +81,9 @@ class _LoginPageFormState extends State<LoginPageForm> {
                               Get.to(() => Layout());
                             } else {
                               AuthController authController = Get.find();
-                              authController.checkSessions(context);
+                              if (authController.allSessions.isNotEmpty) {
+                                authController.checkSessions(context);
+                              }
                               passwordController.text = "";
                             }
                           }

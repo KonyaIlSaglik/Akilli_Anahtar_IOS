@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:akilli_anahtar/controllers/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
@@ -17,34 +17,7 @@ class MqttController extends GetxController {
   var globalTopic = "".obs;
   late FlutterLocalNotificationsPlugin localNotifications;
 
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  //   initClient();
-  // }
-
   Future<void> initClient() async {
-    // localNotifications = FlutterLocalNotificationsPlugin();
-    // const AndroidInitializationSettings initializationSettingsAndroid =
-    //     AndroidInitializationSettings('app_icon');
-
-    // const InitializationSettings initializationSettings =
-    //     InitializationSettings(android: initializationSettingsAndroid);
-
-    // localNotifications.initialize(initializationSettings);
-
-    // var paramsManager = CacheManager<Parameter>(HiveConstants.parametersKey,
-    //     HiveConstants.parametersTypeId, ParameterAdapter());
-    // await paramsManager.init();
-    // var params = paramsManager.getAll();
-    // if (params == null || params.isEmpty) {
-    //   var paramsResult = await ParameterService.getAllByTypeId(1);
-    //   if (paramsResult != null) {
-    //     params = paramsResult;
-    //     await paramsManager.clear();
-    //     paramsManager.addList(params);
-    //   }
-    // }
     HomeController homeController = Get.find();
     var deviceId = await getDeviceId();
     var now = DateTime.now().toString();

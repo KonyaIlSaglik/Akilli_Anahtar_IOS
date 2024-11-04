@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/user_management_control.dart';
+import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

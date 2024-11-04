@@ -1,6 +1,6 @@
-import 'package:akilli_anahtar/controllers/home_controller.dart';
-import 'package:akilli_anahtar/pages/new_home/body/grouped/organisation_select_list.dart';
-import 'package:akilli_anahtar/pages/new_home/body/card_devices/device_grid_list.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/pages/new_home/grouped/organisation_select_list.dart';
+import 'package:akilli_anahtar/pages/new_home/card_devices/device_grid_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

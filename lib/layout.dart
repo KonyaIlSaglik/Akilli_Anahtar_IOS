@@ -1,5 +1,5 @@
-import 'package:akilli_anahtar/controllers/home_controller.dart';
-import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/home/drawer_page.dart';
 import 'package:akilli_anahtar/pages/new_home/new_home_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';

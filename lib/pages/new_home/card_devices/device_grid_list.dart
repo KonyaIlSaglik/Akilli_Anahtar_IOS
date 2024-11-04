@@ -1,6 +1,6 @@
-import 'package:akilli_anahtar/controllers/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/models/device_group_by_box.dart';
-import 'package:akilli_anahtar/pages/new_home/body/favorite/favorite_edit_page.dart';
+import 'package:akilli_anahtar/pages/new_home/favorite/favorite_edit_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_device_card.dart';
 import 'package:flutter/material.dart';
@@ -32,8 +32,12 @@ class _DeviceGridListState extends State<DeviceGridList> {
             ),
             TextButton(
               onPressed: widget.deviceGroup.expanded == null
-                  ? () {
-                      Get.to(() => FavoriteEditPage());
+                  ? () async {
+                      var result =
+                          await Get.to<bool>(() => FavoriteEditPage()) ?? false;
+                      if (result) {
+                        homeController.getData();
+                      }
                     }
                   : widget.deviceGroup.expanded != null &&
                           widget.deviceGroup.devices.length < 3

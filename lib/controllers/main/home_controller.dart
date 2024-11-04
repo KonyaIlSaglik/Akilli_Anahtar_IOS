@@ -113,14 +113,12 @@ class HomeController extends GetxController {
   }
 
   List<String> getDistinctBoxNames(List<Device> devices) {
-    // Use a Set to collect distinct box names
     Set<String> boxNamesSet = {};
 
     for (var device in devices) {
       boxNamesSet.add(device.boxName);
     }
 
-    // Convert the Set back to a List
     return boxNamesSet.toList();
   }
 

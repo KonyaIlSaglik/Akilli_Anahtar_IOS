@@ -1,5 +1,5 @@
-import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
-import 'package:akilli_anahtar/controllers/wifi_controller.dart';
+import 'package:akilli_anahtar/controllers/install/nodemcu_controller.dart';
+import 'package:akilli_anahtar/controllers/install/wifi_controller.dart';
 import 'package:akilli_anahtar/pages/box_install/b_wifi_page_view_model.dart';
 import 'package:akilli_anahtar/pages/box_install/d_online_page_view_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
@@ -129,7 +129,6 @@ class _IntroductionPageState extends State<IntroductionPage> {
                   },
                   pages: [
                     WifiPageViewModel.get(context),
-                    // NodemcuPageViewModel.get(context),
                     OnlinePageViewModel.get(context),
                   ],
                 ),

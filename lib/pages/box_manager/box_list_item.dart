@@ -1,6 +1,6 @@
-import 'package:akilli_anahtar/controllers/box_management_controller.dart';
-import 'package:akilli_anahtar/controllers/home_controller.dart';
-import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/box_detail_page.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +35,7 @@ class _BoxListItemState extends State<BoxListItem> {
             : box.isOld == 0
                 ? Colors.green
                 : Colors.blue,
-        child: Text(box.id.toString()), // Display user ID
+        child: Text(box.id.toString()),
       ),
       title: Text(box.name),
       subtitle: Column(

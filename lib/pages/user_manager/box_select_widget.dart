@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/user_management_control.dart';
+import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +48,7 @@ class _BoxSelectWidgetState extends State<BoxSelectWidget> {
                   return item.name.toLowerCase().contains(filter.toLowerCase());
                 },
                 compareFn: (item1, item2) {
-                  return item1.id == item2.id; // Compare based on the unique ID
+                  return item1.id == item2.id;
                 },
                 dropdownBuilder: (context, selectedItem) {
                   return Row(
@@ -64,17 +64,13 @@ class _BoxSelectWidgetState extends State<BoxSelectWidget> {
                           ),
                         ),
                       ),
-                      if (selectedItem !=
-                          null) // Show clear button if an item is selected
+                      if (selectedItem != null)
                         IconButton(
                           padding: EdgeInsets.only(bottom: 10),
                           icon: Icon(Icons.clear),
                           onPressed: () {
-                            // Clear selection
-                            userManagementControl.selectedBoxId.value =
-                                0; // Resetting the selected ID
-                            userManagementControl
-                                .filterDevices(); // Optionally re-filter sensors
+                            userManagementControl.selectedBoxId.value = 0;
+                            userManagementControl.filterDevices();
                           },
                         ),
                     ],

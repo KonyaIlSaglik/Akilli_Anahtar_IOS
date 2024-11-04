@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -52,13 +52,11 @@ class _OrganisationSelectListState extends State<OrganisationSelectList> {
                   isScrollControlled: true,
                   builder: (context) {
                     return SizedBox(
-                      height: MediaQuery.of(context).size.height *
-                          0.80, // Adjust height as needed
+                      height: MediaQuery.of(context).size.height * 0.80,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            // Title for the modal
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -76,12 +74,12 @@ class _OrganisationSelectListState extends State<OrganisationSelectList> {
                                 IconButton(
                                   icon: Icon(Icons.close),
                                   onPressed: () {
-                                    Navigator.pop(context); // Closes the modal
+                                    Navigator.pop(context);
                                   },
                                 ),
                               ],
                             ),
-                            Divider(), // Optional divider for separation
+                            Divider(),
                             Expanded(
                               child: Obx(() {
                                 return ListView(

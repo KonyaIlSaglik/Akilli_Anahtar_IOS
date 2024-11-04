@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
@@ -8,15 +8,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 
-class GardenDevice extends StatefulWidget {
+class RfTransmitterDevice extends StatefulWidget {
   final Device device;
-  const GardenDevice({super.key, required this.device});
+  const RfTransmitterDevice({super.key, required this.device});
 
   @override
-  State<GardenDevice> createState() => _GardenDeviceState();
+  State<RfTransmitterDevice> createState() => _RfTransmitterDeviceState();
 }
 
-class _GardenDeviceState extends State<GardenDevice> {
+class _RfTransmitterDeviceState extends State<RfTransmitterDevice> {
   late Device device;
   final MqttController _mqttController = Get.find<MqttController>();
   String status = "1";
@@ -67,13 +67,11 @@ class _GardenDeviceState extends State<GardenDevice> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Icon(
-                  status == "0"
-                      ? FontAwesomeIcons.faucetDrip
-                      : FontAwesomeIcons.faucet,
+                  FontAwesomeIcons.eject,
                   shadows: isSub
                       ? <Shadow>[
                           Shadow(
-                            color: status == "0" ? Colors.blue : Colors.black,
+                            color: Colors.indigo,
                             blurRadius: 15.0,
                           ),
                         ]
@@ -81,21 +79,11 @@ class _GardenDeviceState extends State<GardenDevice> {
                   size: width(context) * 0.07,
                   color: Colors.white70,
                 ),
-                InkWell(
-                  child: Icon(
-                    FontAwesomeIcons.clock,
-                    color: Colors.green,
-                    shadows: <Shadow>[
-                      Shadow(
-                        color: Colors.green,
-                        blurRadius: 15.0,
-                      ),
-                    ],
+                if (device.unit != null)
+                  Text(
+                    device.unit ?? "",
+                    style: textTheme(context).titleLarge,
                   ),
-                  onTap: () {
-                    //
-                  },
-                ),
               ],
             ),
             SizedBox(height: 20),
@@ -104,7 +92,6 @@ class _GardenDeviceState extends State<GardenDevice> {
             Text(
               device.name,
               style: textTheme(context).titleMedium,
-              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
@@ -115,11 +102,11 @@ class _GardenDeviceState extends State<GardenDevice> {
 
   _switch() {
     return AnimatedToggleSwitch<bool>.dual(
-      current: status == "0",
+      current: status == "2" || status == "3",
       first: false,
       second: true,
       spacing: 0.0,
-      loading: false,
+      loading: status == "2" || status == "4",
       animationDuration: const Duration(milliseconds: 600),
       style: const ToggleStyle(
         borderColor: Colors.transparent,
@@ -127,12 +114,13 @@ class _GardenDeviceState extends State<GardenDevice> {
         backgroundColor: Colors.amber,
       ),
       customStyleBuilder: (context, local, global) => ToggleStyle(
-        backgroundColor: status == "0" ? Colors.green : Colors.brown[400],
+        backgroundColor:
+            status == "2" || status == "3" ? Colors.green : Colors.blue[400],
       ),
       height: width(context) * 0.12,
       loadingIconBuilder: (context, global) => CupertinoActivityIndicator(
           color: Color.lerp(Colors.blue, Colors.blue, global.spacing)),
-      active: true,
+      active: status == "1",
       onTap: (props) {
         sendMessage();
       },
@@ -142,18 +130,17 @@ class _GardenDeviceState extends State<GardenDevice> {
               color: Colors.green,
               size: 32.0,
             )
-          : Icon(
+          : const Icon(
               FontAwesomeIcons.powerOff,
-              color: Colors.red[400],
+              color: Colors.red,
               size: 32.0,
             ),
     );
   }
 
   sendMessage() {
-    if (_mqttController.isConnected.value) {
-      _mqttController.publishMessage(
-          device.topicRec!, status == "0" ? "1" : "0");
+    if (_mqttController.isConnected.value && device.rfCodes != null) {
+      _mqttController.publishMessage(device.topicRec!, device.rfCodes![0]);
     }
   }
 }

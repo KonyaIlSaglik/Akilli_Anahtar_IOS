@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
@@ -8,15 +8,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 
-class RfTransmitterDevice extends StatefulWidget {
+class BarrierDevice extends StatefulWidget {
   final Device device;
-  const RfTransmitterDevice({super.key, required this.device});
+  const BarrierDevice({super.key, required this.device});
 
   @override
-  State<RfTransmitterDevice> createState() => _RfTransmitterDeviceState();
+  State<BarrierDevice> createState() => _BarrierDeviceState();
 }
 
-class _RfTransmitterDeviceState extends State<RfTransmitterDevice> {
+class _BarrierDeviceState extends State<BarrierDevice> {
   late Device device;
   final MqttController _mqttController = Get.find<MqttController>();
   String status = "1";
@@ -67,7 +67,7 @@ class _RfTransmitterDeviceState extends State<RfTransmitterDevice> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Icon(
-                  FontAwesomeIcons.eject,
+                  FontAwesomeIcons.squareParking,
                   shadows: isSub
                       ? <Shadow>[
                           Shadow(
@@ -114,8 +114,9 @@ class _RfTransmitterDeviceState extends State<RfTransmitterDevice> {
         backgroundColor: Colors.amber,
       ),
       customStyleBuilder: (context, local, global) => ToggleStyle(
-        backgroundColor:
-            status == "2" || status == "3" ? Colors.green : Colors.blue[400],
+        backgroundColor: status == "2" || status == "3"
+            ? Colors.green[300]
+            : Colors.red[300],
       ),
       height: width(context) * 0.12,
       loadingIconBuilder: (context, global) => CupertinoActivityIndicator(
@@ -130,7 +131,7 @@ class _RfTransmitterDeviceState extends State<RfTransmitterDevice> {
               color: Colors.green,
               size: 32.0,
             )
-          : const Icon(
+          : Icon(
               FontAwesomeIcons.powerOff,
               color: Colors.red,
               size: 32.0,
@@ -139,8 +140,8 @@ class _RfTransmitterDeviceState extends State<RfTransmitterDevice> {
   }
 
   sendMessage() {
-    if (_mqttController.isConnected.value && device.rfCodes != null) {
-      _mqttController.publishMessage(device.topicRec!, device.rfCodes![0]);
+    if (_mqttController.isConnected.value) {
+      _mqttController.publishMessage(device.topicRec!, "0");
     }
   }
 }

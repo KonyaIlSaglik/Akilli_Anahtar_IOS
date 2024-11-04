@@ -1,6 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
+
+import 'package:akilli_anahtar/utils/constants.dart';
 
 // ignore: must_be_immutable
 class CustomButton extends StatelessWidget {
@@ -8,10 +8,11 @@ class CustomButton extends StatelessWidget {
   final String title;
   bool? loading = false;
   Color? color;
+
   CustomButton({
     super.key,
-    required this.title,
     required this.onPressed,
+    required this.title,
     this.loading,
     this.color,
   });

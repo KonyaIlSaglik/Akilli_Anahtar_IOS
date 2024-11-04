@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/box_management_controller.dart';
+import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/box_detail_page.dart';

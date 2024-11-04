@@ -115,9 +115,7 @@ class _DateTimePickerCardState extends State<DateTimePickerCard> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-                onPrimary: Colors.white, // <-- SEE HERE
-                onSurface: Colors.black // <-- SEE HERE
-                ),
+                onPrimary: Colors.white, onSurface: Colors.black),
           ),
           child: child!,
         );
@@ -139,9 +137,7 @@ class _DateTimePickerCardState extends State<DateTimePickerCard> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-                onPrimary: Colors.white, // <-- SEE HERE
-                onSurface: Colors.black // <-- SEE HERE
-                ),
+                onPrimary: Colors.white, onSurface: Colors.black),
           ),
           child: child!,
         );

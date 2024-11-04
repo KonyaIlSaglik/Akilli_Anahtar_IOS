@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -13,7 +13,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter("localdb");
   //await initializeService();
   initializeDateFormatting('tr_TR', null).then(
     (value) => runApp(MyApp(theme: ThemeData.light())),

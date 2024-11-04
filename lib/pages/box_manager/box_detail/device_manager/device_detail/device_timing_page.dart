@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/device_management_controller.dart';
+import 'package:akilli_anahtar/controllers/admin/device_management_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 import 'dart:io';
 
@@ -11,12 +10,8 @@ import 'package:new_version_plus/new_version_plus.dart';
 
 const String apiUrlIn = "http://10.42.41.36:85/api";
 const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
-const String sessionKey = "session";
-const String userKey = "user";
-const String loginModelKey = "loginModel";
-const String userClaimsKey = "userClaims";
-const String favoritesKey = "favorites";
-const String lastPageKey = "lastPage";
+const String userNameKey = "userName";
+const String passwordKey = "password";
 const Color goldColor = Color(0xffb49664);
 //const Color mainColor = Color.fromARGB(255, 180, 150, 100);
 const String gizlilikUrl = "https://ossbs.com/gizlilik/index.htm";
@@ -79,20 +74,15 @@ bool isJson(String data) {
 }
 
 String getDate(String isoDate) {
-  // Parse the ISO 8601 string to DateTime
   DateTime dateTime = DateTime.parse(isoDate);
 
-  // Format the DateTime to the desired format
   String formattedDate = DateFormat('dd.MM.yyyy').format(dateTime);
 
   return formattedDate;
 }
 
 String getTime(String isoDate) {
-  // Parse the ISO 8601 string to DateTime
   DateTime dateTime = DateTime.parse(isoDate);
-
-  // Format the DateTime to the desired format
   String formattedDate = DateFormat('HH:mm').format(dateTime);
 
   return formattedDate;

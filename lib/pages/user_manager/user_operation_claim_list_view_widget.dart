@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/user_management_control.dart';
+import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,19 +19,16 @@ class _UserOperationClaimListViewWidgetState
     return ListTile(
       title: Text("İşlem Yetkileri"),
       onTap: () {
-        // Show modal bottom sheet when tapped
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
           builder: (context) {
             return SizedBox(
-              height: MediaQuery.of(context).size.height *
-                  0.80, // Adjust height as needed
+              height: MediaQuery.of(context).size.height * 0.80,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    // Title for the modal
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -48,12 +45,12 @@ class _UserOperationClaimListViewWidgetState
                         IconButton(
                           icon: Icon(Icons.close),
                           onPressed: () {
-                            Navigator.pop(context); // Closes the modal
+                            Navigator.pop(context);
                           },
                         ),
                       ],
                     ),
-                    Divider(), // Optional divider for separation
+                    Divider(),
                     Expanded(
                       child: Obx(() {
                         return ListView(
@@ -65,11 +62,9 @@ class _UserOperationClaimListViewWidgetState
                                 onChanged: (bool? value) async {
                                   if (value != null) {
                                     if (value) {
-                                      // Adding claim
                                       await userManagementController
                                           .addUserClaim(c.id);
                                     } else {
-                                      // Removing claim
                                       try {
                                         var claim = userManagementController
                                             .userOperationClaims
@@ -78,7 +73,6 @@ class _UserOperationClaimListViewWidgetState
                                         await userManagementController
                                             .deleteUserClaim(claim.id);
                                       } catch (e) {
-                                        // Handle the case where the claim is not found
                                         print("Claim not found: $e");
                                       }
                                     }

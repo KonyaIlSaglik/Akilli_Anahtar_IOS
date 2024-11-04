@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -106,10 +106,6 @@ class _SensorListItemState extends State<SensorListItem> {
                         fontSize: 20,
                         color: Colors.white),
                   ),
-                  // Text(
-                  //   kurum!,
-                  //   style: TextStyle(color: Colors.white),
-                  // ),
                   Text(
                     sensor.normalValueRangeId > 0
                         ? "${sensor.normalMinValue} - ${sensor.normalMaxValue}"

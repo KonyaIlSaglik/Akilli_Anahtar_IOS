@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +26,6 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
             decoration: InputDecoration(
               hintText: "Kurum Seç",
               border: OutlineInputBorder(),
-              // The suffix icon can be added to the decoration directly
             ),
           ),
           popupProps: PopupProps.menu(
@@ -48,9 +47,8 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
             return item.name.toLowerCase().contains(filter.toLowerCase());
           },
           compareFn: (item1, item2) {
-            return item1.id == item2.id; // Compare based on the unique ID
+            return item1.id == item2.id;
           },
-          // Add a clear button in the dropdown menu
           dropdownBuilder: (context, selectedItem) {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -68,7 +66,6 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
                     padding: EdgeInsets.only(bottom: 10),
                     icon: Icon(Icons.clear),
                     onPressed: () {
-                      // Clear selection
                       homeController.selectedOrganisationId.value = 0;
                       widget.onChanged();
                     },

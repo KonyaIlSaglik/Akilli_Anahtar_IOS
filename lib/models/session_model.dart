@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-part 'session_model.g.dart';
-
 @HiveType(typeId: HiveConstants.sessionTypeId)
 class Session {
   @HiveField(0)
@@ -27,7 +25,7 @@ class Session {
   @HiveField(6)
   final String? logoutTime;
 
-  @HiveField(7) // New Hive field for platformName
+  @HiveField(7)
   final String? platformName;
 
   Session({
@@ -38,7 +36,7 @@ class Session {
     required this.accessToken,
     required this.expiration,
     this.logoutTime,
-    this.platformName, // Include platformName in constructor
+    this.platformName,
   });
 
   factory Session.empty() {
@@ -50,7 +48,7 @@ class Session {
       loginTime: "",
       platformIdentity: "",
       logoutTime: null,
-      platformName: "", // Default value for platformName
+      platformName: "",
     );
   }
 
@@ -63,7 +61,7 @@ class Session {
       'accessToken': accessToken,
       'expiration': expiration,
       'logoutTime': logoutTime,
-      'platformName': platformName, // Include platformName in map
+      'platformName': platformName,
     };
   }
 
@@ -76,7 +74,7 @@ class Session {
       accessToken: map['accessToken'] as String,
       expiration: map['expiration'] as String,
       logoutTime: map['logoutTime'] as String?,
-      platformName: map['platformName'] as String?, // Handle platformName
+      platformName: map['platformName'] as String?,
     );
   }
 

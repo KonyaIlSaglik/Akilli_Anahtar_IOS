@@ -1,5 +1,5 @@
-import 'package:akilli_anahtar/controllers/box_management_controller.dart';
-import 'package:akilli_anahtar/controllers/device_management_controller.dart';
+import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
+import 'package:akilli_anahtar/controllers/admin/device_management_controller.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/device_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

@@ -1,5 +1,5 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

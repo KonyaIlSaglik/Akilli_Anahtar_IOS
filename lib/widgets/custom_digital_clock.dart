@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 class CustomDigitalClock extends StatefulWidget {
   final DateTime? datetime;
 
-  // final bool showNumbers;
-  // final bool showAllNumbers;
   final bool showSeconds;
   final BoxDecoration? decoration;
   final Color digitalClockTextColor;
@@ -16,8 +14,6 @@ class CustomDigitalClock extends StatefulWidget {
   final double textScaleFactor;
   final TextStyle? textStyle;
 
-  ///You can pass INTL date format skeleton here, to choose in what format you want to display the time. Note in case of ui distored please wrap it inside a container with desired padding and margin.
-  ///For more info about skeletons please refer to this site https://pub.dev/documentation/intl/latest/intl/DateFormat-class.html
   final String? format;
 
   const CustomDigitalClock(
@@ -66,10 +62,10 @@ class CustomDigitalClock extends StatefulWidget {
 }
 
 class _DigitalClockState extends State<CustomDigitalClock> {
-  DateTime initialDatetime; // to keep track of time changes
+  DateTime initialDatetime;
   DateTime datetime;
 
-  Duration updateDuration = const Duration(seconds: 1); // repaint frequency
+  Duration updateDuration = const Duration(seconds: 1);
   _DigitalClockState()
       : datetime = DateTime.now(),
         initialDatetime = DateTime.now();
@@ -80,15 +76,12 @@ class _DigitalClockState extends State<CustomDigitalClock> {
 
     updateDuration = Duration(seconds: 1);
     if (widget.isLive) {
-      // update clock every second or minute based on second hand's visibility.
-
       Timer.periodic(updateDuration, update);
     }
   }
 
   update(Timer timer) {
     if (mounted) {
-      // update is only called on live clocks. So, it's safe to update datetime.
       datetime = initialDatetime.add(updateDuration * timer.tick);
       setState(() {});
     }

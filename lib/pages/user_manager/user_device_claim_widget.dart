@@ -18,17 +18,15 @@ class _UserDeviceClaimWidgetState extends State<UserDeviceClaimWidget> {
       onTap: () {
         showModalBottomSheet(
           context: context,
-          isScrollControlled: true, // Allows for scrolling if content is large
+          isScrollControlled: true,
           builder: (context) {
             return SizedBox(
-              height: MediaQuery.of(context).size.height *
-                  0.95, // Makes it responsive
+              height: MediaQuery.of(context).size.height * 0.95,
               child: Padding(
-                padding: const EdgeInsets.all(16.0), // Optional padding
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min, // Wraps content
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Title for the modal
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -45,12 +43,12 @@ class _UserDeviceClaimWidgetState extends State<UserDeviceClaimWidget> {
                         IconButton(
                           icon: Icon(Icons.close),
                           onPressed: () {
-                            Navigator.pop(context); // Closes the modal
+                            Navigator.pop(context);
                           },
                         ),
                       ],
                     ),
-                    Divider(), // Optional divider for separation
+                    Divider(),
                     OrganisationSelectWidget(
                       onChanged: () {},
                     ),

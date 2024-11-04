@@ -1,7 +1,7 @@
-import 'package:akilli_anahtar/controllers/box_management_controller.dart';
-import 'package:akilli_anahtar/controllers/device_management_controller.dart';
-import 'package:akilli_anahtar/controllers/home_controller.dart';
-import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
+import 'package:akilli_anahtar/controllers/admin/device_management_controller.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/models/nodemcu_info_model.dart';

@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
+import 'package:akilli_anahtar/controllers/install/nodemcu_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';

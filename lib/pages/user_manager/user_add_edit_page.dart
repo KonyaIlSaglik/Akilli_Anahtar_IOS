@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/user_management_control.dart';
+import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/pages/user_manager/user_operation_claim_list_view_widget.dart';
 import 'package:akilli_anahtar/pages/user_manager/user_organisation_claim_widget.dart';
@@ -234,27 +234,12 @@ class _UserAddEditPageState extends State<UserAddEditPage>
                         decoration: InputDecoration(labelText: 'Email'),
                         initialValue: mail,
                         onChanged: (value) => mail = value,
-                        // validator: (value) {
-                        //   if (value == null || value.isEmpty) {
-                        //     return 'Please enter an email';
-                        //   }
-                        //   if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                        //     return 'Please enter a valid email';
-                        //   }
-                        //   return null;
-                        // },
                       ),
                       SizedBox(height: 8),
                       TextFormField(
                         decoration: InputDecoration(labelText: 'Telefon'),
                         initialValue: telephone,
                         onChanged: (value) => telephone = value,
-                        // validator: (value) {
-                        //   if (value == null || value.isEmpty) {
-                        //     return 'Please enter a telephone number';
-                        //   }
-                        //   return null;
-                        // },
                       ),
                       if (userManagementControl.selectedUser.value.id == 0)
                         Column(
@@ -316,7 +301,7 @@ class _UserAddEditPageState extends State<UserAddEditPage>
                           child: Text('Güncelle'),
                         ),
                         Divider(),
-                        UserOperationClaimListViewWidget(), // İşlem Yetkileri Butonu
+                        UserOperationClaimListViewWidget(),
                         Divider(),
                         UserDeviceClaimWidget(),
                         Divider(),

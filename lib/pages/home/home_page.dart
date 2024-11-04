@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/home/datetime/date_view.dart';
 import 'package:akilli_anahtar/pages/home/datetime/time_view.dart';
 import 'package:akilli_anahtar/pages/home/index/index_page.dart';
@@ -61,13 +61,6 @@ class _HomePageState extends State<HomePage> {
                             .titleMedium!
                             .copyWith(color: Colors.white),
                       ),
-                      // Text(
-                      //   "Değiştir",
-                      //   style: Theme.of(context)
-                      //       .textTheme
-                      //       .titleSmall!
-                      //       .copyWith(color: Colors.white),
-                      // ),
                     ],
                   ),
                 ),

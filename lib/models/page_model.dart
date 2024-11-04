@@ -1,7 +1,7 @@
-import 'package:akilli_anahtar/pages/new_home/body/favorite/favorite_edit_page.dart';
-import 'package:akilli_anahtar/pages/new_home/body/favorite/favorite_page.dart';
-import 'package:akilli_anahtar/pages/new_home/body/grouped/grouped_page.dart';
-import 'package:akilli_anahtar/pages/new_home/body/profile_page.dart';
+import 'package:akilli_anahtar/pages/new_home/favorite/favorite_edit_page.dart';
+import 'package:akilli_anahtar/pages/new_home/favorite/favorite_page.dart';
+import 'package:akilli_anahtar/pages/new_home/grouped/grouped_page.dart';
+import 'package:akilli_anahtar/pages/new_home/profile/profile_page.dart';
 import 'package:flutter/material.dart';
 
 class PageModel {

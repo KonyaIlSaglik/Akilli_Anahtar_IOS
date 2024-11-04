@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/login_controller.dart';
+import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

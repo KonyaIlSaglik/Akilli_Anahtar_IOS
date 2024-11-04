@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/home_controller.dart';
-import 'package:akilli_anahtar/controllers/login_controller.dart';
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/entities/city.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/district.dart';
@@ -49,6 +49,7 @@ class AuthService {
 
   static Future<void> login2(LoginModel2 loginModel) async {
     AuthController authController = Get.put(AuthController());
+    authController.allSessions.clear();
     print("$url/login2");
     print(loginModel.toJson());
     var uri = Uri.parse("$url/login2");
@@ -75,13 +76,11 @@ class AuthService {
         var user = User.fromJson(json.encode(data["userDto"]));
         authController.user.value = user;
         return;
-      }
-      if (response.statusCode == 404) {
-        print(response.body);
+      } else if (response.statusCode == 422) {
+        print("response.body");
         authController.allSessions.value = Session.fromJsonList(response.body);
         return;
-      }
-      if (response.statusCode == 400) {
+      } else {
         errorSnackbar("Hata", response.body);
       }
     } catch (e) {

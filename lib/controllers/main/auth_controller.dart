@@ -1,19 +1,14 @@
-import 'package:akilli_anahtar/controllers/login_controller.dart';
+import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/models/session_model.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
-import 'package:akilli_anahtar/services/local/i_cache_manager.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
-import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
-  var sessionManager = CacheManager<Session>(
-      HiveConstants.sessionKey, HiveConstants.sessionTypeId, SessionAdapter());
-
   var isLoading = false.obs;
   var isChanged = false.obs;
   var session = Session.empty().obs;
@@ -34,7 +29,6 @@ class AuthController extends GetxController {
     session.value = Session.empty();
     user.value = User();
     operationClaims.value = <OperationClaim>[];
-    await sessionManager.clear();
     await loginController.clearLoginInfo();
     Get.to(() => LoginPage());
   }
@@ -50,8 +44,6 @@ class AuthController extends GetxController {
         LoginController loginController = Get.find();
         loginController.password.value = newPassword;
         await loginController.saveLoginInfo();
-        await sessionManager.clear();
-        sessionManager.add(session.value);
       }
     } catch (e) {
       errorSnackbar('Error', 'Bir hata oldu. Tekrar deneyin.');

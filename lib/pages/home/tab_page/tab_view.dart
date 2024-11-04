@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/control_devices_page.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/sensor/sensor_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';

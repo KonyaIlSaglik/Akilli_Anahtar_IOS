@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class ConnectivityController extends GetxController {
-  // Reactive variable to hold the internet connection status
   var isConnected = false.obs;
 
   @override

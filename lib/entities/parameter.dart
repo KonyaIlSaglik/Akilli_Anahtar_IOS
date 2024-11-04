@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-part 'parameter.g.dart';
-
 @HiveType(typeId: HiveConstants.parametersTypeId)
 class Parameter {
   @HiveField(0)

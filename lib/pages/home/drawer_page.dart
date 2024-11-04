@@ -1,5 +1,5 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/pager_controller.dart';
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/main/pager_controller.dart';
 import 'package:akilli_anahtar/layout.dart';
 import 'package:akilli_anahtar/pages/user_manager/user_list_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';

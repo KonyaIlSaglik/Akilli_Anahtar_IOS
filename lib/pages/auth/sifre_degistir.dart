@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -152,10 +152,6 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
   }
 
   sifreDegistir(context) async {
-    // if (oldPasswordCont.text != _authController.loginModel2.value.password) {
-    //   errorSnackbar("Hata", "Eski şifre hatalı.");
-    //   return;
-    // }
     if (oldPasswordCont.text.isEmpty) {
       errorSnackbar("Hata", "Eski şifre boş olamaz.");
       return;
@@ -171,11 +167,6 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
 
     await _authController.changePassword(
         oldPasswordCont.text, newPasswordCont.text);
-
-    // if (_authController.isChanged.value) {
-    //   oldPasswordCont.text = _authController.loginModel2.value.password;
-    //   infoSnackbar("Bilgilendirme", "Şifre Değiştirildi");
-    // }
 
     newPasswordCont.text = "";
     newPasswordAgainCont.text = "";

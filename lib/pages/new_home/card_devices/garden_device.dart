@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
@@ -8,15 +8,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 
-class BarrierDevice extends StatefulWidget {
+class GardenDevice extends StatefulWidget {
   final Device device;
-  const BarrierDevice({super.key, required this.device});
+  const GardenDevice({super.key, required this.device});
 
   @override
-  State<BarrierDevice> createState() => _BarrierDeviceState();
+  State<GardenDevice> createState() => _GardenDeviceState();
 }
 
-class _BarrierDeviceState extends State<BarrierDevice> {
+class _GardenDeviceState extends State<GardenDevice> {
   late Device device;
   final MqttController _mqttController = Get.find<MqttController>();
   String status = "1";
@@ -67,11 +67,13 @@ class _BarrierDeviceState extends State<BarrierDevice> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Icon(
-                  FontAwesomeIcons.squareParking,
+                  status == "0"
+                      ? FontAwesomeIcons.faucetDrip
+                      : FontAwesomeIcons.faucet,
                   shadows: isSub
                       ? <Shadow>[
                           Shadow(
-                            color: Colors.indigo,
+                            color: status == "0" ? Colors.blue : Colors.black,
                             blurRadius: 15.0,
                           ),
                         ]
@@ -79,11 +81,21 @@ class _BarrierDeviceState extends State<BarrierDevice> {
                   size: width(context) * 0.07,
                   color: Colors.white70,
                 ),
-                if (device.unit != null)
-                  Text(
-                    device.unit ?? "",
-                    style: textTheme(context).titleLarge,
+                InkWell(
+                  child: Icon(
+                    FontAwesomeIcons.clock,
+                    color: Colors.green,
+                    shadows: <Shadow>[
+                      Shadow(
+                        color: Colors.green,
+                        blurRadius: 15.0,
+                      ),
+                    ],
                   ),
+                  onTap: () {
+                    //
+                  },
+                ),
               ],
             ),
             SizedBox(height: 20),
@@ -92,6 +104,7 @@ class _BarrierDeviceState extends State<BarrierDevice> {
             Text(
               device.name,
               style: textTheme(context).titleMedium,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
@@ -102,11 +115,11 @@ class _BarrierDeviceState extends State<BarrierDevice> {
 
   _switch() {
     return AnimatedToggleSwitch<bool>.dual(
-      current: status == "2" || status == "3",
+      current: status == "0",
       first: false,
       second: true,
       spacing: 0.0,
-      loading: status == "2" || status == "4",
+      loading: false,
       animationDuration: const Duration(milliseconds: 600),
       style: const ToggleStyle(
         borderColor: Colors.transparent,
@@ -114,14 +127,12 @@ class _BarrierDeviceState extends State<BarrierDevice> {
         backgroundColor: Colors.amber,
       ),
       customStyleBuilder: (context, local, global) => ToggleStyle(
-        backgroundColor: status == "2" || status == "3"
-            ? Colors.green[300]
-            : Colors.red[300],
+        backgroundColor: status == "0" ? Colors.green : Colors.brown[400],
       ),
       height: width(context) * 0.12,
       loadingIconBuilder: (context, global) => CupertinoActivityIndicator(
           color: Color.lerp(Colors.blue, Colors.blue, global.spacing)),
-      active: status == "1",
+      active: true,
       onTap: (props) {
         sendMessage();
       },
@@ -133,7 +144,7 @@ class _BarrierDeviceState extends State<BarrierDevice> {
             )
           : Icon(
               FontAwesomeIcons.powerOff,
-              color: Colors.red,
+              color: Colors.red[400],
               size: 32.0,
             ),
     );
@@ -141,7 +152,8 @@ class _BarrierDeviceState extends State<BarrierDevice> {
 
   sendMessage() {
     if (_mqttController.isConnected.value) {
-      _mqttController.publishMessage(device.topicRec!, "0");
+      _mqttController.publishMessage(
+          device.topicRec!, status == "0" ? "1" : "0");
     }
   }
 }

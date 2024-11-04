@@ -1,5 +1,5 @@
-import 'package:akilli_anahtar/controllers/nodemcu_controller.dart';
-import 'package:akilli_anahtar/controllers/wifi_controller.dart';
+import 'package:akilli_anahtar/controllers/install/nodemcu_controller.dart';
+import 'package:akilli_anahtar/controllers/install/wifi_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

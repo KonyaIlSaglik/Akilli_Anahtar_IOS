@@ -1,5 +1,5 @@
-import 'package:akilli_anahtar/controllers/box_management_controller.dart';
-import 'package:akilli_anahtar/controllers/device_management_controller.dart';
+import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
+import 'package:akilli_anahtar/controllers/admin/device_management_controller.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/device_add_edit_page.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/device_timing_page.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/device_manager/device_detail/rf_options_page.dart';
@@ -92,7 +92,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     SizedBox(
-                      width: width, // Set the width to full screen width
+                      width: width,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurple,

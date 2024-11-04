@@ -1,5 +1,5 @@
-import 'package:akilli_anahtar/controllers/home_controller.dart';
-import 'package:akilli_anahtar/controllers/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/models/version_model.dart';
 import 'package:akilli_anahtar/services/api/box_service.dart';
@@ -97,18 +97,13 @@ class BoxManagementController extends GetxController {
 
   void sortBoxes() {
     boxes.sort((a, b) {
-      // First sort by isSub (true first)
       int subComparison = a.isSub == b.isSub ? 0 : (a.isSub ? -1 : 1);
       if (subComparison != 0) return subComparison;
 
-      // If both isSub and box.name are the same, sort by isOld
       int oldComparison = a.isOld == b.isOld ? 0 : (a.isOld == -1 ? -1 : 1);
       if (oldComparison != 0) return oldComparison;
 
-      // If isSub is the same, sort by box.name
-      //int nameComparison =
       return b.name.toLowerCaseTr().compareTo(a.name.toLowerCaseTr());
-      //if (nameComparison != 0) return nameComparison;
     });
   }
 

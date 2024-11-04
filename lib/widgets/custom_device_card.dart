@@ -1,8 +1,8 @@
 import 'package:akilli_anahtar/entities/device.dart';
-import 'package:akilli_anahtar/pages/new_home/body/card_devices/barrier_device.dart';
-import 'package:akilli_anahtar/pages/new_home/body/card_devices/garden_device.dart';
-import 'package:akilli_anahtar/pages/new_home/body/card_devices/rf_transmitter_device.dart';
-import 'package:akilli_anahtar/pages/new_home/body/card_devices/sensor_device.dart';
+import 'package:akilli_anahtar/pages/new_home/card_devices/barrier_device.dart';
+import 'package:akilli_anahtar/pages/new_home/card_devices/garden_device.dart';
+import 'package:akilli_anahtar/pages/new_home/card_devices/rf_transmitter_device.dart';
+import 'package:akilli_anahtar/pages/new_home/card_devices/sensor_device.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:akilli_anahtar/utils/constants.dart';

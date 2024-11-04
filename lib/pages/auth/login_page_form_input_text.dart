@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/login_controller.dart';
+import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -22,7 +22,7 @@ class _LoginPageFormInputTextState extends State<LoginPageFormInputText> {
   bool passVisible = false;
   @override
   Widget build(BuildContext context) {
-    widget.controller.text = widget.isPassword ? "Mehmet" : "mehmet";
+    //widget.controller.text = widget.isPassword ? "Mehmet" : "mehmet";
     return Card.outlined(
       elevation: 10,
       child: Theme(

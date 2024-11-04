@@ -1,4 +1,4 @@
-import 'package:akilli_anahtar/controllers/pager_controller.dart';
+import 'package:akilli_anahtar/controllers/main/pager_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

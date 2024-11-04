@@ -1,10 +1,7 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:akilli_anahtar/utils/hive_constants.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
-part 'login_model.g.dart';
 
 @HiveType(typeId: HiveConstants.loginModelTypeId)
 class LoginModel {
