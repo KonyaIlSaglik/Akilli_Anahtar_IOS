@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
@@ -8,12 +9,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:akilli_anahtar/splash_page.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //await initializeService();
+  await initializeService();
   initializeDateFormatting('tr_TR', null).then(
     (value) => runApp(MyApp(theme: ThemeData.light())),
   );
@@ -73,16 +73,27 @@ class MyApp extends StatelessWidget {
   }
 }
 
+void startBackgroundService() {
+  final service = FlutterBackgroundService();
+  service.startService();
+}
+
+void stopBackgroundService() {
+  final service = FlutterBackgroundService();
+  service.invoke("stop");
+}
+
 Future<void> initializeService() async {
   final service = FlutterBackgroundService();
+
   await service.configure(
     iosConfiguration: IosConfiguration(
-      autoStart: true,
+      autoStart: false,
       onForeground: onStart,
       onBackground: onIosBackground,
     ),
     androidConfiguration: AndroidConfiguration(
-      autoStart: true,
+      autoStart: false,
       onStart: onStart,
       isForegroundMode: false,
       autoStartOnBoot: true,
@@ -100,14 +111,11 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
-  await Hive.initFlutter("localdb");
-  var mqttController = Get.put(MqttController());
-  await mqttController.initClient();
-  mqttController.subscribeToTopic("mc");
-  mqttController.onMessage((topic, message) {
-    if (topic == "mc") {
-      print("Mesaj Geldi");
-      mqttController.showNotification("Mesaj geldi");
-    }
+  MqttController mqttController = Get.find();
+
+  Timer.periodic(const Duration(seconds: 3), (timer) {
+    print("dfawdawdawdaw");
+    mqttController.publishMessage(
+        "AAAAA", "fesmflksemlfksem ${DateTime.now()}");
   });
 }

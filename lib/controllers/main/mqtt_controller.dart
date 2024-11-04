@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
@@ -57,6 +59,12 @@ class MqttController extends GetxController {
           .value;
     }
     clientIsNull.value = false;
+    LocalDb.add(mqttHostKey, client.server);
+    LocalDb.add(mqttPortKey, client.port?.toString() ?? "1883");
+    LocalDb.add(mqttUserKey, client.connectionMessage!.payload.username!);
+    LocalDb.add(mqttPasswordKey, client.connectionMessage!.payload.password!);
+    final service = FlutterBackgroundService();
+    service.startService();
     print("Mqtt initialized");
   }
 

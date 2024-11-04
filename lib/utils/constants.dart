@@ -8,6 +8,11 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:new_version_plus/new_version_plus.dart';
 
+const String mqttHostKey = "mqttHost";
+const String mqttPortKey = "mqttPort";
+const String mqttUserKey = "mqttUser";
+const String mqttPasswordKey = "mqttPassword";
+
 const String apiUrlIn = "http://10.42.41.36:85/api";
 const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
 const String userNameKey = "userName";
