@@ -73,7 +73,7 @@ class HomeController extends GetxController {
   List<Device> get favoriteDevices {
     var list = devices
         .where(
-          (d) => d.favoriteSequence > 0,
+          (d) => d.favoriteSequence > -1,
         )
         .toList();
     list.sort(
