@@ -13,6 +13,7 @@ import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/login_model2.dart';
 import 'package:akilli_anahtar/models/session_model.dart';
 import 'package:akilli_anahtar/services/api/base_service.dart';
+import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -73,8 +74,12 @@ class AuthService {
         var data = json.decode(response.body) as Map<String, dynamic>;
         var session = Session.fromJson(json.encode(data["session"]));
         authController.session.value = session;
+        LocalDb.add(accessTokenKey, session.accessToken);
         var user = User.fromJson(json.encode(data["userDto"]));
         authController.user.value = user;
+        LocalDb.add(userIdKey, user.id.toString());
+        LocalDb.add(userNameKey, loginModel.userName);
+        LocalDb.add(passwordKey, loginModel.password);
         return;
       } else if (response.statusCode == 422) {
         authController.allSessions.value = Session.fromJsonList(response.body);
@@ -89,7 +94,7 @@ class AuthService {
     return;
   }
 
-  static Future<void> getData() async {
+  static Future<List<Device>?> getData() async {
     var authController = Get.find<AuthController>();
     HomeController homeController = Get.find();
     var response = await BaseService.get(
@@ -110,7 +115,9 @@ class AuthService {
       homeController.cities.value = cities;
       var districts = District.fromJsonList(json.encode(data["districts"]));
       homeController.districts.value = districts;
+      return devices;
     }
+    return null;
   }
 
   static Future<List<OperationClaim>?> getUserClaims() async {

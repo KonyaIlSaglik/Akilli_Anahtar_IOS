@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/background_service.dart';
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
@@ -34,6 +35,7 @@ class _NewHomePageState extends State<NewHomePage> {
 
     if (mqttController.clientIsNull.value) {
       await mqttController.initClient();
+      await initializeService();
     }
     if (!mqttController.isConnected.value) {
       await mqttController.connect();
