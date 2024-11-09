@@ -23,7 +23,12 @@ void startBackgroundService() {
 
 void stopBackgroundService() {
   final service = FlutterBackgroundService();
-  service.invoke("stop");
+  service.invoke("stopService");
+}
+
+Future<bool> isRunning() async {
+  final service = FlutterBackgroundService();
+  return await service.isRunning();
 }
 
 Future<void> initializeService() async {
@@ -45,7 +50,7 @@ Future<void> initializeService() async {
     ),
   );
   if (await service.isRunning()) {
-    service.invoke("stop");
+    service.invoke("stopService");
   }
   service.startService();
 }
@@ -60,6 +65,9 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
+  service.on('stopService').listen((event) {
+    service.stopSelf();
+  });
   String? userName;
   String? password;
   TokenModel? tokenModel;
@@ -169,11 +177,15 @@ Future<void> _showNotification(
   String body,
 ) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails('your_channel_id', 'Acil Durumlar',
-          channelDescription: 'Cihaz Alarm Bildirimleri',
-          importance: Importance.max,
-          priority: Priority.high,
-          showWhen: false);
+      AndroidNotificationDetails(
+    'your_channel_id',
+    'Acil Durumlar',
+    channelDescription: 'Cihaz Alarm Bildirimleri',
+    importance: Importance.max,
+    priority: Priority.high,
+    showWhen: false,
+    actions: [],
+  );
   const NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
 

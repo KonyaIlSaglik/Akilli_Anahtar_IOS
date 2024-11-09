@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 
@@ -10,6 +11,19 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   var text = "-";
+
+  @override
+  void initState() {
+    super.initState();
+    isRunning().then(
+      (value) {
+        setState(() {
+          text = value ? "KAPAT" : "AÇ";
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -21,12 +35,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 final service = FlutterBackgroundService();
                 var status = await service.isRunning();
                 if (status) {
-                  service.invoke("stop");
+                  stopBackgroundService();
                   setState(() {
                     text = "AÇ";
                   });
                 } else {
-                  service.startService();
+                  await initializeService();
                   setState(() {
                     text = "KAPAT";
                   });
