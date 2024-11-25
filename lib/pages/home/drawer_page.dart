@@ -1,5 +1,6 @@
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/main/pager_controller.dart';
+import 'package:akilli_anahtar/pages/box_install/install_settings.dart';
 import 'package:akilli_anahtar/pages/user_manager/user_list_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_list_page.dart';
@@ -149,7 +150,7 @@ class _DrawerPageState extends State<DrawerPage> {
                                         context,
                                         MaterialPageRoute<void>(
                                           builder: (BuildContext context) =>
-                                              IntroductionPage(),
+                                              InstallSettings(),
                                         ),
                                       );
                                     },

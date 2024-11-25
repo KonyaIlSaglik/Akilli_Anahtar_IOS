@@ -13,57 +13,31 @@ class WifiPageViewModel {
     var height = MediaQuery.of(context).size.height;
     return PageViewModel(
       title: "KURULUM",
-      body:
-          "Telefonunuzun Wifi Ayarlarına giderek AKILLI ANAHTAR cihazına bağlantı kurunuz.",
+      body: "Akıllı Anahtar cihazınızın açık olup olmadığını kontrol ediniz.",
       image: Center(
         child: Icon(
-          wifiController.isConnected.value ? Icons.wifi : Icons.wifi_off,
-          size: 100.0,
-          color: wifiController.isConnected.value ? Colors.blue : Colors.grey,
+          Icons.wifi,
+          size: width * 0.75,
+          color: Colors.blue,
         ),
       ),
       footer: Padding(
         padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-        child: wifiController.isConnected.value &&
-                !nodemcuController.apScanning.value
-            ? Column(
-                children: [
-                  Center(
-                    child: Icon(
-                      Icons.done,
-                      color: Colors.green,
-                      size: 50,
-                    ),
-                  ),
-                  SizedBox(
-                    height: height * 0.01,
-                  ),
-                  Text(
-                    "Bağlısınız. Sonraki adıma geçebilirsiniz",
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              )
-            : Column(
-                children: [
-                  CircularProgressIndicator(
-                    color: goldColor,
-                  ),
-                  SizedBox(
-                    height: height * 0.01,
-                  ),
-                  Text("Cihaza bağlanma bekleniyor...")
-                ],
-              ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: height * 0.01,
+            ),
+            Text("Cihaz açık ise kuruluma başlayabilirsiniz")
+          ],
+        ),
       ),
       decoration: PageDecoration(
-        footerFlex: 30,
-        bodyFlex: 30,
-        imageFlex: 40,
+        footerFlex: 10,
+        bodyFlex: 25,
+        imageFlex: 50,
         pageColor: Colors.white,
-        imagePadding: EdgeInsets.all(24),
+        //imagePadding: EdgeInsets.all(24),
         titleTextStyle: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
         bodyTextStyle: TextStyle(fontSize: 18),
       ),

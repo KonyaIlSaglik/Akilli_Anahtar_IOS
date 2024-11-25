@@ -55,8 +55,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                     ),
                   ),
                   controlsPadding: EdgeInsets.only(top: 50),
-                  showNextButton:
-                      (page == 0 && _wifiController.isConnected.value),
+                  showNextButton: (page == 0),
                   next: Text(
                     page == 0 ? "Başla" : "Sonraki",
                     style: TextStyle(
