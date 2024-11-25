@@ -6,7 +6,7 @@ class Device {
   int typeId;
   String? typeName;
   int boxId;
-  String boxName;
+  String? boxName;
   int organisationId;
   String topicStat;
   String? topicRec;
@@ -104,7 +104,7 @@ class Device {
       typeId: map['typeId'] as int,
       typeName: map['typeName'] != null ? map['typeName'] as String : null,
       boxId: map['boxId'] as int,
-      boxName: map['boxName'] as String,
+      boxName: map['boxName'] != null ? map['boxName'] as String : null,
       organisationId: map['organisationId'] as int,
       topicStat: map['topicStat'] as String,
       topicRec: map['topicRec'] != null ? map['topicRec'] as String : null,

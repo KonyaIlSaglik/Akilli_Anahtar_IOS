@@ -94,7 +94,7 @@ class HomeController extends GetxController {
         )
         .toList();
     list.sort(
-      (a, b) => a.boxName.compareToTr(b.boxName),
+      (a, b) => a.boxName!.compareToTr(b.boxName!),
     );
     var boxNames = getDistinctBoxNames(list);
     var newList = <DeviceGroupByBox>[];
@@ -116,7 +116,7 @@ class HomeController extends GetxController {
     Set<String> boxNamesSet = {};
 
     for (var device in devices) {
-      boxNamesSet.add(device.boxName);
+      boxNamesSet.add(device.boxName!);
     }
 
     return boxNamesSet.toList();

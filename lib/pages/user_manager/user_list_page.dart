@@ -22,8 +22,8 @@ class _UserListPageState extends State<UserListPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      userManagementController.getUsers();
+    Future.delayed(Duration.zero, () async {
+      await userManagementController.getUsers();
       setState(() {});
     });
   }

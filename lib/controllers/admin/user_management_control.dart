@@ -54,6 +54,7 @@ class UserManagementController extends GetxController {
                 ),
               )
               .toList();
+          filterUsers();
           loadingUser.value = false;
           return;
         }
