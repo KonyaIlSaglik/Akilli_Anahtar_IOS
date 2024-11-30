@@ -19,7 +19,8 @@ const String userIdKey = "userId";
 const String userNameKey = "userName";
 const String passwordKey = "password";
 const String accessTokenKey = "accessToken";
-const Color goldColor = Color(0xffb49664);
+const Color goldColor = Colors.brown;
+//const Color goldColor = Color(0xffb49664);
 //const Color mainColor = Color.fromARGB(255, 180, 150, 100);
 const String gizlilikUrl = "https://ossbs.com/gizlilik/index.htm";
 

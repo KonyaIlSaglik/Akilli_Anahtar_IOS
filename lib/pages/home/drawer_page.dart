@@ -1,10 +1,8 @@
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/main/pager_controller.dart';
-import 'package:akilli_anahtar/pages/box_install/install_settings.dart';
 import 'package:akilli_anahtar/pages/user_manager/user_list_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_list_page.dart';
-import 'package:akilli_anahtar/pages/box_install/introduction_page.dart';
 import 'package:akilli_anahtar/widgets/version_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -132,41 +130,17 @@ class _DrawerPageState extends State<DrawerPage> {
                           ),
                           if (_authController.operationClaims.any((c) =>
                               c.name == "developer" ||
-                              c.name == "device_install" ||
-                              c.name == "admin"))
-                            ExpansionTile(
-                              leading: Icon(FontAwesomeIcons.userShield),
-                              title: Text("Admin"),
+                              c.name == "device_install"))
+                            Column(
                               children: [
-                                if (_authController.operationClaims.any((c) =>
-                                    c.name == "developer" ||
-                                    c.name == "device_install"))
-                                  ListTile(
-                                    leading:
-                                        Icon(Icons.settings_input_component),
-                                    title: Text("Kutu Kurulum"),
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute<void>(
-                                          builder: (BuildContext context) =>
-                                              InstallSettings(),
-                                        ),
-                                      );
-                                    },
-                                    trailing: Icon(Icons.chevron_right),
-                                  ),
-                                if (_authController.operationClaims.any((c) =>
-                                    c.name == "developer" ||
-                                    c.name == "device_install"))
-                                  ListTile(
-                                    leading: Icon(FontAwesomeIcons.upload),
-                                    title: Text("Kutu Yönetimi"),
-                                    onTap: () {
-                                      Get.to(() => BoxListPage());
-                                    },
-                                    trailing: Icon(Icons.chevron_right),
-                                  ),
+                                ListTile(
+                                  leading: Icon(FontAwesomeIcons.boxesStacked),
+                                  title: Text("Kutu Yönetimi"),
+                                  onTap: () {
+                                    Get.to(() => BoxListPage());
+                                  },
+                                  trailing: Icon(Icons.chevron_right),
+                                ),
                                 ListTile(
                                   leading: Icon(FontAwesomeIcons.users),
                                   title: Text("Kullanıcı Yönetimi"),
@@ -183,6 +157,37 @@ class _DrawerPageState extends State<DrawerPage> {
                                 ),
                               ],
                             ),
+
+                          // if (_authController.operationClaims.any((c) =>
+                          //     c.name == "developer" ||
+                          //     c.name == "device_install" ||
+                          //     c.name == "user_admin"))
+                          //   ExpansionTile(
+                          //     leading: Icon(FontAwesomeIcons.userShield),
+                          //     title: Text("Admin"),
+                          //     iconColor: goldColor,
+                          //     children: [
+                          //       if (_authController.operationClaims.any((c) =>
+                          //           c.name == "developer" ||
+                          //           c.name == "device_install"))
+                          //         ListTile(
+                          //           leading:
+                          //               Icon(Icons.settings_input_component),
+                          //           title: Text("Kutu Kurulum"),
+                          //           onTap: () {
+                          //             Navigator.push(
+                          //               context,
+                          //               MaterialPageRoute<void>(
+                          //                 builder: (BuildContext context) =>
+                          //                     InstallSettings(),
+                          //               ),
+                          //             );
+                          //           },
+                          //           trailing: Icon(Icons.chevron_right),
+                          //         ),
+
+                          //     ],
+                          //   ),
                         ],
                       ),
                     ),
@@ -207,7 +212,17 @@ class _DrawerPageState extends State<DrawerPage> {
       builder: (context) {
         return Scaffold(
           appBar: AppBar(
-            toolbarHeight: 0,
+            backgroundColor: Colors.white,
+            shadowColor: goldColor,
+            foregroundColor: goldColor,
+            elevation: 10,
+            title: Text(
+              "GİZLİLİK POLİTİKASI",
+              style: (width(context) < minWidth
+                      ? textTheme(context).titleMedium!
+                      : textTheme(context).titleLarge!)
+                  .copyWith(color: goldColor),
+            ),
           ),
           body: Center(
             child: InAppWebView(
@@ -218,18 +233,6 @@ class _DrawerPageState extends State<DrawerPage> {
               },
             ),
           ),
-          persistentFooterAlignment: AlignmentDirectional.center,
-          persistentFooterButtons: [
-            ElevatedButton.icon(
-              icon: Icon(
-                Icons.arrow_back,
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              label: Text("Geri"),
-            ),
-          ],
         );
       },
     );

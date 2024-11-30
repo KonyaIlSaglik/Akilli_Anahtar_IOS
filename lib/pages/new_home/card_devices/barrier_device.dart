@@ -71,7 +71,7 @@ class _BarrierDeviceState extends State<BarrierDevice> {
                   shadows: isSub
                       ? <Shadow>[
                           Shadow(
-                            color: Colors.indigo,
+                            color: goldColor,
                             blurRadius: 15.0,
                           ),
                         ]
@@ -115,8 +115,8 @@ class _BarrierDeviceState extends State<BarrierDevice> {
       ),
       customStyleBuilder: (context, local, global) => ToggleStyle(
         backgroundColor: status == "2" || status == "3"
-            ? Colors.green[300]
-            : Colors.red[300],
+            ? goldColor.withOpacity(0.3)
+            : goldColor.withOpacity(0.7),
       ),
       height: width(context) * 0.12,
       loadingIconBuilder: (context, global) => CupertinoActivityIndicator(

@@ -1,31 +1,23 @@
 import 'dart:convert';
 
-import 'package:hive_flutter/hive_flutter.dart';
-
-import 'package:akilli_anahtar/utils/hive_constants.dart';
-
-@HiveType(typeId: HiveConstants.userTypeId)
 class User {
-  @HiveField(0)
   int id;
 
-  @HiveField(1)
   String userName;
 
-  @HiveField(2)
   String fullName;
 
-  @HiveField(3)
   String password;
 
-  @HiveField(4)
   String mail;
 
-  @HiveField(5)
   String telephone;
 
-  @HiveField(6)
   int active;
+
+  int organisationId;
+
+  String organisationName;
 
   User({
     this.id = 0,
@@ -35,6 +27,8 @@ class User {
     this.mail = "",
     this.telephone = "",
     this.active = 1,
+    this.organisationId = 0,
+    this.organisationName = "",
   });
 
   Map<String, dynamic> toMap() {
@@ -46,6 +40,8 @@ class User {
       'mail': mail,
       'telephone': telephone,
       'active': active,
+      'organisationId': organisationId,
+      'organisationName': organisationName
     };
   }
 
@@ -58,6 +54,11 @@ class User {
       mail: map['mail'] != null ? map['mail'] as String : "",
       telephone: map['telephone'] != null ? map['telephone'] as String : "",
       active: map['active'] != null ? map['active'] as int : 0,
+      organisationId:
+          map['organisationId'] != null ? map['organisationId'] as int : 0,
+      organisationName: map['organisationName'] != null
+          ? map['organisationName'] as String
+          : "",
     );
   }
 
@@ -74,19 +75,51 @@ class User {
     String? mail,
     String? telephone,
     int? active,
+    int? organisationId,
+    String? organisationName,
   }) {
     return User(
       id: id ?? this.id,
       userName: userName ?? this.userName,
-      password: password ?? this.password,
       fullName: fullName ?? this.fullName,
+      password: password ?? this.password,
       mail: mail ?? this.mail,
       telephone: telephone ?? this.telephone,
       active: active ?? this.active,
+      organisationId: organisationId ?? this.organisationId,
+      organisationName: organisationName ?? this.organisationName,
     );
   }
 
   static List<User> fromJsonList(String source) =>
       List<User>.from((json.decode(source) as List<dynamic>)
           .map((x) => User.fromJson(json.encode(x))));
+
+  @override
+  bool operator ==(covariant User other) {
+    if (identical(this, other)) return true;
+
+    return other.id == id &&
+        other.userName == userName &&
+        other.fullName == fullName &&
+        other.password == password &&
+        other.mail == mail &&
+        other.telephone == telephone &&
+        other.active == active &&
+        other.organisationId == organisationId &&
+        other.organisationName == organisationName;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+        userName.hashCode ^
+        fullName.hashCode ^
+        password.hashCode ^
+        mail.hashCode ^
+        telephone.hashCode ^
+        active.hashCode ^
+        organisationId.hashCode ^
+        organisationName.hashCode;
+  }
 }

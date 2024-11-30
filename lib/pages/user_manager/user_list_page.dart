@@ -1,6 +1,7 @@
 import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/organisation_select_widget.dart';
 import 'package:akilli_anahtar/pages/user_manager/user_add_edit_page.dart';
 import 'package:flutter/material.dart';
@@ -30,91 +31,80 @@ class _UserListPageState extends State<UserListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      onPopInvokedWithResult: (didPop, result) {
-        userManagementController.searchQuery.value = "";
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 3,
-          shadowColor: Colors.black,
-          title: Text("Kullanıcılar"),
-          actions: [
-            DropdownButton<String>(
-              icon: Icon(
-                FontAwesomeIcons.listUl,
-                color: Colors.blue,
-              ),
-              dropdownColor: Colors.white,
-              padding: EdgeInsets.only(top: 10),
-              onChanged: (String? newValue) {
-                setState(() {
-                  userManagementController.selectedSortOption.value = newValue!;
-                  userManagementController.sortUsers();
-                });
-              },
-              items: <String>['Sıra No', 'Ad Soyad', 'Kullanıcı Adı']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: IconButton(
-                onPressed: () {
-                  userManagementController.selectedUser.value = User();
-                  Get.to(() => UserAddEditPage());
+    return Obx(
+      () {
+        return PopScope(
+          onPopInvokedWithResult: (didPop, result) {
+            userManagementController.searchQuery.value = "";
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              shadowColor: Colors.black,
+              foregroundColor: goldColor,
+              surfaceTintColor: goldColor,
+              title: TextField(
+                decoration: InputDecoration(
+                  suffix: IconButton(
+                      onPressed: () {
+                        userManagementController.searchQuery.value = "";
+                        userManagementController.filterUsers();
+                      },
+                      icon: Icon(FontAwesomeIcons.deleteLeft)),
+                  hintText: 'Kullanıcı Ara',
+                  fillColor: Colors.transparent,
+                  filled: true,
+                ),
+                onChanged: (value) {
+                  userManagementController.searchQuery.value =
+                      value.toLowerCase();
+                  userManagementController.filterUsers();
                 },
-                icon: Icon(
-                  FontAwesomeIcons.userPlus,
-                  color: Colors.green,
+              ),
+              actions: [
+                PopupMenuButton<String>(
+                  icon: Icon(
+                    FontAwesomeIcons.listUl,
+                  ),
+                  itemBuilder: (context) =>
+                      <String>['Sıra No', 'Ad Soyad', 'Kullanıcı Adı']
+                          .map<PopupMenuItem<String>>(
+                            (e) => PopupMenuItem<String>(child: Text(e)),
+                          )
+                          .toList(),
+                  onSelected: (value) {
+                    userManagementController.selectedSortOption.value = value;
+                    userManagementController.sortUsers();
+                  },
+                ),
+                IconButton(
+                  onPressed: () {
+                    Get.to(() => UserAddEditPage());
+                  },
+                  icon: Icon(FontAwesomeIcons.userPlus, color: goldColor),
+                ),
+                SizedBox(width: width(context) * 0.02),
+              ],
+              bottom: PreferredSize(
+                preferredSize: Size.fromHeight(55.0),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    children: [
+                      OrganisationSelectWidget(
+                        onChanged: () async {
+                          userManagementController.searchQuery.value = "";
+                          await userManagementController.getUsers();
+                        },
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ],
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(120.0),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-              child: Column(
-                children: [
-                  OrganisationSelectWidget(
-                    onChanged: () async {
-                      userManagementController.searchQuery.value = "";
-                      await userManagementController.getUsers();
-                      setState(() {});
-                    },
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Ara',
-                      border: OutlineInputBorder(),
-                      fillColor: Colors.transparent,
-                      filled: true,
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        userManagementController.searchQuery.value =
-                            value.toLowerCase();
-                        userManagementController.filterUsers();
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        body: Obx(
-          () {
-            return RefreshIndicator(
+            body: RefreshIndicator(
               onRefresh: userManagementController.getUsers,
               child: userManagementController.loadingUser.value
                   ? Center(child: CircularProgressIndicator())
@@ -124,9 +114,12 @@ class _UserListPageState extends State<UserListPage> {
                           itemBuilder: (context, i) {
                             return ListTile(
                               leading: CircleAvatar(
-                                child: Text(userManagementController
-                                    .filteredUsers[i].id
-                                    .toString()),
+                                backgroundColor: goldColor.withOpacity(0.8),
+                                child: Text(
+                                  userManagementController.filteredUsers[i].id
+                                      .toString(),
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
                               title: Text(userManagementController
                                   .filteredUsers[i].fullName),
@@ -134,6 +127,7 @@ class _UserListPageState extends State<UserListPage> {
                                   .filteredUsers[i].userName),
                               trailing: IconButton(
                                 icon: Icon(Icons.chevron_right),
+                                hoverColor: goldColor.withOpacity(0.3),
                                 onPressed: () {
                                   userManagementController.selectedUser.value =
                                       userManagementController.filteredUsers[i];
@@ -143,15 +137,17 @@ class _UserListPageState extends State<UserListPage> {
                             );
                           },
                           separatorBuilder: (context, index) {
-                            return Divider();
+                            return Divider(
+                              color: goldColor,
+                            );
                           },
                           itemCount:
                               userManagementController.filteredUsers.length,
                         ),
-            );
-          },
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

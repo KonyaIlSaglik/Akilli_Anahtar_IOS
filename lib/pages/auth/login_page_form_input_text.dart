@@ -1,16 +1,22 @@
-import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
 
 class LoginPageFormInputText extends StatefulWidget {
   final TextEditingController controller;
   final bool isPassword;
+  final String? hintText;
+  final FocusNode focusNode;
+  final FocusNode? nextFocusNode;
+  final String? Function(String? value)? validator;
   const LoginPageFormInputText({
     super.key,
     required this.controller,
     this.isPassword = false,
+    this.hintText,
+    required this.focusNode,
+    this.nextFocusNode,
+    this.validator,
   });
 
   @override
@@ -18,11 +24,9 @@ class LoginPageFormInputText extends StatefulWidget {
 }
 
 class _LoginPageFormInputTextState extends State<LoginPageFormInputText> {
-  LoginController loginController = Get.find();
   bool passVisible = false;
   @override
   Widget build(BuildContext context) {
-    //widget.controller.text = widget.isPassword ? "Mehmet" : "mehmet";
     return Card.outlined(
       elevation: 10,
       child: Theme(
@@ -31,23 +35,17 @@ class _LoginPageFormInputTextState extends State<LoginPageFormInputText> {
               TextSelectionThemeData(selectionHandleColor: goldColor),
         ),
         child: TextFormField(
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return "Zorunlu Alan";
-            }
-            return null;
-          },
+          validator: widget.validator,
           controller: widget.controller,
           obscureText: widget.isPassword && !passVisible,
           cursorColor: Colors.black,
-          textInputAction:
-              widget.isPassword ? TextInputAction.done : TextInputAction.next,
-          focusNode: widget.isPassword
-              ? loginController.passwordFocus
-              : loginController.userNameFocus,
+          textInputAction: widget.nextFocusNode == null
+              ? TextInputAction.done
+              : TextInputAction.next,
+          focusNode: widget.focusNode,
           onFieldSubmitted: (value) {
-            if (!widget.isPassword) {
-              loginController.passwordFocus.requestFocus();
+            if (widget.nextFocusNode != null) {
+              widget.nextFocusNode!.requestFocus();
             }
           },
           style: textTheme(context).titleLarge,
@@ -63,7 +61,7 @@ class _LoginPageFormInputTextState extends State<LoginPageFormInputText> {
               size: 20,
               color: goldColor,
             ),
-            hintText: !widget.isPassword ? "Kullanıcı adı" : "Şifre",
+            hintText: widget.hintText,
             hintStyle:
                 textTheme(context).titleMedium!.copyWith(color: Colors.grey),
             suffixIcon: widget.isPassword

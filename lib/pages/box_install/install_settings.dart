@@ -16,9 +16,9 @@ class InstallSettings extends StatefulWidget {
 
 class _InstallSettingsState extends State<InstallSettings> {
   final TextEditingController ssidController =
-      TextEditingController(text: "CEKICI");
+      TextEditingController(text: "Zyxel_E0E9");
   final TextEditingController passwordController =
-      TextEditingController(text: "Yusuf42Sevil");
+      TextEditingController(text: "KPT78MG4TL");
   final formKey = GlobalKey<FormState>();
   bool passVisible = false;
   bool _animate = false;
@@ -37,7 +37,7 @@ class _InstallSettingsState extends State<InstallSettings> {
 
     provisioner.start(ProvisioningRequest.fromStrings(
       ssid: ssidController.text,
-      bssid: '00:00:00:00:00:00',
+      bssid: '01:00:5E:00:00:00',
       password: passwordController.text,
     ));
 
@@ -243,28 +243,27 @@ class _InstallSettingsState extends State<InstallSettings> {
                         });
                         _startProvisioning();
                       },
-                      // // onTap: () async {
-                      // //   var multicastEndpoint = Endpoint.multicast(
-                      // //     InternetAddress("239.1.2.3"),
-                      // //     port: Port(7001),
-                      // //   );
+                      // onTap: () async {
+                      //   var multicastEndpoint = Endpoint.broadcast(
+                      //     port: Port(7001),
+                      //   );
 
-                      // //   var receiver = await UDP.bind(multicastEndpoint);
+                      //   var receiver = await UDP.bind(multicastEndpoint);
 
-                      // //   var sender = await UDP.bind(Endpoint.any());
+                      //   var sender = await UDP.bind(Endpoint.any());
 
-                      // //   receiver.asStream().listen((datagram) {
-                      // //     if (datagram != null) {
-                      // //       var str = String.fromCharCodes(datagram.data);
+                      //   receiver.asStream().listen((datagram) {
+                      //     if (datagram != null) {
+                      //       var str = String.fromCharCodes(datagram.data);
 
-                      // //       print(str);
-                      // //     }
-                      // //   });
+                      //       print(str);
+                      //     }
+                      //   });
 
-                      // //   await sender.send(
-                      // //       "ssid:BIMB;password:admknh_066".codeUnits,
-                      // //       multicastEndpoint);
-                      // // },
+                      //   await sender.send(
+                      //       '{"ssid":"BIMB","password":"admknh_066"}'.codeUnits,
+                      //       multicastEndpoint);
+                      // },
                       child: Card(
                         elevation: 10,
                         color: goldColor.withOpacity(0.7),
@@ -296,6 +295,11 @@ class _InstallSettingsState extends State<InstallSettings> {
                             color: Colors.transparent,
                             child: CircleAvatar(
                               backgroundColor: goldColor,
+                              child: Icon(
+                                Icons.wifi,
+                                color: Colors.white,
+                                size: 75,
+                              ),
                               radius: width(context) * 0.20,
                             ),
                           ),

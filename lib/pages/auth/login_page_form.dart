@@ -5,7 +5,9 @@ import 'package:akilli_anahtar/pages/auth/login_page_form_input_text.dart';
 import 'package:akilli_anahtar/pages/auth/login_page_form_privacy_policy.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPageForm extends StatefulWidget {
   const LoginPageForm({super.key});
@@ -13,6 +15,11 @@ class LoginPageForm extends StatefulWidget {
   @override
   State<LoginPageForm> createState() => _LoginPageFormState();
 }
+
+const List<String> scopes = <String>[
+  'email',
+  'https://www.googleapis.com/auth/contacts.readonly',
+];
 
 class _LoginPageFormState extends State<LoginPageForm> {
   LoginController loginController = Get.find();
@@ -42,6 +49,14 @@ class _LoginPageFormState extends State<LoginPageForm> {
                 width: width(context) * 0.90,
                 child: LoginPageFormInputText(
                   controller: userNameController,
+                  focusNode: loginController.userNameFocus,
+                  nextFocusNode: loginController.passwordFocus,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Boş geçilemez";
+                    }
+                    return null;
+                  },
                 ),
               ),
               SizedBox(
@@ -53,6 +68,13 @@ class _LoginPageFormState extends State<LoginPageForm> {
                 child: LoginPageFormInputText(
                   controller: passwordController,
                   isPassword: true,
+                  focusNode: loginController.passwordFocus,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Boş geçilemez";
+                    }
+                    return null;
+                  },
                 ),
               ),
               SizedBox(
@@ -89,7 +111,7 @@ class _LoginPageFormState extends State<LoginPageForm> {
                           }
                         }
                       : null,
-                  child: Card.outlined(
+                  child: Card(
                     elevation: loginController.privacyPolicy.value ? 10 : 10,
                     color: loginController.privacyPolicy.value
                         ? goldColor.withOpacity(0.7)
@@ -105,6 +127,25 @@ class _LoginPageFormState extends State<LoginPageForm> {
                   ),
                 ),
               ),
+              // SizedBox(height: height(context) * 0.02),
+              // IconButton(
+              //   onPressed: () {
+              //     GoogleSignIn googleSignIn = GoogleSignIn(
+              //       scopes: scopes,
+              //     );
+              //   },
+              //   icon: Card(
+              //     elevation: 5,
+              //     shape: CircleBorder(),
+              //     child: CircleAvatar(
+              //       backgroundColor: goldColor.withOpacity(0.3),
+              //       child: Icon(
+              //         FontAwesomeIcons.google,
+              //         color: Colors.blue,
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         );

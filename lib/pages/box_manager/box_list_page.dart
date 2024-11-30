@@ -1,10 +1,12 @@
 import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
+import 'package:akilli_anahtar/pages/box_install/install_settings.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_detail/box_detail_page.dart';
 import 'package:akilli_anahtar/pages/box_manager/box_list_item.dart';
 import 'package:akilli_anahtar/widgets/organisation_select_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class BoxListPage extends StatefulWidget {
@@ -50,6 +52,11 @@ class _BoxListPageState extends State<BoxListPage> {
           elevation: 3,
           shadowColor: Colors.black,
           title: Text("Kutu Yönetimi"),
+          actions: [
+            IconButton(
+                onPressed: () => Get.to(() => InstallSettings()),
+                icon: Icon(FontAwesomeIcons.plus))
+          ],
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(60.0),
             child: Padding(

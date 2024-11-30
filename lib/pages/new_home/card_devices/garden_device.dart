@@ -127,7 +127,9 @@ class _GardenDeviceState extends State<GardenDevice> {
         backgroundColor: Colors.amber,
       ),
       customStyleBuilder: (context, local, global) => ToggleStyle(
-        backgroundColor: status == "0" ? Colors.green : Colors.brown[400],
+        backgroundColor: status == "0"
+            ? goldColor.withOpacity(0.3)
+            : goldColor.withOpacity(0.7),
       ),
       height: width(context) * 0.12,
       loadingIconBuilder: (context, global) => CupertinoActivityIndicator(

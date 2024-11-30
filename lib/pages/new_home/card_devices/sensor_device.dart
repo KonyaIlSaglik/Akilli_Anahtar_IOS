@@ -92,11 +92,7 @@ class _SensorDeviceState extends State<SensorDevice> {
                           : FontAwesomeIcons.wind,
                   shadows: <Shadow>[
                     Shadow(
-                      color: device.typeId == 1
-                          ? Colors.red
-                          : device.typeId == 2
-                              ? Colors.blue
-                              : Colors.blueGrey,
+                      color: goldColor,
                       blurRadius: 15.0,
                     ),
                   ],

@@ -28,7 +28,7 @@ class _LayoutState extends State<Layout> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-          shadowColor: Colors.black,
+          shadowColor: goldColor,
           iconTheme: IconThemeData(
             size: 30,
           ),

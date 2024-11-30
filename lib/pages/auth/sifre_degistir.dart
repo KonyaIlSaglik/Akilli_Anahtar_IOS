@@ -1,10 +1,9 @@
-import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
-import 'package:akilli_anahtar/widgets/custom_button.dart';
+import 'package:akilli_anahtar/controllers/main/login_controller.dart';
+import 'package:akilli_anahtar/pages/auth/login_page_form_input_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 import 'package:akilli_anahtar/utils/constants.dart';
-import 'package:akilli_anahtar/widgets/custom_text_field.dart';
 import 'package:get/get.dart';
 
 class SifreDegistirPage extends StatefulWidget {
@@ -23,7 +22,8 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
   final newPasswordFocus = FocusNode();
   final newPasswordAgainCont = TextEditingController(text: "");
   final newPasswordAgainFocus = FocusNode();
-  final AuthController _authController = Get.put(AuthController());
+  LoginController loginController = Get.find();
+  final formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -34,13 +34,11 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
         keboardVisible = visible;
       });
     });
-    //oldPasswordCont.text = _authController.loginModel2.value.password;
   }
 
   @override
   void dispose() {
     super.dispose();
-    //FocusScope.of(context).dispose();
   }
 
   @override
@@ -49,96 +47,106 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 0,
+        backgroundColor: Colors.white,
+        shadowColor: goldColor,
+        foregroundColor: goldColor,
+        elevation: 10,
+        title: Text(
+          "ŞİFRE DEĞİŞTİR",
+          style: (width(context) < minWidth
+                  ? textTheme(context).titleMedium!
+                  : textTheme(context).titleLarge!)
+              .copyWith(color: goldColor),
+        ),
       ),
-      body: PopScope(
-        onPopInvokedWithResult: (didPop, result) {
-          Navigator.pop(context);
-        },
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: height * 0.030,
-            ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: height * 0.030,
+          ),
+          child: Form(
+            key: formKey,
             child: Column(
               children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: height * 0.04),
-                  child: SizedBox(
-                    height: keboardVisible ? height * 0.10 : height * 0.20,
-                    child: Image.asset(
-                      "assets/anahtar.png",
-                    ),
+                SizedBox(height: height * 0.05),
+                SizedBox(
+                  height: height * 0.07,
+                  width: width(context) * 0.90,
+                  child: LoginPageFormInputText(
+                    controller: oldPasswordCont,
+                    isPassword: true,
+                    hintText: "Eski Şifre",
+                    focusNode: oldPasswordFocus,
+                    nextFocusNode: newPasswordFocus,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Boş geçilemez";
+                      }
+                      if (value != loginController.password.value) {
+                        return "Eski Şifre Hatalı";
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: height * 0.02),
+                SizedBox(
+                  height: height * 0.07,
+                  width: width(context) * 0.90,
+                  child: LoginPageFormInputText(
+                    controller: newPasswordCont,
+                    nextFocusNode: newPasswordAgainFocus,
+                    isPassword: true,
+                    hintText: "Yeni Şifre",
+                    focusNode: newPasswordFocus,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Boş geçilemez";
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: height * 0.02),
+                SizedBox(
+                  height: height * 0.07,
+                  width: width(context) * 0.90,
+                  child: LoginPageFormInputText(
+                    controller: newPasswordAgainCont,
+                    isPassword: true,
+                    hintText: "Yeni Şifre Tekrar",
+                    focusNode: newPasswordAgainFocus,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Boş geçilemez";
+                      }
+                      if (value != newPasswordCont.text) {
+                        return "Şifreler eşleşmiyor";
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 SizedBox(
-                  height: height * 0.70,
-                  child: Card(
-                    elevation: 0,
-                    color: goldColor,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: height * 0.03),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.all(
-                              keboardVisible ? height * 0.01 : height * 0.025,
-                            ),
-                            child: Text(
-                              "Şifre Değiştir",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: Theme.of(context)
-                                    .textTheme
-                                    .headlineLarge!
-                                    .fontSize,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          CustomTextField(
-                            controller: oldPasswordCont,
-                            focusNode: oldPasswordFocus,
-                            nextFocus: newPasswordFocus,
-                            icon: Icon(Icons.lock),
-                            hintText: "Eski Şifre",
-                            isPassword: true,
-                          ),
-                          Padding(
-                            padding:
-                                EdgeInsets.symmetric(vertical: height * 0.020),
-                            child: CustomTextField(
-                              controller: newPasswordCont,
-                              focusNode: newPasswordFocus,
-                              nextFocus: newPasswordAgainFocus,
-                              icon: Icon(Icons.lock),
-                              hintText: "Yeni Şifre",
-                              isPassword: true,
-                            ),
-                          ),
-                          CustomTextField(
-                            controller: newPasswordAgainCont,
-                            focusNode: newPasswordAgainFocus,
-                            icon: Icon(Icons.lock),
-                            hintText: "Yeni Şifre Tekrar",
-                            isPassword: true,
-                          ),
-                          Padding(
-                            padding:
-                                EdgeInsets.symmetric(vertical: height * 0.025),
-                            child: Obx(() {
-                              return CustomButton(
-                                title: "KAYDET",
-                                loading: _authController.isLoading.value,
-                                onPressed: () {
-                                  sifreDegistir(context);
-                                },
-                              );
-                            }),
-                          ),
-                          otherButtons(),
-                        ],
+                  height: height * 0.03,
+                ),
+                SizedBox(
+                  height: height * 0.06,
+                  width: width(context) * 0.50,
+                  child: InkWell(
+                    onTap: () {
+                      if (formKey.currentState!.validate()) {}
+                    },
+                    child: Card(
+                      elevation: 5,
+                      color: goldColor.withOpacity(0.7),
+                      child: Center(
+                        child: Text(
+                          "KAYDET",
+                          style: textTheme(context)
+                              .headlineLarge!
+                              .copyWith(color: Colors.white),
+                        ),
                       ),
                     ),
                   ),
@@ -148,47 +156,6 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
           ),
         ),
       ),
-    );
-  }
-
-  sifreDegistir(context) async {
-    if (oldPasswordCont.text.isEmpty) {
-      errorSnackbar("Hata", "Eski şifre boş olamaz.");
-      return;
-    }
-    if (newPasswordCont.text.isEmpty) {
-      errorSnackbar("Hata", "Yeni şifre boş olamaz.");
-      return;
-    }
-    if (newPasswordCont.text != newPasswordAgainCont.text) {
-      errorSnackbar("Hata", "Şifreler eşleşmiyor.");
-      return;
-    }
-
-    await _authController.changePassword(
-        oldPasswordCont.text, newPasswordCont.text);
-
-    newPasswordCont.text = "";
-    newPasswordAgainCont.text = "";
-  }
-
-  otherButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        TextButton(
-          child: Text(
-            'Vazgeç',
-            style: TextStyle(
-              fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-              color: Colors.white,
-            ),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ],
     );
   }
 }
