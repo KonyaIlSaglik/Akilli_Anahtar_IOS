@@ -11,11 +11,11 @@ class Box {
   String version;
   String localIp;
   int restartTimeout;
-  bool isSub = false;
-  String? organisationName;
-  int isOld = -1;
-  bool upgrading = false;
-  bool apEnable = false;
+  //bool isSub = false;
+  //String? organisationName;
+  //int isOld = -1;
+  //bool upgrading = false;
+  //bool apEnable = false;
 
   Box({
     this.id = 0,

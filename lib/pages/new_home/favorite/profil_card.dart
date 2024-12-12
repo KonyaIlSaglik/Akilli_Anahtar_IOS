@@ -51,7 +51,9 @@ class _ProfilCardState extends State<ProfilCard> {
                                     homeController.organisations.first.cityId,
                               )
                               .name,
-                          style: textTheme(context).titleMedium,
+                          style: width(context) < minWidth
+                              ? textTheme(context).titleSmall
+                              : textTheme(context).titleMedium,
                         )
                       ],
                     ),
@@ -75,19 +77,23 @@ class _ProfilCardState extends State<ProfilCard> {
                         ),
                         Text(
                           "- C°",
-                          style: textTheme(context).titleMedium,
-                        )
+                          style: width(context) < minWidth
+                              ? textTheme(context).titleSmall
+                              : textTheme(context).titleMedium,
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
               SizedBox(
-                height: height(context) * 0.05,
+                height: height(context) * 0.04,
                 child: Center(
                   child: Text(
                     authController.user.value.fullName,
-                    style: textTheme(context).titleLarge,
+                    style: width(context) < minWidth
+                        ? textTheme(context).titleMedium
+                        : textTheme(context).titleLarge,
                   ),
                 ),
               ),

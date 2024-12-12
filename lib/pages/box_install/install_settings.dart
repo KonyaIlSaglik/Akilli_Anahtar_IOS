@@ -1,11 +1,14 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/utils/esp_touch/custom_provisioner.dart';
+import 'package:akilli_anahtar/utils/esp_touch/custom_request.dart';
+import 'package:akilli_anahtar/utils/esp_touch/custom_response.dart';
 import 'package:avatar_glow/avatar_glow.dart';
-import 'package:esp_smartconfig/esp_smartconfig.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:udp/udp.dart';
 
 class InstallSettings extends StatefulWidget {
   const InstallSettings({super.key});
@@ -16,32 +19,46 @@ class InstallSettings extends StatefulWidget {
 
 class _InstallSettingsState extends State<InstallSettings> {
   final TextEditingController ssidController =
-      TextEditingController(text: "Zyxel_E0E9");
+      TextEditingController(text: "BIMB");
   final TextEditingController passwordController =
-      TextEditingController(text: "KPT78MG4TL");
+      TextEditingController(text: "admknh_066");
   final formKey = GlobalKey<FormState>();
   bool passVisible = false;
   bool _animate = false;
   var passwordFocus = FocusNode();
 
-  Future<void> _startProvisioning() async {
-    final provisioner = Provisioner.espTouch();
+  Timer timer = Timer.periodic(
+    Duration.zero,
+    (timer) {},
+  );
 
+  var plist = <CustomProvisioner>[];
+
+  @override
+  void initState() {
+    super.initState();
+    for (var i = 1; i < 100; i++) {
+      plist.add(CustomProvisioner.espTouch());
+    }
+  }
+
+  var provisioner = CustomProvisioner.espTouch();
+  Future<void> _startProvisionings() async {
     provisioner.listen((response) {
       print(response.bssidText);
       print(response.ipAddressText);
-      setState(() {
-        _animate = false;
-      });
     });
 
-    provisioner.start(ProvisioningRequest.fromStrings(
+    provisioner.start(CustomProvisioningRequest.fromStrings(
+      address:
+          InternetAddress.fromRawAddress(Uint8List.fromList([234, 1, 1, 1])),
       ssid: ssidController.text,
       bssid: '01:00:5E:00:00:00',
       password: passwordController.text,
     ));
 
-    ProvisioningResponse? response = await showDialog<ProvisioningResponse>(
+    CustomProvisioningResponse? response =
+        await showDialog<CustomProvisioningResponse>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -61,17 +78,10 @@ class _InstallSettingsState extends State<InstallSettings> {
 
     if (provisioner.running) {
       provisioner.stop();
-      setState(() {
-        _animate = false;
-      });
-    }
-
-    if (response != null) {
-      _onDeviceProvisioned(response);
     }
   }
 
-  _onDeviceProvisioned(ProvisioningResponse response) {
+  _onDeviceProvisioned(CustomProvisioningResponse response) {
     showDialog(
       context: context,
       builder: (context) {
@@ -237,12 +247,12 @@ class _InstallSettingsState extends State<InstallSettings> {
                     height: height(context) * 0.07,
                     width: width(context) * 0.50,
                     child: InkWell(
-                      onTap: () {
+                      onTap: () async {
                         setState(() {
                           _animate = true;
                         });
-                        _startProvisioning();
                       },
+
                       // onTap: () async {
                       //   var multicastEndpoint = Endpoint.broadcast(
                       //     port: Port(7001),
@@ -282,25 +292,48 @@ class _InstallSettingsState extends State<InstallSettings> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        AvatarGlow(
-                          duration: Duration(seconds: 3),
-                          glowCount: 3,
-                          glowColor: goldColor,
-                          glowShape: BoxShape.circle,
-                          animate: _animate,
-                          curve: Curves.fastOutSlowIn,
-                          child: Material(
-                            elevation: 10.0,
-                            shape: CircleBorder(),
-                            color: Colors.transparent,
-                            child: CircleAvatar(
-                              backgroundColor: goldColor,
-                              child: Icon(
-                                Icons.wifi,
-                                color: Colors.white,
-                                size: 75,
+                        InkWell(
+                          borderRadius: BorderRadius.circular(90),
+                          onTap: () async {
+                            if (_animate) {
+                              provisioner.stop();
+                              setState(() {
+                                _animate = false;
+                              });
+                            } else {
+                              setState(() {
+                                _animate = true;
+                              });
+                              await provisioner
+                                  .start(CustomProvisioningRequest.fromStrings(
+                                address: InternetAddress.fromRawAddress(
+                                    Uint8List.fromList([234, 1, 1, 1])),
+                                ssid: ssidController.text,
+                                bssid: '00:00:00:00:00:00',
+                                password: passwordController.text,
+                              ));
+                            }
+                          },
+                          child: AvatarGlow(
+                            duration: Duration(seconds: 3),
+                            glowCount: 3,
+                            glowColor: goldColor,
+                            glowShape: BoxShape.circle,
+                            animate: _animate,
+                            curve: Curves.fastOutSlowIn,
+                            child: Material(
+                              elevation: 10.0,
+                              shape: CircleBorder(),
+                              color: Colors.transparent,
+                              child: CircleAvatar(
+                                backgroundColor: goldColor,
+                                radius: width(context) * 0.20,
+                                child: Icon(
+                                  Icons.wifi,
+                                  color: Colors.white,
+                                  size: 75,
+                                ),
                               ),
-                              radius: width(context) * 0.20,
                             ),
                           ),
                         ),

@@ -1,5 +1,6 @@
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,7 +26,18 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
           decoratorProps: DropDownDecoratorProps(
             decoration: InputDecoration(
               hintText: "Kurum Seç",
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  style: BorderStyle.solid,
+                  color: goldColor,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  style: BorderStyle.solid,
+                  color: goldColor,
+                ),
+              ),
             ),
           ),
           popupProps: PopupProps.menu(

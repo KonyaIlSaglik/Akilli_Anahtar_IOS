@@ -101,8 +101,9 @@ class AuthService {
         "$url/getData?userId=${authController.user.value.id}");
     if (response.statusCode == 200) {
       var data = json.decode(response.body) as Map<String, dynamic>;
-      var claims =
-          OperationClaim.fromJsonList(json.encode(data["operationClaims"]));
+      var claims = data["operationClaims"] != null
+          ? OperationClaim.fromJsonList(json.encode(data["operationClaims"]))
+          : <OperationClaim>[];
       authController.operationClaims.value = claims;
       var parameters = Parameter.fromJsonList(json.encode(data["parameters"]));
       homeController.parameters.value = parameters;

@@ -20,7 +20,7 @@ class UserManagementController extends GetxController {
   var filteredUsers = <User>[].obs;
   var selectedSortOption = "Ad Soyad".obs;
   var selectedUser = User().obs;
-  var searchQuery = "".obs;
+  var userSearchQuery = "".obs;
   var loadingUser = false.obs;
 
   var operationClaims = <OperationClaim>[].obs;
@@ -30,6 +30,7 @@ class UserManagementController extends GetxController {
   var filteredBoxes = <Box>[].obs;
   var selectedBoxId = 0.obs;
   var devices = <Device>[].obs;
+  var deviceSearchQuery = "".obs;
   var filteredDevices = <Device>[].obs;
   var userDevices = <UserDevice>[].obs;
 
@@ -66,24 +67,32 @@ class UserManagementController extends GetxController {
   }
 
   void sortUsers() {
-    if (selectedSortOption.value == 'Sıra No') {
+    if (selectedSortOption.value == userOrderItems[0]) {
       users.sort((a, b) => a.id.compareTo(b.id));
-    } else if (selectedSortOption.value == 'Ad Soyad') {
+    } else if (selectedSortOption.value == userOrderItems[1]) {
       users.sort((a, b) =>
           a.fullName.toLowerCaseTr().compareTo(b.fullName.toLowerCaseTr()));
-    } else if (selectedSortOption.value == 'Kullanıcı Adı') {
+    } else if (selectedSortOption.value == userOrderItems[2]) {
       users.sort((a, b) =>
           a.userName.toLowerCaseTr().compareTo(b.userName.toLowerCaseTr()));
     }
   }
 
   void filterUsers() {
-    filteredUsers.value = searchQuery.value.isEmpty
+    filteredUsers.value = userSearchQuery.value.isEmpty
         ? users
         : users
-            .where((u) => u.fullName
-                .toLowerCaseTr()
-                .contains(searchQuery.value.toLowerCase()))
+            .where((u) =>
+                u.fullName
+                    .toLowerCaseTr()
+                    .contains(userSearchQuery.value.toLowerCase()) ||
+                u.userName
+                    .toLowerCaseTr()
+                    .contains(userSearchQuery.value.toLowerCase()) ||
+                u.id
+                    .toString()
+                    .toLowerCaseTr()
+                    .contains(userSearchQuery.value.toLowerCase()))
             .toList();
   }
 
@@ -188,30 +197,34 @@ class UserManagementController extends GetxController {
     boxes.value = await BoxService.getAll() ?? <Box>[];
   }
 
-  void filterBoxes() {
-    HomeController homeController = Get.find();
-    selectedBoxId.value = 0;
-    filteredBoxes.value = homeController.selectedOrganisationId.value == 0
-        ? boxes
-        : boxes
-            .where((b) =>
-                b.organisationId == homeController.selectedOrganisationId.value)
-            .toList();
-    filteredDevices.value = devices
-        .where((d) => filteredBoxes.any((b) => b.id == d.boxId))
-        .toList();
-  }
-
   Future<void> getDevices() async {
     devices.value = await DeviceService.getAll() ?? <Device>[];
+    for (var device in devices) {
+      device.boxName = boxes
+          .singleWhere(
+            (b) => b.id == device.boxId,
+          )
+          .name;
+    }
   }
 
   void filterDevices() {
-    filteredDevices.value = selectedBoxId.value == 0
-        ? devices
-            .where((d) => filteredBoxes.any((b) => b.id == d.boxId))
-            .toList()
-        : devices.where((d) => d.boxId == selectedBoxId.value).toList();
+    var list = devices
+        .where(
+          (d) => userOrganisations.any(
+            (uo) => uo.organisationId == d.organisationId,
+          ),
+        )
+        .toList();
+
+    var value = deviceSearchQuery.value.toLowerCaseTr();
+    filteredDevices.value = deviceSearchQuery.value.isEmpty
+        ? list
+        : list
+            .where((d) =>
+                d.name.toLowerCaseTr().contains(value) ||
+                d.boxName!.toLowerCaseTr().contains(value))
+            .toList();
   }
 
   Future<void> getUserDevices() async {
@@ -225,7 +238,6 @@ class UserManagementController extends GetxController {
         await UserService.addUserDevice(selectedUser.value.id, deviceId);
     if (result != null) {
       userDevices.add(result);
-      filterDevices();
     }
   }
 
@@ -233,7 +245,6 @@ class UserManagementController extends GetxController {
     var result = await UserService.deleteUserDevice(userDeviceId);
     if (result) {
       userDevices.remove(userDevices.firstWhere((ud) => ud.id == userDeviceId));
-      filterDevices();
     }
   }
 
@@ -259,3 +270,5 @@ class UserManagementController extends GetxController {
     }
   }
 }
+
+const userOrderItems = <String>['Sıra No', 'Ad Soyad', 'Kullanıcı Adı'];

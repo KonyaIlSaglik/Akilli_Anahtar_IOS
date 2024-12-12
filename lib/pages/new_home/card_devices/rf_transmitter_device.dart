@@ -58,7 +58,7 @@ class _RfTransmitterDeviceState extends State<RfTransmitterDevice> {
   @override
   Widget build(BuildContext context) {
     return Card.outlined(
-      elevation: 10,
+      elevation: 5,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(

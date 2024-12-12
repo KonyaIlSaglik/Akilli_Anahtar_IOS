@@ -5,9 +5,7 @@ import 'package:akilli_anahtar/pages/auth/login_page_form_input_text.dart';
 import 'package:akilli_anahtar/pages/auth/login_page_form_privacy_policy.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPageForm extends StatefulWidget {
   const LoginPageForm({super.key});

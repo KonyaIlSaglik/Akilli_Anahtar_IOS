@@ -38,7 +38,7 @@ class DeviceService {
 
   static Future<List<Device>?> getAll() async {
     var response = await BaseService.get(
-      "$url/getAll",
+      "$url/getAllDto",
     );
     if (response.statusCode == 200) {
       return Device.fromJsonList(response.body);

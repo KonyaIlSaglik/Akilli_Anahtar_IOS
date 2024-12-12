@@ -15,7 +15,6 @@ class BoxManagementController extends GetxController {
   var selectedBox = Box().obs;
   var loadingBox = false.obs;
 
-  var checkingNewVersion = false.obs;
   var newVersion = VersionModel().obs;
 
   var espPins = [
@@ -55,53 +54,44 @@ class BoxManagementController extends GetxController {
       } else {
         boxes.value = allBoxes;
       }
-      for (var box in boxes) {
-        mqttController.subListenerList.add(
-          (topic) {
-            if (topic == box.topicRes) {
-              box.isSub = true;
-            }
-          },
-        );
-        mqttController.subscribeToTopic(box.topicRes);
-        box.organisationName = homeController.organisations
-            .singleWhere((o) => o.id == box.organisationId)
-            .name;
-        if (newVersion.value.version.isNotEmpty) {
-          var bv = box.version;
-          var nv = newVersion.value;
-          if (nv.version.isNotEmpty) {
-            var bv1 = int.tryParse(bv.split(".")[0]) ?? 0;
-            var nv1 = int.tryParse(nv.version.split(".")[0]) ?? 0;
-            if (bv1 < nv1) {
-              box.isOld = -1;
-            } else if (bv1 == nv1) {
-              var bv2 = int.tryParse(bv.split(".")[1]) ?? 0;
-              var nv2 = int.tryParse(nv.version.split(".")[1]) ?? 0;
-              if (bv2 < nv2) {
-                box.isOld = -1;
-              } else if (bv2 == nv2) {
-                box.isOld = 0;
-              } else {
-                box.isOld = 1;
-              }
-            } else {
-              box.isOld = 1;
-            }
-          }
-        }
-      }
     }
     loadingBox.value = false;
   }
 
+  int versionControl(String version) {
+    int isOld = -2;
+    print("nv:" + newVersion.value.version);
+    print("cv:" + version);
+    var nv = newVersion.value;
+    if (nv.version.isNotEmpty) {
+      var bv1 = int.tryParse(version.split(".")[0]) ?? 0;
+      var nv1 = int.tryParse(nv.version.split(".")[0]) ?? 0;
+      if (bv1 < nv1) {
+        isOld = -1;
+      } else if (bv1 == nv1) {
+        var bv2 = int.tryParse(version.split(".")[1]) ?? 0;
+        var nv2 = int.tryParse(nv.version.split(".")[1]) ?? 0;
+        if (bv2 < nv2) {
+          isOld = -1;
+        } else if (bv2 == nv2) {
+          isOld = 0;
+        } else {
+          isOld = 1;
+        }
+      } else {
+        isOld = 1;
+      }
+    }
+    return isOld;
+  }
+
   void sortBoxes() {
     boxes.sort((a, b) {
-      int subComparison = a.isSub == b.isSub ? 0 : (a.isSub ? -1 : 1);
-      if (subComparison != 0) return subComparison;
+      // int subComparison = a.isSub == b.isSub ? 0 : (a.isSub ? -1 : 1);
+      // if (subComparison != 0) return subComparison;
 
-      int oldComparison = a.isOld == b.isOld ? 0 : (a.isOld == -1 ? -1 : 1);
-      if (oldComparison != 0) return oldComparison;
+      // int oldComparison = a.isOld == b.isOld ? 0 : (a.isOld == -1 ? -1 : 1);
+      // if (oldComparison != 0) return oldComparison;
 
       return b.name.toLowerCaseTr().compareTo(a.name.toLowerCaseTr());
     });

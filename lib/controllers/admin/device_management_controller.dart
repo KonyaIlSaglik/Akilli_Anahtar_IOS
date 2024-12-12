@@ -1,6 +1,7 @@
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/device_type.dart';
 import 'package:akilli_anahtar/services/api/device_service.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class DeviceManagementController extends GetxController {
@@ -9,6 +10,8 @@ class DeviceManagementController extends GetxController {
   var selectedType = DeviceType().obs;
   var devices = <Device>[].obs;
   var selectedDevice = Device().obs;
+  final formKey = GlobalKey<FormState>();
+
   Future<void> getAllByBoxId(int id) async {
     loading.value = true;
     var result = await DeviceService.getAllByBoxId(id);

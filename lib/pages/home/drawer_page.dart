@@ -1,8 +1,8 @@
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/main/pager_controller.dart';
-import 'package:akilli_anahtar/pages/user_manager/user_list_page.dart';
+import 'package:akilli_anahtar/pages/managers/user/user_list_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
-import 'package:akilli_anahtar/pages/box_manager/box_list_page.dart';
+import 'package:akilli_anahtar/pages/managers/box/list.dart';
 import 'package:akilli_anahtar/widgets/version_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';

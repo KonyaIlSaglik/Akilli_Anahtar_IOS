@@ -1,12 +1,11 @@
 import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
-import 'package:akilli_anahtar/pages/box_install/install_settings.dart';
-import 'package:akilli_anahtar/pages/box_manager/box_detail/box_detail_page.dart';
-import 'package:akilli_anahtar/pages/box_manager/box_list_item.dart';
+import 'package:akilli_anahtar/pages/managers/box/box_detail/box_add_edit.dart';
+import 'package:akilli_anahtar/pages/managers/box/list_item.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/organisation_select_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class BoxListPage extends StatefulWidget {
@@ -39,23 +38,19 @@ class _BoxListPageState extends State<BoxListPage> {
         //
       },
       child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          child: Icon(
-            Icons.add_circle,
-          ),
-          onPressed: () {
-            boxManagementController.selectedBox.value = Box();
-            Get.to(() => BoxDetailPage());
-          },
-        ),
         appBar: AppBar(
+          surfaceTintColor: goldColor,
           elevation: 3,
           shadowColor: Colors.black,
           title: Text("Kutu Yönetimi"),
+          foregroundColor: goldColor,
           actions: [
             IconButton(
-                onPressed: () => Get.to(() => InstallSettings()),
-                icon: Icon(FontAwesomeIcons.plus))
+                onPressed: () {
+                  boxManagementController.selectedBox.value = Box();
+                  Get.to(() => BoxAddEdit());
+                },
+                icon: Icon(Icons.add_box))
           ],
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(60.0),
@@ -79,6 +74,8 @@ class _BoxListPageState extends State<BoxListPage> {
         body: Obx(
           () {
             return RefreshIndicator(
+              backgroundColor: goldColor,
+              color: Colors.white,
               onRefresh: () async {
                 setState(() {
                   refreshing = true;
@@ -90,7 +87,10 @@ class _BoxListPageState extends State<BoxListPage> {
                 });
               },
               child: boxManagementController.loadingBox.value && !refreshing
-                  ? Center(child: CircularProgressIndicator())
+                  ? Center(
+                      child: CircularProgressIndicator(
+                      color: goldColor,
+                    ))
                   : boxManagementController.boxes.isEmpty
                       ? Center(child: Text("No boxes found."))
                       : ListView.separated(
