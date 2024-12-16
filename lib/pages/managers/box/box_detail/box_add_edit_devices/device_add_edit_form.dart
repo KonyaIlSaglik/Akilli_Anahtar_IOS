@@ -33,7 +33,7 @@ class _DeviceAddEditFormState extends State<DeviceAddEditForm>
                   textFormField(
                     context,
                     0,
-                    labelText: "Cihaz Adı",
+                    labelText: "Bileşen Adı",
                     initialValue:
                         deviceManagementController.selectedDevice.value.name,
                     onChanged: (value) => deviceManagementController
@@ -52,7 +52,7 @@ class _DeviceAddEditFormState extends State<DeviceAddEditForm>
                     height: height(context) * 0.07,
                     child: DropdownButtonFormField<DeviceType>(
                       decoration: InputDecoration(
-                        labelText: "Cihaz Türü",
+                        labelText: "Bileşen Türü",
                         contentPadding:
                             EdgeInsets.symmetric(horizontal: width * 0.03),
                         labelStyle: textTheme(context)
@@ -425,8 +425,8 @@ class _DeviceAddEditFormState extends State<DeviceAddEditForm>
     //late var actions = <String>["save", "saveAs", "update", "passUpdate"];
     print("$formIndex : $value");
     if (value == null || value.isEmpty) {
-      if (formIndex == 0) return "Cihaz adı boş olamaz";
-      if (formIndex == 2) return "Cihaz türü seçiniz";
+      if (formIndex == 0) return "Bileşen adı boş olamaz";
+      if (formIndex == 2) return "Bileşen türü seçiniz";
       if (formIndex == 3) return "Pin seçiniz";
       if (formIndex == 3 || formIndex == 4) return null;
       if (formIndex == 2) {

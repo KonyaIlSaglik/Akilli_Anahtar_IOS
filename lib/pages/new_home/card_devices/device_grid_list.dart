@@ -73,6 +73,7 @@ class _DeviceGridListState extends State<DeviceGridList> {
             },
             child: GridView(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                //childAspectRatio: 1.5,
                 crossAxisCount: widget.deviceGroup.expanded != null &&
                         !widget.deviceGroup.expanded!
                     ? 1

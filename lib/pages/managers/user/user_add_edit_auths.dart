@@ -45,7 +45,7 @@ class _UserAddEditAuthsState extends State<UserAddEditAuths>
               text: "Kurumlar",
             ),
             Tab(
-              text: "Cihazlar",
+              text: "Bileşenler",
             ),
           ],
         ),

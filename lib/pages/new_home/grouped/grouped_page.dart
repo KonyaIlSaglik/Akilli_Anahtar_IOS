@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
-import 'package:akilli_anahtar/pages/new_home/grouped/organisation_select_list.dart';
 import 'package:akilli_anahtar/pages/new_home/card_devices/device_grid_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,11 +18,15 @@ class _GroupedPageState extends State<GroupedPage> {
       () {
         return Column(
           children: [
-            OrganisationSelectList(),
+            //OrganisationSelectList(),
             homeController.grouping.value
-                ? Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                    child: Column(
+                ? Center(
+                    child: homeController.loading.value
+                        ? null
+                        : CircularProgressIndicator(),
+                  )
+                : Expanded(
+                    child: ListView(
                       children: homeController.groupedDevices
                           .map(
                             (gd) => DeviceGridList(

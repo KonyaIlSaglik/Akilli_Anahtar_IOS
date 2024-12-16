@@ -88,11 +88,11 @@ class HomeController extends GetxController {
     grouping.value = true;
     await Future.delayed(Duration(milliseconds: 100));
     groupedDevices.value = List.empty();
-    var list = devices
-        .where(
-          (d) => d.organisationId == selectedOrganisationId.value,
-        )
-        .toList();
+    var list = devices;
+    // .where(
+    //   (d) => d.organisationId == selectedOrganisationId.value,
+    // )
+    // .toList();
     list.sort(
       (a, b) => a.boxName!.compareToTr(b.boxName!),
     );

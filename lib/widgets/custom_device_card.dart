@@ -1,7 +1,6 @@
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/pages/new_home/card_devices/barrier_device.dart';
 import 'package:akilli_anahtar/pages/new_home/card_devices/garden_device.dart';
-import 'package:akilli_anahtar/pages/new_home/card_devices/rf_transmitter_device.dart';
 import 'package:akilli_anahtar/pages/new_home/card_devices/sensor_device.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +42,7 @@ class _CustomDeviceCardState extends State<CustomDeviceCard> {
           device: device,
         );
       case 6:
-        return RfTransmitterDevice(
+        return BarrierDevice(
           device: device,
         );
       case 7:

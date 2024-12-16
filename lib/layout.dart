@@ -27,12 +27,13 @@ class _LayoutState extends State<Layout> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
-          shadowColor: goldColor,
+          backgroundColor: Colors.brown[50]!,
+          foregroundColor: Colors.brown[50]!,
+          elevation: 0,
+          shadowColor: Colors.brown[50]!,
           iconTheme: IconThemeData(
             size: 30,
           ),
-          elevation: 10,
           title: Text(
             "AKILLI ANAHTAR",
             style: width(context) < minWidth

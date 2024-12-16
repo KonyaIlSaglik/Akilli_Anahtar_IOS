@@ -118,7 +118,7 @@ class _FavoriteEditPageState extends State<FavoriteEditPage> {
                     left: 10,
                   ),
                   child: Text(
-                    "Tüm Cihazlar",
+                    "Tüm Bileşenler",
                     style: textTheme(context).titleMedium!.copyWith(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),

@@ -26,8 +26,8 @@ class _ProfilCardState extends State<ProfilCard> {
     return SizedBox(
       height: height(context) * 0.20,
       width: width(context) * 0.95,
-      child: Card.outlined(
-        elevation: 10,
+      child: Card(
+        elevation: 1,
         child: Padding(
           padding: EdgeInsets.all(height(context) * 0.02),
           child: Column(

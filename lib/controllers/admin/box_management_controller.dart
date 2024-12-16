@@ -11,7 +11,7 @@ class BoxManagementController extends GetxController {
   MqttController mqttController = Get.find();
   HomeController homeController = Get.find();
   var boxes = <Box>[].obs;
-  var selectedSortOption = "Cihaz Adı".obs;
+  var selectedSortOption = "Bileşen Adı".obs;
   var selectedBox = Box().obs;
   var loadingBox = false.obs;
 

@@ -4,6 +4,7 @@ import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/controllers/main/pager_controller.dart';
 import 'package:akilli_anahtar/models/page_model.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/widgets/back_container.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -44,25 +45,29 @@ class _NewHomePageState extends State<NewHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: goldColor.withOpacity(0.3),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await homeController.getData();
-        },
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: width(context) * 0.05),
-          child: Obx(
-            () {
-              return homeController.loading.value ||
-                      mqttController.clientIsNull.value ||
-                      !mqttController.isConnected.value
-                  ? Center(child: CircularProgressIndicator())
-                  : PageModel.get(pagerController.currentPage.value)!.page;
-            },
+      body: BackContainer(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await homeController.getData();
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: width(context) * 0.05),
+            child: Obx(
+              () {
+                return homeController.loading.value ||
+                        mqttController.clientIsNull.value ||
+                        mqttController.connecting.value
+                    ? Center(child: CircularProgressIndicator())
+                    : PageModel.get(pagerController.currentPage.value)!.page;
+              },
+            ),
           ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        elevation: 0,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.brown[50]!,
         selectedItemColor: goldColor,
         currentIndex:
             pagerController.currentPage.value == PageModel.favoritePage
@@ -78,6 +83,9 @@ class _NewHomePageState extends State<NewHomePage> {
             case 1:
               pagerController.currentPage.value = PageModel.groupedPage;
               break;
+            case 2:
+              pagerController.currentPage.value = PageModel.groupedPage;
+              break;
             default:
               pagerController.currentPage.value = PageModel.profilePage;
               break;
@@ -89,6 +97,11 @@ class _NewHomePageState extends State<NewHomePage> {
             icon: Icon(FontAwesomeIcons.heart),
             activeIcon: Icon(FontAwesomeIcons.solidHeart),
             label: "Favoriler",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(FontAwesomeIcons.clock),
+            activeIcon: Icon(FontAwesomeIcons.clock),
+            label: "Plan",
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.city),

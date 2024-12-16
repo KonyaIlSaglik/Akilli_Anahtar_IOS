@@ -180,7 +180,7 @@ Future<void> _showNotification(
       AndroidNotificationDetails(
     'your_channel_id',
     'Acil Durumlar',
-    channelDescription: 'Cihaz Alarm Bildirimleri',
+    channelDescription: 'Alarm Bildirimleri',
     importance: Importance.max,
     priority: Priority.high,
     showWhen: false,

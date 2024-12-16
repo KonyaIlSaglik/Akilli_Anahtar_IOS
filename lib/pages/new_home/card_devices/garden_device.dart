@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:turkish/turkish.dart';
 
 class GardenDevice extends StatefulWidget {
   final Device device;
@@ -19,12 +21,15 @@ class GardenDevice extends StatefulWidget {
 class _GardenDeviceState extends State<GardenDevice> {
   late Device device;
   final MqttController _mqttController = Get.find<MqttController>();
-  String status = "1";
+  String status = "";
   bool isSub = false;
   @override
   void initState() {
     super.initState();
     device = widget.device;
+    if (_mqttController.clientIsNull.value ||
+        !_mqttController.isConnected.value) return;
+    _mqttController.subscribeToTopic(device.topicStat);
     _mqttController.subscribeToTopic(device.topicStat);
 
     _mqttController.onMessage((topic, message) {
@@ -57,8 +62,8 @@ class _GardenDeviceState extends State<GardenDevice> {
 
   @override
   Widget build(BuildContext context) {
-    return Card.outlined(
-      elevation: 5,
+    return Card(
+      elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -99,15 +104,47 @@ class _GardenDeviceState extends State<GardenDevice> {
               ],
             ),
             SizedBox(height: 20),
-            _switch(),
+            _switch2(),
             SizedBox(height: 20),
             Text(
-              device.name,
+              device.name.toTitleCaseTr(),
               style: textTheme(context).titleMedium,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  _switch2() {
+    return Card(
+      elevation: 5,
+      shape: CircleBorder(),
+      child: InkWell(
+        onTap: () {
+          sendMessage();
+        },
+        borderRadius: BorderRadius.circular(30),
+        child: CircularPercentIndicator(
+          radius: 30,
+          percent: 1,
+          progressColor: status.isEmpty
+              ? Colors.grey
+              : status == "1" || status == "0"
+                  ? Colors.green
+                  : Colors.red,
+          backgroundColor: Colors.white,
+          center: Icon(
+            FontAwesomeIcons.powerOff,
+            color: status.isEmpty
+                ? Colors.grey
+                : status == "1" || status == "0"
+                    ? Colors.green
+                    : Colors.red,
+            size: 25,
+          ),
         ),
       ),
     );

@@ -41,6 +41,7 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
         },
       );
     }
+    mqttController.publishMessage(box.topicRec, "getinfo");
 
     mqttController.onMessage(
       (topic, message) {
@@ -101,84 +102,93 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
           ),
         ),
         Divider(),
-        ListTile(
-          title: Text("Yeniden Başlat"),
-          subtitle: restarting ? Text("Yeniden başlatılıyor...") : null,
-          trailing: restarting
-              ? CupertinoActivityIndicator(color: goldColor)
-              : IconButton(
-                  icon: Icon(
-                    FontAwesomeIcons.rotate,
-                    color: apSatus.isEmpty ? Colors.grey : goldColor,
-                  ),
-                  onPressed: restarting
-                      ? null
-                      : () {
-                          mqttController.publishMessage(box.topicRec, "reboot");
-                        },
-                ),
-        ),
-        Divider(),
-        ListTile(
-          title: Text("AP Mod"),
-          subtitle: apSatus.isEmpty
-              ? null
-              : Text(
-                  apSatus == "0"
-                      ? "Kapalı"
-                      : apSatus == "1"
-                          ? "Açılıyor..."
-                          : apSatus == "3"
-                              ? "Kapatılıyor..."
-                              : "Açık",
-                ),
-          trailing: apChanging
-              ? CupertinoActivityIndicator(color: goldColor)
-              : IconButton(
-                  onPressed: apSatus.isNotEmpty
-                      ? () {
-                          mqttController.publishMessage(box.topicRec,
-                              apSatus == "0" ? "apenable" : "apdisable");
-                        }
-                      : null,
-                  icon: Text(
-                      apSatus.isEmpty
-                          ? "Bilinmiyor"
-                          : apSatus == "0"
-                              ? "Aç"
-                              : "Kapat",
-                      style: TextStyle(
-                          color: apSatus.isEmpty ? Colors.grey : goldColor)),
-                ),
-        ),
-        Divider(),
-        ListTile(
-          title: Text("V: $version"),
-          subtitle: upgrading ? Text("Güncelleniyor...") : null,
-          trailing: apSatus.isEmpty
-              ? TextButton(
-                  onPressed: null,
-                  child: Text("Bilinmiyor"),
-                )
-              : boxManagementController.versionControl(version) == -1
-                  ? !upgrading
-                      ? IconButton(
-                          icon: Icon(
-                            Icons.upload_outlined,
-                            color: Colors.red,
+        Visibility(
+          visible: apSatus.isNotEmpty,
+          child: Column(
+            children: [
+              ListTile(
+                title: Text("Yeniden Başlat"),
+                subtitle: restarting ? Text("Yeniden başlatılıyor...") : null,
+                trailing: restarting
+                    ? CupertinoActivityIndicator(color: goldColor)
+                    : IconButton(
+                        icon: Icon(
+                          FontAwesomeIcons.rotate,
+                          color: apSatus.isEmpty ? Colors.grey : goldColor,
+                        ),
+                        onPressed: restarting
+                            ? null
+                            : () {
+                                mqttController.publishMessage(
+                                    box.topicRec, "reboot");
+                              },
+                      ),
+              ),
+              Divider(),
+              ListTile(
+                title: Text("AP Mod"),
+                subtitle: apSatus.isEmpty
+                    ? null
+                    : Text(
+                        apSatus == "0"
+                            ? "Kapalı"
+                            : apSatus == "1"
+                                ? "Açılıyor..."
+                                : apSatus == "3"
+                                    ? "Kapatılıyor..."
+                                    : "Açık",
+                      ),
+                trailing: apChanging
+                    ? CupertinoActivityIndicator(color: goldColor)
+                    : IconButton(
+                        onPressed: apSatus.isNotEmpty
+                            ? () {
+                                mqttController.publishMessage(box.topicRec,
+                                    apSatus == "0" ? "apenable" : "apdisable");
+                              }
+                            : null,
+                        icon: Text(
+                            apSatus.isEmpty
+                                ? "Bilinmiyor"
+                                : apSatus == "0"
+                                    ? "Aç"
+                                    : "Kapat",
+                            style: TextStyle(
+                                color:
+                                    apSatus.isEmpty ? Colors.grey : goldColor)),
+                      ),
+              ),
+              Divider(),
+              ListTile(
+                title: Text("V: $version"),
+                subtitle: upgrading ? Text("Güncelleniyor...") : null,
+                trailing: apSatus.isEmpty
+                    ? TextButton(
+                        onPressed: null,
+                        child: Text("Bilinmiyor"),
+                      )
+                    : boxManagementController.versionControl(version) == -1
+                        ? !upgrading
+                            ? IconButton(
+                                icon: Icon(
+                                  Icons.upload_outlined,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () {
+                                  mqttController.publishMessage(
+                                      box.topicRec, "doUpgrade");
+                                },
+                              )
+                            : CupertinoActivityIndicator(color: goldColor)
+                        : TextButton(
+                            onPressed: null,
+                            child: Text("Güncel"),
                           ),
-                          onPressed: () {
-                            mqttController.publishMessage(
-                                box.topicRec, "doUpgrade");
-                          },
-                        )
-                      : CupertinoActivityIndicator(color: goldColor)
-                  : TextButton(
-                      onPressed: null,
-                      child: Text("Güncel"),
-                    ),
+              ),
+              Divider(),
+            ],
+          ),
         ),
-        Divider(),
       ],
     );
   }

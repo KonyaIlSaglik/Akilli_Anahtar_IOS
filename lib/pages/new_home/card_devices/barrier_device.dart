@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+import 'package:turkish/turkish.dart';
 
 class BarrierDevice extends StatefulWidget {
   final Device device;
@@ -21,10 +23,16 @@ class _BarrierDeviceState extends State<BarrierDevice> {
   final MqttController _mqttController = Get.find<MqttController>();
   String status = "1";
   bool isSub = false;
+  int openCount = 0;
+  int closeCount = 0;
+  int waitingCount = 0;
+
   @override
   void initState() {
     super.initState();
     device = widget.device;
+    if (_mqttController.clientIsNull.value ||
+        !_mqttController.isConnected.value) return;
     _mqttController.subscribeToTopic(device.topicStat);
 
     _mqttController.onMessage((topic, message) {
@@ -32,6 +40,20 @@ class _BarrierDeviceState extends State<BarrierDevice> {
         if (mounted) {
           setState(() {
             status = message;
+            if (status == "1") {
+              openCount = 0;
+              closeCount = 0;
+              waitingCount = 0;
+            }
+            if (status == "2") {
+              openCount++;
+            }
+            if (status == "3") {
+              waitingCount++;
+            }
+            if (status == "4") {
+              closeCount++;
+            }
           });
         }
       }
@@ -57,8 +79,8 @@ class _BarrierDeviceState extends State<BarrierDevice> {
 
   @override
   Widget build(BuildContext context) {
-    return Card.outlined(
-      elevation: 5,
+    return Card(
+      elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -79,22 +101,64 @@ class _BarrierDeviceState extends State<BarrierDevice> {
                   size: width(context) * 0.07,
                   color: Colors.white70,
                 ),
-                if (device.unit != null)
-                  Text(
-                    device.unit ?? "",
-                    style: textTheme(context).titleLarge,
-                  ),
+                SizedBox(width: 0),
+                SizedBox(width: 0),
               ],
             ),
-            SizedBox(height: 20),
-            _switch(),
-            SizedBox(height: 20),
+            _switch2(),
             Text(
-              device.name,
+              status == "1"
+                  ? "Kapalı"
+                  : status == "2"
+                      ? "Açılıyor"
+                      : status == "3"
+                          ? "Açık"
+                          : status == "4"
+                              ? "Kapanıyor"
+                              : "",
+              style: TextStyle(
+                  color: status == "1" || status == "4"
+                      ? Colors.red
+                      : Colors.green),
+            ),
+            SizedBox(height: 5),
+            Text(
+              device.name.toTitleCaseTr(),
               style: textTheme(context).titleMedium,
               overflow: TextOverflow.ellipsis,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  _switch2() {
+    return Card(
+      elevation: 5,
+      shape: CircleBorder(),
+      child: InkWell(
+        onTap: () {
+          sendMessage();
+        },
+        borderRadius: BorderRadius.circular(30),
+        child: CircularPercentIndicator(
+          radius: 30,
+          percent: status == "2"
+              ? openCount / device.openingTime!
+              : status == "4"
+                  ? closeCount / device.closingTime!
+                  : waitingCount.isOdd
+                      ? 0
+                      : 1,
+          progressColor:
+              status == "2" || status == "3" ? Colors.green : Colors.red,
+          backgroundColor: Colors.white,
+          center: Icon(
+            FontAwesomeIcons.powerOff,
+            color: status == "2" || status == "3" ? Colors.green : Colors.red,
+            size: 25,
+          ),
         ),
       ),
     );
@@ -141,7 +205,12 @@ class _BarrierDeviceState extends State<BarrierDevice> {
 
   sendMessage() {
     if (_mqttController.isConnected.value) {
-      _mqttController.publishMessage(device.topicRec!, "0");
+      if (device.typeId == 4) {
+        _mqttController.publishMessage(device.topicRec!, "0");
+      }
+      if (device.typeId == 6 && device.rfCodes != null) {
+        _mqttController.publishMessage(device.topicRec!, device.rfCodes![0]);
+      }
     }
   }
 }
