@@ -28,76 +28,92 @@ class _ProfilCardState extends State<ProfilCard> {
       width: width(context) * 0.95,
       child: Card(
         elevation: 1,
-        child: Padding(
-          padding: EdgeInsets.all(height(context) * 0.02),
-          child: Column(
-            children: [
-              SizedBox(
-                height: height(context) * 0.10,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      children: [
-                        Icon(
-                          FontAwesomeIcons.city,
-                          size: height(context) * 0.03,
-                        ),
-                        Text(
-                          homeController.cities
-                              .singleWhere(
-                                (c) =>
-                                    c.id ==
-                                    homeController.organisations.first.cityId,
-                              )
-                              .name,
-                          style: width(context) < minWidth
-                              ? textTheme(context).titleSmall
-                              : textTheme(context).titleMedium,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: height(context) * 0.08,
-                      child: FittedBox(
-                        child: CircleAvatar(
-                          backgroundColor: goldColor.withOpacity(0.6),
-                          child: Icon(
-                            FontAwesomeIcons.userLarge,
-                            color: Colors.white,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(
+              begin: Alignment.bottomLeft,
+              end: Alignment.topRight,
+              colors: [
+                Colors.white54,
+                Colors.brown[50]!,
+                Colors.brown[100]!,
+                Colors.brown[100]!,
+                Colors.brown[200]!,
+              ],
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(height(context) * 0.02),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: height(context) * 0.10,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          Icon(
+                            FontAwesomeIcons.city,
+                            size: height(context) * 0.03,
+                          ),
+                          Text(
+                            homeController.cities
+                                .singleWhere(
+                                  (c) =>
+                                      c.id ==
+                                      homeController.organisations.first.cityId,
+                                )
+                                .name,
+                            style: width(context) < minWidth
+                                ? textTheme(context).titleSmall
+                                : textTheme(context).titleMedium,
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: height(context) * 0.08,
+                        child: FittedBox(
+                          child: CircleAvatar(
+                            backgroundColor: goldColor.withOpacity(0.6),
+                            child: Icon(
+                              FontAwesomeIcons.userLarge,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Column(
-                      children: [
-                        Icon(
-                          FontAwesomeIcons.cloudSunRain,
-                          size: height(context) * 0.03,
-                        ),
-                        Text(
-                          "- C°",
-                          style: width(context) < minWidth
-                              ? textTheme(context).titleSmall
-                              : textTheme(context).titleMedium,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: height(context) * 0.04,
-                child: Center(
-                  child: Text(
-                    authController.user.value.fullName,
-                    style: width(context) < minWidth
-                        ? textTheme(context).titleMedium
-                        : textTheme(context).titleLarge,
+                      Column(
+                        children: [
+                          Icon(
+                            FontAwesomeIcons.cloudSunRain,
+                            size: height(context) * 0.03,
+                          ),
+                          Text(
+                            "- C°",
+                            style: width(context) < minWidth
+                                ? textTheme(context).titleSmall
+                                : textTheme(context).titleMedium,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                SizedBox(
+                  height: height(context) * 0.04,
+                  child: Center(
+                    child: Text(
+                      authController.user.value.fullName,
+                      style: width(context) < minWidth
+                          ? textTheme(context).titleMedium
+                          : textTheme(context).titleLarge,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

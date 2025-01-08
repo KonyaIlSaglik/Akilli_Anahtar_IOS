@@ -1,5 +1,7 @@
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/controllers/main/pager_controller.dart';
+import 'package:akilli_anahtar/pages/managers/box_install/install_settings.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_list_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
 import 'package:akilli_anahtar/pages/managers/box/list.dart';
@@ -21,6 +23,7 @@ class DrawerPage extends StatefulWidget {
 
 class _DrawerPageState extends State<DrawerPage> {
   final AuthController _authController = Get.find();
+  final LoginController _loginController = Get.find();
   final PagerController pagerController = Get.find();
   @override
   void initState() {
@@ -114,9 +117,8 @@ class _DrawerPageState extends State<DrawerPage> {
                             title: Text("Oturumdan Çık"),
                             onTap: () async {
                               await _authController.logOut(
-                                  _authController.user.value.id,
-                                  _authController
-                                      .session.value.platformIdentity);
+                                  _authController.session.value.id,
+                                  _loginController.deviceId.value);
                             },
                             trailing: Icon(Icons.chevron_right),
                           ),
@@ -128,11 +130,19 @@ class _DrawerPageState extends State<DrawerPage> {
                             },
                             trailing: Icon(Icons.chevron_right),
                           ),
-                          if (_authController.operationClaims.any((c) =>
-                              c.name == "developer" ||
-                              c.name == "device_install"))
+                          if (_authController.session.value.claims!.any(
+                            (e) => e == "developer" || e == "device_install",
+                          ))
                             Column(
                               children: [
+                                ListTile(
+                                  leading: Icon(FontAwesomeIcons.boxesStacked),
+                                  title: Text("Kutu Kurulum"),
+                                  onTap: () {
+                                    Get.to(() => InstallSettings());
+                                  },
+                                  trailing: Icon(Icons.chevron_right),
+                                ),
                                 ListTile(
                                   leading: Icon(FontAwesomeIcons.boxesStacked),
                                   title: Text("Kutu Yönetimi"),

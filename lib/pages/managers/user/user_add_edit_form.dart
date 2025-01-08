@@ -1,7 +1,7 @@
 import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
-import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/utils/validate_listener.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -20,7 +20,7 @@ class _UserAddEditFormState extends State<UserAddEditForm>
   UserManagementController userManagementControl =
       Get.put(UserManagementController());
   HomeController homeController = Get.find();
-  User user = User();
+  UserDto user = UserDto();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -351,13 +351,13 @@ class _UserAddEditFormState extends State<UserAddEditForm>
   void _saveUser() async {
     if (_formKey.currentState!.validate()) {
       if (user.id == 0) {
-        user = await userManagementControl.register(user) ?? User();
+        user = await userManagementControl.register(user) ?? UserDto();
         setState(() {
           passwordController.text = "";
         });
       } else {
         if (action == actions[1]) {
-          user = await userManagementControl.register(user) ?? User();
+          user = await userManagementControl.register(user) ?? UserDto();
         }
         if (user ==
             userManagementControl.users.singleWhere(

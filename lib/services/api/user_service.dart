@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/entities/user_device.dart';
 import 'package:akilli_anahtar/entities/user_operation_claim.dart';
 import 'package:akilli_anahtar/entities/user_organisation.dart';
@@ -10,65 +10,65 @@ import 'package:akilli_anahtar/utils/constants.dart';
 class UserService {
   static String url = "$apiUrlOut/User";
 
-  static Future<User?> get(int id) async {
+  static Future<UserDto?> get(int id) async {
     var response = await BaseService.get(
       "/get?id=",
     );
     if (response.statusCode == 200) {
-      return User.fromJson(response.body);
+      return UserDto.fromJson(response.body);
     }
     return null;
   }
 
-  static Future<User?> getbyUserName(String userName) async {
+  static Future<UserDto?> getbyUserName(String userName) async {
     var response = await BaseService.get(
       "$url/getByUserName?userName=$userName",
     );
     if (response.statusCode == 200) {
-      return User.fromJson(response.body);
+      return UserDto.fromJson(response.body);
     }
     return null;
   }
 
-  static Future<List<User>?> getAll() async {
+  static Future<List<UserDto>?> getAll() async {
     var response = await BaseService.get(
       "$url/getAll",
     );
     if (response.statusCode == 200) {
-      return User.fromJsonList(response.body);
+      return UserDto.fromJsonList(response.body);
     }
     return null;
   }
 
-  static Future<User?> register(User user) async {
+  static Future<UserDto?> register(UserDto user) async {
     var response = await BaseService.add(
       "$url/register",
       user.toJson(),
     );
     if (response.statusCode == 200) {
-      return User.fromJson(response.body);
+      return UserDto.fromJson(response.body);
     }
     return null;
   }
 
-  static Future<User?> saveAs(User user) async {
+  static Future<UserDto?> saveAs(UserDto user) async {
     var response = await BaseService.add(
       "$url/saveAs",
       user.toJson(),
     );
     if (response.statusCode == 200) {
-      return User.fromJson(response.body);
+      return UserDto.fromJson(response.body);
     }
     return null;
   }
 
-  static Future<User?> update(User user) async {
+  static Future<UserDto?> update(UserDto user) async {
     var response = await BaseService.update(
       "$url/update",
       user.toJson(),
     );
     if (response.statusCode == 200) {
-      return User.fromJson(response.body);
+      return UserDto.fromJson(response.body);
     }
     return null;
   }
@@ -155,6 +155,23 @@ class UserService {
     );
     if (response.statusCode == 200) {
       return UserDevice.fromJson(response.body);
+    }
+    return null;
+  }
+
+  static Future<bool?> updateFavorite(
+      int userId, int deviceId, int favoriteSequence) async {
+    var requestBody = {
+      'userId': userId,
+      'deviceId': deviceId,
+      'favoriteSequence': favoriteSequence,
+    };
+    var response = await BaseService.update(
+      "$url/updateFavorite?userId=$userId&deviceId=$deviceId&favoriteSequence=$favoriteSequence",
+      json.encode(requestBody),
+    );
+    if (response.statusCode == 200) {
+      return response.body == "true";
     }
     return null;
   }

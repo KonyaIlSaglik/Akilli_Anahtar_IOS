@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
-import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/organisation_select_widget.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_add_edit_page.dart';
@@ -92,7 +92,7 @@ class _UserListPageState extends State<UserListPage> {
                 ),
                 IconButton(
                   onPressed: () {
-                    userManagementController.selectedUser.value = User();
+                    userManagementController.selectedUser.value = UserDto();
                     Get.to(() => UserAddEditPage());
                   },
                   icon: Icon(FontAwesomeIcons.userPlus, color: goldColor),
@@ -106,7 +106,7 @@ class _UserListPageState extends State<UserListPage> {
                   child: Column(
                     children: [
                       OrganisationSelectWidget(
-                        onChanged: () async {
+                        onChanged: (int id) async {
                           userManagementController.userSearchQuery.value = "";
                           await userManagementController.getUsers();
                         },

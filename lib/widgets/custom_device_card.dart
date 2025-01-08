@@ -21,8 +21,8 @@ class _CustomDeviceCardState extends State<CustomDeviceCard> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width(context) * 0.45,
-      height: width(context) * 0.45,
+      width: width(context) * 0.30,
+      height: width(context) * 0.30,
       child: selectDevice(widget.device),
     );
   }

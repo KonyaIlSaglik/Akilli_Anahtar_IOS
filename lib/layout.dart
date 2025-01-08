@@ -30,7 +30,7 @@ class _LayoutState extends State<Layout> {
           backgroundColor: Colors.brown[50]!,
           foregroundColor: Colors.brown[50]!,
           elevation: 0,
-          shadowColor: Colors.brown[50]!,
+          scrolledUnderElevation: 0,
           iconTheme: IconThemeData(
             size: 30,
           ),

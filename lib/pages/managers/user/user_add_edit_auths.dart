@@ -1,5 +1,5 @@
 import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
-import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_add_edit_auths_devices.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_add_edit_auths_organisations.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -16,7 +16,7 @@ class UserAddEditAuths extends StatefulWidget {
 class _UserAddEditAuthsState extends State<UserAddEditAuths>
     with TickerProviderStateMixin {
   late TabController tabController;
-  User user = User();
+  UserDto user = UserDto();
 
   @override
   void initState() {

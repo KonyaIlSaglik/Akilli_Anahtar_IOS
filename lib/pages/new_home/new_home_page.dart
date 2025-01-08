@@ -99,14 +99,14 @@ class _NewHomePageState extends State<NewHomePage> {
             label: "Favoriler",
           ),
           BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.clock),
-            activeIcon: Icon(FontAwesomeIcons.clock),
-            label: "Plan",
+            icon: Icon(FontAwesomeIcons.memory),
+            activeIcon: Icon(FontAwesomeIcons.memory),
+            label: "Cihazlar",
           ),
           BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.city),
-            activeIcon: Icon(FontAwesomeIcons.city),
-            label: "Yerel",
+            icon: Icon(FontAwesomeIcons.clock),
+            activeIcon: Icon(FontAwesomeIcons.clock),
+            label: "Planlar",
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.user),

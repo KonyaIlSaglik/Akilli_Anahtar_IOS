@@ -22,12 +22,12 @@ class _TabViewState extends State<TabView> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _isDisabled[0] = !_authController.operationClaims
-        .any((c) => c.name == "developer" || c.name == "door_menu");
-    _isDisabled[1] = !_authController.operationClaims
-        .any((c) => c.name == "developer" || c.name == "sensor_menu");
-    _isDisabled[2] = !_authController.operationClaims
-        .any((c) => c.name == "developer" || c.name == "garden_menu");
+    // _isDisabled[0] = !_authController.operationClaims
+    //     .any((c) => c.name == "developer" || c.name == "door_menu");
+    // _isDisabled[1] = !_authController.operationClaims
+    //     .any((c) => c.name == "developer" || c.name == "sensor_menu");
+    // _isDisabled[2] = !_authController.operationClaims
+    //     .any((c) => c.name == "developer" || c.name == "garden_menu");
 
     _tabController = TabController(
       vsync: this,

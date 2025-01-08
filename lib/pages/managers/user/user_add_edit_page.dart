@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
-import 'package:akilli_anahtar/entities/user.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_add_edit_auths.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_add_edit_form.dart';
 import 'package:akilli_anahtar/utils/constants.dart';

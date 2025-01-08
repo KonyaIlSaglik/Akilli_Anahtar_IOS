@@ -2,7 +2,7 @@ import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
-import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/entities/user_device.dart';
 import 'package:akilli_anahtar/entities/user_operation_claim.dart';
 import 'package:akilli_anahtar/entities/user_organisation.dart';
@@ -16,10 +16,10 @@ import 'package:turkish/turkish.dart';
 
 class UserManagementController extends GetxController {
   HomeController homeController = Get.find();
-  var users = <User>[].obs;
-  var filteredUsers = <User>[].obs;
+  var users = <UserDto>[].obs;
+  var filteredUsers = <UserDto>[].obs;
   var selectedSortOption = "Ad Soyad".obs;
-  var selectedUser = User().obs;
+  var selectedUser = UserDto().obs;
   var userSearchQuery = "".obs;
   var loadingUser = false.obs;
 
@@ -40,7 +40,7 @@ class UserManagementController extends GetxController {
 
   Future<void> getUsers() async {
     loadingUser.value = true;
-    var allUsers = await UserService.getAll() ?? <User>[];
+    var allUsers = await UserService.getAll() ?? <UserDto>[];
     if (allUsers.isNotEmpty) {
       if (homeController.selectedOrganisationId > 0) {
         var result = await HomeService.getUserOrganisationsByOrganisationId(
@@ -96,7 +96,7 @@ class UserManagementController extends GetxController {
             .toList();
   }
 
-  Future<User?> register(User user) async {
+  Future<UserDto?> register(UserDto user) async {
     try {
       var response = await UserService.register(user);
       if (response != null) {
@@ -115,7 +115,7 @@ class UserManagementController extends GetxController {
     }
   }
 
-  Future<User?> saveAs(User user) async {
+  Future<UserDto?> saveAs(UserDto user) async {
     try {
       var response = await UserService.saveAs(user);
       if (response != null) {
@@ -137,7 +137,7 @@ class UserManagementController extends GetxController {
     }
   }
 
-  Future<void> updateUser(User user) async {
+  Future<void> updateUser(UserDto user) async {
     var response = await UserService.update(user);
     if (response != null) {
       selectedUser.value = response;

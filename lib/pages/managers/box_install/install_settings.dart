@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:akilli_anahtar/utils/constants.dart';
-import 'package:akilli_anahtar/utils/esp_touch/custom_provisioner.dart';
-import 'package:akilli_anahtar/utils/esp_touch/custom_request.dart';
-import 'package:akilli_anahtar/utils/esp_touch/custom_response.dart';
+
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:akilli_anahtar/smart_config/esp_smartconfig.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -22,43 +18,65 @@ class _InstallSettingsState extends State<InstallSettings> {
       TextEditingController(text: "BIMB");
   final TextEditingController passwordController =
       TextEditingController(text: "admknh_066");
+  // final TextEditingController ssidController =
+  //     TextEditingController(text: "Zyxel_E0E9");
+  // final TextEditingController passwordController =
+  //     TextEditingController(text: "KPT78MG4TL");
   final formKey = GlobalKey<FormState>();
   bool passVisible = false;
   bool _animate = false;
   var passwordFocus = FocusNode();
-
-  Timer timer = Timer.periodic(
-    Duration.zero,
-    (timer) {},
-  );
-
-  var plist = <CustomProvisioner>[];
+  var info = "";
 
   @override
   void initState() {
     super.initState();
-    for (var i = 1; i < 100; i++) {
-      plist.add(CustomProvisioner.espTouch());
-    }
+
+    init();
   }
 
-  var provisioner = CustomProvisioner.espTouch();
-  Future<void> _startProvisionings() async {
+  init() async {
+    final provisioner = Provisioner.espTouch();
+
     provisioner.listen((response) {
-      print(response.bssidText);
-      print(response.ipAddressText);
+      print("Device ${response.bssidText!} connected to WiFi!");
     });
 
-    provisioner.start(CustomProvisioningRequest.fromStrings(
-      address:
-          InternetAddress.fromRawAddress(Uint8List.fromList([234, 1, 1, 1])),
+    try {
+      await provisioner.start(ProvisioningRequest.fromStrings(
+        ssid: ssidController.text,
+        bssid: '00:00:00:00:00:00',
+        password: passwordController.text,
+      ));
+
+      // If you are going to use this library in Flutter
+      // this is good place to show some Dialog and wait for exit
+      //
+      // Or simply you can delay with Future.delayed function
+      await Future.delayed(Duration(seconds: 60));
+    } catch (e, s) {
+      print(e);
+    }
+
+// Provisioning does not have any timeout so it needs to be
+// stopped manually
+    provisioner.stop();
+  }
+
+  Future<void> _startProvisioning() async {
+    final provisioner = Provisioner.espTouch();
+
+    provisioner.listen((response) {
+      Navigator.of(context).pop(response);
+    });
+
+    provisioner.start(ProvisioningRequest.fromStrings(
       ssid: ssidController.text,
-      bssid: '01:00:5E:00:00:00',
+      bssid: '00:00:00:00:00:00',
       password: passwordController.text,
     ));
 
-    CustomProvisioningResponse? response =
-        await showDialog<CustomProvisioningResponse>(
+    ProvisioningResponse? response = await showDialog<ProvisioningResponse>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -79,9 +97,16 @@ class _InstallSettingsState extends State<InstallSettings> {
     if (provisioner.running) {
       provisioner.stop();
     }
+
+    if (response != null) {
+      setState(() {
+        _animate = false;
+      });
+      _onDeviceProvisioned(response);
+    }
   }
 
-  _onDeviceProvisioned(CustomProvisioningResponse response) {
+  _onDeviceProvisioned(ProvisioningResponse response) {
     showDialog(
       context: context,
       builder: (context) {
@@ -134,7 +159,7 @@ class _InstallSettingsState extends State<InstallSettings> {
           ListTile(
             leading: Icon(Icons.info_outline),
             title: Text(
-                "Cihazın ağa bağlanabilmesi için ağ adı ve parolasını girin ve gönder butonuna basın. Ardından cihazdan cevap gelmesini bekleyin."),
+                "Cihazın ağa bağlanabilmesi için ağ adı ve parolasını girin ve yayınlayın. Ardından cihazın bağlanmasını bekleyin."),
           ),
           SizedBox(height: height(context) * 0.02),
           Form(
@@ -243,51 +268,6 @@ class _InstallSettingsState extends State<InstallSettings> {
                     ),
                   ),
                   SizedBox(height: height(context) * 0.03),
-                  SizedBox(
-                    height: height(context) * 0.07,
-                    width: width(context) * 0.50,
-                    child: InkWell(
-                      onTap: () async {
-                        setState(() {
-                          _animate = true;
-                        });
-                      },
-
-                      // onTap: () async {
-                      //   var multicastEndpoint = Endpoint.broadcast(
-                      //     port: Port(7001),
-                      //   );
-
-                      //   var receiver = await UDP.bind(multicastEndpoint);
-
-                      //   var sender = await UDP.bind(Endpoint.any());
-
-                      //   receiver.asStream().listen((datagram) {
-                      //     if (datagram != null) {
-                      //       var str = String.fromCharCodes(datagram.data);
-
-                      //       print(str);
-                      //     }
-                      //   });
-
-                      //   await sender.send(
-                      //       '{"ssid":"BIMB","password":"admknh_066"}'.codeUnits,
-                      //       multicastEndpoint);
-                      // },
-                      child: Card(
-                        elevation: 10,
-                        color: goldColor.withOpacity(0.7),
-                        child: Center(
-                          child: Text(
-                            "GÖNDER",
-                            style: textTheme(context)
-                                .headlineLarge!
-                                .copyWith(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -295,24 +275,13 @@ class _InstallSettingsState extends State<InstallSettings> {
                         InkWell(
                           borderRadius: BorderRadius.circular(90),
                           onTap: () async {
-                            if (_animate) {
-                              provisioner.stop();
-                              setState(() {
-                                _animate = false;
-                              });
-                            } else {
-                              setState(() {
-                                _animate = true;
-                              });
-                              await provisioner
-                                  .start(CustomProvisioningRequest.fromStrings(
-                                address: InternetAddress.fromRawAddress(
-                                    Uint8List.fromList([234, 1, 1, 1])),
-                                ssid: ssidController.text,
-                                bssid: '00:00:00:00:00:00',
-                                password: passwordController.text,
-                              ));
-                            }
+                            // final provisioner = Provisioner.espTouch();
+                            // if (provisioner.running) {
+                            //   provisioner.stop();
+                            // } else {
+
+                            // }
+                            _startProvisioning();
                           },
                           child: AvatarGlow(
                             duration: Duration(seconds: 3),
@@ -339,6 +308,11 @@ class _InstallSettingsState extends State<InstallSettings> {
                         ),
                       ],
                     ),
+                  ),
+                  SizedBox(height: height(context) * 0.03),
+                  SizedBox(
+                    height: height(context) * 0.15,
+                    child: Text(info),
                   ),
                 ],
               ),

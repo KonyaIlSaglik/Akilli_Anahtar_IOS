@@ -1,21 +1,9 @@
 import 'dart:convert';
 
-import 'package:hive_flutter/hive_flutter.dart';
-
-import 'package:akilli_anahtar/utils/hive_constants.dart';
-
-@HiveType(typeId: HiveConstants.loginModel2TypeId)
 class LoginModel2 {
-  @HiveField(0)
   String userName;
-
-  @HiveField(1)
   String password;
-
-  @HiveField(2)
   String identity;
-
-  @HiveField(3)
   String platformName;
 
   LoginModel2({

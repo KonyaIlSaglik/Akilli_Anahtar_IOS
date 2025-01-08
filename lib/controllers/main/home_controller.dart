@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/entities/city.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/district.dart';
@@ -5,6 +6,7 @@ import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/models/device_group_by_box.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
+import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
@@ -94,7 +96,7 @@ class HomeController extends GetxController {
     // )
     // .toList();
     list.sort(
-      (a, b) => a.boxName!.compareToTr(b.boxName!),
+      (a, b) => (a.boxName ?? "").compareToTr(b.boxName ?? ""),
     );
     var boxNames = getDistinctBoxNames(list);
     var newList = <DeviceGroupByBox>[];
@@ -116,7 +118,7 @@ class HomeController extends GetxController {
     Set<String> boxNamesSet = {};
 
     for (var device in devices) {
-      boxNamesSet.add(device.boxName!);
+      boxNamesSet.add(device.boxName ?? "");
     }
 
     return boxNamesSet.toList();
@@ -124,5 +126,14 @@ class HomeController extends GetxController {
 
   void clearController() {
     devices.value = <Device>[];
+  }
+
+  Future<void> updateFavorite(Device device) async {
+    AuthController authController = Get.find();
+    var userDevice = await UserService.updateFavorite(
+        authController.user.value.id, device.id, device.favoriteSequence);
+    if (userDevice == null) {
+      //
+    }
   }
 }

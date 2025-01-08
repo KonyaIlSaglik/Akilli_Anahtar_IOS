@@ -1,11 +1,12 @@
-import 'dart:ui';
-
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
+import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/widgets/back_container.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class FavoriteEditPage extends StatefulWidget {
   const FavoriteEditPage({super.key});
@@ -16,156 +17,249 @@ class FavoriteEditPage extends StatefulWidget {
 
 class _FavoriteEditPageState extends State<FavoriteEditPage> {
   HomeController homeController = Get.find();
-  late List<Device> devices;
+
+  late List<Device> favorites;
+  late List<Device> others;
+
   @override
   void initState() {
     super.initState();
-    devices = homeController.favoriteDevices;
+    favorites = homeController.favoriteDevices;
+    others =
+        homeController.devices.where((d) => d.favoriteSequence == -1).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final Color oddItemColor = goldColor.withOpacity(0.5);
-    final Color evenItemColor = goldColor.withOpacity(0.15);
-
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Get.back();
-          },
+        backgroundColor: Colors.brown[50]!,
+        foregroundColor: Colors.brown[50]!,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        iconTheme: IconThemeData(
+          size: 30,
         ),
-        title: Text("Favori Listesini Düzenle"),
+        title: Text(
+          "Favorileri Düzenle",
+          style: width(context) < minWidth
+              ? textTheme(context).titleMedium!
+              : textTheme(context).titleLarge!,
+        ),
         actions: [
-          TextButton(
-            child: Text("Kaydet"),
-            onPressed: () {
-              Get.back(result: true);
-            },
+          Padding(
+            padding: EdgeInsets.only(right: 10),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: goldColor.withOpacity(0.7),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Get.back();
+              },
+              child: Text("Bitti"),
+            ),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          ListTile(
-            leading: Icon(FontAwesomeIcons.circleInfo),
-            title: Text(
-                "Sırasını değiştirmek istediğiniz cihaza basılı tutarak yukarı ya da aşağı kaydırın."),
-          ),
-          Container(
-            color: goldColor,
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 10,
-                  ),
-                  child: Text(
-                    "Favoriler",
-                    style: textTheme(context).titleMedium!.copyWith(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
+      body: BackContainer(
+        child: Column(
+          children: [
+            SizedBox(
+              height: height(context) * 0.01,
             ),
-          ),
-          SizedBox(
-            height: height(context) * 0.3,
-            child: ReorderableListView.builder(
-              itemCount: devices.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  key: Key('$index'),
-                  tileColor: index.isOdd ? oddItemColor : evenItemColor,
-                  leading: Icon(FontAwesomeIcons.solidHeart),
-                  title: Text(devices[index].name),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(FontAwesomeIcons.sort),
-                      InkWell(
-                        child: Icon(
-                          FontAwesomeIcons.xmark,
-                          color: Colors.red.withOpacity(0.7),
+            Expanded(
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: ReorderableGridView.count(
+                      shrinkWrap: true,
+                      crossAxisCount: 2,
+                      childAspectRatio: 3 / 2,
+                      dragWidgetBuilder: (index, child) {
+                        return child;
+                      },
+                      children: favorites
+                          .map(
+                            (e) => Stack(
+                              key: ValueKey(e.id),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: DeviceListViewItem(
+                                    device: e,
+                                    active: false,
+                                  ) as Widget,
+                                ),
+                                Positioned(
+                                  right: -8,
+                                  top: -8,
+                                  child: Container(
+                                    height: 45,
+                                    width: 45,
+                                    decoration: BoxDecoration(
+                                      color: Colors.brown[50],
+                                      borderRadius: BorderRadius.circular(60),
+                                    ),
+                                    child: IconButton(
+                                      color: Colors.white,
+                                      onPressed: () async {
+                                        var device =
+                                            homeController.devices.firstWhere(
+                                          (d) => d.id == e.id,
+                                        );
+                                        device.favoriteSequence = -1;
+                                        await homeController
+                                            .updateFavorite(device);
+                                        setState(() {
+                                          favorites =
+                                              homeController.favoriteDevices;
+                                          others = homeController.devices
+                                              .where((d) =>
+                                                  d.favoriteSequence == -1)
+                                              .toList();
+                                        });
+                                      },
+                                      icon: Icon(
+                                        FontAwesomeIcons.circleMinus,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                          .toList(),
+                      onReorder: (oldIndex, newIndex) {
+                        setState(() async {
+                          final element = favorites.removeAt(oldIndex);
+                          favorites.insert(newIndex, element);
+                          for (int i = 0; i < favorites.length; i++) {
+                            var device = homeController.devices
+                                .firstWhere((d) => d.id == favorites[i].id);
+                            device.favoriteSequence = i;
+                            await homeController.updateFavorite(device);
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  DraggableScrollableSheet(
+                    maxChildSize: 0.9,
+                    minChildSize: 0.3,
+                    builder: (BuildContext context, scrollController) {
+                      return Container(
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(25),
+                            topRight: Radius.circular(25),
+                          ),
                         ),
-                        onTap: () {
-                          //
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
-              onReorder: (int oldIndex, int newIndex) {
-                if (oldIndex < newIndex) {
-                  newIndex -= 1;
-                }
-                var device = devices.removeAt(oldIndex);
-                devices.insert(newIndex, device);
-                for (int i = 0; i < devices.length; i++) {
-                  devices[i].favoriteSequence = i;
-                }
-              },
-            ),
-          ),
-          Container(
-            color: goldColor,
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 10,
-                  ),
-                  child: Text(
-                    "Tüm Bileşenler",
-                    style: textTheme(context).titleMedium!.copyWith(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.separated(
-              itemBuilder: (context, index) {
-                var d = homeController.devices[index];
-                return ListTile(
-                  leading: Icon(FontAwesomeIcons.heart),
-                  title: Text(d.name),
-                  trailing: TextButton(
-                    child: Text("Ekle"),
-                    onPressed: () {
-                      //
+                        child: CustomScrollView(
+                          controller: scrollController,
+                          slivers: [
+                            SliverAppBar(
+                              pinned: true,
+                              automaticallyImplyLeading: false,
+                              centerTitle: true,
+                              toolbarHeight: 25,
+                              backgroundColor: Colors.white,
+                              surfaceTintColor: Colors.white,
+                              primary: true,
+                              title: Center(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).hintColor,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10)),
+                                  ),
+                                  height: 4,
+                                  width: 40,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                ),
+                              ),
+                            ),
+                            SliverPadding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              sliver: SliverGrid.count(
+                                crossAxisCount: 2,
+                                childAspectRatio: 3 / 2,
+                                children: others
+                                    .map(
+                                      (e) => Stack(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: DeviceListViewItem(
+                                              device: e,
+                                              active: false,
+                                            ) as Widget,
+                                          ),
+                                          Positioned(
+                                            right: -8,
+                                            top: -8,
+                                            child: Container(
+                                              height: 45,
+                                              width: 45,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(60),
+                                              ),
+                                              child: IconButton(
+                                                color: Colors.white,
+                                                onPressed: () async {
+                                                  var device = homeController
+                                                      .devices
+                                                      .firstWhere(
+                                                    (d) => d.id == e.id,
+                                                  );
+                                                  device.favoriteSequence =
+                                                      homeController
+                                                          .favoriteDevices
+                                                          .length;
+                                                  await homeController
+                                                      .updateFavorite(device);
+                                                  setState(() {
+                                                    favorites = homeController
+                                                        .favoriteDevices;
+                                                    others = homeController
+                                                        .devices
+                                                        .where((d) =>
+                                                            d.favoriteSequence ==
+                                                            -1)
+                                                        .toList();
+                                                  });
+                                                },
+                                                icon: Icon(
+                                                  FontAwesomeIcons.circlePlus,
+                                                  color: Colors.green,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
                     },
-                  ),
-                );
-              },
-              separatorBuilder: (context, index) {
-                return Divider(color: goldColor);
-              },
-              itemCount: homeController.devices.length,
+                  )
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    );
-  }
-
-  Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (BuildContext context, Widget? child) {
-        final double animValue = Curves.easeInOut.transform(animation.value);
-        final double elevation = lerpDouble(0, 6, animValue)!;
-        return Material(
-          elevation: elevation,
-          color: goldColor,
-          shadowColor: goldColor,
-          child: child,
-        );
-      },
-      child: child,
     );
   }
 }

@@ -43,7 +43,7 @@ class LoginController extends GetxController {
   }
 
   Future<void> login() async {
-    await AuthService.login2(getLoginModel);
+    await AuthService.appLogin(getLoginModel);
     if (isLogin.value) {
       saveLoginInfo();
     }

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OrganisationSelectWidget extends StatefulWidget {
-  final Function() onChanged;
+  final Function(int id) onChanged;
 
   const OrganisationSelectWidget({super.key, required this.onChanged});
 
@@ -52,7 +52,7 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
           onChanged: (value) {
             if (value != null) {
               homeController.selectedOrganisationId.value = value.id;
-              widget.onChanged();
+              widget.onChanged(value.id);
             }
           },
           filterFn: (item, filter) {
@@ -79,7 +79,7 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
                     icon: Icon(Icons.clear),
                     onPressed: () {
                       homeController.selectedOrganisationId.value = 0;
-                      widget.onChanged();
+                      widget.onChanged(0);
                     },
                   ),
               ],

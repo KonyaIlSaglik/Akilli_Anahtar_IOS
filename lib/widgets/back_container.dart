@@ -11,7 +11,7 @@ class BackContainer extends StatelessWidget {
         gradient: RadialGradient(
           radius: 1,
           colors: [
-            Colors.brown[100]!,
+            Colors.brown[50]!,
             Colors.brown[50]!,
           ],
         ),

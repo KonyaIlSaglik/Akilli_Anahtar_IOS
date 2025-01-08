@@ -1,4 +1,3 @@
-import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/models/version_model.dart';
@@ -9,11 +8,11 @@ import 'package:turkish/turkish.dart';
 
 class BoxManagementController extends GetxController {
   MqttController mqttController = Get.find();
-  HomeController homeController = Get.find();
   var boxes = <Box>[].obs;
   var selectedSortOption = "Bileşen Adı".obs;
   var selectedBox = Box().obs;
   var loadingBox = false.obs;
+  var selectedOrganisationId = 0.obs;
 
   var newVersion = VersionModel().obs;
 
@@ -41,20 +40,18 @@ class BoxManagementController extends GetxController {
   Future<void> getBoxes() async {
     loadingBox.value = true;
     boxes.clear();
-    var allBoxes = await BoxService.getAll() ?? <Box>[];
-    if (allBoxes.isNotEmpty) {
-      if (homeController.selectedOrganisationId > 0) {
-        boxes.value = allBoxes
-            .where(
-              (b) =>
-                  b.organisationId ==
-                  homeController.selectedOrganisationId.value,
-            )
-            .toList();
-      } else {
-        boxes.value = allBoxes;
-      }
-    }
+    boxes.value = await BoxService.getAll() ?? <Box>[];
+    // if (allBoxes.isNotEmpty) {
+    //   if (selectedOrganisationId.value > 0) {
+    //     boxes.value = allBoxes
+    //         .where(
+    //           (b) => b.organisationId == selectedOrganisationId.value,
+    //         )
+    //         .toList();
+    //   } else {
+    //     boxes.value = allBoxes;
+    //   }
+    // }
     loadingBox.value = false;
   }
 

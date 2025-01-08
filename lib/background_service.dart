@@ -12,7 +12,7 @@ import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
 
 import 'package:akilli_anahtar/entities/device.dart';
-import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 
@@ -71,7 +71,7 @@ void onStart(ServiceInstance service) async {
   String? userName;
   String? password;
   TokenModel? tokenModel;
-  User? user;
+  UserDto? user;
   late MyMqtt mqtt;
   List<Device>? devices;
 
@@ -289,7 +289,7 @@ Future<TokenModel?> login(String userName, String password) async {
   return null;
 }
 
-Future<User?> getByUserName(String userName, String token) async {
+Future<UserDto?> getByUserName(String userName, String token) async {
   String url = "$apiUrlOut/User";
   try {
     var uri = Uri.parse("$url/getByUserName?userName=$userName");
@@ -306,7 +306,7 @@ Future<User?> getByUserName(String userName, String token) async {
     print(response.statusCode);
     print(response.body);
     if (response.statusCode == 200) {
-      return User.fromJson(response.body);
+      return UserDto.fromJson(response.body);
     }
   } catch (e) {
     print(e);

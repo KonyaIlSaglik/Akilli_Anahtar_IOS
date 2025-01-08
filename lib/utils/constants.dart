@@ -13,12 +13,11 @@ const String mqttPortKey = "mqttPort";
 const String mqttUserKey = "mqttUser";
 const String mqttPasswordKey = "mqttPassword";
 
-const String apiUrlIn = "http://10.42.41.36:85/api";
-const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
-const String userIdKey = "userId";
+const String apiUrlOut =
+    "http://uzak.konyasm.gov.tr:42027/AkilliAnahtarApi/api";
+//const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
 const String userNameKey = "userName";
 const String passwordKey = "password";
-const String accessTokenKey = "accessToken";
 const Color goldColor = Colors.brown;
 //const Color goldColor = Color(0xffb49664);
 //const Color mainColor = Color.fromARGB(255, 180, 150, 100);

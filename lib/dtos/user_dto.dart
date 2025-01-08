@@ -1,25 +1,17 @@
 import 'dart:convert';
 
-class User {
+class UserDto {
   int id;
-
   String userName;
-
   String fullName;
-
   String password;
-
   String mail;
-
   String telephone;
-
   int active;
-
   int organisationId;
-
   String organisationName;
 
-  User({
+  UserDto({
     this.id = 0,
     this.userName = "",
     this.fullName = "",
@@ -45,8 +37,8 @@ class User {
     };
   }
 
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
+  factory UserDto.fromMap(Map<String, dynamic> map) {
+    return UserDto(
       id: map['id'] != null ? map['id'] as int : 0,
       userName: map['userName'] != null ? map['userName'] as String : "",
       fullName: map['fullName'] != null ? map['fullName'] as String : "",
@@ -64,10 +56,10 @@ class User {
 
   String toJson() => json.encode(toMap());
 
-  factory User.fromJson(String source) =>
-      User.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory UserDto.fromJson(String source) =>
+      UserDto.fromMap(json.decode(source) as Map<String, dynamic>);
 
-  User copyWith({
+  UserDto copyWith({
     int? id,
     String? userName,
     String? fullName,
@@ -78,7 +70,7 @@ class User {
     int? organisationId,
     String? organisationName,
   }) {
-    return User(
+    return UserDto(
       id: id ?? this.id,
       userName: userName ?? this.userName,
       fullName: fullName ?? this.fullName,
@@ -91,12 +83,12 @@ class User {
     );
   }
 
-  static List<User> fromJsonList(String source) =>
-      List<User>.from((json.decode(source) as List<dynamic>)
-          .map((x) => User.fromJson(json.encode(x))));
+  static List<UserDto> fromJsonList(String source) =>
+      List<UserDto>.from((json.decode(source) as List<dynamic>)
+          .map((x) => UserDto.fromJson(json.encode(x))));
 
   @override
-  bool operator ==(covariant User other) {
+  bool operator ==(covariant UserDto other) {
     if (identical(this, other)) return true;
 
     return other.id == id &&

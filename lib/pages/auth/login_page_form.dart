@@ -101,7 +101,7 @@ class _LoginPageFormState extends State<LoginPageForm> {
                               Get.to(() => Layout());
                             } else {
                               AuthController authController = Get.find();
-                              if (authController.allSessions.isNotEmpty) {
+                              if (authController.oldSessions.isNotEmpty) {
                                 authController.checkSessions(context);
                               }
                               passwordController.text = "";

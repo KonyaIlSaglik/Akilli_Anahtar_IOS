@@ -8,10 +8,11 @@ import 'package:akilli_anahtar/entities/district.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/entities/parameter.dart';
-import 'package:akilli_anahtar/entities/user.dart';
+import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/login_model2.dart';
-import 'package:akilli_anahtar/models/session_model.dart';
+import 'package:akilli_anahtar/dtos/session_dto.dart';
+import 'package:akilli_anahtar/models/old_session_model.dart';
 import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -21,7 +22,8 @@ import 'package:http/http.dart' as http;
 class AuthService {
   static String url = "$apiUrlOut/Auth";
 
-  static Future<Session?> login(LoginModel loginModel) async {
+  //remove
+  static Future<SessionDto?> login(LoginModel loginModel) async {
     loginModel.identity = await getDeviceId();
     var uri = Uri.parse("$url/login");
     var client = http.Client();
@@ -35,7 +37,7 @@ class AuthService {
       );
       client.close();
       if (response.statusCode == 200) {
-        var session = Session.fromJson(response.body);
+        var session = SessionDto.fromJson(response.body);
         return session;
       }
       if (response.statusCode == 400) {
@@ -48,23 +50,23 @@ class AuthService {
     return null;
   }
 
+  //remove
   static Future<void> login2(LoginModel2 loginModel) async {
     AuthController authController = Get.put(AuthController());
-    authController.allSessions.clear();
+    authController.oldSessions.clear();
     print("$url/login2");
     print(loginModel.toJson());
     var uri = Uri.parse("$url/login2");
     var client = http.Client();
     try {
-      var response = await client
-          .post(
-            uri,
-            headers: {
-              'content-type': 'application/json; charset=utf-8',
-            },
-            body: loginModel.toJson(),
-          )
-          .timeout(Duration(seconds: 15));
+      var response = await client.post(
+        uri,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          'accept': '*/*'
+        },
+        body: loginModel.toJson(),
+      );
       client.close();
       print(response.statusCode);
       print(response.body);
@@ -72,17 +74,16 @@ class AuthService {
         LoginController loginController = Get.find();
         loginController.isLogin.value = true;
         var data = json.decode(response.body) as Map<String, dynamic>;
-        var session = Session.fromJson(json.encode(data["session"]));
+        var session = SessionDto.fromJson(json.encode(data["sessionDto"]));
         authController.session.value = session;
-        LocalDb.add(accessTokenKey, session.accessToken);
-        var user = User.fromJson(json.encode(data["userDto"]));
+        var user = UserDto.fromJson(json.encode(data["userDto"]));
         authController.user.value = user;
-        LocalDb.add(userIdKey, user.id.toString());
         LocalDb.add(userNameKey, loginModel.userName);
         LocalDb.add(passwordKey, loginModel.password);
         return;
-      } else if (response.statusCode == 422) {
-        authController.allSessions.value = Session.fromJsonList(response.body);
+      } else if (response.statusCode == 202) {
+        authController.oldSessions.value =
+            OldSessionModel.fromJsonList(response.body);
         return;
       } else {
         errorSnackbar("Hata", response.body);
@@ -94,6 +95,51 @@ class AuthService {
     return;
   }
 
+  static Future<void> appLogin(LoginModel2 loginModel) async {
+    AuthController authController = Get.put(AuthController());
+    authController.oldSessions.clear();
+    print("$url/appLogin");
+    print(loginModel.toJson());
+    var uri = Uri.parse("$url/appLogin");
+    var client = http.Client();
+    try {
+      var response = await client.post(
+        uri,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          'accept': '*/*'
+        },
+        body: loginModel.toJson(),
+      );
+      client.close();
+      print(response.statusCode);
+      print(response.body);
+      if (response.statusCode == 200) {
+        LoginController loginController = Get.find();
+        loginController.isLogin.value = true;
+        var data = json.decode(response.body) as Map<String, dynamic>;
+        var session = SessionDto.fromJson(json.encode(data["sessionDto"]));
+        authController.session.value = session;
+        var user = UserDto.fromJson(json.encode(data["userDto"]));
+        authController.user.value = user;
+        LocalDb.add(userNameKey, loginModel.userName);
+        LocalDb.add(passwordKey, loginModel.password);
+        return;
+      } else if (response.statusCode == 202) {
+        authController.oldSessions.value =
+            OldSessionModel.fromJsonList(response.body);
+        return;
+      } else {
+        errorSnackbar("Hata", response.body);
+      }
+    } catch (e) {
+      errorSnackbar("Hata", "Oturum Açma Sırasında bir hata oluştu.");
+      print(e);
+    }
+    return;
+  }
+
+  //remove
   static Future<List<Device>?> getData() async {
     var authController = Get.find<AuthController>();
     HomeController homeController = Get.find();
@@ -101,10 +147,10 @@ class AuthService {
         "$url/getData?userId=${authController.user.value.id}");
     if (response.statusCode == 200) {
       var data = json.decode(response.body) as Map<String, dynamic>;
-      var claims = data["operationClaims"] != null
-          ? OperationClaim.fromJsonList(json.encode(data["operationClaims"]))
-          : <OperationClaim>[];
-      authController.operationClaims.value = claims;
+      // var claims = data["operationClaims"] != null
+      //     ? OperationClaim.fromJsonList(json.encode(data["operationClaims"]))
+      //     : <OperationClaim>[];
+      // authController.operationClaims.value = claims;
       var parameters = Parameter.fromJsonList(json.encode(data["parameters"]));
       homeController.parameters.value = parameters;
       var organisations =
@@ -121,6 +167,7 @@ class AuthService {
     return null;
   }
 
+  //remove
   static Future<List<OperationClaim>?> getUserClaims() async {
     var authController = Get.find<AuthController>();
     var response = await BaseService.get(
@@ -131,8 +178,9 @@ class AuthService {
     return null;
   }
 
-  static Future<void> logOut(int userId, String identity) async {
-    var uri = Uri.parse("$url/logout?userId=$userId&identity=$identity");
+  static Future<void> logOut(int sessionId, String identity) async {
+    var uri =
+        Uri.parse("$url/appLogout?sessionId=$sessionId&identity=$identity");
     var client = http.Client();
     var response = await client.put(
       uri,
@@ -141,7 +189,7 @@ class AuthService {
       },
     );
     client.close();
-    print("$url/logout?userId=$userId&identity=$identity");
+    print("$url/appLogout?sessionId=$sessionId&identity=$identity");
     print(response.statusCode);
     print(response.body);
     if (response.statusCode == 200) {
@@ -151,7 +199,7 @@ class AuthService {
     }
   }
 
-  static Future<Session?> changePassword(
+  static Future<SessionDto?> changePassword(
       String oldPassword, String newPassword) async {
     var authController = Get.find<AuthController>();
     var session = authController.session.value;
@@ -172,7 +220,7 @@ class AuthService {
     );
     client.close();
     if (response.statusCode == 200) {
-      var data = Session.fromJson(json.encode(response.body));
+      var data = SessionDto.fromJson(json.encode(response.body));
       return data;
     }
     return null;
