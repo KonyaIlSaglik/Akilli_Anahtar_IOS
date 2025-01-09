@@ -41,19 +41,14 @@ class _UserAddEditAuthsOrganisationsState
                         activeColor: goldColor,
                         onChanged: (value) async {
                           if (value!) {
-                            await userManagementController.addUserDevice(
+                            await userManagementController.addUserOrganisation(
                                 userManagementController
                                     .umOrganisations[index].id!);
                           } else {
-                            var ud = userManagementController.userDevices
-                                .firstWhere((u) =>
-                                    u.deviceId ==
-                                    userManagementController
-                                        .umOrganisations[index].id);
                             await userManagementController
-                                .deleteUserDevice(ud.id);
+                                .deleteUserOrganisation(userManagementController
+                                    .umOrganisations[index].id!);
                           }
-                          userManagementController.filterDevices();
                         },
                         value: userManagementController
                             .umOrganisations[index].userAdded,

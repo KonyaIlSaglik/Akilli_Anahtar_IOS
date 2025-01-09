@@ -81,20 +81,15 @@ class _UserAddEditAuthsDevicesState extends State<UserAddEditAuthsDevices> {
                                   onChanged: (value) async {
                                     if (value!) {
                                       await userManagementController
-                                          .addUserDevice(
+                                          .addUserDevicee(
                                               userManagementController
                                                   .umDevices[index].id!);
                                     } else {
-                                      var ud = userManagementController
-                                          .userDevices
-                                          .firstWhere((u) =>
-                                              u.deviceId ==
-                                              userManagementController
-                                                  .umDevices[index].id);
                                       await userManagementController
-                                          .deleteUserDevice(ud.id);
+                                          .deleteUserDevicee(
+                                              userManagementController
+                                                  .umDevices[index].id!);
                                     }
-                                    userManagementController.filterDevices();
                                   },
                                   value: userManagementController
                                       .umDevices[index].userAdded,
