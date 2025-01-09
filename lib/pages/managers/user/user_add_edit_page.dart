@@ -98,6 +98,10 @@ class _UserAddEditPageState extends State<UserAddEditPage>
                   value = 0;
                 }
                 tabController.index = value;
+                UserManagementController userManagementController = Get.find();
+                if (value == 1) {
+                  userManagementController.getAllOrganisations();
+                }
               },
               controller: tabController,
               tabs: [

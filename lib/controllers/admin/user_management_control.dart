@@ -1,4 +1,6 @@
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/dtos/um_device_dto.dart';
+import 'package:akilli_anahtar/dtos/um_organisation_dto.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
@@ -9,6 +11,7 @@ import 'package:akilli_anahtar/entities/user_organisation.dart';
 import 'package:akilli_anahtar/services/api/box_service.dart';
 import 'package:akilli_anahtar/services/api/device_service.dart';
 import 'package:akilli_anahtar/services/api/home_service.dart';
+import 'package:akilli_anahtar/services/api/user_management_service.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
@@ -37,6 +40,79 @@ class UserManagementController extends GetxController {
   var userOrganisations = <UserOrganisation>[].obs;
 
   var organisationUsers = <UserOrganisation>[].obs;
+
+  ///
+
+  var umDevices = <UmDeviceDto>[].obs;
+  var umOrganisations = <UmOrganisationDto>[].obs;
+
+  Future<void> getAllDevices() async {
+    umDevices.value =
+        await UserManagementService.getAllDevices(selectedUser.value.id) ??
+            <UmDeviceDto>[];
+    umDevices.sort((a, b) {
+      if (a.userAdded! && !b.userAdded!) {
+        return -1; // a üstte gelsin
+      } else if (!a.userAdded! && b.userAdded!) {
+        return 1; // b üstte gelsin
+      } else {
+        // userAdded'lar arasında alfabetik sıralama
+        return a.name!.toLowerCaseTr().compareTo(b.name!.toLowerCaseTr());
+      }
+    });
+  }
+
+  Future<void> addUserDevicee(int deviceId) async {
+    var result = await UserManagementService.addUserDevice(
+        selectedUser.value.id, deviceId);
+    if (result) {
+      umDevices.singleWhere((o) => o.id == deviceId).userAdded = true;
+    }
+  }
+
+  Future<void> deleteUserDevicee(int deviceId) async {
+    var result = await UserManagementService.deleteUserDevice(
+        selectedUser.value.id, deviceId);
+    if (result) {
+      umDevices.singleWhere((o) => o.id == deviceId).userAdded = false;
+    }
+  }
+
+  Future<void> getAllOrganisations() async {
+    umOrganisations.value = await UserManagementService.getAllOrganisations(
+            selectedUser.value.id) ??
+        <UmOrganisationDto>[];
+    umOrganisations.sort((a, b) {
+      if (a.userAdded! && !b.userAdded!) {
+        return -1; // a üstte gelsin
+      } else if (!a.userAdded! && b.userAdded!) {
+        return 1; // b üstte gelsin
+      } else {
+        // userAdded'lar arasında alfabetik sıralama
+        return a.name!.toLowerCaseTr().compareTo(b.name!.toLowerCaseTr());
+      }
+    });
+  }
+
+  Future<void> addUserOrganisationn(int organisationId) async {
+    var result = await UserManagementService.addUserOrganisation(
+        selectedUser.value.id, organisationId);
+    if (result) {
+      umOrganisations.singleWhere((o) => o.id == organisationId).userAdded =
+          true;
+    }
+  }
+
+  Future<void> deleteUserOrganisationn(int organisationId) async {
+    var result = await UserManagementService.deleteUserOrganisation(
+        selectedUser.value.id, organisationId);
+    if (result) {
+      umOrganisations.singleWhere((o) => o.id == organisationId).userAdded =
+          false;
+    }
+  }
+
+  ///
 
   Future<void> getUsers() async {
     loadingUser.value = true;

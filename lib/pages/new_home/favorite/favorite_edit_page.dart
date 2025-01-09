@@ -24,7 +24,8 @@ class _FavoriteEditPageState extends State<FavoriteEditPage> {
   @override
   void initState() {
     super.initState();
-    favorites = homeController.favoriteDevices;
+    favorites =
+        homeController.devices.where((d) => d.favoriteSequence > -1).toList();
     others =
         homeController.devices.where((d) => d.favoriteSequence == -1).toList();
   }
@@ -54,10 +55,17 @@ class _FavoriteEditPageState extends State<FavoriteEditPage> {
                 backgroundColor: goldColor.withOpacity(0.7),
                 foregroundColor: Colors.white,
               ),
-              onPressed: () {
+              onPressed: () async {
+                for (var d in favorites) {
+                  await homeController.updateFavorite(d);
+                }
+                for (var d in others) {
+                  await homeController.updateFavorite(d);
+                }
+                await homeController.getData();
                 Get.back();
               },
-              child: Text("Bitti"),
+              child: Text("Kaydet"),
             ),
           ),
         ],
@@ -104,21 +112,14 @@ class _FavoriteEditPageState extends State<FavoriteEditPage> {
                                     ),
                                     child: IconButton(
                                       color: Colors.white,
-                                      onPressed: () async {
-                                        var device =
-                                            homeController.devices.firstWhere(
-                                          (d) => d.id == e.id,
-                                        );
-                                        device.favoriteSequence = -1;
-                                        await homeController
-                                            .updateFavorite(device);
+                                      onPressed: () {
                                         setState(() {
-                                          favorites =
-                                              homeController.favoriteDevices;
-                                          others = homeController.devices
-                                              .where((d) =>
-                                                  d.favoriteSequence == -1)
-                                              .toList();
+                                          favorites
+                                              .removeWhere((d) => d.id == e.id);
+                                          e.favoriteSequence = -1;
+                                        });
+                                        setState(() {
+                                          others.add(e);
                                         });
                                       },
                                       icon: Icon(
@@ -133,14 +134,13 @@ class _FavoriteEditPageState extends State<FavoriteEditPage> {
                           )
                           .toList(),
                       onReorder: (oldIndex, newIndex) {
-                        setState(() async {
+                        setState(() {
                           final element = favorites.removeAt(oldIndex);
                           favorites.insert(newIndex, element);
                           for (int i = 0; i < favorites.length; i++) {
                             var device = homeController.devices
                                 .firstWhere((d) => d.id == favorites[i].id);
                             device.favoriteSequence = i;
-                            await homeController.updateFavorite(device);
                           }
                         });
                       },
@@ -184,71 +184,64 @@ class _FavoriteEditPageState extends State<FavoriteEditPage> {
                                 ),
                               ),
                             ),
-                            SliverPadding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              sliver: SliverGrid.count(
-                                crossAxisCount: 2,
-                                childAspectRatio: 3 / 2,
-                                children: others
-                                    .map(
-                                      (e) => Stack(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: DeviceListViewItem(
-                                              device: e,
-                                              active: false,
-                                            ) as Widget,
-                                          ),
-                                          Positioned(
-                                            right: -8,
-                                            top: -8,
-                                            child: Container(
-                                              height: 45,
-                                              width: 45,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(60),
-                                              ),
-                                              child: IconButton(
-                                                color: Colors.white,
-                                                onPressed: () async {
-                                                  var device = homeController
-                                                      .devices
-                                                      .firstWhere(
-                                                    (d) => d.id == e.id,
-                                                  );
-                                                  device.favoriteSequence =
-                                                      homeController
-                                                          .favoriteDevices
-                                                          .length;
-                                                  await homeController
-                                                      .updateFavorite(device);
-                                                  setState(() {
-                                                    favorites = homeController
-                                                        .favoriteDevices;
-                                                    others = homeController
-                                                        .devices
-                                                        .where((d) =>
-                                                            d.favoriteSequence ==
-                                                            -1)
-                                                        .toList();
-                                                  });
-                                                },
-                                                icon: Icon(
-                                                  FontAwesomeIcons.circlePlus,
-                                                  color: Colors.green,
-                                                ),
+                            if (others.isNotEmpty)
+                              SliverPadding(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                sliver: SliverGrid.builder(
+                                  itemCount: others.length,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 3 / 2,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    var e = others[index];
+                                    return Stack(
+                                      clipBehavior: Clip.hardEdge,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: DeviceListViewItem(
+                                            device: e,
+                                            active: false,
+                                          ) as Widget,
+                                        ),
+                                        Positioned(
+                                          right: -8,
+                                          top: -8,
+                                          child: Container(
+                                            height: 45,
+                                            width: 45,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(60),
+                                            ),
+                                            child: IconButton(
+                                              color: Colors.white,
+                                              onPressed: () {
+                                                setState(() {
+                                                  others.removeWhere(
+                                                      (d) => d.id == e.id);
+                                                  e.favoriteSequence =
+                                                      favorites.length;
+                                                });
+                                                setState(() {
+                                                  favorites.add(e);
+                                                });
+                                              },
+                                              icon: Icon(
+                                                FontAwesomeIcons.circlePlus,
+                                                color: Colors.green,
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    )
-                                    .toList(),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       );

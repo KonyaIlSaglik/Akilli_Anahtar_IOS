@@ -27,6 +27,30 @@ class BaseService {
     }
   }
 
+  static Future<http.Response> post(String url) async {
+    try {
+      var uri = Uri.parse(url);
+      var client = http.Client();
+      var authController = Get.find<AuthController>();
+      var session = authController.session.value;
+      var response = await client.post(
+        uri,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          'Authorization': 'Bearer ${session.accessToken}',
+        },
+      );
+      client.close();
+      print(url);
+      print(response.statusCode);
+      print(response.body);
+      return response;
+    } catch (e) {
+      print(e);
+      return http.Response("hata", 999);
+    }
+  }
+
   static Future<http.Response> add(String url, String jsonData) async {
     var uri = Uri.parse(url);
     var client = http.Client();

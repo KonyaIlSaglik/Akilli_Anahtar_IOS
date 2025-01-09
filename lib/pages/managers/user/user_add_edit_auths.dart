@@ -35,9 +35,12 @@ class _UserAddEditAuthsState extends State<UserAddEditAuths>
           overlayColor: WidgetStatePropertyAll(goldColor.withOpacity(0.2)),
           controller: tabController,
           onTap: (value) {
+            UserManagementController userManagementController = Get.find();
+            if (value == 0) {
+              userManagementController.getAllOrganisations();
+            }
             if (value == 1) {
-              UserManagementController userManagementController = Get.find();
-              userManagementController.filterDevices();
+              userManagementController.getAllDevices();
             }
           },
           tabs: [

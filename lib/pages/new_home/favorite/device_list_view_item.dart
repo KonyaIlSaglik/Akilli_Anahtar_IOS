@@ -36,60 +36,62 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
 
     device = widget.device;
 
-    if (_mqttController.clientIsNull.value ||
-        !_mqttController.isConnected.value) return;
-    _mqttController.subscribeToTopic(device.topicStat);
+    if (widget.active) {
+      if (_mqttController.clientIsNull.value ||
+          !_mqttController.isConnected.value) return;
+      _mqttController.subscribeToTopic(device.topicStat);
 
-    _mqttController.onMessage((topic, message) {
-      if (topic == device.topicStat) {
+      _mqttController.onMessage((topic, message) {
+        if (topic == device.topicStat) {
+          if (mounted) {
+            setState(() {
+              if (device.typeId == 1 ||
+                  device.typeId == 2 ||
+                  device.typeId == 3) {
+                if (message.contains("{")) {
+                  final dynamic data;
+                  device.typeId == 1
+                      ? data = json.decode(message)["deger"] as double
+                      : data = json.decode(message)["deger"] as int;
+                  status = data.toString();
+                }
+              } else {
+                status = message;
+                if (status == "1") {
+                  openCount = 0;
+                  closeCount = 0;
+                  waitingCount = 0;
+                }
+                if (status == "2") {
+                  openCount++;
+                }
+                if (status == "3") {
+                  waitingCount++;
+                }
+                if (status == "4") {
+                  closeCount++;
+                }
+              }
+            });
+          }
+        }
+      });
+      _mqttController.subListenerList.add((topic) {
         if (mounted) {
           setState(() {
-            if (device.typeId == 1 ||
-                device.typeId == 2 ||
-                device.typeId == 3) {
-              if (message.contains("{")) {
-                final dynamic data;
-                device.typeId == 1
-                    ? data = json.decode(message)["deger"] as double
-                    : data = json.decode(message)["deger"] as int;
-                status = data.toString();
-              }
-            } else {
-              status = message;
-              if (status == "1") {
-                openCount = 0;
-                closeCount = 0;
-                waitingCount = 0;
-              }
-              if (status == "2") {
-                openCount++;
-              }
-              if (status == "3") {
-                waitingCount++;
-              }
-              if (status == "4") {
-                closeCount++;
-              }
+            if (topic == device.topicStat) {
+              isSub = true;
             }
           });
         }
-      }
-    });
-    _mqttController.subListenerList.add((topic) {
-      if (mounted) {
-        setState(() {
-          if (topic == device.topicStat) {
+      });
+      var result = _mqttController.getSubscriptionTopicStatus(device.topicStat);
+      if (result == MqttSubscriptionStatus.active) {
+        if (mounted) {
+          setState(() {
             isSub = true;
-          }
-        });
-      }
-    });
-    var result = _mqttController.getSubscriptionTopicStatus(device.topicStat);
-    if (result == MqttSubscriptionStatus.active) {
-      if (mounted) {
-        setState(() {
-          isSub = true;
-        });
+          });
+        }
       }
     }
   }
@@ -234,13 +236,15 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                     ),
                     Expanded(
                       child: InkWell(
-                        onTap: device.typeId == 1 ||
-                                device.typeId == 2 ||
-                                device.typeId == 3
-                            ? null
-                            : () {
-                                sendMessage();
-                              },
+                        onTap: widget.active
+                            ? device.typeId == 1 ||
+                                    device.typeId == 2 ||
+                                    device.typeId == 3
+                                ? null
+                                : () {
+                                    sendMessage();
+                                  }
+                            : null,
                         onDoubleTap: () {
                           //
                         },
@@ -298,53 +302,57 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
   _switch2(context) {
     return Column(
       children: [
-        Card(
-          elevation: 0,
-          shape: CircleBorder(),
-          color: device.typeId == 4 || device.typeId == 6
-              ? status == "1"
-                  ? Colors.red[400]
-                  : status == "2"
-                      ? Colors.brown[50]!
-                      : status == "3"
-                          ? waitingCount.isOdd
-                              ? Colors.brown[50]!
-                              : Colors.green
-                          : status == "4"
-                              ? Colors.brown[50]!
-                              : Colors.red[400]
-              : device.typeId == 5 || device.typeId == 8
-                  ? status == "0"
-                      ? Colors.brown[50]!
-                      : Colors.red[400]
-                  : status == "1"
-                      ? Colors.brown[50]!
-                      : Colors.red[400],
-          child: CircularPercentIndicator(
-            radius: width(context) * 0.05,
-            percent: status == "2"
-                ? openCount / device.openingTime!
-                : status == "4"
-                    ? closeCount / device.closingTime!
-                    : waitingCount.isEven
-                        ? 1
-                        : 1,
-            progressColor:
-                status == "2" || status == "3" ? Colors.green : Colors.red[400],
-            backgroundColor: Colors.brown[50]!,
-            lineWidth: width(context) * 0.006,
-            center: Icon(
-              FontAwesomeIcons.powerOff,
-              color: status == "2"
+        Opacity(
+          opacity: !widget.active ? 0.5 : 1,
+          child: Card(
+            elevation: 0,
+            shape: CircleBorder(),
+            color: device.typeId == 4 || device.typeId == 6
+                ? status == "1"
+                    ? Colors.red[400]
+                    : status == "2"
+                        ? Colors.brown[50]!
+                        : status == "3"
+                            ? waitingCount.isOdd
+                                ? Colors.brown[50]!
+                                : Colors.green
+                            : status == "4"
+                                ? Colors.brown[50]!
+                                : Colors.red[400]
+                : device.typeId == 5 || device.typeId == 8
+                    ? status == "0"
+                        ? Colors.brown[50]!
+                        : Colors.red[400]
+                    : status == "1"
+                        ? Colors.brown[50]!
+                        : Colors.red[400],
+            child: CircularPercentIndicator(
+              radius: width(context) * 0.05,
+              percent: status == "2"
+                  ? openCount / device.openingTime!
+                  : status == "4"
+                      ? closeCount / device.closingTime!
+                      : waitingCount.isEven
+                          ? 1
+                          : 1,
+              progressColor: status == "2" || status == "3"
                   ? Colors.green
-                  : status == "3"
-                      ? waitingCount.isOdd
-                          ? Colors.green
-                          : Colors.brown[50]!
-                      : status == "4"
-                          ? Colors.red[400]
-                          : Colors.brown[50]!,
-              size: width(context) * 0.06,
+                  : Colors.red[400],
+              backgroundColor: Colors.brown[50]!,
+              lineWidth: width(context) * 0.006,
+              center: Icon(
+                FontAwesomeIcons.powerOff,
+                color: status == "2"
+                    ? Colors.green
+                    : status == "3"
+                        ? waitingCount.isOdd
+                            ? Colors.green
+                            : Colors.brown[50]!
+                        : status == "4"
+                            ? Colors.red[400]
+                            : Colors.brown[50]!,
+                size: width(context) * 0.06,
+              ),
             ),
           ),
         ),

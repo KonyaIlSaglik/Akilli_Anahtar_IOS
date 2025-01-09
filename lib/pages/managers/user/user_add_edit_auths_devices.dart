@@ -20,9 +20,9 @@ class _UserAddEditAuthsDevicesState extends State<UserAddEditAuthsDevices> {
     return Column(
       children: [
         SizedBox(height: 8),
-        Expanded(
-          child: Obx(() {
-            return Column(
+        Obx(() {
+          return Expanded(
+            child: Column(
               children: [
                 Theme(
                   data: Theme.of(context).copyWith(
@@ -58,7 +58,7 @@ class _UserAddEditAuthsDevicesState extends State<UserAddEditAuthsDevices> {
                   ),
                 ),
                 Expanded(
-                  child: userManagementController.filteredDevices.isEmpty
+                  child: userManagementController.umDevices.isEmpty
                       ? Center(
                           child: Text("Liste Boş"),
                         )
@@ -72,9 +72,9 @@ class _UserAddEditAuthsDevicesState extends State<UserAddEditAuthsDevices> {
                             itemBuilder: (context, index) {
                               return ListTile(
                                 title: Text(userManagementController
-                                    .filteredDevices[index].name),
+                                    .umDevices[index].name!),
                                 subtitle: Text(userManagementController
-                                        .filteredDevices[index].boxName ??
+                                        .umDevices[index].boxName ??
                                     ""),
                                 trailing: Checkbox(
                                   activeColor: goldColor,
@@ -83,24 +83,21 @@ class _UserAddEditAuthsDevicesState extends State<UserAddEditAuthsDevices> {
                                       await userManagementController
                                           .addUserDevice(
                                               userManagementController
-                                                  .filteredDevices[index].id);
+                                                  .umDevices[index].id!);
                                     } else {
                                       var ud = userManagementController
                                           .userDevices
                                           .firstWhere((u) =>
                                               u.deviceId ==
                                               userManagementController
-                                                  .filteredDevices[index].id);
+                                                  .umDevices[index].id);
                                       await userManagementController
                                           .deleteUserDevice(ud.id);
                                     }
                                     userManagementController.filterDevices();
                                   },
-                                  value: userManagementController.userDevices
-                                      .any((ud) =>
-                                          ud.deviceId ==
-                                          userManagementController
-                                              .filteredDevices[index].id),
+                                  value: userManagementController
+                                      .umDevices[index].userAdded,
                                 ),
                               );
                             },
@@ -108,14 +105,14 @@ class _UserAddEditAuthsDevicesState extends State<UserAddEditAuthsDevices> {
                               return Divider();
                             },
                             itemCount:
-                                userManagementController.filteredDevices.length,
+                                userManagementController.umDevices.length,
                           ),
                         ),
                 ),
               ],
-            );
-          }),
-        ),
+            ),
+          );
+        }),
       ],
     );
   }

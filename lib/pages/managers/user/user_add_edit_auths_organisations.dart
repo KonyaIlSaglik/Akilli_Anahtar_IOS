@@ -14,49 +14,58 @@ class UserAddEditAuthsOrganisations extends StatefulWidget {
 
 class _UserAddEditAuthsOrganisationsState
     extends State<UserAddEditAuthsOrganisations> {
+  var scrollController = ScrollController();
   UserManagementController userManagementController =
       Get.put(UserManagementController());
   HomeController homeController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      return ListView(
-        children: homeController.organisations.map((o) {
-          return ListTile(
-            title: Text(o.name),
-            trailing: Checkbox(
-              activeColor: goldColor,
-              onChanged: (bool? value) async {
-                if (value != null) {
-                  if (value) {
-                    await userManagementController.addUserOrganisation(o.id);
-                    await userManagementController.getUserDevices();
-                  } else {
-                    if (userManagementController
-                            .selectedUser.value.organisationId ==
-                        o.id) {
-                      errorSnackbar(
-                          "Başarısız", "Ana kurum yetkisi kaldırılamaz.");
-                    } else {
-                      try {
-                        var organisation = userManagementController
-                            .userOrganisations
-                            .firstWhere((uo) => uo.organisationId == o.id);
-                        await userManagementController
-                            .deleteUserOrganisation(organisation.id);
-                        await userManagementController.getUserDevices();
-                      } catch (e) {
-                        print("Claim not found: $e");
-                      }
-                    }
-                  }
-                }
-              },
-              value: userManagementController.userOrganisations
-                  .any((uo) => uo.organisationId == o.id),
-            ),
-          );
-        }).toList(),
+      return Expanded(
+        child: userManagementController.umOrganisations.isEmpty
+            ? Center(
+                child: Text("Liste Boş"),
+              )
+            : Scrollbar(
+                controller: scrollController,
+                scrollbarOrientation: ScrollbarOrientation.right,
+                thumbVisibility: true,
+                child: ListView.separated(
+                  controller: scrollController,
+                  scrollDirection: Axis.vertical,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(userManagementController
+                          .umOrganisations[index].name!),
+                      trailing: Checkbox(
+                        activeColor: goldColor,
+                        onChanged: (value) async {
+                          if (value!) {
+                            await userManagementController.addUserDevice(
+                                userManagementController
+                                    .umOrganisations[index].id!);
+                          } else {
+                            var ud = userManagementController.userDevices
+                                .firstWhere((u) =>
+                                    u.deviceId ==
+                                    userManagementController
+                                        .umOrganisations[index].id);
+                            await userManagementController
+                                .deleteUserDevice(ud.id);
+                          }
+                          userManagementController.filterDevices();
+                        },
+                        value: userManagementController
+                            .umOrganisations[index].userAdded,
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return Divider();
+                  },
+                  itemCount: userManagementController.umOrganisations.length,
+                ),
+              ),
       );
     });
   }

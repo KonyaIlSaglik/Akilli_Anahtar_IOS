@@ -179,7 +179,7 @@ infoSnackbar(String title, String message) {
   );
 }
 
-Color primaryColor = Colors.deepPurple[900]!;
+Color primaryColor = Colors.brown[900]!;
 const double minWidth = 361;
 TextTheme textTheme(context) => Theme.of(context).textTheme;
 width(context) => MediaQuery.sizeOf(context).width;
