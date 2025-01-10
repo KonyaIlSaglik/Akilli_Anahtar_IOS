@@ -29,14 +29,14 @@ class _OrganisationSelectListState extends State<OrganisationSelectList> {
                 SizedBox(width: width(context) * 0.01),
                 Text(
                   homeController.selectedOrganisationId.value == 0
-                      ? homeController.organisations.first.name
+                      ? homeController.organisations.first.name!
                       : homeController.organisations
                           .singleWhere(
                             (o) =>
                                 o.id ==
                                 homeController.selectedOrganisationId.value,
                           )
-                          .name,
+                          .name!,
                   style: textTheme(context).titleMedium,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -86,7 +86,7 @@ class _OrganisationSelectListState extends State<OrganisationSelectList> {
                                   children:
                                       homeController.organisations.map((o) {
                                     return ListTile(
-                                      title: Text(o.name),
+                                      title: Text(o.name!),
                                       trailing: homeController
                                                   .selectedOrganisationId
                                                   .value ==

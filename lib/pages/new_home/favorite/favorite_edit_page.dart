@@ -1,5 +1,5 @@
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
-import 'package:akilli_anahtar/entities/device.dart';
+import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/back_container.dart';
@@ -18,16 +18,18 @@ class FavoriteEditPage extends StatefulWidget {
 class _FavoriteEditPageState extends State<FavoriteEditPage> {
   HomeController homeController = Get.find();
 
-  late List<Device> favorites;
-  late List<Device> others;
+  late List<HomeDeviceDto> favorites;
+  late List<HomeDeviceDto> others;
 
   @override
   void initState() {
     super.initState();
-    favorites =
-        homeController.devices.where((d) => d.favoriteSequence > -1).toList();
-    others =
-        homeController.devices.where((d) => d.favoriteSequence == -1).toList();
+    favorites = homeController.homeDevices
+        .where((d) => d.favoriteSequence! > -1)
+        .toList();
+    others = homeController.homeDevices
+        .where((d) => d.favoriteSequence == -1)
+        .toList();
   }
 
   @override
@@ -57,12 +59,12 @@ class _FavoriteEditPageState extends State<FavoriteEditPage> {
               ),
               onPressed: () async {
                 for (var d in favorites) {
-                  await homeController.updateFavorite(d);
+                  await homeController.updateFavoriteSequence(
+                      d.id!, d.favoriteSequence!);
                 }
                 for (var d in others) {
-                  await homeController.updateFavorite(d);
+                  await homeController.updateFavoriteSequence(d.id!, -1);
                 }
-                await homeController.getData();
                 Get.back();
               },
               child: Text("Kaydet"),

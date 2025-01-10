@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,7 @@ class _GroupedPageState extends State<GroupedPage> {
                         child: DeviceListView(
                           isHorizontal: !g.expanded,
                           title: "",
-                          devices: g.devices,
+                          devices: <HomeDeviceDto>[], /////////////////////////TODO
                           count: g.expanded
                               ? g.devices.length
                               : g.devices.length > 3

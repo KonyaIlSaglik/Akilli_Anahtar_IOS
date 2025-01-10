@@ -1,5 +1,5 @@
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
-import 'package:akilli_anahtar/entities/device.dart';
+import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 
 class DeviceListView extends StatefulWidget {
   final String title;
-  final List<Device> devices;
+  final List<HomeDeviceDto> devices;
   final int count;
   final bool isHorizontal;
   const DeviceListView(

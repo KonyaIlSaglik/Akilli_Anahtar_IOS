@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/entities/city.dart';
 import 'package:akilli_anahtar/entities/district.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
@@ -96,6 +97,40 @@ class HomeService {
     );
     if (response.statusCode == 200) {
       return UserOrganisation.fromJsonList(response.body);
+    }
+    return null;
+  }
+
+  // yeni  //  ////////////////////////////
+
+  static Future<List<HomeDeviceDto>?> getDevices(int userId) async {
+    var response = await BaseService.get(
+      "$url/getDevices?userId=$userId",
+    );
+    if (response.statusCode == 200) {
+      return HomeDeviceDto.fromJsonList(response.body);
+    }
+    return null;
+  }
+
+  static Future<bool?> updateFavoriteSequence(
+      int userId, int deviceId, int sequence) async {
+    var response = await BaseService.update(
+        "$url/updataFavoriteSequence?userId=$userId&deviceId=$deviceId&sequence=$sequence",
+        null);
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return null;
+  }
+
+  static Future<bool?> updateFavoriteName(
+      int userId, int deviceId, String? name) async {
+    var response = await BaseService.update(
+        "$url/updataFavoriteSequence?userId=$userId&deviceId=$deviceId&name=$name",
+        null);
+    if (response.statusCode == 200) {
+      return true;
     }
     return null;
   }

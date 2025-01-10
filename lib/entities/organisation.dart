@@ -2,13 +2,13 @@ import 'dart:convert';
 
 class Organisation {
   int id;
-  String name;
-  String address;
-  int cityId;
-  int districtId;
-  int type;
-  int maxUserCount;
-  int maxSessionCount;
+  String? name;
+  String? address;
+  int? cityId;
+  int? districtId;
+  int? type;
+  int? maxUserCount;
+  int? maxSessionCount;
   Organisation({
     this.id = 0,
     this.name = "",
@@ -36,10 +36,10 @@ class Organisation {
   factory Organisation.fromMap(Map<String, dynamic> map) {
     return Organisation(
       id: map['id'] as int,
-      name: map['name'] as String,
-      address: map['address'] as String,
-      cityId: map['cityId'] as int,
-      districtId: map['districtId'] as int,
+      name: map['name'] != null ? map['name'] as String : null,
+      address: map['address'] != null ? map['address'] as String : null,
+      cityId: map['cityId'] != null ? map['cityId'] as int : null,
+      districtId: map['districtId'] != null ? map['districtId'] as int : null,
       type: map['type'] != null ? map['type'] as int : 0,
       maxUserCount:
           map['maxUserCount'] != null ? map['maxUserCount'] as int : 0,

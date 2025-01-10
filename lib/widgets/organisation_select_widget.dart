@@ -48,7 +48,7 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
           },
           selectedItem: homeController.organisations.firstWhereOrNull(
               (o) => o.id == homeController.selectedOrganisationId.value),
-          itemAsString: (item) => item.name,
+          itemAsString: (item) => item.name!,
           onChanged: (value) {
             if (value != null) {
               homeController.selectedOrganisationId.value = value.id;
@@ -56,7 +56,7 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
             }
           },
           filterFn: (item, filter) {
-            return item.name.toLowerCase().contains(filter.toLowerCase());
+            return item.name!.toLowerCase().contains(filter.toLowerCase());
           },
           compareFn: (item1, item2) {
             return item1.id == item2.id;
@@ -67,7 +67,7 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
               children: [
                 Expanded(
                   child: Text(
-                    selectedItem != null ? selectedItem.name : "",
+                    selectedItem != null ? selectedItem.name! : "",
                     style: TextStyle(
                         color:
                             selectedItem != null ? Colors.black : Colors.grey),

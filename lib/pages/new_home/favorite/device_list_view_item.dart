@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
-import 'package:akilli_anahtar/entities/device.dart';
+import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,7 +11,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:turkish/turkish.dart';
 
 class DeviceListViewItem extends StatefulWidget {
-  final Device device;
+  final HomeDeviceDto device;
   final bool active;
 
   const DeviceListViewItem(
@@ -23,7 +23,7 @@ class DeviceListViewItem extends StatefulWidget {
 
 class _DeviceListViewItemState extends State<DeviceListViewItem> {
   final MqttController _mqttController = Get.find<MqttController>();
-  late Device device;
+  late HomeDeviceDto device;
   String status = "";
   bool isSub = false;
   int openCount = 0;
@@ -50,7 +50,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                   device.typeId == 3) {
                 if (message.contains("{")) {
                   final dynamic data;
-                  device.typeId == 1
+                  device.typeId! < 3
                       ? data = json.decode(message)["deger"] as double
                       : data = json.decode(message)["deger"] as int;
                   status = data.toString();
@@ -161,12 +161,6 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                                         : null,
               ),
             ),
-            if (device.typeId == 1 || device.typeId == 2 || device.typeId == 3)
-              Positioned(
-                right: 10,
-                bottom: 5,
-                child: Text(device.unit ?? "-"),
-              ),
             Positioned(
               child: Padding(
                 padding: EdgeInsets.symmetric(
@@ -180,7 +174,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                       children: [
                         Flexible(
                           child: Text(
-                            widget.device.name.toTitleCaseTr(),
+                            widget.device.name!.toTitleCaseTr(),
                             overflow: TextOverflow.ellipsis,
                             style: textTheme(context).labelMedium,
                           ),
@@ -199,7 +193,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                             PopupMenuItem(
                               height: height(context) * 0.04,
                               child: Text(
-                                device.favoriteSequence > -1
+                                device.favoriteSequence! > -1
                                     ? "Favorilerden Çıkar"
                                     : "Favorilere EKle",
                                 style: textTheme(context).labelLarge,
@@ -208,7 +202,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                                 //
                               },
                             ),
-                            if (device.typeId > 3)
+                            if (device.typeId! > 3)
                               PopupMenuItem(
                                 height: height(context) * 0.04,
                                 child: Text(
@@ -219,7 +213,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                                   //
                                 },
                               ),
-                            if (device.typeId > 3)
+                            if (device.typeId! > 3)
                               PopupMenuItem(
                                 height: height(context) * 0.04,
                                 child: Text(
@@ -263,9 +257,23 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                                 device.typeId == 1 ||
                                         device.typeId == 2 ||
                                         device.typeId == 3
-                                    ? Text(
-                                        status.isNotEmpty ? status : "-",
-                                        style: textTheme(context).headlineLarge,
+                                    ? Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            status.isNotEmpty ? status : "-",
+                                            style: textTheme(context)
+                                                .headlineLarge,
+                                          ),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          if (device.typeId == 1 ||
+                                              device.typeId == 2 ||
+                                              device.typeId == 3)
+                                            Text(device.unit ?? "-"),
+                                        ],
                                       )
                                     : _switch2(context),
                                 SizedBox(height: height(context) * 0.005),
@@ -291,6 +299,14 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: Text(device.boxName ?? "kespfkpeskfspeof"),
               ),
             ),
           ],

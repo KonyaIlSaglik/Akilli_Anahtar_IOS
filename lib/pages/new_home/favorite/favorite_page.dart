@@ -21,7 +21,7 @@ class _FavoritePageState extends State<FavoritePage> {
   void initState() {
     super.initState();
 
-    items = homeController.favoriteDevices
+    items = homeController.homeDevices
         .map(
           (e) => DeviceListViewItem(
             device: e,

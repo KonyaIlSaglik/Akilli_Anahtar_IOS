@@ -131,10 +131,10 @@ class _BoxAddEditFormState extends State<BoxAddEditForm>
                 (o) => o.id == organisationId,
               )
             : null,
-        itemAsString: (item) => item.name,
+        itemAsString: (item) => item.name!,
         onChanged: (value) => organisationId = value?.id ?? 0,
         filterFn: (item, filter) {
-          return item.name.toLowerCase().contains(filter.toLowerCase());
+          return item.name!.toLowerCase().contains(filter.toLowerCase());
         },
         compareFn: (item1, item2) {
           return item1.id == item2.id;
@@ -145,7 +145,7 @@ class _BoxAddEditFormState extends State<BoxAddEditForm>
             children: [
               Expanded(
                 child: Text(
-                  selectedItem != null ? selectedItem.name : "",
+                  selectedItem != null ? selectedItem.name! : "",
                   style: TextStyle(
                     color: selectedItem != null ? Colors.black : Colors.grey,
                   ),

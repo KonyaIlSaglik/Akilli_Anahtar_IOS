@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
+import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/entities/city.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/district.dart';
@@ -6,6 +7,7 @@ import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/models/device_group_by_box.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
+import 'package:akilli_anahtar/services/api/home_service.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:get/get.dart';
@@ -134,6 +136,36 @@ class HomeController extends GetxController {
         authController.user.value.id, device.id, device.favoriteSequence);
     if (userDevice == null) {
       //
+    }
+  }
+
+  var homeDevices = <HomeDeviceDto>[].obs;
+
+  //////////////
+  ///
+  Future<void> getDevices() async {
+    AuthController authController = Get.find();
+    var id = authController.user.value.id;
+    homeDevices.value = await HomeService.getDevices(id) ?? <HomeDeviceDto>[];
+  }
+
+  Future<void> updateFavoriteSequence(int deviceId, int sequence) async {
+    AuthController authController = Get.find();
+    var id = authController.user.value.id;
+    var response =
+        await HomeService.updateFavoriteSequence(id, deviceId, sequence);
+    if (response != null) {
+      homeDevices.singleWhere((d) => d.id == deviceId).favoriteSequence =
+          sequence;
+    }
+  }
+
+  Future<void> updateFavoriteName(int deviceId, String? name) async {
+    AuthController authController = Get.find();
+    var id = authController.user.value.id;
+    var response = await HomeService.updateFavoriteName(id, deviceId, name);
+    if (response != null) {
+      homeDevices.singleWhere((d) => d.id == deviceId).favoriteName = name;
     }
   }
 }

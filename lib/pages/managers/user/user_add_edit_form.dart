@@ -315,17 +315,17 @@ class _UserAddEditFormState extends State<UserAddEditForm>
           ? homeController.organisations.firstWhereOrNull((o) =>
               o.id == userManagementControl.selectedUser.value.organisationId)
           : null,
-      itemAsString: (item) => item.name,
+      itemAsString: (item) => item.name!,
       onChanged: (value) {
         if (value != null) {
           setState(() {
             user.organisationId = value.id;
-            user.organisationName = value.name;
+            user.organisationName = value.name!;
           });
         }
       },
       filterFn: (item, filter) {
-        return item.name.toLowerCase().contains(filter.toLowerCase());
+        return item.name!.toLowerCase().contains(filter.toLowerCase());
       },
       compareFn: (item1, item2) {
         return item1.id == item2.id;
@@ -336,7 +336,7 @@ class _UserAddEditFormState extends State<UserAddEditForm>
           children: [
             Expanded(
               child: Text(
-                selectedItem != null ? selectedItem.name : "",
+                selectedItem != null ? selectedItem.name! : "",
                 style: TextStyle(
                   color: selectedItem != null ? Colors.black : Colors.grey,
                 ),

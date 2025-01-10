@@ -54,7 +54,7 @@ class _BoxListItemState extends State<BoxListItem> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(organisation.id > 0 ? organisation.name : "-"),
+          Text(organisation.id > 0 ? organisation.name! : "-"),
           Text("Versiyon: ${box.version.isNotEmpty ? box.version : "-"}"),
           // if (box.isOld == -1)
           //   Text(
