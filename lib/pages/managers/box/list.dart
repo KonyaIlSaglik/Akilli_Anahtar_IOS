@@ -3,7 +3,6 @@ import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/pages/managers/box/box_detail/box_add_edit.dart';
 import 'package:akilli_anahtar/pages/managers/box/list_item.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
-import 'package:akilli_anahtar/widgets/organisation_select_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -24,7 +23,7 @@ class _BoxListPageState extends State<BoxListPage> {
     super.initState();
     Future.delayed(Duration.zero, () async {
       await boxManagementController.checkNewVersion();
-      await boxManagementController.getBoxes();
+      await boxManagementController.getBoxList();
       setState(() {});
     });
   }
@@ -80,7 +79,7 @@ class _BoxListPageState extends State<BoxListPage> {
                   refreshing = true;
                 });
                 await boxManagementController.checkNewVersion();
-                await boxManagementController.getBoxes();
+                await boxManagementController.getBoxList();
                 setState(() {
                   refreshing = false;
                 });
@@ -90,20 +89,20 @@ class _BoxListPageState extends State<BoxListPage> {
                       child: CircularProgressIndicator(
                       color: goldColor,
                     ))
-                  : boxManagementController.boxes.isEmpty
-                      ? Center(child: Text("No boxes found."))
+                  : boxManagementController.boxList.isEmpty
+                      ? Center(child: Text("No boxList found."))
                       : ListView.separated(
                           shrinkWrap: true,
                           itemBuilder: (context, i) {
-                            print(boxManagementController.boxes[i].toJson());
+                            print(boxManagementController.boxList[i].toJson());
                             return BoxListItem(
-                              box: boxManagementController.boxes[i],
+                              box: boxManagementController.boxList[i],
                             );
                           },
                           separatorBuilder: (context, index) {
                             return Divider();
                           },
-                          itemCount: boxManagementController.boxes.length,
+                          itemCount: boxManagementController.boxList.length,
                         ),
             );
           },

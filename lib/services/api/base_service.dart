@@ -51,6 +51,24 @@ class BaseService {
     }
   }
 
+  static Future<http.Response> put(String url) async {
+    var uri = Uri.parse(url);
+    var client = http.Client();
+    var authController = Get.find<AuthController>();
+    var session = authController.session.value;
+    var response = await client.put(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer ${session.accessToken}',
+      },
+    );
+    client.close();
+    print(url);
+    print(response.statusCode);
+    return response;
+  }
+
   static Future<http.Response> add(String url, String jsonData) async {
     var uri = Uri.parse(url);
     var client = http.Client();

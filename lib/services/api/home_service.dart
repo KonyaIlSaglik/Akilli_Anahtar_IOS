@@ -115,9 +115,8 @@ class HomeService {
 
   static Future<bool?> updateFavoriteSequence(
       int userId, int deviceId, int sequence) async {
-    var response = await BaseService.update(
-        "$url/updataFavoriteSequence?userId=$userId&deviceId=$deviceId&sequence=$sequence",
-        null);
+    var response = await BaseService.put(
+        "$url/updateFavoriteSequence?userId=$userId&deviceId=$deviceId&sequence=$sequence");
     if (response.statusCode == 200) {
       return true;
     }
@@ -126,9 +125,8 @@ class HomeService {
 
   static Future<bool?> updateFavoriteName(
       int userId, int deviceId, String? name) async {
-    var response = await BaseService.update(
-        "$url/updataFavoriteSequence?userId=$userId&deviceId=$deviceId&name=$name",
-        null);
+    var response = await BaseService.put(
+        "$url/updataFavoriteName?userId=$userId&deviceId=$deviceId&name=$name");
     if (response.statusCode == 200) {
       return true;
     }

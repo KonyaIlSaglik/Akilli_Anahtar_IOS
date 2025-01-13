@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/install/nodemcu_controller.dart';
-import 'package:akilli_anahtar/controllers/install/wifi_controller.dart';
 import 'package:akilli_anahtar/pages/managers/box_install/b_wifi_page_view_model.dart';
 import 'package:akilli_anahtar/pages/managers/box_install/d_online_page_view_model.dart';
 import 'package:akilli_anahtar/pages/home/home_page.dart';
@@ -21,7 +20,6 @@ class _IntroductionPageState extends State<IntroductionPage> {
 
   final _introKey = GlobalKey<IntroductionScreenState>();
   final NodemcuController _nodemcuController = Get.put(NodemcuController());
-  final WifiController _wifiController = Get.put(WifiController());
 
   @override
   void initState() {

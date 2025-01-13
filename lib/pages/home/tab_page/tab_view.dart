@@ -1,9 +1,7 @@
-import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/kapi/control_devices_page.dart';
 import 'package:akilli_anahtar/pages/home/tab_page/sensor/sensor_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'bahce/bahce_page.dart';
 
 class TabView extends StatefulWidget {
@@ -17,7 +15,6 @@ class _TabViewState extends State<TabView> with SingleTickerProviderStateMixin {
   final List<bool> _isDisabled = [true, true, true];
   late TabController _tabController;
   int windowState = 1;
-  final AuthController _authController = Get.find();
 
   @override
   void initState() {

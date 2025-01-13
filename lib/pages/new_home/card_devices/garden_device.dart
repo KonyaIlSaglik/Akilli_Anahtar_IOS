@@ -1,8 +1,6 @@
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -150,44 +148,44 @@ class _GardenDeviceState extends State<GardenDevice> {
     );
   }
 
-  _switch() {
-    return AnimatedToggleSwitch<bool>.dual(
-      current: status == "0",
-      first: false,
-      second: true,
-      spacing: 0.0,
-      loading: false,
-      animationDuration: const Duration(milliseconds: 600),
-      style: const ToggleStyle(
-        borderColor: Colors.transparent,
-        indicatorColor: Colors.white,
-        backgroundColor: Colors.amber,
-      ),
-      customStyleBuilder: (context, local, global) => ToggleStyle(
-        backgroundColor: status == "0"
-            ? goldColor.withOpacity(0.3)
-            : goldColor.withOpacity(0.7),
-      ),
-      height: width(context) * 0.12,
-      loadingIconBuilder: (context, global) => CupertinoActivityIndicator(
-          color: Color.lerp(Colors.blue, Colors.blue, global.spacing)),
-      active: true,
-      onTap: (props) {
-        sendMessage();
-      },
-      iconBuilder: (value) => value
-          ? const Icon(
-              FontAwesomeIcons.powerOff,
-              color: Colors.green,
-              size: 32.0,
-            )
-          : Icon(
-              FontAwesomeIcons.powerOff,
-              color: Colors.red[400],
-              size: 32.0,
-            ),
-    );
-  }
+  // _switch() {
+  //   return AnimatedToggleSwitch<bool>.dual(
+  //     current: status == "0",
+  //     first: false,
+  //     second: true,
+  //     spacing: 0.0,
+  //     loading: false,
+  //     animationDuration: const Duration(milliseconds: 600),
+  //     style: const ToggleStyle(
+  //       borderColor: Colors.transparent,
+  //       indicatorColor: Colors.white,
+  //       backgroundColor: Colors.amber,
+  //     ),
+  //     customStyleBuilder: (context, local, global) => ToggleStyle(
+  //       backgroundColor: status == "0"
+  //           ? goldColor.withOpacity(0.3)
+  //           : goldColor.withOpacity(0.7),
+  //     ),
+  //     height: width(context) * 0.12,
+  //     loadingIconBuilder: (context, global) => CupertinoActivityIndicator(
+  //         color: Color.lerp(Colors.blue, Colors.blue, global.spacing)),
+  //     active: true,
+  //     onTap: (props) {
+  //       sendMessage();
+  //     },
+  //     iconBuilder: (value) => value
+  //         ? const Icon(
+  //             FontAwesomeIcons.powerOff,
+  //             color: Colors.green,
+  //             size: 32.0,
+  //           )
+  //         : Icon(
+  //             FontAwesomeIcons.powerOff,
+  //             color: Colors.red[400],
+  //             size: 32.0,
+  //           ),
+  //   );
+  // }
 
   sendMessage() {
     if (_mqttController.isConnected.value) {

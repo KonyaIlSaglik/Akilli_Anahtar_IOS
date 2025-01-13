@@ -1,8 +1,6 @@
 import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
-import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
-import 'package:akilli_anahtar/entities/box.dart';
-import 'package:akilli_anahtar/entities/organisation.dart';
+import 'package:akilli_anahtar/dtos/bm_box_dto.dart';
 import 'package:akilli_anahtar/pages/managers/box/box_detail/box_add_edit.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class BoxListItem extends StatefulWidget {
-  final Box box;
+  final BmBoxDto box;
   const BoxListItem({super.key, required this.box});
 
   @override
@@ -19,19 +17,13 @@ class BoxListItem extends StatefulWidget {
 
 class _BoxListItemState extends State<BoxListItem> {
   BoxManagementController boxManagementController = Get.find();
-  MqttController mqttController = Get.find();
   HomeController homeController = Get.find();
-  late Box box;
-  late Organisation organisation;
+  late BmBoxDto box;
 
   @override
   void initState() {
     super.initState();
     box = widget.box;
-    organisation = homeController.organisations.singleWhere(
-      (o) => o.id == box.organisationId,
-      orElse: () => Organisation(),
-    );
   }
 
   @override
@@ -50,12 +42,12 @@ class _BoxListItemState extends State<BoxListItem> {
           ),
         ),
       ),
-      title: Text(box.name),
+      title: Text(box.name!),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(organisation.id > 0 ? organisation.name! : "-"),
-          Text("Versiyon: ${box.version.isNotEmpty ? box.version : "-"}"),
+          Text(box.organisationName ?? "-"),
+          Text("Versiyon: ${box.version!.isNotEmpty ? box.version : "-"}"),
           // if (box.isOld == -1)
           //   Text(
           //     "Yeni Version: ${boxManagementController.newVersion.value.version}",
@@ -78,8 +70,7 @@ class _BoxListItemState extends State<BoxListItem> {
         color: goldColor,
       ),
       onTap: () {
-        boxManagementController.selectedBox.value = box;
-        Get.to(() => BoxAddEdit());
+        Get.to(() => BoxAddEdit(box: box));
       },
     );
   }

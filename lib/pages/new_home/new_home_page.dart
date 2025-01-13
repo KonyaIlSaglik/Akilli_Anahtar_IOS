@@ -32,6 +32,10 @@ class _NewHomePageState extends State<NewHomePage> {
 
   init() async {
     Future.delayed(Duration.zero, () async {
+      await homeController.getDevices();
+
+      //eskiler
+
       await homeController.getData();
       if (mqttController.clientIsNull.value) {
         await mqttController.initClient();

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -12,10 +13,8 @@ import 'package:turkish/turkish.dart';
 
 class DeviceListViewItem extends StatefulWidget {
   final HomeDeviceDto device;
-  final bool active;
 
-  const DeviceListViewItem(
-      {super.key, required this.device, this.active = true});
+  const DeviceListViewItem({super.key, required this.device});
 
   @override
   State<DeviceListViewItem> createState() => _DeviceListViewItemState();
@@ -35,63 +34,60 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
     super.initState();
 
     device = widget.device;
+    if (_mqttController.clientIsNull.value ||
+        !_mqttController.isConnected.value) return;
+    _mqttController.subscribeToTopic(device.topicStat);
 
-    if (widget.active) {
-      if (_mqttController.clientIsNull.value ||
-          !_mqttController.isConnected.value) return;
-      _mqttController.subscribeToTopic(device.topicStat);
-
-      _mqttController.onMessage((topic, message) {
-        if (topic == device.topicStat) {
-          if (mounted) {
-            setState(() {
-              if (device.typeId == 1 ||
-                  device.typeId == 2 ||
-                  device.typeId == 3) {
-                if (message.contains("{")) {
-                  final dynamic data;
-                  device.typeId! < 3
-                      ? data = json.decode(message)["deger"] as double
-                      : data = json.decode(message)["deger"] as int;
-                  status = data.toString();
-                }
-              } else {
-                status = message;
-                if (status == "1") {
-                  openCount = 0;
-                  closeCount = 0;
-                  waitingCount = 0;
-                }
-                if (status == "2") {
-                  openCount++;
-                }
-                if (status == "3") {
-                  waitingCount++;
-                }
-                if (status == "4") {
-                  closeCount++;
-                }
-              }
-            });
-          }
-        }
-      });
-      _mqttController.subListenerList.add((topic) {
+    _mqttController.onMessage((topic, message) {
+      if (topic == device.topicStat) {
         if (mounted) {
           setState(() {
-            if (topic == device.topicStat) {
-              isSub = true;
+            if (device.typeId == 1 ||
+                device.typeId == 2 ||
+                device.typeId == 3) {
+              if (message.contains("{")) {
+                final dynamic data;
+                device.typeId! < 3
+                    ? data = json.decode(message)["deger"] as double
+                    : data = json.decode(message)["deger"] as int;
+                status = data.toString();
+              }
+            } else {
+              status = message;
+              if (status == "1") {
+                openCount = 0;
+                closeCount = 0;
+                waitingCount = 0;
+              }
+              if (status == "2") {
+                openCount++;
+              }
+              if (status == "3") {
+                waitingCount++;
+              }
+              if (status == "4") {
+                closeCount++;
+              }
             }
           });
         }
-      });
-      var result = _mqttController.getSubscriptionTopicStatus(device.topicStat);
-      if (result == MqttSubscriptionStatus.active) {
-        if (mounted) {
-          setState(() {
+      }
+    });
+    _mqttController.subListenerList.add((topic) {
+      if (mounted) {
+        setState(() {
+          if (topic == device.topicStat) {
             isSub = true;
-          });
-        }
+          }
+        });
+      }
+    });
+    var result = _mqttController.getSubscriptionTopicStatus(device.topicStat);
+    if (result == MqttSubscriptionStatus.active) {
+      if (mounted) {
+        setState(() {
+          isSub = true;
+        });
       }
     }
   }
@@ -99,7 +95,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: widget.active && status == "" ? 0.5 : 1,
+      opacity: status == "" ? 0.5 : 1,
       child: Card(
         elevation: 1,
         shadowColor: Colors.grey,
@@ -124,7 +120,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
               left: 5,
               bottom: 5,
               child: Opacity(
-                opacity: 0.3,
+                opacity: 0.2,
                 child: device.typeId == 1
                     ? Icon(
                         FontAwesomeIcons.temperatureHigh,
@@ -176,11 +172,11 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                           child: Text(
                             widget.device.name!.toTitleCaseTr(),
                             overflow: TextOverflow.ellipsis,
-                            style: textTheme(context).labelMedium,
+                            style: textTheme(context).labelLarge,
                           ),
                         ),
                         PopupMenuButton(
-                          splashRadius: 20,
+                          splashRadius: 40,
                           child: Container(
                             height: 20,
                             width: 15,
@@ -198,8 +194,16 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                                     : "Favorilere EKle",
                                 style: textTheme(context).labelLarge,
                               ),
-                              onTap: () {
-                                //
+                              onTap: () async {
+                                HomeController homeController = Get.find();
+                                await homeController.updateFavoriteSequence(
+                                    device.id!,
+                                    device.favoriteSequence! > -1
+                                        ? -1
+                                        : homeController.homeDevices
+                                            .where(
+                                                (d) => d.favoriteSequence! > -1)
+                                            .length);
                               },
                             ),
                             if (device.typeId! > 3)
@@ -230,15 +234,11 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                     ),
                     Expanded(
                       child: InkWell(
-                        onTap: widget.active
-                            ? device.typeId == 1 ||
-                                    device.typeId == 2 ||
-                                    device.typeId == 3
-                                ? null
-                                : () {
-                                    sendMessage();
-                                  }
-                            : null,
+                        onTap: device.typeId! < 4 || device.typeId == 7
+                            ? null
+                            : () {
+                                sendMessage();
+                              },
                         onDoubleTap: () {
                           //
                         },
@@ -253,7 +253,6 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                                   ? MainAxisAlignment.center
                                   : MainAxisAlignment.start,
                               children: [
-                                SizedBox(height: height(context) * 0.005),
                                 device.typeId == 1 ||
                                         device.typeId == 2 ||
                                         device.typeId == 3
@@ -276,7 +275,6 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                                         ],
                                       )
                                     : _switch2(context),
-                                SizedBox(height: height(context) * 0.005),
                                 Text(
                                   device.typeId == 4
                                       ? status == "1"
@@ -288,7 +286,17 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                                                   : status == "4"
                                                       ? "Kapanıyor"
                                                       : "-"
-                                      : "",
+                                      : device.typeId == 5
+                                          ? status == "1"
+                                              ? "Kapalı"
+                                              : status == "2"
+                                                  ? "Açılıyor"
+                                                  : status == "3"
+                                                      ? "Açık"
+                                                      : status == "4"
+                                                          ? "Kapanıyor"
+                                                          : "-"
+                                          : "",
                                   style: textTheme(context).labelMedium,
                                 )
                               ],
@@ -306,7 +314,10 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
               right: 0,
               child: Padding(
                 padding: EdgeInsets.only(right: 8),
-                child: Text(device.boxName ?? "kespfkpeskfspeof"),
+                child: Text(
+                  device.boxName ?? "",
+                  style: textTheme(context).labelSmall,
+                ),
               ),
             ),
           ],
@@ -319,7 +330,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
     return Column(
       children: [
         Opacity(
-          opacity: !widget.active ? 0.5 : 1,
+          opacity: status == "" ? 0.5 : 1,
           child: Card(
             elevation: 0,
             shape: CircleBorder(),
@@ -381,8 +392,20 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
       if (device.typeId == 4) {
         _mqttController.publishMessage(device.topicRec!, "0");
       }
+      if (device.typeId == 5) {
+        _mqttController.publishMessage(
+            device.topicRec!, status == "1" ? "0" : "1");
+      }
       if (device.typeId == 6 && device.rfCodes != null) {
         _mqttController.publishMessage(device.topicRec!, device.rfCodes![0]);
+      }
+      if (device.typeId == 8) {
+        _mqttController.publishMessage(
+            device.topicRec!, status == "0" ? "1" : "0");
+      }
+      if (device.typeId == 9) {
+        _mqttController.publishMessage(
+            device.topicRec!, status == "1" ? "0" : "1");
       }
     }
   }

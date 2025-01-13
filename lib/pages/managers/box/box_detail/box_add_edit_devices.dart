@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class BoxAddEditDevices extends StatefulWidget {
-  const BoxAddEditDevices({super.key});
+  final int boxId;
+  const BoxAddEditDevices({super.key, required this.boxId});
 
   @override
   State<BoxAddEditDevices> createState() => _BoxAddEditDevicesState();
@@ -14,6 +15,12 @@ class BoxAddEditDevices extends StatefulWidget {
 class _BoxAddEditDevicesState extends State<BoxAddEditDevices> {
   BoxManagementController boxManagementController = Get.find();
   DeviceManagementController deviceManagementController = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(

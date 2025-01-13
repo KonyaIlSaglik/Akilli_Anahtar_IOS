@@ -1,7 +1,5 @@
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
-import 'package:akilli_anahtar/dtos/home_device_dto.dart';
-import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -26,8 +24,8 @@ class _GroupedPageState extends State<GroupedPage> {
                 borderRadius: BorderRadius.circular(10),
                 gradient: RadialGradient(
                   colors: [
-                    Colors.brown[50]!,
-                    Colors.grey[200]!,
+                    Colors.white,
+                    Colors.white,
                   ],
                 ),
               ),
@@ -44,30 +42,30 @@ class _GroupedPageState extends State<GroupedPage> {
                     ),
                   ),
                   Divider(),
-                  SizedBox(
-                    width: width(context),
-                    height: g.expanded
-                        ? (width(context) * 0.26 * rowCount(g.devices.length)) +
-                            width(context) * 0.07
-                        : width(context) * 0.33,
-                    child: Expanded(
-                      child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        child: DeviceListView(
-                          isHorizontal: !g.expanded,
-                          title: "",
-                          devices: <HomeDeviceDto>[], /////////////////////////TODO
-                          count: g.expanded
-                              ? g.devices.length
-                              : g.devices.length > 3
-                                  ? 3
-                                  : g.devices.length,
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Column(
+                      children: [
+                        GridView.count(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          childAspectRatio: 3 / 2,
+                          children: g.devices.length == 1
+                              ? [DeviceListViewItem(device: g.devices.first)]
+                              : !g.expanded
+                                  ? g.devices
+                                      .getRange(0, 2)
+                                      .map((d) => DeviceListViewItem(device: d))
+                                      .toList()
+                                  : g.devices
+                                      .map((d) => DeviceListViewItem(device: d))
+                                      .toList(),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                  if (g.devices.length > 3)
+                  if (g.devices.length > 2)
                     InkWell(
                       onTap: () {
                         setState(() {
@@ -96,14 +94,5 @@ class _GroupedPageState extends State<GroupedPage> {
         },
       ).toList(),
     );
-  }
-
-  rowCount(int count) {
-    print("ccc $count");
-    if (count <= 3) {
-      return 1;
-    }
-    int row = (count / 3).ceil();
-    return row;
   }
 }

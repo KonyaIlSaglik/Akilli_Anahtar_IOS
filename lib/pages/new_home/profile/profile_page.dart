@@ -1,6 +1,5 @@
 import 'package:akilli_anahtar/background_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -32,8 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
           title: Text("Arka Planda Çalışsın"),
           trailing: TextButton(
               onPressed: () async {
-                final service = FlutterBackgroundService();
-                var status = await service.isRunning();
+                var status = await isRunning();
                 if (status) {
                   stopBackgroundService();
                   setState(() {

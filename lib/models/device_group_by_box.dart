@@ -1,8 +1,8 @@
-import 'package:akilli_anahtar/entities/device.dart';
+import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 
 class DeviceGroupByBox {
   String boxName;
-  List<Device> devices;
+  List<HomeDeviceDto> devices;
   bool expanded;
   DeviceGroupByBox({
     required this.boxName,

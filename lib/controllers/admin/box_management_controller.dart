@@ -1,6 +1,10 @@
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
+import 'package:akilli_anahtar/dtos/bm_box_dto.dart';
+import 'package:akilli_anahtar/dtos/bm_organisation_dto.dart';
 import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/models/version_model.dart';
+import 'package:akilli_anahtar/services/api/box_management_service.dart';
 import 'package:akilli_anahtar/services/api/box_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
@@ -57,8 +61,6 @@ class BoxManagementController extends GetxController {
 
   int versionControl(String version) {
     int isOld = -2;
-    print("nv:" + newVersion.value.version);
-    print("cv:" + version);
     var nv = newVersion.value;
     if (nv.version.isNotEmpty) {
       var bv1 = int.tryParse(version.split(".")[0]) ?? 0;
@@ -136,5 +138,26 @@ class BoxManagementController extends GetxController {
       return;
     }
     errorSnackbar("Başarısız", "Silinemedi");
+  }
+
+  ////////////////////////////////
+  ///
+  ///
+
+  var boxList = <BmBoxDto>[].obs;
+
+  var organisationList = <BmOrganisationDto>[].obs;
+
+  Future<void> getBoxList() async {
+    AuthController authController = Get.find();
+    var id = authController.user.value.id;
+    boxList.value = await BoxManagementService.getBoxes(id) ?? <BmBoxDto>[];
+  }
+
+  Future<void> getOrganisationList() async {
+    AuthController authController = Get.find();
+    var id = authController.user.value.id;
+    organisationList.value = await BoxManagementService.getOrganisations(id) ??
+        <BmOrganisationDto>[];
   }
 }

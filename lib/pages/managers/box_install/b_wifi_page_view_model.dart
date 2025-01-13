@@ -1,13 +1,8 @@
-import 'package:akilli_anahtar/controllers/install/nodemcu_controller.dart';
-import 'package:akilli_anahtar/controllers/install/wifi_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 
 class WifiPageViewModel {
   static PageViewModel get(context) {
-    final WifiController wifiController = Get.put(WifiController());
-    final NodemcuController nodemcuController = Get.find();
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return PageViewModel(

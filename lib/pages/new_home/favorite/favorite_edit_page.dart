@@ -99,7 +99,6 @@ class _FavoriteEditPageState extends State<FavoriteEditPage> {
                                   padding: const EdgeInsets.all(8.0),
                                   child: DeviceListViewItem(
                                     device: e,
-                                    active: false,
                                   ) as Widget,
                                 ),
                                 Positioned(
@@ -205,7 +204,6 @@ class _FavoriteEditPageState extends State<FavoriteEditPage> {
                                           padding: const EdgeInsets.all(8.0),
                                           child: DeviceListViewItem(
                                             device: e,
-                                            active: false,
                                           ) as Widget,
                                         ),
                                         Positioned(

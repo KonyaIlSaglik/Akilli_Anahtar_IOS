@@ -92,7 +92,7 @@ class HomeController extends GetxController {
     grouping.value = true;
     await Future.delayed(Duration(milliseconds: 100));
     groupedDevices.value = List.empty();
-    var list = devices;
+    var list = homeDevices;
     // .where(
     //   (d) => d.organisationId == selectedOrganisationId.value,
     // )
@@ -108,7 +108,7 @@ class HomeController extends GetxController {
           boxName: boxName,
           devices: list
               .where(
-                (d) => d.boxName == boxName,
+                (d) => d.boxName! == boxName,
               )
               .toList()));
     }
@@ -116,7 +116,7 @@ class HomeController extends GetxController {
     grouping.value = false;
   }
 
-  List<String> getDistinctBoxNames(List<Device> devices) {
+  List<String> getDistinctBoxNames(List<HomeDeviceDto> devices) {
     Set<String> boxNamesSet = {};
 
     for (var device in devices) {
@@ -140,13 +140,15 @@ class HomeController extends GetxController {
   }
 
   var homeDevices = <HomeDeviceDto>[].obs;
-
+  var favorites = <HomeDeviceDto>[].obs;
   //////////////
   ///
   Future<void> getDevices() async {
     AuthController authController = Get.find();
     var id = authController.user.value.id;
     homeDevices.value = await HomeService.getDevices(id) ?? <HomeDeviceDto>[];
+    favorites.value =
+        homeDevices.where((d) => d.favoriteSequence! > -1).toList();
   }
 
   Future<void> updateFavoriteSequence(int deviceId, int sequence) async {

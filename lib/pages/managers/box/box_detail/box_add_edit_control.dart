@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
-import 'package:akilli_anahtar/entities/box.dart';
+import 'package:akilli_anahtar/dtos/bm_box_dto.dart';
 import 'package:akilli_anahtar/models/nodemcu_info_model.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,7 +10,8 @@ import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 
 class BoxAddEditControl extends StatefulWidget {
-  const BoxAddEditControl({super.key});
+  final BmBoxDto box;
+  const BoxAddEditControl({super.key, required this.box});
 
   @override
   State<BoxAddEditControl> createState() => _BoxAddEditControlState();
@@ -20,7 +21,7 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
   BoxManagementController boxManagementController = Get.find();
   MqttController mqttController = Get.find();
 
-  Box box = Box();
+  late BmBoxDto box = widget.box;
 
   String apSatus = "";
   bool apChanging = false;
@@ -31,17 +32,16 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
   @override
   void initState() {
     super.initState();
-    box = boxManagementController.selectedBox.value;
     if (mqttController.getSubscriptionTopicStatus(box.topicRec) ==
         MqttSubscriptionStatus.doesNotExist) {
-      mqttController.subscribeToTopic(box.topicRes);
+      mqttController.subscribeToTopic(box.topicRes!);
       mqttController.subListenerList.add(
         (topic) {
           if (topic == box.topicRes) {}
         },
       );
     }
-    mqttController.publishMessage(box.topicRec, "getinfo");
+    mqttController.publishMessage(box.topicRec!, "getinfo");
 
     mqttController.onMessage(
       (topic, message) {
@@ -51,7 +51,7 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
               if (message == "boxConnected") {
                 upgrading = false;
                 restarting = false;
-                mqttController.publishMessage(box.topicRec, "getinfo");
+                mqttController.publishMessage(box.topicRec!, "getinfo");
               }
               if (message == "restarting") {
                 restarting = true;
@@ -96,7 +96,7 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
           title: Text("Cihaz Durum"),
           trailing: TextButton(
             onPressed: () {
-              mqttController.publishMessage(box.topicRec, "getinfo");
+              mqttController.publishMessage(box.topicRec!, "getinfo");
             },
             child: Text("Sorgula"),
           ),
@@ -120,7 +120,7 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
                             ? null
                             : () {
                                 mqttController.publishMessage(
-                                    box.topicRec, "reboot");
+                                    box.topicRec!, "reboot");
                               },
                       ),
               ),
@@ -143,7 +143,7 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
                     : IconButton(
                         onPressed: apSatus.isNotEmpty
                             ? () {
-                                mqttController.publishMessage(box.topicRec,
+                                mqttController.publishMessage(box.topicRec!,
                                     apSatus == "0" ? "apenable" : "apdisable");
                               }
                             : null,
@@ -176,7 +176,7 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
                                 ),
                                 onPressed: () {
                                   mqttController.publishMessage(
-                                      box.topicRec, "doUpgrade");
+                                      box.topicRec!, "doUpgrade");
                                 },
                               )
                             : CupertinoActivityIndicator(color: goldColor)
