@@ -1,6 +1,5 @@
 import 'package:akilli_anahtar/controllers/main/login_controller.dart';
-import 'package:akilli_anahtar/controllers/main/pager_controller.dart';
-import 'package:akilli_anahtar/layout.dart';
+import 'package:akilli_anahtar/pages/new_home/layout.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_container.dart';
@@ -25,7 +24,6 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   init() async {
-    Get.put(PagerController());
     final LoginController loginController = Get.put(LoginController());
     await loginController.loadLoginInfo();
     if (loginController.userName.value.isEmpty ||

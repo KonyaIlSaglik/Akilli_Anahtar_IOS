@@ -3,6 +3,7 @@ import 'package:akilli_anahtar/entities/city.dart';
 import 'package:akilli_anahtar/entities/district.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
+import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/entities/user_organisation.dart';
 import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -103,6 +104,16 @@ class HomeService {
 
   // yeni  //  ////////////////////////////
 
+  static Future<List<Parameter>?> getParameters(int typeId) async {
+    var response = await BaseService.get(
+      "$url/getParameters?typeId=$typeId",
+    );
+    if (response.statusCode == 200) {
+      return Parameter.fromJsonList(response.body);
+    }
+    return null;
+  }
+
   static Future<List<HomeDeviceDto>?> getDevices(int userId) async {
     var response = await BaseService.get(
       "$url/getDevices?userId=$userId",
@@ -115,8 +126,9 @@ class HomeService {
 
   static Future<bool?> updateFavoriteSequence(
       int userId, int deviceId, int sequence) async {
-    var response = await BaseService.put(
-        "$url/updateFavoriteSequence?userId=$userId&deviceId=$deviceId&sequence=$sequence");
+    var path =
+        "$url/updateFavoriteSequence?userId=$userId&deviceId=$deviceId&sequence=$sequence";
+    var response = await BaseService.put(path);
     if (response.statusCode == 200) {
       return true;
     }
@@ -126,7 +138,7 @@ class HomeService {
   static Future<bool?> updateFavoriteName(
       int userId, int deviceId, String? name) async {
     var response = await BaseService.put(
-        "$url/updataFavoriteName?userId=$userId&deviceId=$deviceId&name=$name");
+        "$url/updateFavoriteName?userId=$userId&deviceId=$deviceId&name=$name");
     if (response.statusCode == 200) {
       return true;
     }

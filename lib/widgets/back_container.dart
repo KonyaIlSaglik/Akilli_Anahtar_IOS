@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 
 class BackContainer extends StatelessWidget {
@@ -16,7 +17,10 @@ class BackContainer extends StatelessWidget {
           ],
         ),
       ),
-      child: child,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: width(context) * 0.02),
+        child: child,
+      ),
     );
   }
 }

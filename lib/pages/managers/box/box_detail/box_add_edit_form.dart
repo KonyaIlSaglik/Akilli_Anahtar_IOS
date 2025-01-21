@@ -26,7 +26,6 @@ class _BoxAddEditFormState extends State<BoxAddEditForm>
   void initState() {
     super.initState();
     box = widget.box ?? BmBoxDto();
-    print(box.toJson());
   }
 
   void _saveBox() async {

@@ -45,6 +45,7 @@ class UserManagementController extends GetxController {
 
   var umDevices = <UmDeviceDto>[].obs;
   var umOrganisations = <UmOrganisationDto>[].obs;
+  var umListSelectedOrganisationId = 0.obs;
 
   Future<void> getAllDevices() async {
     umDevices.value =

@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/main/login_controller.dart';
-import 'package:akilli_anahtar/layout.dart';
+import 'package:akilli_anahtar/pages/new_home/layout.dart';
 import 'package:akilli_anahtar/pages/auth/login_page_form_input_text.dart';
 import 'package:akilli_anahtar/pages/auth/login_page_form_privacy_policy.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -13,11 +13,6 @@ class LoginPageForm extends StatefulWidget {
   @override
   State<LoginPageForm> createState() => _LoginPageFormState();
 }
-
-const List<String> scopes = <String>[
-  'email',
-  'https://www.googleapis.com/auth/contacts.readonly',
-];
 
 class _LoginPageFormState extends State<LoginPageForm> {
   LoginController loginController = Get.find();
@@ -102,9 +97,16 @@ class _LoginPageFormState extends State<LoginPageForm> {
                             } else {
                               AuthController authController = Get.find();
                               if (authController.oldSessions.isNotEmpty) {
-                                authController.checkSessions(context);
+                                await authController.checkSessions(context);
+                                await loginController.login();
+                                if (loginController.isLogin.value) {
+                                  Get.to(() => Layout());
+                                } else {
+                                  passwordController.text = "";
+                                }
+                              } else {
+                                passwordController.text = "";
                               }
-                              passwordController.text = "";
                             }
                           }
                         }

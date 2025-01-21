@@ -18,11 +18,18 @@ class _UserAddEditAuthsOrganisationsState
   UserManagementController userManagementController =
       Get.put(UserManagementController());
   HomeController homeController = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    print("UserAddEditAuthsOrganisations");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      return Expanded(
-        child: userManagementController.umOrganisations.isEmpty
+      return Scaffold(
+        body: userManagementController.umOrganisations.isEmpty
             ? Center(
                 child: Text("Liste Boş"),
               )

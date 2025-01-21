@@ -3,16 +3,16 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/entities/parameter.dart';
+import 'package:akilli_anahtar/models/login_model2.dart';
+import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
-
-import 'package:akilli_anahtar/entities/device.dart';
-import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 
@@ -31,7 +31,12 @@ Future<bool> isRunning() async {
   return await service.isRunning();
 }
 
+void prnt(String message) {
+  print("Background Service: $message");
+}
+
 Future<void> initializeService() async {
+  prnt("initializing...");
   final service = FlutterBackgroundService();
 
   await service.configure(
@@ -52,6 +57,8 @@ Future<void> initializeService() async {
   if (await service.isRunning()) {
     service.invoke("stopService");
   }
+  prnt("initialized.");
+  prnt("starting...");
   service.startService();
 }
 
@@ -64,16 +71,22 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 }
 
 @pragma('vm:entry-point')
+void notificationTapBackground(
+    NotificationResponse notificationResponse) async {
+  print(notificationResponse.actionId);
+}
+
+@pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   service.on('stopService').listen((event) {
     service.stopSelf();
   });
+  int? userId;
   String? userName;
   String? password;
-  TokenModel? tokenModel;
-  UserDto? user;
+  String? token;
   late MyMqtt mqtt;
-  List<Device>? devices;
+  List<HomeDeviceDto> devices = <HomeDeviceDto>[];
 
   var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -81,36 +94,74 @@ void onStart(ServiceInstance service) async {
   final InitializationSettings initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid);
 
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+    onDidReceiveNotificationResponse: (details) {
+      if (details.actionId != null) {
+        switch (details.actionId) {
+          case 'action_30_min':
+            LocalDb.add(
+              notificationKey(details.id!),
+              DateTime.now().add(Duration(seconds: 30)).toString(),
+            );
+            break;
+          case 'action_2_hour':
+            LocalDb.add(
+              notificationKey(details.id!),
+              DateTime.now().add(Duration(hours: 2)).toString(),
+            );
+            break;
+          case 'action_8_hour':
+            LocalDb.add(
+              notificationKey(details.id!),
+              DateTime.now().add(Duration(hours: 8)).toString(),
+            );
+            break;
+          default:
+            // Diğer durumlar
+            break;
+        }
+      }
+    },
+  );
 
   userName = await LocalDb.get(userNameKey);
   password = await LocalDb.get(passwordKey);
 
   if (userName != null && password != null) {
-    tokenModel = await login(userName, password);
+    await AuthService.webLogin(LoginModel2(
+      userName: userName,
+      password: password,
+    ));
+    token = await LocalDb.get(webTokenKey);
+    userId = int.tryParse(await LocalDb.get(userIdKey) ?? "");
   }
 
-  if (tokenModel != null) {
-    user = await getByUserName(userName!, tokenModel.token!);
-
-    var mqttModel = await getMqttParameters(tokenModel.token!);
-    if (mqttModel != null) {
-      mqtt = MyMqtt(mqttModel);
-      await mqtt.initialClient();
+  if (token != null) {
+    var parameterResponse = await httpGet(
+      url: "$apiUrlOut/Home/getParameters?typeId=1",
+      token: token,
+    );
+    if (parameterResponse.statusCode == 200) {
+      var parameters = Parameter.fromJsonList(parameterResponse.body);
+      if (parameters.isNotEmpty) {
+        mqtt = MyMqtt(parameters);
+        await mqtt.initialClient();
+      }
+    }
+    if (userId != null) {
+      devices = await getDevices(token, userId);
     }
   }
 
-  if (tokenModel != null && user != null) {
-    devices = await getDevices(user.id, tokenModel.token!);
-  }
-
-  if (devices != null && devices.isNotEmpty) {
-    for (Device device in devices) {
-      mqtt.subscribeToTopic(device.topicStat);
+  if (devices.isNotEmpty) {
+    for (HomeDeviceDto device in devices) {
+      mqtt.subscribeToTopic(device.topicStat!);
     }
 
     mqtt.onMessage(
-      (topic, message) {
+      (topic, message) async {
         if (message.contains("{")) {
           var result = json.decode(message);
           var status = result["deger"].toString();
@@ -118,25 +169,38 @@ void onStart(ServiceInstance service) async {
               ? (result["deger"] as num).toDouble()
               : null;
           if (deger != null) {
-            var device = devices!.singleWhere(
+            var device = devices.singleWhere(
               (d) => d.topicStat == topic,
-              orElse: () => Device(),
+              orElse: () => HomeDeviceDto(),
             );
-            if (device.id > 0) {
+            var active = false;
+            result = await LocalDb.get(notificationKey(device.id!));
+            if (result == null || result == "1") {
+              active = true;
+            } else {
+              var time = DateTime.tryParse(result);
+              if (time == null) {
+                active = true;
+              } else {
+                active = time.isBefore(DateTime.now());
+                LocalDb.add(notificationKey(device.id!), "1");
+              }
+            }
+            if (device.id! > 0 && active) {
               int alarm = getAlarm(device, deger);
               if (alarm == 1) {
                 _showNotification(
                   flutterLocalNotificationsPlugin,
-                  device.id,
-                  device.name,
+                  device.id!,
+                  device.name!,
                   "$status değeri için Sarı Alarm",
                 );
               }
               if (alarm == 2) {
                 _showNotification(
                   flutterLocalNotificationsPlugin,
-                  device.id,
-                  device.name,
+                  device.id!,
+                  device.name!,
                   "$status değeri için Kırmızı Alarm",
                 );
               }
@@ -147,15 +211,49 @@ void onStart(ServiceInstance service) async {
     );
   }
 
-  Timer.periodic(const Duration(minutes: 10), (timer) async {
-    print("service is successfully running ${DateTime.now().second}");
-    if (tokenModel != null && user != null) {
-      devices = await getDevices(user.id, tokenModel.token!);
+  Timer.periodic(const Duration(minutes: 1), (timer) async {
+    prnt("service is successfully running ${DateTime.now().second}");
+    if (token != null && userId != null) {
+      devices = await getDevices(token, userId);
     }
   });
 }
 
-int getAlarm(Device device, double deger) {
+Future<List<HomeDeviceDto>> getDevices(String token, int userId) async {
+  var devicesResponse = await httpGet(
+    url: "$apiUrlOut/Home/getDevices?userId=$userId",
+    token: token,
+  );
+  if (devicesResponse.statusCode == 200) {
+    return HomeDeviceDto.fromJsonList(devicesResponse.body);
+  }
+  return <HomeDeviceDto>[];
+}
+
+Future<http.Response> httpGet(
+    {required String url, required String token}) async {
+  try {
+    var uri = Uri.parse(url);
+    var client = http.Client();
+    var response = await client.get(
+      uri,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    client.close();
+    prnt(url);
+    prnt(response.statusCode.toString());
+    prnt(response.body);
+    return response;
+  } catch (e) {
+    prnt(e.toString());
+    return http.Response("hata", 999);
+  }
+}
+
+int getAlarm(HomeDeviceDto device, double deger) {
   int alarm = 0;
   if (device.normalMinValue != null || device.normalMaxValue != null) {
     if (deger < device.normalMinValue! || deger > device.normalMaxValue!) {
@@ -176,6 +274,22 @@ Future<void> _showNotification(
   String title,
   String body,
 ) async {
+  const AndroidNotificationAction action30Min = AndroidNotificationAction(
+    'action_30_min',
+    '30 Dakika Ertele',
+    cancelNotification: true,
+  );
+  const AndroidNotificationAction action2Hour = AndroidNotificationAction(
+    'action_2_hour',
+    '2 Saat Ertele',
+    cancelNotification: true,
+  );
+  const AndroidNotificationAction action8Hour = AndroidNotificationAction(
+    'action_8_hour',
+    '8 Saat Ertele',
+    cancelNotification: true,
+  );
+
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
     'your_channel_id',
@@ -184,7 +298,11 @@ Future<void> _showNotification(
     importance: Importance.max,
     priority: Priority.high,
     showWhen: false,
-    actions: [],
+    actions: <AndroidNotificationAction>[
+      action30Min,
+      action2Hour,
+      action8Hour,
+    ],
   );
   const NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
@@ -194,14 +312,24 @@ Future<void> _showNotification(
 }
 
 class MyMqtt {
-  final MqttModel mqttModel;
+  final List<Parameter> parameters;
   late MqttServerClient mqttClient;
 
-  MyMqtt(this.mqttModel);
+  MyMqtt(this.parameters);
 
   Future<void> initialClient() async {
-    mqttClient = MqttServerClient(mqttModel.host, mqttModel.identity);
-    mqttClient.port = mqttModel.port;
+    var host = parameters.firstWhere((p) => p.name == "mqtt_host_public").value;
+    var port = int.tryParse(
+            parameters.firstWhere((p) => p.name == "mqtt_port").value) ??
+        1883;
+    var userName = parameters.firstWhere((p) => p.name == "mqtt_user").value;
+    var password =
+        parameters.firstWhere((p) => p.name == "mqtt_password").value;
+    var deviceId = await getDeviceId();
+    var now = DateTime.now().toString();
+    var identity = "$deviceId-$now";
+    mqttClient = MqttServerClient(host, identity);
+    mqttClient.port = port;
     mqttClient.keepAlivePeriod = 60;
     mqttClient.autoReconnect = true;
     mqttClient.resubscribeOnAutoReconnect = true;
@@ -210,9 +338,9 @@ class MyMqtt {
     mqttClient.onSubscribed = onSubscribed;
     mqttClient.pongCallback = pong;
     final MqttConnectMessage connMess = MqttConnectMessage()
-        .authenticateAs(mqttModel.userName, mqttModel.password)
+        .authenticateAs(userName, password)
         .startClean()
-        .withClientIdentifier(mqttModel.identity)
+        .withClientIdentifier(identity)
         .withWillQos(MqttQos.atMostOnce);
     mqttClient.connectionMessage = connMess;
     await mqttClient.connect();
@@ -221,7 +349,7 @@ class MyMqtt {
   void subscribeToTopic(String topic) {
     if (mqttClient.getSubscriptionTopicStatus(topic) ==
         MqttSubscriptionStatus.active) {
-      print("$topic already subscribbed");
+      prnt("$topic already subscribbed");
       return;
     }
     mqttClient.subscribe(topic, MqttQos.atMostOnce);
@@ -236,198 +364,18 @@ class MyMqtt {
   }
 
   void onConnected() {
-    print('MQTT client connected');
+    prnt('MQTT client connected');
   }
 
   void onDisconnected() {
-    print('MQTT client disconnected');
+    prnt('MQTT client disconnected');
   }
 
   void onSubscribed(MqttSubscription sb) {
-    print("${sb.topic} subscribbed");
+    prnt("${sb.topic} subscribbed");
   }
 
   void pong() {
-    print('Ping response received');
+    prnt('Ping response received');
   }
-}
-
-Future<TokenModel?> login(String userName, String password) async {
-  String url = "$apiUrlOut/Auth";
-  var uri = Uri.parse("$url/webLogin");
-  var client = http.Client();
-  try {
-    print("$url/webLogin");
-    print(json.encode({
-      "userName": userName,
-      "password": password,
-      "identity": "",
-    }));
-    var response = await client
-        .post(
-          uri,
-          headers: {
-            'content-type': 'application/json; charset=utf-8',
-          },
-          body: json.encode({
-            "userName": userName,
-            "password": password,
-            "identity": "",
-          }),
-        )
-        .timeout(Duration(seconds: 10));
-    client.close();
-    print(response.statusCode);
-    print(response.body);
-    if (response.statusCode == 200) {
-      return TokenModel.fromJson(response.body);
-    }
-  } catch (e) {
-    errorSnackbar("Hata", "Oturum Açma Sırasında bir hata oluştu.");
-    print(e);
-  }
-  return null;
-}
-
-Future<UserDto?> getByUserName(String userName, String token) async {
-  String url = "$apiUrlOut/User";
-  try {
-    var uri = Uri.parse("$url/getByUserName?userName=$userName");
-    print("$url/getByUserName?userName=$userName");
-    var httpClient = http.Client();
-    var response = await httpClient.get(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer $token',
-      },
-    );
-    httpClient.close();
-    print(response.statusCode);
-    print(response.body);
-    if (response.statusCode == 200) {
-      return UserDto.fromJson(response.body);
-    }
-  } catch (e) {
-    print(e);
-    return null;
-  }
-  return null;
-}
-
-Future<MqttModel?> getMqttParameters(String token) async {
-  String url = "$apiUrlOut/Parameter";
-  try {
-    var uri = Uri.parse("$url/getAllByTypeId?id=1");
-    print("$url/getAllByTypeId?id=1");
-    var httpClient = http.Client();
-    var response = await httpClient.get(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer $token',
-      },
-    );
-    httpClient.close();
-    print(response.statusCode);
-    print(response.body);
-    if (response.statusCode == 200) {
-      var parameters = Parameter.fromJsonList(response.body);
-      if (parameters.isNotEmpty) {
-        var host =
-            parameters.firstWhere((p) => p.name == "mqtt_host_public").value;
-        var port = int.tryParse(
-                parameters.firstWhere((p) => p.name == "mqtt_port").value) ??
-            1883;
-        var userName =
-            parameters.firstWhere((p) => p.name == "mqtt_user").value;
-        var password =
-            parameters.firstWhere((p) => p.name == "mqtt_password").value;
-        var deviceId = await getDeviceId();
-        var now = DateTime.now().toString();
-        var identity = "$deviceId-$now";
-        return MqttModel(
-            host: host,
-            port: port,
-            userName: userName,
-            password: password,
-            identity: identity);
-      }
-    }
-  } catch (e) {
-    print(e);
-    return null;
-  }
-  return null;
-}
-
-Future<List<Device>?> getDevices(userId, token) async {
-  String url = "$apiUrlOut/Device";
-  try {
-    var uri = Uri.parse("$url/getAllByUserId?id=$userId");
-    print("$url/getAllByUserId?id=$userId");
-    var httpClient = http.Client();
-    var response = await httpClient.get(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer $token',
-      },
-    );
-    httpClient.close();
-    print(response.statusCode);
-    print(response.body);
-    if (response.statusCode == 200) {
-      var devices = Device.fromJsonList(response.body);
-      return devices;
-    }
-  } catch (e) {
-    print(e);
-    return null;
-  }
-  return null;
-}
-
-class TokenModel {
-  String? token;
-  String? expiration;
-  TokenModel({
-    this.token,
-    this.expiration,
-  });
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'token': token,
-      'expiration': expiration,
-    };
-  }
-
-  factory TokenModel.fromMap(Map<String, dynamic> map) {
-    return TokenModel(
-      token: map['token'] != null ? map['token'] as String : null,
-      expiration:
-          map['expiration'] != null ? map['expiration'] as String : null,
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory TokenModel.fromJson(String source) =>
-      TokenModel.fromMap(json.decode(source) as Map<String, dynamic>);
-}
-
-class MqttModel {
-  String host;
-  int port;
-  String userName;
-  String password;
-  String identity;
-  MqttModel({
-    required this.host,
-    required this.port,
-    required this.userName,
-    required this.password,
-    required this.identity,
-  });
 }

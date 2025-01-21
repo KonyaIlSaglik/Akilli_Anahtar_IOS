@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:akilli_anahtar/controllers/install/wifi_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
-
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:esp_smartconfig/esp_smartconfig.dart';
 import 'package:flutter/material.dart';
@@ -21,20 +20,6 @@ class _InstallSettingsState extends State<InstallSettings> {
   final TextEditingController ssidController = TextEditingController(text: "");
   final TextEditingController passwordController =
       TextEditingController(text: "");
-
-  // final TextEditingController ssidController =
-  //     TextEditingController(text: "CEKICI");
-  // final TextEditingController passwordController =
-  //     TextEditingController(text: "Yusuf42Sevil");
-
-  // final TextEditingController ssidController =
-  //     TextEditingController(text: "BIMB");
-  // final TextEditingController passwordController =
-  //     TextEditingController(text: "admknh_066");
-  // final TextEditingController ssidController =
-  //     TextEditingController(text: "Zyxel_E0E9");
-  // final TextEditingController passwordController =
-  //     TextEditingController(text: "KPT78MG4TL");
   final formKey = GlobalKey<FormState>();
   bool passVisible = false;
   final provisioner = Provisioner.espTouch();
@@ -56,15 +41,13 @@ class _InstallSettingsState extends State<InstallSettings> {
     }
 
     if (status) {
-      wifiController.getSSID().then(
-        (value) {
-          if (value.isNotEmpty) {
-            setState(() {
-              ssidController.text = value;
-            });
-          }
-        },
-      );
+      wifiController.getSSID().then((value) {
+        if (value.isNotEmpty) {
+          setState(() {
+            ssidController.text = value;
+          });
+        }
+      });
     }
   }
 
@@ -80,9 +63,7 @@ class _InstallSettingsState extends State<InstallSettings> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         shadowColor: Colors.black,
-        iconTheme: IconThemeData(
-          size: 30,
-        ),
+        iconTheme: IconThemeData(size: 30),
         elevation: 10,
         title: Text(
           "KURULUM",
@@ -91,183 +72,152 @@ class _InstallSettingsState extends State<InstallSettings> {
               : textTheme(context).titleLarge!,
         ),
       ),
-      body: Center(
-        child: Column(
-          children: [
-            SizedBox(height: height(context) * 0.02),
-            ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text(
-                  "Telefonu bir wifi ağına bağlayın. Cihazı wifi ağına bağlamak için ağ adı ve parolasını girin ve yayınlayın. Ardından cihazın bağlanmasını bekleyin."),
-            ),
-            SizedBox(height: height(context) * 0.02),
-            Form(
-              key: formKey,
-              child: Expanded(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0), // Padding eklenmesi
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Burayı ekledik
+            children: [
+              SizedBox(height: height(context) * 0.02),
+              ListTile(
+                leading: Icon(Icons.info_outline),
+                title: Text(
+                    "Telefonu bir wifi ağına bağlayın. Cihazı wifi ağına bağlamak için ağ adı ve parolasını girin ve yayınlayın. Ardından cihazın bağlanmasını bekleyin."),
+              ),
+              SizedBox(height: height(context) * 0.02),
+              Form(
+                key: formKey,
                 child: Column(
+                  mainAxisSize: MainAxisSize.min, // Burayı ekledik
                   children: [
-                    SizedBox(
-                      height: height(context) * 0.07,
-                      width: width(context) * 0.90,
-                      child: Card.outlined(
-                        elevation: 10,
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            textSelectionTheme: TextSelectionThemeData(
-                                selectionHandleColor: goldColor),
-                          ),
-                          child: TextFormField(
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Zorunlu Alan";
-                              }
-                              return null;
-                            },
-                            controller: ssidController,
-                            cursorColor: Colors.black,
-                            textInputAction: TextInputAction.next,
-                            onFieldSubmitted: (value) {
-                              passwordFocus.requestFocus();
-                            },
-                            style: textTheme(context).titleLarge,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: Icon(
-                                FontAwesomeIcons.wifi,
-                                size: 20,
-                                color: goldColor,
-                              ),
-                              hintText: "SSID",
-                              hintStyle: textTheme(context)
-                                  .titleMedium!
-                                  .copyWith(color: Colors.grey),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildTextField(
+                        ssidController, "SSID", FontAwesomeIcons.wifi),
                     SizedBox(height: height(context) * 0.01),
-                    SizedBox(
-                      height: height(context) * 0.07,
-                      width: width(context) * 0.90,
-                      child: Card.outlined(
-                        elevation: 10,
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            textSelectionTheme: TextSelectionThemeData(
-                                selectionHandleColor: goldColor),
-                          ),
-                          child: TextFormField(
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Zorunlu Alan";
-                              }
-                              return null;
-                            },
-                            controller: passwordController,
-                            cursorColor: Colors.black,
-                            textInputAction: TextInputAction.done,
-                            focusNode: passwordFocus,
-                            style: textTheme(context).titleLarge,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: Icon(
-                                FontAwesomeIcons.lock,
-                                size: 20,
-                                color: goldColor,
-                              ),
-                              hintText: "PAROLA",
-                              hintStyle: textTheme(context)
-                                  .titleMedium!
-                                  .copyWith(color: Colors.grey),
-                              suffixIcon: IconButton(
-                                  icon: Icon(
-                                    passVisible
-                                        ? FontAwesomeIcons.eyeSlash
-                                        : FontAwesomeIcons.eye,
-                                    size: 20,
-                                    color: goldColor,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      passVisible = !passVisible;
-                                    });
-                                  }),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildTextField(
+                        passwordController, "PAROLA", FontAwesomeIcons.lock,
+                        isPassword: true),
                     SizedBox(height: height(context) * 0.05),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(90),
-                      onTap: () {
-                        if (provisioner.running) {
-                          _stopProvisioning();
-                        } else {
-                          if (formKey.currentState!.validate()) {
-                            _startProvisioning();
-                          }
-                        }
-                      },
-                      child: AvatarGlow(
-                        duration: Duration(seconds: 3),
-                        glowCount: 3,
-                        glowColor: goldColor,
-                        glowShape: BoxShape.circle,
-                        animate: _animate,
-                        curve: Curves.fastOutSlowIn,
-                        child: Material(
-                          elevation: 10.0,
-                          shape: CircleBorder(),
-                          color: Colors.transparent,
-                          child: CircleAvatar(
-                            backgroundColor: goldColor,
-                            radius: width(context) * 0.20,
-                            child: Icon(
-                              Icons.wifi,
-                              color: Colors.white,
-                              size: 75,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildSubmitButton(),
                     SizedBox(height: height(context) * 0.05),
-                    Visibility(
-                      visible: provisioner.running,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Kalan Süre: ",
-                            style: textTheme(context).titleMedium,
-                          ),
-                          Text(
-                            "$countDown",
-                            style: textTheme(context)
-                                .titleLarge
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            " saniye",
-                            style: textTheme(context).titleMedium,
-                          ),
-                        ],
-                      ),
-                    ),
+                    _buildCountdownTimer(),
                   ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+      TextEditingController controller, String hint, IconData icon,
+      {bool isPassword = false}) {
+    return SizedBox(
+      height: height(context) * 0.07,
+      width: width(context) * 0.90,
+      child: Card.outlined(
+        elevation: 10,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            textSelectionTheme:
+                TextSelectionThemeData(selectionHandleColor: goldColor),
+          ),
+          child: TextFormField(
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Zorunlu Alan";
+              }
+              return null;
+            },
+            controller: controller,
+            obscureText: isPassword && !passVisible,
+            cursorColor: Colors.black,
+            textInputAction:
+                isPassword ? TextInputAction.done : TextInputAction.next,
+            focusNode: isPassword ? passwordFocus : null,
+            onFieldSubmitted: (value) {
+              if (!isPassword) passwordFocus.requestFocus();
+            },
+            style: textTheme(context).titleLarge,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+              prefixIcon: Icon(icon, size: 20, color: goldColor),
+              hintText: hint,
+              hintStyle:
+                  textTheme(context).titleMedium!.copyWith(color: Colors.grey),
+              suffixIcon: isPassword
+                  ? IconButton(
+                      icon: Icon(
+                        passVisible
+                            ? FontAwesomeIcons.eyeSlash
+                            : FontAwesomeIcons.eye,
+                        size: 20,
+                        color: goldColor,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          passVisible = !passVisible;
+                        });
+                      },
+                    )
+                  : null,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return InkWell(
+      borderRadius: BorderRadius.circular(90),
+      onTap: () {
+        if (provisioner.running) {
+          _stopProvisioning();
+        } else {
+          if (formKey.currentState!.validate()) {
+            _startProvisioning();
+          }
+        }
+      },
+      child: AvatarGlow(
+        duration: Duration(seconds: 3),
+        glowCount: 3,
+        glowColor: goldColor,
+        glowShape: BoxShape.circle,
+        animate: _animate,
+        curve: Curves.fastOutSlowIn,
+        child: Material(
+          elevation: 10.0,
+          shape: CircleBorder(),
+          color: Colors.transparent,
+          child: CircleAvatar(
+            backgroundColor: goldColor,
+            radius: width(context) * 0.20,
+            child: Icon(Icons.wifi, color: Colors.white, size: 75),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCountdownTimer() {
+    return Visibility(
+      visible: provisioner.running,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Kalan Süre: ", style: textTheme(context).titleMedium),
+          Text("$countDown",
+              style: textTheme(context)
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold)),
+          Text(" saniye", style: textTheme(context).titleMedium),
+        ],
       ),
     );
   }
@@ -295,16 +245,13 @@ class _InstallSettingsState extends State<InstallSettings> {
       _animate = true;
     });
 
-    timer = Timer.periodic(
-      Duration(seconds: 1),
-      (t) {
-        setState(() {
-          countDown = 180 - t.tick;
-        });
-        if (countDown == 0) {
-          _stopProvisioning();
-        }
-      },
-    );
+    timer = Timer.periodic(Duration(seconds: 1), (t) {
+      setState(() {
+        countDown = 180 - t.tick;
+      });
+      if (countDown == 0) {
+        _stopProvisioning();
+      }
+    });
   }
 }

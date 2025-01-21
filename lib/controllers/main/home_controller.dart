@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/entities/city.dart';
 import 'package:akilli_anahtar/entities/device.dart';
@@ -6,18 +9,21 @@ import 'package:akilli_anahtar/entities/district.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/models/device_group_by_box.dart';
-import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/services/api/home_service.dart';
 import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:turkish/turkish.dart';
+import 'package:http/http.dart' as http;
 
 class HomeController extends GetxController {
   var loading = false.obs;
   var selectedOrganisationId = 0.obs;
 
-  var parameters = <Parameter>[].obs;
   var cities = <City>[].obs;
   var districts = <District>[].obs;
   var organisations = <Organisation>[].obs;
@@ -41,12 +47,12 @@ class HomeController extends GetxController {
         "selectedOrganisationId", selectedOrganisationId.value.toString());
   }
 
-  Future<void> getData() async {
-    loading.value = true;
-    await AuthService.getData();
-    groupDevices();
-    loading.value = false;
-  }
+  // Future<void> getData() async {
+  //   loading.value = true;
+  //   await AuthService.getData();
+  //   groupDevices();
+  //   loading.value = false;
+  // }
 
   List<Device> get controlDevices {
     var cd = devices
@@ -74,19 +80,19 @@ class HomeController extends GetxController {
         .toList();
   }
 
-  List<Device> get favoriteDevices {
-    var list = devices
-        .where(
-          (d) => d.favoriteSequence > -1,
-        )
-        .toList();
-    list.sort(
-      (a, b) {
-        return a.favoriteSequence.compareTo(b.favoriteSequence);
-      },
-    );
-    return list;
-  }
+  // List<Device> get favoriteDevices {
+  //   var list = devices
+  //       .where(
+  //         (d) => d.favoriteSequence > -1,
+  //       )
+  //       .toList();
+  //   list.sort(
+  //     (a, b) {
+  //       return a.favoriteSequence.compareTo(b.favoriteSequence);
+  //     },
+  //   );
+  //   return list;
+  // }
 
   void groupDevices() async {
     grouping.value = true;
@@ -139,16 +145,43 @@ class HomeController extends GetxController {
     }
   }
 
+  var watherVisible = false.obs;
+  var city = "".obs;
+  var tempeture = "".obs;
   var homeDevices = <HomeDeviceDto>[].obs;
+  var lastStatus = <int, String>{}.obs;
   var favorites = <HomeDeviceDto>[].obs;
+  var parameters = <Parameter>[].obs;
   //////////////
   ///
+
+  Future<String> getVersion() async {
+    var info = await PackageInfo.fromPlatform();
+    return info.version;
+  }
+
   Future<void> getDevices() async {
+    loading.value = true;
     AuthController authController = Get.find();
     var id = authController.user.value.id;
     homeDevices.value = await HomeService.getDevices(id) ?? <HomeDeviceDto>[];
+    MqttController mqttController = Get.find();
+    for (var device in homeDevices) {
+      mqttController.subscribeToTopic(device.topicStat!);
+      if (lastStatus[device.id!] == null) {
+        lastStatus[device.id!] = "";
+      }
+    }
+    groupDevices();
+    loadFavorites();
+    loading.value = false;
+  }
+
+  void loadFavorites() {
     favorites.value =
-        homeDevices.where((d) => d.favoriteSequence! > -1).toList();
+        homeDevices.where((d) => d.favoriteSequence != null).toList();
+    favorites
+        .sort((a, b) => a.favoriteSequence!.compareTo(b.favoriteSequence!));
   }
 
   Future<void> updateFavoriteSequence(int deviceId, int sequence) async {
@@ -157,8 +190,15 @@ class HomeController extends GetxController {
     var response =
         await HomeService.updateFavoriteSequence(id, deviceId, sequence);
     if (response != null) {
-      homeDevices.singleWhere((d) => d.id == deviceId).favoriteSequence =
-          sequence;
+      if (sequence == 0) {
+        homeDevices.singleWhere((d) => d.id == deviceId).favoriteSequence =
+            null;
+        homeDevices.singleWhere((d) => d.id == deviceId).favoriteName = null;
+      } else {
+        homeDevices.singleWhere((d) => d.id == deviceId).favoriteSequence =
+            sequence;
+      }
+      loadFavorites();
     }
   }
 
@@ -168,6 +208,46 @@ class HomeController extends GetxController {
     var response = await HomeService.updateFavoriteName(id, deviceId, name);
     if (response != null) {
       homeDevices.singleWhere((d) => d.id == deviceId).favoriteName = name;
+      loadFavorites();
+    }
+  }
+
+  int getNextFavoriteSequence() {
+    return favorites.isEmpty
+        ? 1
+        : favorites
+                .map((device) => device.favoriteSequence!)
+                .reduce((a, b) => a > b ? a : b) +
+            1;
+  }
+
+  Future<void> getWather() async {
+    watherVisible.value = (await LocalDb.get(watherVisibleKey) ?? "0") == "1";
+    if (watherVisible.value) {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        return;
+      }
+      var position = await Geolocator.getCurrentPosition();
+      var placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      print(placemarks[0]);
+      city.value =
+          "${placemarks[0].administrativeArea!}/${placemarks[0].subAdministrativeArea!}";
+      var url =
+          "https://api.open-meteo.com/v1/forecast?latitude=${position.latitude}&longitude=${position.longitude}&current=temperature_2m,relative_humidity_2m&forecast_days=1";
+      var uri = Uri.parse(url);
+      var client = http.Client();
+      var response = await client.get(uri);
+      if (response.statusCode == 200) {
+        print(response.body);
+        var data = json.decode(response.body) as Map<String, dynamic>;
+        var result = data["current"] as Map<String, dynamic>;
+        var unitResult = data["current_units"] as Map<String, dynamic>;
+        tempeture.value =
+            "${result["temperature_2m"]} ${unitResult["temperature_2m"]}";
+      }
+      client.close();
     }
   }
 }

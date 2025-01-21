@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
-import 'package:akilli_anahtar/entities/organisation.dart';
+import 'package:akilli_anahtar/dtos/um_organisation_dto.dart';
 import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/utils/validate_listener.dart';
@@ -38,6 +38,7 @@ class _UserAddEditFormState extends State<UserAddEditForm>
   @override
   void initState() {
     super.initState();
+    print("UserAddEditForm");
     user = userManagementControl.selectedUser.value.copyWith();
   }
 
@@ -284,7 +285,7 @@ class _UserAddEditFormState extends State<UserAddEditForm>
   }
 
   organisationSelect() {
-    return DropdownSearch<Organisation>(
+    return DropdownSearch<UmOrganisationDto>(
       decoratorProps: DropDownDecoratorProps(
         decoration: InputDecoration(
           labelText: "Kurum Seç",
@@ -309,17 +310,17 @@ class _UserAddEditFormState extends State<UserAddEditForm>
         showSearchBox: true,
       ),
       items: (filter, loadProps) {
-        return homeController.organisations;
+        return userManagementControl.umOrganisations;
       },
       selectedItem: userManagementControl.selectedUser.value.id > 0
-          ? homeController.organisations.firstWhereOrNull((o) =>
+          ? userManagementControl.umOrganisations.firstWhereOrNull((o) =>
               o.id == userManagementControl.selectedUser.value.organisationId)
           : null,
       itemAsString: (item) => item.name!,
       onChanged: (value) {
         if (value != null) {
           setState(() {
-            user.organisationId = value.id;
+            user.organisationId = value.id!;
             user.organisationName = value.name!;
           });
         }

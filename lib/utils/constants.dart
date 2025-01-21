@@ -7,17 +7,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:new_version_plus/new_version_plus.dart';
+import 'package:turkish/turkish.dart';
 
 const String mqttHostKey = "mqttHost";
 const String mqttPortKey = "mqttPort";
 const String mqttUserKey = "mqttUser";
 const String mqttPasswordKey = "mqttPassword";
 
+String notificationKey(int deviceId) {
+  return "notif$deviceId";
+}
+
 const String apiUrlOut =
     "http://uzak.konyasm.gov.tr:42027/AkilliAnahtarApi/api";
 //const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
+const String userIdKey = "userId";
+const String webTokenKey = "webToken";
 const String userNameKey = "userName";
 const String passwordKey = "password";
+const String watherVisibleKey = "watherVisible";
 const Color goldColor = Colors.brown;
 //const Color goldColor = Color(0xffb49664);
 //const Color mainColor = Color.fromARGB(255, 180, 150, 100);
@@ -93,6 +101,18 @@ String getTime(String isoDate) {
   String formattedDate = DateFormat('HH:mm').format(dateTime);
 
   return formattedDate;
+}
+
+String? capitalizeWords(String? input) {
+  if (input == null) {
+    return null;
+  }
+  return input
+      .split(' ') // Metni boşluklardan ayır
+      .map((word) => word.isNotEmpty
+          ? word[0].toUpperCaseTr() + word.toLowerCaseTr().substring(1)
+          : word) // Her kelimenin ilk harfini büyük yap
+      .join(' '); // Kelimeleri tekrar birleştir
 }
 
 exitApp(context) {

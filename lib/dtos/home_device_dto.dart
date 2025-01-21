@@ -9,7 +9,7 @@ class HomeDeviceDto {
   String? typeName;
   String? boxName;
   String? organisationName;
-  String topicStat;
+  String? topicStat;
   String? topicRec;
   String? topicRes;
   List<String>? rfCodes;
@@ -23,15 +23,15 @@ class HomeDeviceDto {
   int? closingTime;
 
   HomeDeviceDto({
-    this.id = 0,
-    this.name = "",
-    this.favoriteSequence = 0,
-    this.favoriteName = "",
-    this.typeId = 0,
+    this.id,
+    this.name,
+    this.favoriteSequence,
+    this.favoriteName,
+    this.typeId,
     this.typeName,
-    this.boxName = "",
-    this.organisationName = "",
-    this.topicStat = "",
+    this.boxName,
+    this.organisationName,
+    this.topicStat,
     this.topicRec,
     this.topicRes,
     this.rfCodes,

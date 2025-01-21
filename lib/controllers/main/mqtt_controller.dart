@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:akilli_anahtar/controllers/main/home_controller.dart';
-import 'package:akilli_anahtar/services/local/shared_prefences.dart';
+import 'package:akilli_anahtar/entities/parameter.dart';
+import 'package:akilli_anahtar/services/api/home_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
@@ -13,7 +13,6 @@ class MqttController extends GetxController {
   var port = 1883.obs;
   var userName = "".obs;
   var password = "".obs;
-  var clientIsNull = true.obs;
   var connecting = false.obs;
   late MqttServerClient client;
   var isConnected = false.obs;
@@ -23,38 +22,12 @@ class MqttController extends GetxController {
   late FlutterLocalNotificationsPlugin localNotifications;
 
   Future<void> initClient() async {
-    HomeController homeController = Get.find();
+    connecting.value = true;
+    await getMqttParameters();
     var deviceId = await getDeviceId();
     var now = DateTime.now().toString();
     var identifier = "$deviceId-$now";
-    host.value = await LocalDb.get(mqttHostKey) ?? "";
-    port.value =
-        int.tryParse((await LocalDb.get(mqttPortKey)) ?? "1883") ?? 1883;
-    userName.value = await LocalDb.get(mqttUserKey) ?? "";
-    password.value = await LocalDb.get(mqttPasswordKey) ?? "";
-    if (host.value.isEmpty ||
-        userName.value.isEmpty ||
-        password.value.isEmpty) {
-      if (homeController.parameters.isNotEmpty) {
-        host.value = homeController.parameters
-            .firstWhere((p) => p.name == "mqtt_host_public")
-            .value;
-        port.value = int.tryParse(homeController.parameters
-                .firstWhere((p) => p.name == "mqtt_port")
-                .value) ??
-            1883;
-        userName.value = homeController.parameters
-            .firstWhere((p) => p.name == "mqtt_user")
-            .value;
-        password.value = homeController.parameters
-            .firstWhere((p) => p.name == "mqtt_password")
-            .value;
-        LocalDb.add(mqttHostKey, host.value);
-        LocalDb.add(mqttPortKey, port.value.toString());
-        LocalDb.add(mqttUserKey, userName.value);
-        LocalDb.add(mqttPasswordKey, password.value);
-      }
-    }
+
     client = MqttServerClient(host.value, identifier);
     client.port = port.value;
     client.keepAlivePeriod = 60;
@@ -70,16 +43,27 @@ class MqttController extends GetxController {
         .withClientIdentifier(identifier)
         .withWillQos(MqttQos.atMostOnce);
     client.connectionMessage = connMess;
-
-    globalTopic.value = homeController.parameters
-        .firstWhere((p) => p.name == "mqtt_session_topic")
-        .value;
-    clientIsNull.value = false;
     print("Mqtt initialized");
+    await connect();
+  }
+
+  Future<void> getMqttParameters() async {
+    var parameters = await HomeService.getParameters(1) ?? <Parameter>[];
+
+    if (parameters.isNotEmpty) {
+      host.value =
+          parameters.firstWhere((p) => p.name == "mqtt_host_public").value;
+      port.value = int.tryParse(
+              parameters.firstWhere((p) => p.name == "mqtt_port").value) ??
+          1883;
+      userName.value =
+          parameters.firstWhere((p) => p.name == "mqtt_user").value;
+      password.value =
+          parameters.firstWhere((p) => p.name == "mqtt_password").value;
+    }
   }
 
   Future<void> connect() async {
-    connecting.value = true;
     try {
       status.value = 'Connecting';
       await client.connect();

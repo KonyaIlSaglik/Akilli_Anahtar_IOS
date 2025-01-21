@@ -1,13 +1,7 @@
 import 'dart:convert';
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
-import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/login_controller.dart';
-import 'package:akilli_anahtar/entities/city.dart';
-import 'package:akilli_anahtar/entities/device.dart';
-import 'package:akilli_anahtar/entities/district.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
-import 'package:akilli_anahtar/entities/organisation.dart';
-import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/models/login_model.dart';
 import 'package:akilli_anahtar/models/login_model2.dart';
@@ -139,33 +133,67 @@ class AuthService {
     return;
   }
 
-  //remove
-  static Future<List<Device>?> getData() async {
-    var authController = Get.find<AuthController>();
-    HomeController homeController = Get.find();
-    var response = await BaseService.get(
-        "$url/getData?userId=${authController.user.value.id}");
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body) as Map<String, dynamic>;
-      // var claims = data["operationClaims"] != null
-      //     ? OperationClaim.fromJsonList(json.encode(data["operationClaims"]))
-      //     : <OperationClaim>[];
-      // authController.operationClaims.value = claims;
-      var parameters = Parameter.fromJsonList(json.encode(data["parameters"]));
-      homeController.parameters.value = parameters;
-      var organisations =
-          Organisation.fromJsonList(json.encode(data["organisations"]));
-      homeController.organisations.value = organisations;
-      var devices = Device.fromJsonList(json.encode(data["devices"]));
-      homeController.devices.value = devices;
-      var cities = City.fromJsonList(json.encode(data["cities"]));
-      homeController.cities.value = cities;
-      var districts = District.fromJsonList(json.encode(data["districts"]));
-      homeController.districts.value = districts;
-      return devices;
+  static Future<void> webLogin(LoginModel2 loginModel) async {
+    print("$url/webLogin");
+    print(loginModel.toJson());
+    var uri = Uri.parse("$url/webLogin");
+    var client = http.Client();
+    try {
+      var response = await client.post(
+        uri,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          'accept': '*/*'
+        },
+        body: loginModel.toJson(),
+      );
+      client.close();
+      print(response.statusCode);
+      print(response.body);
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body) as Map<String, dynamic>;
+        var session = SessionDto.fromJson(json.encode(data["sessionDto"]));
+        var user = UserDto.fromJson(json.encode(data["userDto"]));
+        await LocalDb.add(webTokenKey, session.accessToken);
+        await LocalDb.add(userIdKey, user.id.toString());
+        return;
+      } else {
+        errorSnackbar("Hata", response.body);
+      }
+    } catch (e) {
+      errorSnackbar("Hata", "Oturum Açma Sırasında bir hata oluştu.");
+      print(e);
     }
-    return null;
+    return;
   }
+
+  //remove
+  // static Future<List<Device>?> getData() async {
+  //   var authController = Get.find<AuthController>();
+  //   HomeController homeController = Get.find();
+  //   var response = await BaseService.get(
+  //       "$url/getData?userId=${authController.user.value.id}");
+  //   if (response.statusCode == 200) {
+  //     var data = json.decode(response.body) as Map<String, dynamic>;
+  //     // var claims = data["operationClaims"] != null
+  //     //     ? OperationClaim.fromJsonList(json.encode(data["operationClaims"]))
+  //     //     : <OperationClaim>[];
+  //     // authController.operationClaims.value = claims;
+  //     var parameters = Parameter.fromJsonList(json.encode(data["parameters"]));
+  //     homeController.parameters.value = parameters;
+  //     var organisations =
+  //         Organisation.fromJsonList(json.encode(data["organisations"]));
+  //     homeController.organisations.value = organisations;
+  //     var devices = Device.fromJsonList(json.encode(data["devices"]));
+  //     homeController.devices.value = devices;
+  //     var cities = City.fromJsonList(json.encode(data["cities"]));
+  //     homeController.cities.value = cities;
+  //     var districts = District.fromJsonList(json.encode(data["districts"]));
+  //     homeController.districts.value = districts;
+  //     return devices;
+  //   }
+  //   return null;
+  // }
 
   //remove
   static Future<List<OperationClaim>?> getUserClaims() async {

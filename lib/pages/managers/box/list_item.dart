@@ -1,5 +1,3 @@
-import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
-import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/dtos/bm_box_dto.dart';
 import 'package:akilli_anahtar/pages/managers/box/box_detail/box_add_edit.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -16,8 +14,6 @@ class BoxListItem extends StatefulWidget {
 }
 
 class _BoxListItemState extends State<BoxListItem> {
-  BoxManagementController boxManagementController = Get.find();
-  HomeController homeController = Get.find();
   late BmBoxDto box;
 
   @override

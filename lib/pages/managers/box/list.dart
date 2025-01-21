@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
-import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/pages/managers/box/box_detail/box_add_edit.dart';
 import 'package:akilli_anahtar/pages/managers/box/list_item.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
@@ -24,6 +23,7 @@ class _BoxListPageState extends State<BoxListPage> {
     Future.delayed(Duration.zero, () async {
       await boxManagementController.checkNewVersion();
       await boxManagementController.getBoxList();
+      await boxManagementController.getOrganisationList();
       setState(() {});
     });
   }
@@ -44,7 +44,6 @@ class _BoxListPageState extends State<BoxListPage> {
           actions: [
             IconButton(
                 onPressed: () {
-                  boxManagementController.selectedBox.value = Box();
                   Get.to(() => BoxAddEdit());
                 },
                 icon: Icon(Icons.add_box))

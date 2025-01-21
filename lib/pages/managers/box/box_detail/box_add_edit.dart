@@ -33,17 +33,10 @@ class _BoxAddEditState extends State<BoxAddEdit>
     super.initState();
     box = widget.box ?? BmBoxDto();
     _tabController = TabController(length: 3, vsync: this);
-
-    _tabController.addListener(() {
-      if (_tabController.indexIsChanging) {
-        setState(() {});
-      }
-    });
     init();
   }
 
   void init() async {
-    await deviceManagementController.getDeviceTypes();
     if (box.id != null) {
       await deviceManagementController.getAllByBoxId(box.id!);
     }
@@ -65,7 +58,7 @@ class _BoxAddEditState extends State<BoxAddEdit>
         title: Text(box.id != null ? box.name! : "Kutu Ekle"),
         actions: [
           Visibility(
-            visible: box.id! > 0 && _tabController.index == 0,
+            visible: box.id != null && _tabController.index == 0,
             child: IconButton(
               icon: Icon(
                 FontAwesomeIcons.trashCan,
@@ -79,7 +72,7 @@ class _BoxAddEditState extends State<BoxAddEdit>
             ),
           ),
           Visibility(
-            visible: box.id! > 0 && _tabController.index == 1,
+            visible: box.id != null && _tabController.index == 1,
             child: IconButton(
               icon: Icon(
                 FontAwesomeIcons.solidSquarePlus,
@@ -119,7 +112,7 @@ class _BoxAddEditState extends State<BoxAddEdit>
         controller: _tabController,
         children: [
           BoxAddEditForm(box: box),
-          BoxAddEditDevices(boxId: box.id!),
+          BoxAddEditDevices(boxId: box.id ?? 0),
           BoxAddEditControl(box: box),
         ],
       ),

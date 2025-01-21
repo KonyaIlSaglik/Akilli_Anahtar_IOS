@@ -27,6 +27,7 @@ class _UserListPageState extends State<UserListPage> {
     super.initState();
     Future.delayed(Duration.zero, () async {
       await userManagementController.getUsers();
+      await userManagementController.getAllOrganisations();
       setState(() {});
     });
   }
@@ -106,8 +107,13 @@ class _UserListPageState extends State<UserListPage> {
                   child: Column(
                     children: [
                       OrganisationSelectWidget(
+                        organisationList:
+                            userManagementController.umOrganisations,
+                        selectedId: userManagementController
+                            .umListSelectedOrganisationId.value,
                         onChanged: (int id) async {
-                          userManagementController.userSearchQuery.value = "";
+                          userManagementController
+                              .umListSelectedOrganisationId.value = id;
                           await userManagementController.getUsers();
                         },
                       ),

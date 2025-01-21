@@ -1,6 +1,5 @@
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/main/login_controller.dart';
-import 'package:akilli_anahtar/controllers/main/pager_controller.dart';
 import 'package:akilli_anahtar/pages/managers/box_install/install_settings.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_list_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
@@ -24,7 +23,6 @@ class DrawerPage extends StatefulWidget {
 class _DrawerPageState extends State<DrawerPage> {
   final AuthController _authController = Get.find();
   final LoginController _loginController = Get.find();
-  final PagerController pagerController = Get.find();
   @override
   void initState() {
     super.initState();

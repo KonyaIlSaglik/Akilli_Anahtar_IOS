@@ -1,12 +1,15 @@
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 class ProfilCard extends StatefulWidget {
-  const ProfilCard({super.key});
+  final bool min;
+  const ProfilCard({super.key, this.min = false});
 
   @override
   State<ProfilCard> createState() => _ProfilCardState();
@@ -19,104 +22,87 @@ class _ProfilCardState extends State<ProfilCard> {
   @override
   void initState() {
     super.initState();
+    homeController.getWather();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height(context) * 0.20,
-      width: width(context) * 0.95,
-      child: Card(
-        elevation: 1,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            gradient: LinearGradient(
-              begin: Alignment.bottomLeft,
-              end: Alignment.topRight,
-              colors: [
-                Colors.white54,
-                Colors.brown[50]!,
-                Colors.brown[100]!,
-                Colors.brown[100]!,
-                Colors.brown[200]!,
-              ],
-            ),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(height(context) * 0.02),
-            child: Column(
+    return Obx(
+      () {
+        return SizedBox(
+          height: height(context) * (widget.min ? 0.15 : 0.23),
+          width: width(context),
+          child: Card(
+            elevation: 1,
+            child: Stack(
               children: [
-                SizedBox(
-                  height: height(context) * 0.10,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        children: [
-                          Icon(
-                            FontAwesomeIcons.city,
-                            size: height(context) * 0.03,
-                          ),
-                          Text(
-                            homeController.cities
-                                .singleWhere(
-                                  (c) =>
-                                      c.id ==
-                                      homeController.organisations.first.cityId,
-                                )
-                                .name,
-                            style: width(context) < minWidth
-                                ? textTheme(context).titleSmall
-                                : textTheme(context).titleMedium,
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        height: height(context) * 0.08,
-                        child: FittedBox(
-                          child: CircleAvatar(
-                            backgroundColor: goldColor.withOpacity(0.6),
-                            child: Icon(
-                              FontAwesomeIcons.userLarge,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Icon(
-                            FontAwesomeIcons.cloudSunRain,
-                            size: height(context) * 0.03,
-                          ),
-                          Text(
-                            "- C°",
-                            style: width(context) < minWidth
-                                ? textTheme(context).titleSmall
-                                : textTheme(context).titleMedium,
-                          ),
-                        ],
-                      ),
-                    ],
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      'assets/home_card_background.jpg',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-                SizedBox(
-                  height: height(context) * 0.04,
-                  child: Center(
-                    child: Text(
-                      authController.user.value.fullName,
-                      style: width(context) < minWidth
-                          ? textTheme(context).titleMedium
-                          : textTheme(context).titleLarge,
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: InkWell(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              FontAwesomeIcons.cloudSunRain,
+                              color: Colors.white70,
+                            ),
+                            SizedBox(width: width(context) * 0.03),
+                            Text(
+                              homeController.tempeture.value,
+                              style: textTheme(context).titleLarge!.copyWith(
+                                    color: Colors.white,
+                                  ),
+                            )
+                          ],
+                        ),
+                        Text(
+                          homeController.city.value,
+                          style: textTheme(context).titleMedium!.copyWith(
+                                color: Colors.white,
+                              ),
+                        )
+                      ],
+                    ),
+                    onTap: () async {
+                      var permission = await Geolocator.checkPermission();
+                      if (permission == LocationPermission.denied) {
+                        permission = await Geolocator.requestPermission();
+                      }
+                      if (permission != LocationPermission.denied) {
+                        homeController.watherVisible.value = true;
+                        await LocalDb.add(watherVisibleKey, "1");
+                        await homeController.getWather();
+                      }
+                    },
+                  ),
+                ),
+                Positioned(
+                  bottom: 10,
+                  left: 10,
+                  child: Text(
+                    authController.user.value.fullName,
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.white, // Yazının rengi
                     ),
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

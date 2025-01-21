@@ -28,10 +28,17 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
   bool restarting = false;
   String version = "-";
   bool upgrading = false;
+  bool disable = false;
 
   @override
   void initState() {
     super.initState();
+    if (mounted) {
+      init();
+    }
+  }
+
+  init() {
     if (mqttController.getSubscriptionTopicStatus(box.topicRec) ==
         MqttSubscriptionStatus.doesNotExist) {
       mqttController.subscribeToTopic(box.topicRes!);
@@ -46,43 +53,53 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
     mqttController.onMessage(
       (topic, message) {
         if (topic == box.topicRes) {
-          if (mounted) {
+          if (message == "boxConnected") {
             setState(() {
-              if (message == "boxConnected") {
-                upgrading = false;
-                restarting = false;
-                mqttController.publishMessage(box.topicRec!, "getinfo");
-              }
-              if (message == "restarting") {
-                restarting = true;
-              }
-              if (message == "upgrading") {
-                upgrading = true;
-              }
-              if (message == "ap-1") {
-                apSatus = "1";
-                apChanging = true;
-              }
-              if (message == "ap-3") {
-                apSatus = "3";
-                apChanging = true;
-              }
+              upgrading = false;
+              restarting = false;
+            });
+            mqttController.publishMessage(box.topicRec!, "getinfo");
+          }
+          if (message == "restarting") {
+            setState(() {
+              restarting = true;
             });
           }
-          try {
-            var infoModel = NodemcuInfoModel();
-            infoModel = NodemcuInfoModel.fromJson(message);
-            if (infoModel.chipId.isNotEmpty) {
-              apSatus = infoModel.apEnable ? "2" : "0";
-              apChanging = false;
-              version = infoModel.version;
+          if (message == "upgrading") {
+            setState(() {
+              upgrading = true;
+            });
+          }
+          if (message == "ap-1") {
+            setState(() {
+              apSatus = "1";
+              apChanging = true;
+            });
+          }
+          if (message == "ap-3") {
+            setState(() {
+              apSatus = "3";
+              apChanging = true;
+            });
+          }
+          if (message.contains("{")) {
+            try {
+              var infoModel = NodemcuInfoModel();
+              infoModel = NodemcuInfoModel.fromJson(message);
+              if (infoModel.chipId.isNotEmpty) {
+                setState(() {
+                  apSatus = infoModel.apEnable ? "2" : "0";
+                  apChanging = false;
+                  version = infoModel.version;
+                });
+              }
+            } catch (e) {
+              print(e);
             }
-          } catch (e) {
-            print(e);
           }
-          if (mounted) {
-            setState(() {});
-          }
+          setState(() {
+            disable = restarting || apChanging || upgrading;
+          });
         }
       },
     );
@@ -116,7 +133,7 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
                           FontAwesomeIcons.rotate,
                           color: apSatus.isEmpty ? Colors.grey : goldColor,
                         ),
-                        onPressed: restarting
+                        onPressed: disable
                             ? null
                             : () {
                                 mqttController.publishMessage(
@@ -142,10 +159,15 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
                     ? CupertinoActivityIndicator(color: goldColor)
                     : IconButton(
                         onPressed: apSatus.isNotEmpty
-                            ? () {
-                                mqttController.publishMessage(box.topicRec!,
-                                    apSatus == "0" ? "apenable" : "apdisable");
-                              }
+                            ? disable
+                                ? null
+                                : () {
+                                    mqttController.publishMessage(
+                                        box.topicRec!,
+                                        apSatus == "0"
+                                            ? "apenable"
+                                            : "apdisable");
+                                  }
                             : null,
                         icon: Text(
                             apSatus.isEmpty
@@ -174,10 +196,12 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
                                   Icons.upload_outlined,
                                   color: Colors.red,
                                 ),
-                                onPressed: () {
-                                  mqttController.publishMessage(
-                                      box.topicRec!, "doUpgrade");
-                                },
+                                onPressed: disable
+                                    ? null
+                                    : () {
+                                        mqttController.publishMessage(
+                                            box.topicRec!, "doUpgrade");
+                                      },
                               )
                             : CupertinoActivityIndicator(color: goldColor)
                         : TextButton(

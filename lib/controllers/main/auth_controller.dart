@@ -50,8 +50,8 @@ class AuthController extends GetxController {
     // }
   }
 
-  void checkSessions(context) {
-    showDialog(
+  Future<void> checkSessions(context) async {
+    return await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
