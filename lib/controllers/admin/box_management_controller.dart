@@ -150,13 +150,13 @@ class BoxManagementController extends GetxController {
 
   Future<void> getBoxList() async {
     AuthController authController = Get.find();
-    var id = authController.user.value.id;
+    var id = authController.user.value.id!;
     boxList.value = await BoxManagementService.getBoxes(id) ?? <BmBoxDto>[];
   }
 
   Future<void> getOrganisationList() async {
     AuthController authController = Get.find();
-    var id = authController.user.value.id;
+    var id = authController.user.value.id!;
     organisationList.value = await BoxManagementService.getOrganisations(id) ??
         <BmOrganisationDto>[];
   }

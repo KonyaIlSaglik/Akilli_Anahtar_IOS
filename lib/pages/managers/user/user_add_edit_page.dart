@@ -24,16 +24,6 @@ class _UserAddEditPageState extends State<UserAddEditPage>
     super.initState();
     print("UserAddEditPage");
     tabController = TabController(length: 2, vsync: this);
-    if (userManagementControl.selectedUser.value.id > 0) {
-      Future.delayed(Duration.zero, () async {
-        userManagementControl.getOperationClaims();
-        await userManagementControl.getUserClaims();
-        await userManagementControl.getUserOrganisations();
-        await userManagementControl.getBoxes();
-        await userManagementControl.getDevices();
-        await userManagementControl.getUserDevices();
-      });
-    }
   }
 
   void _deleteUser() {
@@ -41,7 +31,7 @@ class _UserAddEditPageState extends State<UserAddEditPage>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(userManagementControl.selectedUser.value.fullName),
+          title: Text(userManagementControl.umSelectedUser.value.fullName!),
           content: Text("Kullanıcıya ait tüm bilgiler sistemden silinecektir"),
           actions: [
             TextButton(
@@ -54,7 +44,7 @@ class _UserAddEditPageState extends State<UserAddEditPage>
               child: Text("Sil"),
               onPressed: () async {
                 await userManagementControl
-                    .delete(userManagementControl.selectedUser.value.id);
+                    .delete(userManagementControl.umSelectedUser.value.id!);
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
@@ -71,11 +61,11 @@ class _UserAddEditPageState extends State<UserAddEditPage>
       () {
         return Scaffold(
           appBar: AppBar(
-            title: Text(userManagementControl.selectedUser.value.id == 0
+            title: Text(userManagementControl.umSelectedUser.value.id == null
                 ? 'Kullanıcı Ekle'
-                : userManagementControl.selectedUser.value.fullName),
+                : userManagementControl.umSelectedUser.value.fullName!),
             actions: [
-              if (userManagementControl.selectedUser.value.id > 0)
+              if (userManagementControl.umSelectedUser.value.id != null)
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: IconButton(
@@ -95,14 +85,10 @@ class _UserAddEditPageState extends State<UserAddEditPage>
               labelColor: goldColor,
               overlayColor: WidgetStatePropertyAll(goldColor.withOpacity(0.2)),
               onTap: (value) {
-                if (userManagementControl.selectedUser.value.id == 0) {
+                if (userManagementControl.umSelectedUser.value.id == null) {
                   value = 0;
                 }
                 tabController.index = value;
-                UserManagementController userManagementController = Get.find();
-                if (value == 1) {
-                  userManagementController.getAllOrganisations();
-                }
               },
               controller: tabController,
               tabs: [

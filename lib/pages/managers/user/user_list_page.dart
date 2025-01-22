@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
-import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/dtos/user_dto.dart';
+import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/organisation_select_widget.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_add_edit_page.dart';
@@ -28,7 +28,6 @@ class _UserListPageState extends State<UserListPage> {
     Future.delayed(Duration.zero, () async {
       await userManagementController.getUsers();
       await userManagementController.getAllOrganisations();
-      setState(() {});
     });
   }
 
@@ -93,7 +92,7 @@ class _UserListPageState extends State<UserListPage> {
                 ),
                 IconButton(
                   onPressed: () {
-                    userManagementController.selectedUser.value = UserDto();
+                    userManagementController.umSelectedUser.value = UserDto();
                     Get.to(() => UserAddEditPage());
                   },
                   icon: Icon(FontAwesomeIcons.userPlus, color: goldColor),
@@ -107,14 +106,13 @@ class _UserListPageState extends State<UserListPage> {
                   child: Column(
                     children: [
                       OrganisationSelectWidget(
-                        organisationList:
-                            userManagementController.umOrganisations,
+                        list: userManagementController.organisationList,
                         selectedId: userManagementController
                             .umListSelectedOrganisationId.value,
-                        onChanged: (int id) async {
+                        onChanged: (int id) {
                           userManagementController
                               .umListSelectedOrganisationId.value = id;
-                          await userManagementController.getUsers();
+                          userManagementController.filterUsers();
                         },
                       ),
                       SizedBox(
@@ -129,7 +127,7 @@ class _UserListPageState extends State<UserListPage> {
               onRefresh: userManagementController.getUsers,
               child: userManagementController.loadingUser.value
                   ? Center(child: CircularProgressIndicator())
-                  : userManagementController.users.isEmpty
+                  : userManagementController.filteredUsers.isEmpty
                       ? Center(child: Text("No users found."))
                       : Scrollbar(
                           controller: scrollController,
@@ -149,17 +147,18 @@ class _UserListPageState extends State<UserListPage> {
                                   ),
                                 ),
                                 title: Text(userManagementController
-                                    .filteredUsers[i].fullName),
+                                    .filteredUsers[i].fullName!),
                                 subtitle: Text(userManagementController
-                                    .filteredUsers[i].userName),
+                                    .filteredUsers[i].userName!),
                                 trailing: IconButton(
                                   icon: Icon(Icons.chevron_right),
                                   hoverColor: goldColor.withOpacity(0.3),
                                   onPressed: () {
                                     userManagementController
-                                            .selectedUser.value =
+                                            .umSelectedUser.value =
                                         userManagementController
-                                            .filteredUsers[i];
+                                            .filteredUsers[i]
+                                            .copyWith();
                                     Get.to(() => UserAddEditPage());
                                   },
                                 ),

@@ -1,20 +1,23 @@
-import 'package:akilli_anahtar/controllers/main/home_controller.dart';
-import 'package:akilli_anahtar/dtos/um_organisation_dto.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/utils/constants.dart';
+
 class OrganisationSelectWidget extends StatefulWidget {
-  final List<UmOrganisationDto> organisationList;
+  final List<Organisation> list;
   final int selectedId;
   final Function(int id) onChanged;
+  final String? Function(Organisation?)? validator;
 
   const OrganisationSelectWidget(
       {super.key,
-      required this.organisationList,
+      required this.list,
       required this.onChanged,
-      this.selectedId = 0});
+      this.selectedId = 0,
+      this.validator});
 
   @override
   State<OrganisationSelectWidget> createState() =>
@@ -23,9 +26,10 @@ class OrganisationSelectWidget extends StatefulWidget {
 
 class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
   HomeController homeController = Get.find();
+
   @override
   Widget build(BuildContext context) {
-    return DropdownSearch<UmOrganisationDto>(
+    return DropdownSearch<Organisation>(
       decoratorProps: DropDownDecoratorProps(
         decoration: InputDecoration(
           labelText: "Kurum Seç",
@@ -50,11 +54,10 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
         showSearchBox: true,
       ),
       items: (filter, loadProps) {
-        return widget.organisationList;
+        return widget.list;
       },
       selectedItem: widget.selectedId > 0
-          ? widget.organisationList
-              .firstWhereOrNull((o) => o.id == widget.selectedId)
+          ? widget.list.firstWhereOrNull((o) => o.id == widget.selectedId)
           : null,
       itemAsString: (item) => item.name!,
       onChanged: (value) {
@@ -63,6 +66,11 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
       filterFn: (item, filter) {
         return item.name!.toLowerCase().contains(filter.toLowerCase());
       },
+      suffixProps: DropdownSuffixProps(
+        clearButtonProps: ClearButtonProps(
+          isVisible: true,
+        ),
+      ),
       compareFn: (item1, item2) {
         return item1.id == item2.id;
       },
@@ -81,6 +89,7 @@ class _OrganisationSelectWidgetState extends State<OrganisationSelectWidget> {
           ],
         );
       },
+      validator: widget.validator,
     );
   }
 }

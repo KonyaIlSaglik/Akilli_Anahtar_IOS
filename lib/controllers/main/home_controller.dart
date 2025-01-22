@@ -139,7 +139,7 @@ class HomeController extends GetxController {
   Future<void> updateFavorite(Device device) async {
     AuthController authController = Get.find();
     var userDevice = await UserService.updateFavorite(
-        authController.user.value.id, device.id, device.favoriteSequence);
+        authController.user.value.id!, device.id, device.favoriteSequence);
     if (userDevice == null) {
       //
     }
@@ -164,12 +164,16 @@ class HomeController extends GetxController {
     loading.value = true;
     AuthController authController = Get.find();
     var id = authController.user.value.id;
-    homeDevices.value = await HomeService.getDevices(id) ?? <HomeDeviceDto>[];
+    homeDevices.value = await HomeService.getDevices(id!) ?? <HomeDeviceDto>[];
     MqttController mqttController = Get.find();
     for (var device in homeDevices) {
       mqttController.subscribeToTopic(device.topicStat!);
       if (lastStatus[device.id!] == null) {
         lastStatus[device.id!] = "";
+      }
+      var notificationEnable = await LocalDb.get(notificationKey(device.id!));
+      if (notificationEnable == null) {
+        await LocalDb.add(notificationKey(device.id!), "1");
       }
     }
     groupDevices();
@@ -188,7 +192,7 @@ class HomeController extends GetxController {
     AuthController authController = Get.find();
     var id = authController.user.value.id;
     var response =
-        await HomeService.updateFavoriteSequence(id, deviceId, sequence);
+        await HomeService.updateFavoriteSequence(id!, deviceId, sequence);
     if (response != null) {
       if (sequence == 0) {
         homeDevices.singleWhere((d) => d.id == deviceId).favoriteSequence =
@@ -205,7 +209,7 @@ class HomeController extends GetxController {
   Future<void> updateFavoriteName(int deviceId, String? name) async {
     AuthController authController = Get.find();
     var id = authController.user.value.id;
-    var response = await HomeService.updateFavoriteName(id, deviceId, name);
+    var response = await HomeService.updateFavoriteName(id!, deviceId, name);
     if (response != null) {
       homeDevices.singleWhere((d) => d.id == deviceId).favoriteName = name;
       loadFavorites();

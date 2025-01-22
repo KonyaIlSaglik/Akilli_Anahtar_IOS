@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
-import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,12 +16,12 @@ class _UserAddEditAuthsOrganisationsState
   var scrollController = ScrollController();
   UserManagementController userManagementController =
       Get.put(UserManagementController());
-  HomeController homeController = Get.find();
 
   @override
   void initState() {
     super.initState();
     print("UserAddEditAuthsOrganisations");
+    userManagementController.getAllOrganisationsWithUserAdded();
   }
 
   @override
@@ -52,9 +51,18 @@ class _UserAddEditAuthsOrganisationsState
                                 userManagementController
                                     .umOrganisations[index].id!);
                           } else {
-                            await userManagementController
-                                .deleteUserOrganisation(userManagementController
-                                    .umOrganisations[index].id!);
+                            if (userManagementController
+                                    .umSelectedUser.value.organisationId !=
+                                userManagementController
+                                    .umOrganisations[index].id!) {
+                              await userManagementController
+                                  .deleteUserOrganisation(
+                                      userManagementController
+                                          .umOrganisations[index].id!);
+                            } else {
+                              infoSnackbar("Bilgilendirme",
+                                  "Birincil kurum yetkisi kaldırılamaz");
+                            }
                           }
                         },
                         value: userManagementController

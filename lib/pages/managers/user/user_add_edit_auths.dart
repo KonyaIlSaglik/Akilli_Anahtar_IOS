@@ -1,10 +1,7 @@
-import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
-import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_add_edit_auths_devices.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_add_edit_auths_organisations.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class UserAddEditAuths extends StatefulWidget {
   const UserAddEditAuths({super.key});
@@ -16,7 +13,6 @@ class UserAddEditAuths extends StatefulWidget {
 class _UserAddEditAuthsState extends State<UserAddEditAuths>
     with TickerProviderStateMixin {
   late TabController tabController;
-  UserDto user = UserDto();
 
   @override
   void initState() {
@@ -35,15 +31,6 @@ class _UserAddEditAuthsState extends State<UserAddEditAuths>
           labelColor: goldColor,
           overlayColor: WidgetStatePropertyAll(goldColor.withOpacity(0.2)),
           controller: tabController,
-          onTap: (value) {
-            UserManagementController userManagementController = Get.find();
-            if (value == 0) {
-              userManagementController.getAllOrganisations();
-            }
-            if (value == 1) {
-              userManagementController.getAllDevices();
-            }
-          },
           tabs: [
             Tab(
               text: "Kurumlar",

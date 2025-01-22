@@ -69,7 +69,7 @@ class _DrawerPageState extends State<DrawerPage> {
                               height: height * 0.05,
                               child: Center(
                                 child: Text(
-                                  _authController.user.value.fullName.trim(),
+                                  _authController.user.value.fullName!.trim(),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: Theme.of(context)

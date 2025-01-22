@@ -73,7 +73,33 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 @pragma('vm:entry-point')
 void notificationTapBackground(
     NotificationResponse notificationResponse) async {
-  print(notificationResponse.actionId);
+  if (notificationResponse.actionId != null) {
+    switch (notificationResponse.actionId) {
+      case 'action_30_min':
+        await LocalDb.add(
+          notificationKey(notificationResponse.id!),
+          DateTime.now().add(Duration(seconds: 30)).toString(),
+        );
+        break;
+      case 'action_2_hour':
+        await LocalDb.add(
+          notificationKey(notificationResponse.id!),
+          DateTime.now().add(Duration(hours: 2)).toString(),
+        );
+        break;
+      case 'action_8_hour':
+        await LocalDb.add(
+          notificationKey(notificationResponse.id!),
+          DateTime.now().add(Duration(hours: 8)).toString(),
+        );
+        var vv = await LocalDb.get(notificationKey(notificationResponse.id!));
+        print("${notificationKey(notificationResponse.id!)} ----> $vv");
+        break;
+      default:
+        // Diğer durumlar
+        break;
+    }
+  }
 }
 
 @pragma('vm:entry-point')
@@ -98,31 +124,7 @@ void onStart(ServiceInstance service) async {
     initializationSettings,
     onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     onDidReceiveNotificationResponse: (details) {
-      if (details.actionId != null) {
-        switch (details.actionId) {
-          case 'action_30_min':
-            LocalDb.add(
-              notificationKey(details.id!),
-              DateTime.now().add(Duration(seconds: 30)).toString(),
-            );
-            break;
-          case 'action_2_hour':
-            LocalDb.add(
-              notificationKey(details.id!),
-              DateTime.now().add(Duration(hours: 2)).toString(),
-            );
-            break;
-          case 'action_8_hour':
-            LocalDb.add(
-              notificationKey(details.id!),
-              DateTime.now().add(Duration(hours: 8)).toString(),
-            );
-            break;
-          default:
-            // Diğer durumlar
-            break;
-        }
-      }
+      //
     },
   );
 
@@ -174,25 +176,26 @@ void onStart(ServiceInstance service) async {
               orElse: () => HomeDeviceDto(),
             );
             var active = false;
-            result = await LocalDb.get(notificationKey(device.id!));
-            if (result == null || result == "1") {
+            result = await LocalDb.get(notificationKey(device.id!)) ?? "1";
+            if (result == "1") {
               active = true;
             } else {
               var time = DateTime.tryParse(result);
               if (time == null) {
-                active = true;
+                active = false;
               } else {
                 active = time.isBefore(DateTime.now());
                 LocalDb.add(notificationKey(device.id!), "1");
               }
             }
+
             if (device.id! > 0 && active) {
               int alarm = getAlarm(device, deger);
               if (alarm == 1) {
                 _showNotification(
                   flutterLocalNotificationsPlugin,
                   device.id!,
-                  device.name!,
+                  "${device.boxName!}/${device.name!}",
                   "$status değeri için Sarı Alarm",
                 );
               }
@@ -200,7 +203,7 @@ void onStart(ServiceInstance service) async {
                 _showNotification(
                   flutterLocalNotificationsPlugin,
                   device.id!,
-                  device.name!,
+                  "${device.boxName!}/${device.name!}",
                   "$status değeri için Kırmızı Alarm",
                 );
               }

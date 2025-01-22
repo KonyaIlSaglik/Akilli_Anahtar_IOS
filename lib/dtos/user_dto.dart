@@ -1,26 +1,26 @@
 import 'dart:convert';
 
 class UserDto {
-  int id;
-  String userName;
-  String fullName;
-  String password;
-  String mail;
-  String telephone;
-  int active;
-  int organisationId;
-  String organisationName;
+  int? id;
+  String? userName;
+  String? fullName;
+  String? password;
+  String? mail;
+  String? telephone;
+  int? active;
+  int? organisationId;
+  String? organisationName;
 
   UserDto({
-    this.id = 0,
-    this.userName = "",
-    this.fullName = "",
-    this.password = "",
-    this.mail = "",
-    this.telephone = "",
-    this.active = 1,
-    this.organisationId = 0,
-    this.organisationName = "",
+    this.id,
+    this.userName,
+    this.fullName,
+    this.password,
+    this.mail,
+    this.telephone,
+    this.active,
+    this.organisationId,
+    this.organisationName,
   });
 
   Map<String, dynamic> toMap() {
@@ -39,8 +39,8 @@ class UserDto {
 
   factory UserDto.fromMap(Map<String, dynamic> map) {
     return UserDto(
-      id: map['id'] != null ? map['id'] as int : 0,
-      userName: map['userName'] != null ? map['userName'] as String : "",
+      id: map['id'] != null ? map['id'] as int : null,
+      userName: map['userName'] as String?,
       fullName: map['fullName'] != null ? map['fullName'] as String : "",
       password: map['password'] != null ? map['password'] as String : "",
       mail: map['mail'] != null ? map['mail'] as String : "",

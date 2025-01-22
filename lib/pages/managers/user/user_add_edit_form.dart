@@ -1,10 +1,9 @@
 import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
-import 'package:akilli_anahtar/dtos/um_organisation_dto.dart';
 import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/utils/validate_listener.dart';
-import 'package:dropdown_search/dropdown_search.dart';
+import 'package:akilli_anahtar/widgets/organisation_select_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,10 +16,10 @@ class UserAddEditForm extends StatefulWidget {
 
 class _UserAddEditFormState extends State<UserAddEditForm>
     implements ValidateListener {
+  late UserDto tempUser;
   UserManagementController userManagementControl =
       Get.put(UserManagementController());
   HomeController homeController = Get.find();
-  UserDto user = UserDto();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -31,15 +30,17 @@ class _UserAddEditFormState extends State<UserAddEditForm>
   late var mailFocusNode = FocusNode();
   late var telephoneFocusNode = FocusNode();
 
-  late var actions = <String>["save", "saveAs", "update", "passUpdate"];
+  late var actions = <String>["save", "update", "saveAs"];
 
   late var action = "save";
+
+  bool organisationError = false;
 
   @override
   void initState() {
     super.initState();
     print("UserAddEditForm");
-    user = userManagementControl.selectedUser.value.copyWith();
+    tempUser = userManagementControl.umSelectedUser.value.copyWith();
   }
 
   @override
@@ -71,9 +72,10 @@ class _UserAddEditFormState extends State<UserAddEditForm>
                       context,
                       0,
                       labelText: 'Kullanıcı Adı',
-                      initialValue: user.userName,
-                      onChanged: (value) =>
-                          setState(() => user.userName = value),
+                      initialValue:
+                          userManagementControl.umSelectedUser.value.userName,
+                      onChanged: (value) => setState(() => userManagementControl
+                          .umSelectedUser.value.userName = value),
                       focusNode: userNameFocusNode,
                       nextFocus: fullNameFocusNode,
                     ),
@@ -82,9 +84,10 @@ class _UserAddEditFormState extends State<UserAddEditForm>
                       context,
                       1,
                       labelText: 'Ad Soyad',
-                      initialValue: user.fullName,
-                      onChanged: (value) =>
-                          setState(() => user.fullName = value),
+                      initialValue:
+                          userManagementControl.umSelectedUser.value.fullName,
+                      onChanged: (value) => setState(() => userManagementControl
+                          .umSelectedUser.value.fullName = value),
                       focusNode: fullNameFocusNode,
                       nextFocus: passwordFocusNode,
                     ),
@@ -94,38 +97,20 @@ class _UserAddEditFormState extends State<UserAddEditForm>
                       2,
                       controller: passwordController,
                       labelText: 'Şifre',
-                      onChanged: (value) =>
-                          setState(() => user.password = value),
+                      onChanged: (value) => setState(() => userManagementControl
+                          .umSelectedUser.value.password = value),
                       focusNode: passwordFocusNode,
                       nextFocus: mailFocusNode,
-                      suffix: user.id == 0
-                          ? null
-                          : InkWell(
-                              onTap: () async {
-                                setState(() {
-                                  action = actions[3];
-                                });
-                                if (_formKey.currentState!.validate()) {
-                                  await userManagementControl.passUpdate(
-                                      user.id, passwordController.text);
-                                  passwordController.text = "";
-                                }
-                              },
-                              child: Text(
-                                "Güncelle",
-                                style: textTheme(context)
-                                    .titleSmall!
-                                    .copyWith(color: goldColor),
-                              ),
-                            ),
                     ),
                     SizedBox(height: 8),
                     textFormField(
                       context,
                       3,
                       labelText: "E-mail",
-                      initialValue: user.mail,
-                      onChanged: (value) => setState(() => user.mail = value),
+                      initialValue:
+                          userManagementControl.umSelectedUser.value.mail,
+                      onChanged: (value) => setState(() => userManagementControl
+                          .umSelectedUser.value.mail = value),
                       focusNode: mailFocusNode,
                       nextFocus: telephoneFocusNode,
                     ),
@@ -134,24 +119,38 @@ class _UserAddEditFormState extends State<UserAddEditForm>
                       context,
                       4,
                       labelText: 'Telefon',
-                      initialValue: user.telephone,
-                      onChanged: (value) =>
-                          setState(() => user.telephone = value),
+                      initialValue:
+                          userManagementControl.umSelectedUser.value.telephone,
+                      onChanged: (value) => setState(() => userManagementControl
+                          .umSelectedUser.value.telephone = value),
                       focusNode: telephoneFocusNode,
                     ),
                     SizedBox(height: 8),
-                    organisationSelect(),
+                    OrganisationSelectWidget(
+                      list: userManagementControl.organisationList,
+                      selectedId: userManagementControl
+                              .umSelectedUser.value.organisationId ??
+                          0,
+                      onChanged: (id) {
+                        userManagementControl.umSelectedUser.value
+                            .organisationId = id == 0 ? null : id;
+                        userManagementControl
+                                .umSelectedUser.value.organisationName =
+                            id == 0
+                                ? null
+                                : userManagementControl.organisationList
+                                    .singleWhere((o) => o.id == id)
+                                    .name;
+                      },
+                      validator: (value) {
+                        return validate(5, value?.name);
+                      },
+                    ),
                     SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         InkWell(
-                          onTap: () {
-                            setState(() {
-                              action = user.id == 0 ? actions[0] : actions[2];
-                            });
-                            _saveUser();
-                          },
                           child: SizedBox(
                             height: height(context) * 0.06,
                             width: width(context) * 0.50,
@@ -168,15 +167,40 @@ class _UserAddEditFormState extends State<UserAddEditForm>
                               ),
                             ),
                           ),
+                          onTap: () async {
+                            setState(() {
+                              action = userManagementControl
+                                          .umSelectedUser.value.id ==
+                                      null
+                                  ? actions[0]
+                                  : actions[1];
+                            });
+                            if (_formKey.currentState!.validate()) {
+                              if (userManagementControl
+                                      .umSelectedUser.value.id ==
+                                  null) {
+                                userManagementControl.umSelectedUser.value.id =
+                                    await userManagementControl.register(
+                                        userManagementControl
+                                            .umSelectedUser.value);
+                              } else {
+                                if (userManagementControl
+                                        .umSelectedUser.value !=
+                                    tempUser) {
+                                  await userManagementControl.updateUser(
+                                      userManagementControl
+                                          .umSelectedUser.value);
+                                } else {
+                                  infoSnackbar("Bilgilendirme",
+                                      "Hiçbir değişiklik yapılmadı");
+                                }
+                              }
+                            }
+                          },
                         ),
-                        if (userManagementControl.selectedUser.value.id > 0)
+                        if (userManagementControl.umSelectedUser.value.id !=
+                            null)
                           TextButton(
-                            onPressed: () {
-                              setState(() {
-                                action = actions[1];
-                              });
-                              _saveAsDialog();
-                            },
                             child: Text(
                               "Farklı Kaydet",
                               style: textTheme(context).titleMedium!.copyWith(
@@ -185,6 +209,17 @@ class _UserAddEditFormState extends State<UserAddEditForm>
                                     decoration: TextDecoration.underline,
                                   ),
                             ),
+                            onPressed: () async {
+                              setState(() {
+                                action = actions[2];
+                              });
+                              if (_formKey.currentState!.validate()) {
+                                userManagementControl.umSelectedUser.value.id =
+                                    await userManagementControl.register(
+                                        userManagementControl
+                                            .umSelectedUser.value);
+                              }
+                            },
                           ),
                       ],
                     ),
@@ -264,143 +299,24 @@ class _UserAddEditFormState extends State<UserAddEditForm>
     if (value == null || value.isEmpty) {
       if (formIndex == 0) return "Kulanıcı adı boş olamaz";
       if (formIndex == 1) return "Ad soyad boş olamaz";
-      if (formIndex == 3 || formIndex == 4) return null;
-      if (formIndex == 2) {
-        if (action != actions[2]) {
-          return "Şifre boş olamaz";
-        }
+      if (formIndex == 5) return "Kurum seçimi zorunlu";
+      if (action == actions[0] || action == actions[2]) {
+        if (formIndex == 2) return "Şifre boş olamaz";
       }
     } else {
       if (formIndex == 0) {
-        var userAny =
-            userManagementControl.users.any((u) => u.userName == value);
+        int? id = action == actions[2]
+            ? 0
+            : userManagementControl.umSelectedUser.value.id;
+        var userAny = userManagementControl.users
+            .any((u) => u.userName == value && u.id != id);
         if (userAny) {
-          if (action == actions[0] || action == actions[1]) {
+          if (action == actions[0] || action == actions[2]) {
             return "Daha Önce Kullanılmış";
           }
         }
       }
     }
     return null;
-  }
-
-  organisationSelect() {
-    return DropdownSearch<UmOrganisationDto>(
-      decoratorProps: DropDownDecoratorProps(
-        decoration: InputDecoration(
-          labelText: "Kurum Seç",
-          labelStyle: TextStyle(color: goldColor),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              style: BorderStyle.solid,
-              color: goldColor,
-            ),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              style: BorderStyle.solid,
-              color: goldColor,
-            ),
-          ),
-        ),
-      ),
-      popupProps: PopupProps.menu(
-        showSearchBox: true,
-      ),
-      items: (filter, loadProps) {
-        return userManagementControl.umOrganisations;
-      },
-      selectedItem: userManagementControl.selectedUser.value.id > 0
-          ? userManagementControl.umOrganisations.firstWhereOrNull((o) =>
-              o.id == userManagementControl.selectedUser.value.organisationId)
-          : null,
-      itemAsString: (item) => item.name!,
-      onChanged: (value) {
-        if (value != null) {
-          setState(() {
-            user.organisationId = value.id!;
-            user.organisationName = value.name!;
-          });
-        }
-      },
-      filterFn: (item, filter) {
-        return item.name!.toLowerCase().contains(filter.toLowerCase());
-      },
-      compareFn: (item1, item2) {
-        return item1.id == item2.id;
-      },
-      dropdownBuilder: (context, selectedItem) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                selectedItem != null ? selectedItem.name! : "",
-                style: TextStyle(
-                  color: selectedItem != null ? Colors.black : Colors.grey,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _saveUser() async {
-    if (_formKey.currentState!.validate()) {
-      if (user.id == 0) {
-        user = await userManagementControl.register(user) ?? UserDto();
-        setState(() {
-          passwordController.text = "";
-        });
-      } else {
-        if (action == actions[1]) {
-          user = await userManagementControl.register(user) ?? UserDto();
-        }
-        if (user ==
-            userManagementControl.users.singleWhere(
-              (u) => u.id == user.id,
-            )) {
-          infoSnackbar("Bilgilendirme", "Hiç bir değişiklik yapılmadı");
-        } else {
-          await userManagementControl.updateUser(user);
-          setState(() {
-            passwordController.text = "";
-          });
-        }
-      }
-    }
-  }
-
-  void _saveAsDialog() {
-    if (_formKey.currentState!.validate()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(user.fullName),
-            content: Text("Yeni kullanıcı olarak farklı kaydedilsin mi"),
-            actions: [
-              TextButton(
-                child: Text("Vazgeç"),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              TextButton(
-                child: Text("Kaydet"),
-                onPressed: () async {
-                  _saveUser();
-                  Get.back();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
   }
 }

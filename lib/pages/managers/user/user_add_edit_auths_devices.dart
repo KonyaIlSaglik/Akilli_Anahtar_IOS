@@ -1,7 +1,6 @@
 import 'package:akilli_anahtar/controllers/admin/user_management_control.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class UserAddEditAuthsDevices extends StatefulWidget {
@@ -15,6 +14,13 @@ class UserAddEditAuthsDevices extends StatefulWidget {
 class _UserAddEditAuthsDevicesState extends State<UserAddEditAuthsDevices> {
   UserManagementController userManagementController = Get.find();
   var scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    userManagementController.getAllDevices();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -24,39 +30,6 @@ class _UserAddEditAuthsDevicesState extends State<UserAddEditAuthsDevices> {
           return Expanded(
             child: Column(
               children: [
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    textSelectionTheme:
-                        TextSelectionThemeData(selectionHandleColor: goldColor),
-                  ),
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: width(context) * 0.05),
-                    child: TextField(
-                      cursorColor: goldColor,
-                      decoration: InputDecoration(
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: goldColor),
-                        ),
-                        suffix: IconButton(
-                            onPressed: () {
-                              userManagementController.deviceSearchQuery.value =
-                                  "";
-                              userManagementController.filterUsers();
-                            },
-                            icon: Icon(FontAwesomeIcons.deleteLeft)),
-                        hintText: 'Ara',
-                        fillColor: Colors.transparent,
-                        filled: true,
-                      ),
-                      onChanged: (value) {
-                        userManagementController.deviceSearchQuery.value =
-                            value.toLowerCase();
-                        userManagementController.filterDevices();
-                      },
-                    ),
-                  ),
-                ),
                 Expanded(
                   child: userManagementController.umDevices.isEmpty
                       ? Center(
@@ -81,12 +54,12 @@ class _UserAddEditAuthsDevicesState extends State<UserAddEditAuthsDevices> {
                                   onChanged: (value) async {
                                     if (value!) {
                                       await userManagementController
-                                          .addUserDevicee(
+                                          .addUserDevice(
                                               userManagementController
                                                   .umDevices[index].id!);
                                     } else {
                                       await userManagementController
-                                          .deleteUserDevicee(
+                                          .deleteUserDevice(
                                               userManagementController
                                                   .umDevices[index].id!);
                                     }
