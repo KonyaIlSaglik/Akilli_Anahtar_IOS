@@ -171,10 +171,6 @@ class HomeController extends GetxController {
       if (lastStatus[device.id!] == null) {
         lastStatus[device.id!] = "";
       }
-      var notificationEnable = await LocalDb.get(notificationKey(device.id!));
-      if (notificationEnable == null) {
-        await LocalDb.add(notificationKey(device.id!), "1");
-      }
     }
     groupDevices();
     loadFavorites();

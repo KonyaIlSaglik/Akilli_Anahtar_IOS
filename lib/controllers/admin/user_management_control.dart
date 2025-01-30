@@ -151,7 +151,7 @@ class UserManagementController extends GetxController {
     if (result) {
       umOrganisations.singleWhere((o) => o.id == organisationId).userAdded =
           true;
-      sortUmOrganisations();
+      umOrganisations.refresh();
     }
   }
 
@@ -159,9 +159,14 @@ class UserManagementController extends GetxController {
     var result = await UserManagementService.deleteUserOrganisation(
         umSelectedUser.value.id!, organisationId);
     if (result) {
+      for (var d in umDevices) {
+        if (d.organisationId == organisationId && (d.userAdded ?? false)) {
+          await deleteUserDevice(d.id!);
+        }
+      }
       umOrganisations.singleWhere((o) => o.id == organisationId).userAdded =
           false;
-      sortUmOrganisations();
+      umOrganisations.refresh();
     }
   }
 

@@ -81,6 +81,22 @@ class _DrawerPageState extends State<DrawerPage> {
                                 ),
                               ),
                             ),
+                            SizedBox(
+                              height: height * 0.05,
+                              child: Center(
+                                child: Text(
+                                  _authController.user.value.userName!.trim(),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall!
+                                        .fontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),

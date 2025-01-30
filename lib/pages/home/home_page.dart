@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
-import 'drawer_page.dart';
+import '../new_home/drawer_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

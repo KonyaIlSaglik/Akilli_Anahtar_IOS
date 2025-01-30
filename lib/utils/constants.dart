@@ -15,7 +15,7 @@ const String mqttUserKey = "mqttUser";
 const String mqttPasswordKey = "mqttPassword";
 
 String notificationKey(int deviceId) {
-  return "notif$deviceId";
+  return "n-$deviceId";
 }
 
 const String apiUrlOut =

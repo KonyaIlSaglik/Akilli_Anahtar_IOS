@@ -55,6 +55,7 @@ Future<void> initializeService() async {
     ),
   );
   if (await service.isRunning()) {
+    prnt("Service already running, stopping it first...");
     service.invoke("stopService");
   }
   prnt("initialized.");
@@ -73,32 +74,29 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 @pragma('vm:entry-point')
 void notificationTapBackground(
     NotificationResponse notificationResponse) async {
-  if (notificationResponse.actionId != null) {
-    switch (notificationResponse.actionId) {
-      case 'action_30_min':
-        await LocalDb.add(
-          notificationKey(notificationResponse.id!),
-          DateTime.now().add(Duration(seconds: 30)).toString(),
-        );
-        break;
-      case 'action_2_hour':
-        await LocalDb.add(
-          notificationKey(notificationResponse.id!),
-          DateTime.now().add(Duration(hours: 2)).toString(),
-        );
-        break;
-      case 'action_8_hour':
-        await LocalDb.add(
-          notificationKey(notificationResponse.id!),
-          DateTime.now().add(Duration(hours: 8)).toString(),
-        );
-        var vv = await LocalDb.get(notificationKey(notificationResponse.id!));
-        print("${notificationKey(notificationResponse.id!)} ----> $vv");
-        break;
-      default:
-        // Diğer durumlar
-        break;
-    }
+  if (notificationResponse.actionId == null) {
+    prnt("No action ID provided.");
+    return;
+  }
+  switch (notificationResponse.actionId) {
+    case 'action_30_min':
+      await LocalDb.add(
+        notificationKey(notificationResponse.id!),
+        DateTime.now().add(Duration(minutes: 30)).toString(),
+      );
+      break;
+    case 'action_2_hour':
+      await LocalDb.add(
+        notificationKey(notificationResponse.id!),
+        DateTime.now().add(Duration(hours: 2)).toString(),
+      );
+      break;
+    case 'action_8_hour':
+      await LocalDb.add(
+        notificationKey(notificationResponse.id!),
+        DateTime.now().add(Duration(hours: 8)).toString(),
+      );
+      break;
   }
 }
 
@@ -113,6 +111,8 @@ void onStart(ServiceInstance service) async {
   String? token;
   late MyMqtt mqtt;
   List<HomeDeviceDto> devices = <HomeDeviceDto>[];
+  var normalValueCountList = <int, int>{};
+  var criticalValueCountList = <int, int>{};
 
   var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -160,11 +160,13 @@ void onStart(ServiceInstance service) async {
   if (devices.isNotEmpty) {
     for (HomeDeviceDto device in devices) {
       mqtt.subscribeToTopic(device.topicStat!);
+      normalValueCountList[device.id!] = 0;
+      criticalValueCountList[device.id!] = 0;
     }
 
     mqtt.onMessage(
       (topic, message) async {
-        if (message.contains("{")) {
+        if (message.startsWith('{') && message.endsWith('}')) {
           var result = json.decode(message);
           var status = result["deger"].toString();
           var deger = (result["deger"] is num)
@@ -176,36 +178,60 @@ void onStart(ServiceInstance service) async {
               orElse: () => HomeDeviceDto(),
             );
             var active = false;
-            result = await LocalDb.get(notificationKey(device.id!)) ?? "1";
-            if (result == "1") {
+            var notifResult = await LocalDb.get(notificationKey(device.id!));
+            if (notifResult == null) {
               active = true;
+            } else if (notifResult == "0") {
+              active = false;
             } else {
-              var time = DateTime.tryParse(result);
+              var time = DateTime.tryParse(notifResult);
               if (time == null) {
                 active = false;
               } else {
-                active = time.isBefore(DateTime.now());
-                LocalDb.add(notificationKey(device.id!), "1");
+                if (time.isBefore(DateTime.now())) {
+                  active = true;
+                  await LocalDb.delete(notificationKey(device.id!));
+                } else {
+                  active = false;
+                }
               }
             }
 
-            if (device.id! > 0 && active) {
+            if (device.id != null && active) {
               int alarm = getAlarm(device, deger);
+              if (alarm == 0) {
+                normalValueCountList[device.id!] = 0;
+                criticalValueCountList[device.id!] = 0;
+              }
               if (alarm == 1) {
-                _showNotification(
-                  flutterLocalNotificationsPlugin,
-                  device.id!,
-                  "${device.boxName!}/${device.name!}",
-                  "$status değeri için Sarı Alarm",
-                );
+                if (normalValueCountList[device.id]! == 6) {
+                  _showNotification(
+                    flutterLocalNotificationsPlugin,
+                    device.id!,
+                    "${device.boxName!}/${device.name!}",
+                    "$status değeri için Sarı Alarm",
+                  );
+                  normalValueCountList[device.id!] = 0;
+                  criticalValueCountList[device.id!] = 0;
+                } else {
+                  normalValueCountList[device.id!] =
+                      normalValueCountList[device.id!]! + 1;
+                }
               }
               if (alarm == 2) {
-                _showNotification(
-                  flutterLocalNotificationsPlugin,
-                  device.id!,
-                  "${device.boxName!}/${device.name!}",
-                  "$status değeri için Kırmızı Alarm",
-                );
+                if (criticalValueCountList[device.id]! == 6) {
+                  _showNotification(
+                    flutterLocalNotificationsPlugin,
+                    device.id!,
+                    "${device.boxName!}/${device.name!}",
+                    "$status değeri için Kırmızı Alarm",
+                  );
+                  normalValueCountList[device.id!] = 0;
+                  criticalValueCountList[device.id!] = 0;
+                } else {
+                  criticalValueCountList[device.id!] =
+                      criticalValueCountList[device.id!]! + 1;
+                }
               }
             }
           }
@@ -216,9 +242,9 @@ void onStart(ServiceInstance service) async {
 
   Timer.periodic(const Duration(minutes: 1), (timer) async {
     prnt("service is successfully running ${DateTime.now().second}");
-    if (token != null && userId != null) {
-      devices = await getDevices(token, userId);
-    }
+    // if (token != null && userId != null) {
+    //   devices = await getDevices(token, userId);
+    // }
   });
 }
 
@@ -277,22 +303,6 @@ Future<void> _showNotification(
   String title,
   String body,
 ) async {
-  const AndroidNotificationAction action30Min = AndroidNotificationAction(
-    'action_30_min',
-    '30 Dakika Ertele',
-    cancelNotification: true,
-  );
-  const AndroidNotificationAction action2Hour = AndroidNotificationAction(
-    'action_2_hour',
-    '2 Saat Ertele',
-    cancelNotification: true,
-  );
-  const AndroidNotificationAction action8Hour = AndroidNotificationAction(
-    'action_8_hour',
-    '8 Saat Ertele',
-    cancelNotification: true,
-  );
-
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
     'your_channel_id',
@@ -301,10 +311,22 @@ Future<void> _showNotification(
     importance: Importance.max,
     priority: Priority.high,
     showWhen: false,
-    actions: <AndroidNotificationAction>[
-      action30Min,
-      action2Hour,
-      action8Hour,
+    actions: [
+      AndroidNotificationAction(
+        'action_30_min',
+        '30 Dakika Ertele',
+        cancelNotification: true,
+      ),
+      AndroidNotificationAction(
+        'action_2_hour',
+        '2 Saat Ertele',
+        cancelNotification: true,
+      ),
+      AndroidNotificationAction(
+        'action_8_hour',
+        '8 Saat Ertele',
+        cancelNotification: true,
+      ),
     ],
   );
   const NotificationDetails platformChannelSpecifics =
@@ -346,7 +368,11 @@ class MyMqtt {
         .withClientIdentifier(identity)
         .withWillQos(MqttQos.atMostOnce);
     mqttClient.connectionMessage = connMess;
-    await mqttClient.connect();
+    try {
+      await mqttClient.connect();
+    } catch (e) {
+      prnt("MQTT connection failed: $e");
+    }
   }
 
   void subscribeToTopic(String topic) {

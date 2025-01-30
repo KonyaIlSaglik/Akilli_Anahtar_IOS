@@ -8,8 +8,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 class ProfilCard extends StatefulWidget {
-  final bool min;
   const ProfilCard({super.key, this.min = false});
+
+  final bool min;
 
   @override
   State<ProfilCard> createState() => _ProfilCardState();
@@ -52,6 +53,7 @@ class _ProfilCardState extends State<ProfilCard> {
                     child: Column(
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Icon(
                               FontAwesomeIcons.cloudSunRain,

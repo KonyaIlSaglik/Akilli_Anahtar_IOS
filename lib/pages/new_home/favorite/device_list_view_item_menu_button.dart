@@ -135,8 +135,11 @@ class _DeviceListViewItemMenuButtonState
               ),
               onTap: () async {
                 notificationEnable = !notificationEnable;
-                await LocalDb.add(notificationKey(widget.device.id!),
-                    notificationEnable ? "1" : "0");
+                if (notificationEnable) {
+                  await LocalDb.delete(notificationKey(widget.device.id!));
+                } else {
+                  await LocalDb.add(notificationKey(widget.device.id!), "0");
+                }
               },
             ),
           if (widget.device.typeId! > 3)

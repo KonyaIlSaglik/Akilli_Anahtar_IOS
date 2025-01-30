@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
-import 'package:akilli_anahtar/pages/home/drawer_page.dart';
+import 'package:akilli_anahtar/pages/new_home/drawer_page.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/favorite_page.dart';
 import 'package:akilli_anahtar/pages/new_home/grouped/grouped_page.dart';
 import 'package:akilli_anahtar/pages/new_home/profile/profile_page.dart';
