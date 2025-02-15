@@ -66,38 +66,38 @@ class _ProfilePageState extends State<ProfilePage> {
         ListTile(
           title: Text("Sensör Bildirimleri"),
           trailing: TextButton(
-              onPressed: () async {
-                showModalBottomSheet(
-                  backgroundColor: Colors.brown[50],
-                  context: context,
-                  builder: (context) {
-                    return Container(
-                      padding: EdgeInsets.all(8),
-                      child: Column(
-                        children: [
-                          Text(
-                            "Cihazlar",
-                            style: Theme.of(context).textTheme.headlineMedium,
+            onPressed: () async {
+              showModalBottomSheet(
+                backgroundColor: Colors.brown[50],
+                context: context,
+                builder: (context) {
+                  return Container(
+                    padding: EdgeInsets.all(8),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Cihazlar",
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        Divider(color: goldColor),
+                        Expanded(
+                          child: ListView.separated(
+                            itemCount: sensors.length,
+                            separatorBuilder: (context, index) => Divider(),
+                            itemBuilder: (context, index) {
+                              var device = sensors[index];
+                              return ProfilePageDeviceListItem(device: device);
+                            },
                           ),
-                          Divider(color: goldColor),
-                          Expanded(
-                            child: ListView.separated(
-                              itemCount: sensors.length,
-                              separatorBuilder: (context, index) => Divider(),
-                              itemBuilder: (context, index) {
-                                var device = sensors[index];
-                                return ProfilePageDeviceListItem(
-                                    device: device);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-              child: Text("Cihazları Göster")),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+            child: Text("Cihazları Göster"),
+          ),
         ),
       ],
     );

@@ -22,14 +22,14 @@ class _TopicDetailState extends State<TopicDetail> {
           if (deviceManagementController.selectedType.value.id == 4)
             if (deviceManagementController.selectedType.value.id == 6)
               SizedBox(height: 8),
-        if (deviceManagementController.selectedDevice.value.id > 0)
+        if (deviceManagementController.selectedDevice.value.id! > 0)
           TextFormField(
             decoration: InputDecoration(labelText: 'Topic Stat'),
             initialValue:
                 deviceManagementController.selectedDevice.value.topicStat,
             enabled: false,
           ),
-        if (deviceManagementController.selectedDevice.value.id > 0 &&
+        if (deviceManagementController.selectedDevice.value.id! > 0 &&
             [4, 5, 6, 8, 9].any(
               (t) => t == deviceManagementController.selectedType.value.id,
             ))

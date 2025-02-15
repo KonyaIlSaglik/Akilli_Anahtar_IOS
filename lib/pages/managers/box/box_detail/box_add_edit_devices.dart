@@ -37,15 +37,9 @@ class _BoxAddEditDevicesState extends State<BoxAddEditDevices> {
                         deviceManagementController.devices[i].id.toString(),
                         style: TextStyle(fontSize: 20),
                       ),
-                      title: Text(deviceManagementController.devices[i].name),
+                      title: Text(deviceManagementController.devices[i].name!),
                       subtitle: Text(
-                        deviceManagementController.deviceTypes
-                            .singleWhere(
-                              (t) =>
-                                  t.id ==
-                                  deviceManagementController.devices[i].typeId,
-                            )
-                            .name,
+                        deviceManagementController.devices[i].typeName!,
                       ),
                       trailing: Text(deviceManagementController.devices[i].pin),
                       onTap: () {

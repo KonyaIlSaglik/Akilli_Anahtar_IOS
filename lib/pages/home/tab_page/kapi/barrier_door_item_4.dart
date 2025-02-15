@@ -133,7 +133,7 @@ class _BarrierDoorItem4State extends State<BarrierDoorItem4>
           child: Padding(
             padding: const EdgeInsets.only(bottom: 5, left: 5),
             child: CustomTextScroll(
-              text: device.name.toUpperCaseTr(),
+              text: device.name!.toUpperCaseTr(),
             ),
           ),
         ),

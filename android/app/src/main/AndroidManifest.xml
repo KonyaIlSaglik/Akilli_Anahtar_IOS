@@ -66,7 +66,9 @@
 
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
-            android:foregroundServiceType="dataSync|location|connectedDevice">
+            android:permission="android.permission.FOREGROUND_SERVICE"
+            android:foregroundServiceType="dataSync|location|remoteMessaging"
+            android:stopWithTask="false">
 
             <intent-filter>
                 <action android:name="android.service.foregroundservice.FOREGROUND_SERVICE" />

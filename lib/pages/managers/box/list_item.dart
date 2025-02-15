@@ -43,7 +43,7 @@ class _BoxListItemState extends State<BoxListItem> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(box.organisationName ?? "-"),
-          Text("Versiyon: ${box.version!.isNotEmpty ? box.version : "-"}"),
+          Text("Versiyon: ${(box.version ?? "-")}"),
           // if (box.isOld == -1)
           //   Text(
           //     "Yeni Version: ${boxManagementController.newVersion.value.version}",

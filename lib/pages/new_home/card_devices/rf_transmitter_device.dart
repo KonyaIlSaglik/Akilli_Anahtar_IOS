@@ -90,7 +90,7 @@ class _RfTransmitterDeviceState extends State<RfTransmitterDevice> {
             _switch(),
             SizedBox(height: 20),
             Text(
-              device.name,
+              device.name!,
               style: textTheme(context).titleMedium,
               overflow: TextOverflow.ellipsis,
             ),

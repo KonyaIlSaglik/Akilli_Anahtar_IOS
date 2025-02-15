@@ -43,7 +43,7 @@ class _DeviceAddEditState extends State<DeviceAddEdit>
       }
     });
 
-    if (deviceManagementController.selectedDevice.value.id > 0) {
+    if (deviceManagementController.selectedDevice.value.id! > 0) {
       deviceManagementController.selectedType.value =
           deviceManagementController.deviceTypes.singleWhere(
         (t) => t.id == deviceManagementController.selectedDevice.value.typeId,
@@ -75,8 +75,8 @@ class _DeviceAddEditState extends State<DeviceAddEdit>
             elevation: 5,
             foregroundColor: goldColor,
             surfaceTintColor: goldColor,
-            title: Text(deviceManagementController.selectedDevice.value.id > 0
-                ? deviceManagementController.selectedDevice.value.name
+            title: Text(deviceManagementController.selectedDevice.value.id! > 0
+                ? deviceManagementController.selectedDevice.value.name!
                 : "Kutu Ekle"),
             actions: [
               if (boxManagementController.selectedBox.value.id > 0)
@@ -86,7 +86,7 @@ class _DeviceAddEditState extends State<DeviceAddEdit>
                   ),
                   onPressed: () async {
                     await deviceManagementController.delete(
-                        deviceManagementController.selectedDevice.value.id);
+                        deviceManagementController.selectedDevice.value.id!);
                     deviceManagementController.getAll();
                     Navigator.pop(context);
                   },

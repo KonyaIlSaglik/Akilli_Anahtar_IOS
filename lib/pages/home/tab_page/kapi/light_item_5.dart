@@ -129,7 +129,7 @@ class _LightItem5State extends State<LightItem5>
           child: Padding(
             padding: const EdgeInsets.only(bottom: 5, left: 5),
             child: CustomTextScroll(
-              text: device.name.toUpperCaseTr(),
+              text: device.name!.toUpperCaseTr(),
             ),
           ),
         ),

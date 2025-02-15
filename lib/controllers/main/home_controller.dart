@@ -9,8 +9,9 @@ import 'package:akilli_anahtar/entities/district.dart';
 import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/entities/parameter.dart';
 import 'package:akilli_anahtar/models/device_group_by_box.dart';
+import 'package:akilli_anahtar/models/notification_model.dart';
+import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/services/api/home_service.dart';
-import 'package:akilli_anahtar/services/api/user_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:geocoding/geocoding.dart';
@@ -136,13 +137,32 @@ class HomeController extends GetxController {
     devices.value = <Device>[];
   }
 
-  Future<void> updateFavorite(Device device) async {
+  Future<NotificationModel> getNotification(int deviceId) async {
     AuthController authController = Get.find();
-    var userDevice = await UserService.updateFavorite(
-        authController.user.value.id!, device.id, device.favoriteSequence);
-    if (userDevice == null) {
-      //
+    var response = await BaseService.get(
+      "$apiUrlOut/Home/getNotification?userId=${authController.user.value.id!}&deviceId=$deviceId",
+    );
+    if (response.statusCode == 200) {
+      return NotificationModel.fromJson(response.body);
     }
+    return NotificationModel(
+        userId: authController.user.value.id!,
+        deviceId: deviceId,
+        status: 1,
+        datetime: null);
+  }
+
+  Future<bool> updateNotification(NotificationModel notificationModel) async {
+    AuthController authController = Get.find();
+    notificationModel.userId = authController.user.value.id!;
+    var response = await BaseService.update(
+      "$apiUrlOut/Home/updateNotification",
+      notificationModel.toJson(),
+    );
+    if (response.statusCode == 200) {
+      return response.body == "true";
+    }
+    return false;
   }
 
   var watherVisible = false.obs;

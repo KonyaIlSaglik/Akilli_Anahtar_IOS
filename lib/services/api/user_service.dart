@@ -176,6 +176,23 @@ class UserService {
     return null;
   }
 
+  static Future<bool?> updateNotification(
+      int userId, int deviceId, int favoriteSequence) async {
+    var requestBody = {
+      'userId': userId,
+      'deviceId': deviceId,
+      'favoriteSequence': favoriteSequence,
+    };
+    var response = await BaseService.update(
+      "$url/updateFavorite?userId=$userId&deviceId=$deviceId&favoriteSequence=$favoriteSequence",
+      json.encode(requestBody),
+    );
+    if (response.statusCode == 200) {
+      return response.body == "true";
+    }
+    return null;
+  }
+
   static Future<bool> deleteUserDevice(int userDeviceId) async {
     var response = await BaseService.delete(
       "$url/deleteUserDevice?userDeviceId=$userDeviceId",

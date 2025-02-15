@@ -91,7 +91,7 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
                         ),
                       ),
                       Text(
-                        device.name,
+                        device.name!,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -147,7 +147,7 @@ class _BahceSulamaCardState extends State<BahceSulamaCard> {
                       context,
                       MaterialPageRoute<void>(
                         builder: (BuildContext context) =>
-                            ZamanlamaPage(hat: device.name),
+                            ZamanlamaPage(hat: device.name!),
                       ),
                     );
                   },

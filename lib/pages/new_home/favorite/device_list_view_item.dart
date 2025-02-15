@@ -125,8 +125,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
         _mqttController.publishMessage(device.topicRec!, device.rfCodes![0]);
       }
       if (device.typeId == 8) {
-        _mqttController.publishMessage(device.topicRec!,
-            homeController.lastStatus[device.id] == "0" ? "1" : "0");
+        _mqttController.publishMessage(device.topicRec!, "0");
       }
       if (device.typeId == 9) {
         _mqttController.publishMessage(device.topicRec!,

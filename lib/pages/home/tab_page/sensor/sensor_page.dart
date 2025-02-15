@@ -44,7 +44,7 @@ class _SensorPageState extends State<SensorPage> {
                           deviceController.sensorDevices.length, (index) {
                         var sensor = deviceController.sensorDevices[index];
                         return Stone(
-                          id: sensor.id,
+                          id: sensor.id!,
                           height: 1,
                           width: 4,
                           child: SensorListItem(

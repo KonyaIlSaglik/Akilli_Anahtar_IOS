@@ -30,6 +30,7 @@ class BoxManagementController extends GetxController {
     "D6",
     "D7",
     "D8",
+    "A0",
   ];
 
   Future<void> checkNewVersion() async {

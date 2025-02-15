@@ -145,7 +145,7 @@ class _DrawerPageState extends State<DrawerPage> {
                             trailing: Icon(Icons.chevron_right),
                           ),
                           if (_authController.session.value.claims!.any(
-                            (e) => e == "developer" || e == "device_install",
+                            (e) => e == "device_install",
                           ))
                             Column(
                               children: [
@@ -157,6 +157,13 @@ class _DrawerPageState extends State<DrawerPage> {
                                   },
                                   trailing: Icon(Icons.chevron_right),
                                 ),
+                              ],
+                            ),
+                          if (_authController.session.value.claims!.any(
+                            (e) => e == "developer",
+                          ))
+                            Column(
+                              children: [
                                 ListTile(
                                   leading: Icon(FontAwesomeIcons.boxesStacked),
                                   title: Text("Kutu Yönetimi"),
@@ -181,7 +188,6 @@ class _DrawerPageState extends State<DrawerPage> {
                                 ),
                               ],
                             ),
-
                           // if (_authController.operationClaims.any((c) =>
                           //     c.name == "developer" ||
                           //     c.name == "device_install" ||

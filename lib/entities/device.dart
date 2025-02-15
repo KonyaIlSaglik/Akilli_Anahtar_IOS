@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 class Device {
-  int id;
-  String name;
-  int typeId;
+  int? id;
+  String? name;
+  int? typeId;
   String? typeName;
-  int boxId;
+  int? boxId;
   String? boxName;
-  int organisationId;
+  int? organisationId;
   String topicStat;
   String? topicRec;
   String? topicRes;
@@ -18,18 +18,17 @@ class Device {
   int? closingTime;
   int? pinMode;
   int? pinStart;
-  int active;
+  int? active;
   List<String>? rfCodes;
-  int normalValueRangeId;
-  int criticalValueRangeId;
-  int unitId;
+  int? normalValueRangeId;
+  int? criticalValueRangeId;
+  int? unitId;
   String? unit;
   double? normalMinValue;
   double? normalMaxValue;
   double? criticalMinValue;
   double? criticalMaxValue;
   int? repeatTransmit;
-  int favoriteSequence;
 
   Device({
     this.id = 0,
@@ -60,7 +59,6 @@ class Device {
     this.criticalMinValue,
     this.criticalMaxValue,
     this.repeatTransmit,
-    this.favoriteSequence = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -93,7 +91,6 @@ class Device {
       'criticalMinValue': criticalMinValue,
       'criticalMaxValue': criticalMaxValue,
       'repeatTransmit': repeatTransmit,
-      'favoriteSequence': favoriteSequence,
     };
   }
 
@@ -146,8 +143,6 @@ class Device {
           : null,
       repeatTransmit:
           map['repeatTransmit'] != null ? map['repeatTransmit'] as int : null,
-      favoriteSequence:
-          map['favoriteSequence'] != null ? map['favoriteSequence'] as int : 0,
     );
   }
 

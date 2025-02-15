@@ -39,7 +39,7 @@ class _BahcePageState extends State<BahcePage> {
                       stones:
                           deviceController.gardenDevices.map((gardenDevice) {
                         return Stone(
-                          id: gardenDevice.id,
+                          id: gardenDevice.id!,
                           height: 1,
                           width: 4,
                           child: BahceSulamaCard(

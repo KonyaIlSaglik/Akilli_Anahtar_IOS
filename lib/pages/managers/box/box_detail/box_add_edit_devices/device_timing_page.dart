@@ -27,11 +27,12 @@ class _DeviceTimingPageState extends State<DeviceTimingPage> {
               context,
               labelText: "Açılış Süresi (sn)",
               keyboardType: TextInputType.number,
-              initialValue: deviceManagementController.selectedDevice.value.id >
-                      0
-                  ? deviceManagementController.selectedDevice.value.openingTime
-                      .toString()
-                  : null,
+              initialValue:
+                  deviceManagementController.selectedDevice.value.id! > 0
+                      ? deviceManagementController
+                          .selectedDevice.value.openingTime
+                          .toString()
+                      : null,
               onChanged: (value) => deviceManagementController
                   .selectedDevice.value.openingTime = int.tryParse(value),
             ),
@@ -40,11 +41,12 @@ class _DeviceTimingPageState extends State<DeviceTimingPage> {
               context,
               labelText: "Açık Kalma Süresi (sn)",
               keyboardType: TextInputType.number,
-              initialValue: deviceManagementController.selectedDevice.value.id >
-                      0
-                  ? deviceManagementController.selectedDevice.value.waitingTime
-                      .toString()
-                  : null,
+              initialValue:
+                  deviceManagementController.selectedDevice.value.id! > 0
+                      ? deviceManagementController
+                          .selectedDevice.value.waitingTime
+                          .toString()
+                      : null,
               onChanged: (value) => deviceManagementController
                   .selectedDevice.value.waitingTime = int.tryParse(value),
             ),
@@ -53,11 +55,12 @@ class _DeviceTimingPageState extends State<DeviceTimingPage> {
               context,
               labelText: "Kapanma Süresi (sn)",
               keyboardType: TextInputType.number,
-              initialValue: deviceManagementController.selectedDevice.value.id >
-                      0
-                  ? deviceManagementController.selectedDevice.value.closingTime
-                      .toString()
-                  : null,
+              initialValue:
+                  deviceManagementController.selectedDevice.value.id! > 0
+                      ? deviceManagementController
+                          .selectedDevice.value.closingTime
+                          .toString()
+                      : null,
               onChanged: (value) => deviceManagementController
                   .selectedDevice.value.closingTime = int.tryParse(value),
             ),

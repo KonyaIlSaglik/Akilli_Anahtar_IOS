@@ -133,7 +133,7 @@ class _RfCommandItem6State extends State<RfCommandItem6>
           child: Padding(
             padding: const EdgeInsets.only(bottom: 5, left: 5),
             child: CustomTextScroll(
-              text: device.name.toUpperCaseTr(),
+              text: device.name!.toUpperCaseTr(),
             ),
           ),
         ),

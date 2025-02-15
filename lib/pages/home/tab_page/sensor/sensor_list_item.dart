@@ -100,14 +100,14 @@ class _SensorListItemState extends State<SensorListItem> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    sensor.name,
+                    sensor.name!,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                         color: Colors.white),
                   ),
                   Text(
-                    sensor.normalValueRangeId > 0
+                    sensor.normalValueRangeId! > 0
                         ? "${sensor.normalMinValue} - ${sensor.normalMaxValue}"
                         : "-",
                     style: TextStyle(color: Colors.white),
