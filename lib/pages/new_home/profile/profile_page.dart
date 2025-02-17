@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:akilli_anahtar/background_service.dart';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/dtos/home_device_dto.dart';
@@ -17,7 +19,9 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   HomeController homeController = Get.find();
   late List<HomeDeviceDto> sensors;
-  var backgroundEnable = false;
+
+  bool serviceIsRunning = false;
+  String selectedNotificationRange = notificationRanges[0];
 
   @override
   void initState() {
@@ -27,13 +31,19 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void init() async {
-    isRunning().then(
-      (value) {
-        setState(() {
-          backgroundEnable = value;
-        });
-      },
-    );
+    var status = await isRunning();
+    setState(() {
+      serviceIsRunning = status;
+    });
+
+    String? notificationRange = await LocalDb.get(notificationRangeKey);
+    if (notificationRange != null) {
+      setState(() {
+        selectedNotificationRange = notificationRange;
+      });
+    } else {
+      await LocalDb.update(notificationRangeKey, selectedNotificationRange);
+    }
 
     var list = homeController.homeDevices;
     for (var device in list) {
@@ -45,58 +55,123 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return ListView(
       children: [
+        SwitchListTile(
+          title: Text("Bildirimler"),
+          activeColor: Colors.white,
+          activeTrackColor: goldColor,
+          value: serviceIsRunning,
+          onChanged: (value) async {
+            if (value) {
+              setState(() {
+                serviceIsRunning = true;
+              });
+              Timer.periodic(Duration(seconds: 1), (timer) async {
+                if (!(await isRunning())) {
+                  timer.cancel();
+                  await initializeService();
+                }
+              });
+            } else {
+              stopBackgroundService();
+              setState(() {
+                serviceIsRunning = false;
+              });
+            }
+          },
+        ),
+        Divider(),
         ListTile(
-          title: Text("Arka Planda Çalışsın"),
-          trailing: TextButton(
-            onPressed: () async {
-              var status = await isRunning();
-              if (status) {
-                stopBackgroundService();
-                setState(() {
-                  backgroundEnable = false;
-                });
-              } else {
-                await initializeService();
-                init();
-              }
-            },
-            child: Text(backgroundEnable ? "KAPAT" : "AÇ"),
+          enabled: serviceIsRunning,
+          title: Text("Bildirim Aralığı"),
+          trailing: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: selectedNotificationRange,
+              onChanged: !serviceIsRunning
+                  ? null
+                  : (String? newValue) async {
+                      if (newValue == null) return;
+                      setState(() {
+                        selectedNotificationRange = newValue;
+                      });
+                      await LocalDb.update(
+                          notificationRangeKey, selectedNotificationRange);
+                      stopBackgroundService();
+                      Timer.periodic(Duration(seconds: 1), (timer) async {
+                        if (!(await isRunning())) {
+                          await initializeService();
+                          timer.cancel();
+                        }
+                      });
+                    },
+              items: notificationRanges
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
           ),
         ),
+        Divider(),
         ListTile(
-          title: Text("Sensör Bildirimleri"),
+          enabled: serviceIsRunning,
+          title: Text("Sensörlere Göre Bildirimler"),
           trailing: TextButton(
-            onPressed: () async {
-              showModalBottomSheet(
-                backgroundColor: Colors.brown[50],
-                context: context,
-                builder: (context) {
-                  return Container(
-                    padding: EdgeInsets.all(8),
-                    child: Column(
-                      children: [
-                        Text(
-                          "Cihazlar",
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        Divider(color: goldColor),
-                        Expanded(
-                          child: ListView.separated(
-                            itemCount: sensors.length,
-                            separatorBuilder: (context, index) => Divider(),
-                            itemBuilder: (context, index) {
-                              var device = sensors[index];
-                              return ProfilePageDeviceListItem(device: device);
-                            },
+            onPressed: !serviceIsRunning
+                ? null
+                : () async {
+                    showModalBottomSheet(
+                      backgroundColor: Colors.brown[50],
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) {
+                        return Container(
+                          padding: EdgeInsets.all(8),
+                          height: height(context) * 0.70,
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .spaceBetween, // Distribute space
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 8),
+                                    child: Text(
+                                      "Sensörler",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.close),
+                                    onPressed: () {
+                                      Navigator.pop(context); // Close the modal
+                                    },
+                                  ),
+                                ],
+                              ),
+                              Divider(color: goldColor),
+                              Expanded(
+                                child: ListView.separated(
+                                  itemCount: sensors.length,
+                                  separatorBuilder: (context, index) =>
+                                      Divider(),
+                                  itemBuilder: (context, index) {
+                                    var device = sensors[index];
+                                    return ProfilePageDeviceListItem(
+                                        device: device);
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
-            child: Text("Cihazları Göster"),
+                        );
+                      },
+                    );
+                  },
+            child: Text("Sensörler"),
           ),
         ),
       ],

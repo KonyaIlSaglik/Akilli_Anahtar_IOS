@@ -14,6 +14,12 @@ const String mqttPortKey = "mqttPort";
 const String mqttUserKey = "mqttUser";
 const String mqttPasswordKey = "mqttPassword";
 
+const String notificationRangeKey = "notificationRange";
+const List<String> notificationRanges = [
+  "5 Dakika",
+  "15 Dakika",
+  "30 Dakika",
+];
 String notificationKey(int deviceId) {
   return "notification$deviceId";
 }

@@ -77,10 +77,10 @@ class _DeviceListViewItemMenuButtonState
                 style: textTheme(context).labelLarge,
               ),
               onTap: () {
+                var controller = TextEditingController();
                 showDialog(
                   context: context,
                   builder: (context) {
-                    var controller = TextEditingController();
                     return AlertDialog(
                       title: Text("Yeniden Adlandır"),
                       content: Form(
@@ -110,7 +110,7 @@ class _DeviceListViewItemMenuButtonState
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               if (controller.text !=
-                                  widget.device.favoriteName!) {
+                                  widget.device.favoriteName) {
                                 HomeController homeController = Get.find();
                                 await homeController.updateFavoriteName(
                                     widget.device.id!, controller.text);

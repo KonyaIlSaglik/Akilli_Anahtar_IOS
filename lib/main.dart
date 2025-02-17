@@ -10,7 +10,6 @@ import 'package:google_fonts/google_fonts.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeService();
-  startBackgroundService();
   initializeDateFormatting('tr_TR', null).then(
     (value) => runApp(MyApp(theme: ThemeData.light())),
   );

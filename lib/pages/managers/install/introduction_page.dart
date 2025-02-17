@@ -1,7 +1,7 @@
 import 'package:akilli_anahtar/controllers/install/nodemcu_controller.dart';
-import 'package:akilli_anahtar/pages/managers/box_install/b_wifi_page_view_model.dart';
-import 'package:akilli_anahtar/pages/managers/box_install/d_online_page_view_model.dart';
-import 'package:akilli_anahtar/pages/home/home_page.dart';
+import 'package:akilli_anahtar/pages/managers/install/b_wifi_page_view_model.dart';
+import 'package:akilli_anahtar/pages/managers/install/d_online_page_view_model.dart';
+import 'package:akilli_anahtar/pages/new_home/layout.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -97,7 +97,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  Get.to(() => HomePage());
+                                  Get.to(() => Layout());
                                 },
                                 child: Text(
                                   "Çıkış",
@@ -122,7 +122,7 @@ class _IntroductionPageState extends State<IntroductionPage> {
                   },
                   onDone: () async {
                     await _nodemcuController.sendConnectionSettings();
-                    Get.to(() => HomePage());
+                    Get.to(() => Layout());
                   },
                   pages: [
                     WifiPageViewModel.get(context),

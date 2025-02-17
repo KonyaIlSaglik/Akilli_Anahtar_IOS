@@ -39,15 +39,21 @@ class _ProfilePageDeviceListItemState extends State<ProfilePageDeviceListItem> {
         setState(() {
           notificationModel = value;
         });
-        if (notificationModel.datetime != null) {
-          if (notificationModel.datetime != null &&
-              notificationModel.datetime!.isBefore(DateTime.now())) {
-            setState(() {
-              notificationModel.status = 1;
-              notificationModel.datetime = null;
-            });
-            await homeController.updateNotification(notificationModel);
-          }
+        bool reload = false;
+        if (notificationModel.status == null) {
+          notificationModel.status = 1;
+          reload = true;
+        }
+        if (notificationModel.datetime != null &&
+            notificationModel.datetime!.isBefore(DateTime.now())) {
+          setState(() {
+            notificationModel.status = 1;
+            notificationModel.datetime = null;
+          });
+          reload = true;
+        }
+        if (reload) {
+          await homeController.updateNotification(notificationModel);
         }
       },
     );

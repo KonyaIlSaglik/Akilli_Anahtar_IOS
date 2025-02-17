@@ -8,14 +8,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class InstallSettings extends StatefulWidget {
-  const InstallSettings({super.key});
+class SmartConfigPage extends StatefulWidget {
+  const SmartConfigPage({super.key});
 
   @override
-  State<InstallSettings> createState() => _InstallSettingsState();
+  State<SmartConfigPage> createState() => _SmartConfigPageState();
 }
 
-class _InstallSettingsState extends State<InstallSettings> {
+class _SmartConfigPageState extends State<SmartConfigPage> {
   WifiController wifiController = Get.put(WifiController());
   final TextEditingController ssidController = TextEditingController(text: "");
   final TextEditingController passwordController =

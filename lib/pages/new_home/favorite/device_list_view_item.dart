@@ -3,10 +3,10 @@ import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item_action.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item_info.dart';
-import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item_back_icon.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item_menu_button.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class DeviceListViewItem extends StatefulWidget {
@@ -58,7 +58,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                 Positioned(
                   left: 5,
                   bottom: 5,
-                  child: DeviceListViewItemBackIcon(typeId: device.typeId!),
+                  child: backIcon(),
                 ),
                 Positioned(
                   left: 5,
@@ -109,6 +109,46 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
           ),
         );
       },
+    );
+  }
+
+  Widget backIcon() {
+    return Opacity(
+      opacity: 0.2,
+      child: device.typeId! == 1
+          ? Icon(
+              FontAwesomeIcons.temperatureHigh,
+              size: 40,
+            )
+          : device.typeId! == 2
+              ? Icon(
+                  FontAwesomeIcons.droplet,
+                  size: 40,
+                )
+              : device.typeId! == 3
+                  ? Icon(
+                      FontAwesomeIcons.volcano,
+                      size: 40,
+                    )
+                  : device.typeId! == 4 || device.typeId! == 6
+                      ? Icon(
+                          FontAwesomeIcons.roadBarrier,
+                          size: 40,
+                        )
+                      : device.typeId! == 5
+                          ? RotatedBox(
+                              quarterTurns: 2,
+                              child: Icon(
+                                FontAwesomeIcons.lightbulb,
+                                size: 40,
+                              ),
+                            )
+                          : device.typeId! == 8
+                              ? Icon(
+                                  FontAwesomeIcons.faucetDrip,
+                                  size: 40,
+                                )
+                              : null,
     );
   }
 

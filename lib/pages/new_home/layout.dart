@@ -2,7 +2,8 @@ import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/new_home/drawer_page.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/favorite_page.dart';
-import 'package:akilli_anahtar/pages/new_home/grouped/grouped_page.dart';
+import 'package:akilli_anahtar/pages/new_home/device/device_list_page.dart';
+import 'package:akilli_anahtar/pages/new_home/plan/plan_page.dart';
 import 'package:akilli_anahtar/pages/new_home/profile/profile_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/back_container.dart';
@@ -73,8 +74,8 @@ class _LayoutState extends State<Layout> {
         context,
         screens: [
           BackContainer(child: FavoritePage()),
-          BackContainer(child: GroupedPage()),
-          //BackContainer(child: GroupedPage()),
+          BackContainer(child: DeviceListPage()),
+          BackContainer(child: PlanPage()),
           BackContainer(child: ProfilePage()),
         ],
         items: [
@@ -86,13 +87,13 @@ class _LayoutState extends State<Layout> {
             FontAwesomeIcons.memory,
             title: "Cihazlar",
           ),
-          // customPersistentBottomNavBarItem(
-          //   FontAwesomeIcons.clock,
-          //   title: "Planlar",
-          // ),
           customPersistentBottomNavBarItem(
-            FontAwesomeIcons.solidUser,
-            title: "Profil",
+            FontAwesomeIcons.clock,
+            title: "Planlar",
+          ),
+          customPersistentBottomNavBarItem(
+            FontAwesomeIcons.gear,
+            title: "Ayarlar",
           ),
         ],
       ),

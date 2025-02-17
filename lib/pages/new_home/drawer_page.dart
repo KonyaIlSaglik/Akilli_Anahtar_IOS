@@ -1,6 +1,6 @@
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/main/login_controller.dart';
-import 'package:akilli_anahtar/pages/managers/box_install/install_settings.dart';
+import 'package:akilli_anahtar/pages/managers/install/smart_config_page.dart';
 import 'package:akilli_anahtar/pages/managers/user/user_list_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
 import 'package:akilli_anahtar/pages/managers/box/list.dart';
@@ -153,7 +153,7 @@ class _DrawerPageState extends State<DrawerPage> {
                                   leading: Icon(FontAwesomeIcons.boxesStacked),
                                   title: Text("Kutu Kurulum"),
                                   onTap: () {
-                                    Get.to(() => InstallSettings());
+                                    Get.to(() => SmartConfigPage());
                                   },
                                   trailing: Icon(Icons.chevron_right),
                                 ),

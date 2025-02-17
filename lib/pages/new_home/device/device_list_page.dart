@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
-class GroupedPage extends StatefulWidget {
-  const GroupedPage({super.key});
+class DeviceListPage extends StatefulWidget {
+  const DeviceListPage({super.key});
 
   @override
-  State<GroupedPage> createState() => _GroupedPageState();
+  State<DeviceListPage> createState() => _DeviceListPageState();
 }
 
-class _GroupedPageState extends State<GroupedPage> {
+class _DeviceListPageState extends State<DeviceListPage> {
   HomeController homeController = Get.find();
 
   @override

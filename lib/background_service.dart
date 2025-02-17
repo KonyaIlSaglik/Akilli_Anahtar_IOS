@@ -144,38 +144,37 @@ void onStart(ServiceInstance service) async {
     var userIdStr = await LocalDb.get(userIdKey) ?? "";
     userId = int.tryParse(userIdStr);
   }
+  var minStr = await LocalDb.get(notificationRangeKey);
+  int min = int.parse(minStr ?? "5");
 
-  Timer.periodic(const Duration(minutes: 1), (timer) async {
+  Timer.periodic(Duration(minutes: min), (timer) async {
     prnt("service is successfully running ${DateTime.now().second}");
-    var minStr = await LocalDb.get("notificationRangeKey");
-    int min = int.parse(minStr ?? "5");
-    if (timer.tick % min == 0) {
-      if (token != null && userId != null) {
-        var devices = await getDevices(token, userId);
-        for (var device in devices) {
-          var response = await httpGet(
-            url:
-                "$apiUrlOut/Home/getNotificationMessage?userId=$userId&deviceId=${device.id}&lastMin=$min",
-            token: token,
-          );
-          if (response.statusCode == 200) {
-            var sensorMessage = SensorMessage.fromJson(response.body);
-            if (sensorMessage.alarmStatus == 1) {
-              _showNotification(
-                flutterLocalNotificationsPlugin,
-                device.id!,
-                "${device.boxName!}/${device.name!}",
-                "${sensorMessage.value} değeri için uyarı",
-              );
-            }
-            if (sensorMessage.alarmStatus == 2) {
-              _showNotification(
-                flutterLocalNotificationsPlugin,
-                device.id!,
-                "${device.boxName!}/${device.name!}",
-                "${sensorMessage.value} değeri için kritik değer",
-              );
-            }
+
+    if (token != null && userId != null) {
+      var devices = await getDevices(token, userId);
+      for (var device in devices) {
+        var response = await httpGet(
+          url:
+              "$apiUrlOut/Home/getNotificationMessage?userId=$userId&deviceId=${device.id}&lastMin=$min",
+          token: token,
+        );
+        if (response.statusCode == 200) {
+          var sensorMessage = SensorMessage.fromJson(response.body);
+          if (sensorMessage.alarmStatus == 1) {
+            _showNotification(
+              flutterLocalNotificationsPlugin,
+              device.id!,
+              "${device.boxName!}/${device.name!}",
+              "${sensorMessage.value} değeri için uyarı",
+            );
+          }
+          if (sensorMessage.alarmStatus == 2) {
+            _showNotification(
+              flutterLocalNotificationsPlugin,
+              device.id!,
+              "${device.boxName!}/${device.name!}",
+              "${sensorMessage.value} değeri için kritik değer",
+            );
           }
         }
       }
