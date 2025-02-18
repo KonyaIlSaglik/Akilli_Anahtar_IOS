@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:akilli_anahtar/controllers/install/wifi_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:avatar_glow/avatar_glow.dart';
-import 'package:esp_smartconfig/esp_smartconfig.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:permission_handler/permission_handler.dart';
+
+import 'custom_provisioner/my_provisioner.dart';
+import 'package:udp/udp.dart';
+
+import 'custom_provisioner/src/my_provisioning_request.dart';
 
 class SmartConfigPage extends StatefulWidget {
   const SmartConfigPage({super.key});
@@ -22,33 +26,23 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
       TextEditingController(text: "");
   final formKey = GlobalKey<FormState>();
   bool passVisible = false;
-  final provisioner = Provisioner.espTouch();
+  final provisioner = MyProvisioner.espTouch();
   late Timer timer;
   bool _animate = false;
   int countDown = 0;
   var passwordFocus = FocusNode();
+  var espIp = "";
 
   @override
   void initState() {
     super.initState();
-    init();
-  }
-
-  init() async {
-    var status = await Permission.locationWhenInUse.status.isGranted;
-    if (!status) {
-      status = await Permission.locationWhenInUse.request().isGranted;
-    }
-
-    if (status) {
-      wifiController.getSSID().then((value) {
-        if (value.isNotEmpty) {
-          setState(() {
-            ssidController.text = value;
-          });
-        }
-      });
-    }
+    wifiController.getSSID().then((value) {
+      if (value.isNotEmpty) {
+        setState(() {
+          ssidController.text = value;
+        });
+      }
+    });
   }
 
   @override
@@ -100,6 +94,8 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
                     _buildSubmitButton(),
                     SizedBox(height: height(context) * 0.05),
                     _buildCountdownTimer(),
+                    SizedBox(height: height(context) * 0.05),
+                    if (espIp.isNotEmpty) _buildInfo(),
                   ],
                 ),
               ),
@@ -222,6 +218,25 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
     );
   }
 
+  Widget _buildInfo() {
+    return Column(
+      children: [
+        Text(
+          "Bağlantı Başarılı",
+          style: textTheme(context)
+              .titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        Text(
+          "IP: $espIp",
+          style: textTheme(context)
+              .titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
   void _stopProvisioning({bool close = false}) {
     if (provisioner.running) {
       timer.cancel();
@@ -236,22 +251,53 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
 
   Future<void> _startProvisioning() async {
     var bssid = await wifiController.getBSSID();
-    provisioner.start(ProvisioningRequest.fromStrings(
+    provisioner.start(MyProvisioningRequest.fromStrings(
       ssid: ssidController.text,
       bssid: bssid,
       password: passwordController.text,
     ));
+
     setState(() {
       _animate = true;
+      espIp = "";
     });
 
     timer = Timer.periodic(Duration(seconds: 1), (t) {
       setState(() {
         countDown = 180 - t.tick;
       });
-      if (countDown == 0) {
+      if (countDown == 0) {}
+    });
+
+    const int udpPort = 4210; // ESP'nin yayın yaptığı port
+    UDP? receiver = await UDP.bind(Endpoint.any(port: Port(udpPort)));
+
+    print("UDP Dinleyici Başladı...");
+
+    receiver.asStream().listen((datagram) async {
+      if (datagram != null) {
+        String message = String.fromCharCodes(datagram.data);
+        InternetAddress sender = datagram.address;
+        print("Gelen Mesaj: $message, Gönderen: ${sender.address}");
+        setState(() {
+          espIp = message;
+        });
+        // ESP'den mesajı aldıktan sonra "STOP" mesajını gönder
+        await sendStopMessage(sender);
+        receiver.close();
         _stopProvisioning();
       }
     });
+  }
+
+  Future<void> sendStopMessage(InternetAddress espAddress) async {
+    const int udpPort = 4210; // ESP'nin dinlediği port
+    UDP sender = await UDP.bind(Endpoint.any());
+
+    String stopMessage = "STOP";
+    sender.send(stopMessage.codeUnits,
+        Endpoint.unicast(espAddress, port: Port(udpPort)));
+
+    print("ESP'ye 'STOP' mesajı gönderildi: ${espAddress.address}");
   }
 }

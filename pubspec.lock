@@ -939,7 +939,7 @@ packages:
     source: hosted
     version: "2.5.0"
   loggerx:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: loggerx
       sha256: cad8587f15508f1b8a7ce72244ca6033f480b784289e9b3e9b69cf7f3b4552c9
@@ -1219,7 +1219,7 @@ packages:
     source: hosted
     version: "2.1.8"
   pointycastle:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: pointycastle
       sha256: "4be0097fcf3fd3e8449e53730c631200ebc7b88016acecab2b0da2f0149222fe"
