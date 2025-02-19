@@ -3,8 +3,9 @@ import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/pages/new_home/drawer_page.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/favorite_page.dart';
 import 'package:akilli_anahtar/pages/new_home/device/device_list_page.dart';
+import 'package:akilli_anahtar/pages/new_home/notification/notification_page.dart';
 import 'package:akilli_anahtar/pages/new_home/plan/plan_page.dart';
-import 'package:akilli_anahtar/pages/new_home/profile/profile_page.dart';
+import 'package:akilli_anahtar/pages/new_home/setting/settings_page.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/back_container.dart';
 import 'package:flutter/material.dart';
@@ -53,13 +54,11 @@ class _LayoutState extends State<Layout> {
               : textTheme(context).titleLarge!,
         ),
         actions: [
-          IconButton(
-            icon: Icon(
-              FontAwesomeIcons.bell,
-              size: 30,
-            ),
-            onPressed: () {
-              //
+          NamedIcon(
+            iconData: FontAwesomeIcons.solidBell,
+            notificationCount: 11,
+            onTap: () {
+              Get.to(() => NotificationPage());
             },
           )
         ],
@@ -76,19 +75,19 @@ class _LayoutState extends State<Layout> {
           BackContainer(child: FavoritePage()),
           BackContainer(child: DeviceListPage()),
           BackContainer(child: PlanPage()),
-          BackContainer(child: ProfilePage()),
+          BackContainer(child: SettingsPage()),
         ],
         items: [
           customPersistentBottomNavBarItem(
-            FontAwesomeIcons.heart,
+            FontAwesomeIcons.solidHeart,
             title: "Favoriler",
           ),
           customPersistentBottomNavBarItem(
-            FontAwesomeIcons.memory,
+            FontAwesomeIcons.boxesStacked,
             title: "Cihazlar",
           ),
           customPersistentBottomNavBarItem(
-            FontAwesomeIcons.clock,
+            FontAwesomeIcons.solidClock,
             title: "Planlar",
           ),
           customPersistentBottomNavBarItem(
@@ -111,6 +110,59 @@ class _LayoutState extends State<Layout> {
       activeColorSecondary: goldColor,
       inactiveColorPrimary: Colors.black54,
       inactiveColorSecondary: Colors.black54,
+    );
+  }
+}
+
+class NamedIcon extends StatelessWidget {
+  final IconData iconData;
+  final String? text;
+  final VoidCallback? onTap;
+  final int notificationCount;
+
+  const NamedIcon({
+    super.key,
+    this.onTap,
+    this.text,
+    required this.iconData,
+    this.notificationCount = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(iconData),
+                if (text != null) Text(text!, overflow: TextOverflow.ellipsis),
+              ],
+            ),
+            Positioned(
+              top: 5,
+              right: 5,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+                alignment: Alignment.center,
+                child: Text(
+                  notificationCount < 100 ? "$notificationCount" : "99+",
+                  style: textTheme(context).labelMedium?.copyWith(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

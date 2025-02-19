@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/widgets/back_container.dart';
 import 'package:flutter/material.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -8,17 +9,19 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  
   @override
   void initState() {
     super.initState();
     //
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(),
+      appBar: AppBar(
+        title: Text("Bildirimler"),
+      ),
+      body: BackContainer(),
     );
   }
 }

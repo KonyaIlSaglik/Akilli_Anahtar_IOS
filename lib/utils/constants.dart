@@ -16,9 +16,9 @@ const String mqttPasswordKey = "mqttPassword";
 
 const String notificationRangeKey = "notificationRange";
 const List<String> notificationRanges = [
-  "5 Dakika",
-  "15 Dakika",
-  "30 Dakika",
+  "5",
+  "15",
+  "30",
 ];
 String notificationKey(int deviceId) {
   return "notification$deviceId";

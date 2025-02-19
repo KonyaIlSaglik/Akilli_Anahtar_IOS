@@ -3,20 +3,20 @@ import 'dart:async';
 import 'package:akilli_anahtar/background_service.dart';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/dtos/home_device_dto.dart';
-import 'package:akilli_anahtar/pages/new_home/profile/profile_page_device_list_item.dart';
+import 'package:akilli_anahtar/pages/new_home/setting/settings_page_device_list_item.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _SettingsPageState extends State<SettingsPage> {
   HomeController homeController = Get.find();
   late List<HomeDeviceDto> sensors;
 
@@ -82,7 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Divider(),
         ListTile(
           enabled: serviceIsRunning,
-          title: Text("Bildirim Aralığı"),
+          title: Text("Bildirim Aralığı (dk)"),
           trailing: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: selectedNotificationRange,
@@ -174,6 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Text("Sensörler"),
           ),
         ),
+        Divider(),
       ],
     );
   }

@@ -105,7 +105,7 @@ class _DrawerPageState extends State<DrawerPage> {
                       child: ListView(
                         children: [
                           ListTile(
-                            leading: Icon(Icons.lock),
+                            leading: Icon(FontAwesomeIcons.userLock),
                             title: Text("Şifre Değiştir"),
                             onTap: () {
                               Navigator.push(
@@ -127,7 +127,7 @@ class _DrawerPageState extends State<DrawerPage> {
                             trailing: Icon(Icons.chevron_right),
                           ),
                           ListTile(
-                            leading: Icon(Icons.exit_to_app),
+                            leading: Icon(FontAwesomeIcons.arrowRightToBracket),
                             title: Text("Oturumdan Çık"),
                             onTap: () async {
                               await _authController.logOut(
@@ -137,7 +137,7 @@ class _DrawerPageState extends State<DrawerPage> {
                             trailing: Icon(Icons.chevron_right),
                           ),
                           ListTile(
-                            leading: Icon(Icons.upload_outlined),
+                            leading: Icon(FontAwesomeIcons.circleArrowUp),
                             title: Text("Uygulamayı Güncelle"),
                             onTap: () async {
                               checkNewVersion(context, true);
@@ -150,7 +150,7 @@ class _DrawerPageState extends State<DrawerPage> {
                             Column(
                               children: [
                                 ListTile(
-                                  leading: Icon(FontAwesomeIcons.boxesStacked),
+                                  leading: Icon(FontAwesomeIcons.microchip),
                                   title: Text("Kutu Kurulum"),
                                   onTap: () {
                                     Get.to(() => SmartConfigPage());
@@ -165,7 +165,7 @@ class _DrawerPageState extends State<DrawerPage> {
                             Column(
                               children: [
                                 ListTile(
-                                  leading: Icon(FontAwesomeIcons.boxesStacked),
+                                  leading: Icon(FontAwesomeIcons.server),
                                   title: Text("Kutu Yönetimi"),
                                   onTap: () {
                                     Get.to(() => BoxListPage());
