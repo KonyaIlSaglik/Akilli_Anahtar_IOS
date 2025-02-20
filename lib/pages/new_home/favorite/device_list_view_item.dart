@@ -4,6 +4,7 @@ import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item_action.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item_info.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item_menu_button.dart';
+import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item_switch.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -77,7 +78,9 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                             device.typeId == 2 ||
                             device.typeId == 3
                         ? DeviceListViewItemInfo(device: device)
-                        : DeviceListViewItemAction(device: device),
+                        : device.typeId == 4
+                            ? DeviceListViewItemAction(device: device)
+                            : DeviceListViewItemSwitch(device: device),
                   ),
                 ),
                 Positioned(
