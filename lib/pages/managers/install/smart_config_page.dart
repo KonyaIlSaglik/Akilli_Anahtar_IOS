@@ -294,6 +294,12 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
     const int udpPort = 4210; // ESP'nin dinlediği port
     UDP sender = await UDP.bind(Endpoint.any());
 
+    String urlMessage = apiUrlOut;
+    sender.send(urlMessage.codeUnits,
+        Endpoint.unicast(espAddress, port: Port(udpPort)));
+
+    print("ESP'ye '$apiUrlOut' adresi gönderildi: ${espAddress.address}");
+
     String stopMessage = "STOP";
     sender.send(stopMessage.codeUnits,
         Endpoint.unicast(espAddress, port: Port(udpPort)));

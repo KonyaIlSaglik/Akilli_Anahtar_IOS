@@ -137,6 +137,17 @@ class HomeController extends GetxController {
     devices.value = <Device>[];
   }
 
+  Future<List<NotificationModel>> getAllNotificationMessage() async {
+    AuthController authController = Get.find();
+    var response = await BaseService.get(
+      "$apiUrlOut/Home/getAllNotificationMessage?userId=${authController.user.value.id!}",
+    );
+    if (response.statusCode == 200) {
+      return NotificationModel.fromJsonList(response.body);
+    }
+    return <NotificationModel>[];
+  }
+
   Future<NotificationModel> getNotification(int deviceId) async {
     AuthController authController = Get.find();
     var response = await BaseService.get(

@@ -42,4 +42,11 @@ class NotificationModel {
 
   factory NotificationModel.fromJson(String source) =>
       NotificationModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  static List<NotificationModel> fromJsonList(String source) {
+    final List<dynamic> jsonList = json.decode(source) as List<dynamic>;
+    return jsonList
+        .map((x) => NotificationModel.fromJson(json.encode(x)))
+        .toList();
+  }
 }

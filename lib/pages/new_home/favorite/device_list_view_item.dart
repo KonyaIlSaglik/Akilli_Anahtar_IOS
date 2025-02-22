@@ -78,7 +78,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
                             device.typeId == 2 ||
                             device.typeId == 3
                         ? DeviceListViewItemInfo(device: device)
-                        : device.typeId == 4
+                        : device.typeId == 4 || device.typeId == 6
                             ? DeviceListViewItemAction(device: device)
                             : DeviceListViewItemSwitch(device: device),
                   ),
