@@ -266,7 +266,9 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
       setState(() {
         countDown = 180 - t.tick;
       });
-      if (countDown == 0) {}
+      if (countDown == 0) {
+        _stopProvisioning();
+      }
     });
 
     const int udpPort = 4210; // ESP'nin yayın yaptığı port

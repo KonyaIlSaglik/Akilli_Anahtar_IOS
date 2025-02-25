@@ -65,10 +65,12 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
         }
       }
     });
+    print("${device.topicRec} -->  get");
+    _mqttController.publishMessage(device.topicRec!, "get");
   }
 
   void _startStatusTimeout() {
-    _statusTimer = Timer(Duration(seconds: 15), () {
+    _statusTimer = Timer(Duration(minutes: 10), () {
       if (mounted) {
         setState(() {
           status = "";
