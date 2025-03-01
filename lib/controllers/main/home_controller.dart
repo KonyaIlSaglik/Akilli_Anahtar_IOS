@@ -115,7 +115,7 @@ class HomeController extends GetxController {
           boxName: boxName,
           devices: list
               .where(
-                (d) => d.boxName! == boxName,
+                (d) => d.boxName != null && d.boxName! == boxName,
               )
               .toList()));
     }
@@ -196,6 +196,9 @@ class HomeController extends GetxController {
     AuthController authController = Get.find();
     var id = authController.user.value.id;
     homeDevices.value = await HomeService.getDevices(id!) ?? <HomeDeviceDto>[];
+    homeDevices.sort(
+      (a, b) => a.typeId!.compareTo(b.typeId!),
+    );
     MqttController mqttController = Get.find();
     for (var device in homeDevices) {
       mqttController.subscribeToTopic(device.topicStat!);

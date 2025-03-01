@@ -23,6 +23,8 @@ class Layout extends StatefulWidget {
 class _LayoutState extends State<Layout> {
   MqttController mqttController = Get.put(MqttController());
   HomeController homeController = Get.put(HomeController());
+  PersistentTabController tabController =
+      PersistentTabController(initialIndex: 0);
 
   @override
   void initState() {
@@ -38,63 +40,74 @@ class _LayoutState extends State<Layout> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.brown[50]!,
-        foregroundColor: Colors.brown[50]!,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        iconTheme: IconThemeData(
-          size: 30,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (tabController.index == 0) {
+          exitApp(context);
+        } else {
+          tabController.index = 0;
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.brown[50]!,
+          foregroundColor: Colors.brown[50]!,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          iconTheme: IconThemeData(
+            size: 30,
+          ),
+          title: Text(
+            "AKILLI ANAHTAR",
+            style: width(context) < minWidth
+                ? textTheme(context).titleMedium!
+                : textTheme(context).titleLarge!,
+          ),
+          actions: [
+            NamedIcon(
+              iconData: FontAwesomeIcons.solidBell,
+              notificationCount: 11,
+              onTap: () {
+                Get.to(() => NotificationPage());
+              },
+            )
+          ],
         ),
-        title: Text(
-          "AKILLI ANAHTAR",
-          style: width(context) < minWidth
-              ? textTheme(context).titleMedium!
-              : textTheme(context).titleLarge!,
+        drawer: DrawerPage(),
+        body: PersistentTabView(
+          controller: tabController,
+          handleAndroidBackButtonPress: false,
+          backgroundColor: Colors.brown[50]!,
+          navBarHeight: height(context) * 0.07,
+          padding: EdgeInsets.all(height(context) * 0.01),
+          navBarStyle: NavBarStyle.style6,
+          context,
+          screens: [
+            BackContainer(child: FavoritePage()),
+            BackContainer(child: DeviceListPage()),
+            BackContainer(child: PlanPage()),
+            BackContainer(child: SettingsPage()),
+          ],
+          items: [
+            customPersistentBottomNavBarItem(
+              FontAwesomeIcons.solidHeart,
+              title: "Favoriler",
+            ),
+            customPersistentBottomNavBarItem(
+              FontAwesomeIcons.boxesStacked,
+              title: "Cihazlar",
+            ),
+            customPersistentBottomNavBarItem(
+              FontAwesomeIcons.solidClock,
+              title: "Planlar",
+            ),
+            customPersistentBottomNavBarItem(
+              FontAwesomeIcons.gear,
+              title: "Ayarlar",
+            ),
+          ],
         ),
-        actions: [
-          NamedIcon(
-            iconData: FontAwesomeIcons.solidBell,
-            notificationCount: 11,
-            onTap: () {
-              Get.to(() => NotificationPage());
-            },
-          )
-        ],
-      ),
-      drawer: DrawerPage(),
-      body: PersistentTabView(
-        handleAndroidBackButtonPress: false,
-        backgroundColor: Colors.brown[50]!,
-        navBarHeight: height(context) * 0.07,
-        padding: EdgeInsets.all(height(context) * 0.01),
-        navBarStyle: NavBarStyle.style6,
-        context,
-        screens: [
-          BackContainer(child: FavoritePage()),
-          BackContainer(child: DeviceListPage()),
-          BackContainer(child: PlanPage()),
-          BackContainer(child: SettingsPage()),
-        ],
-        items: [
-          customPersistentBottomNavBarItem(
-            FontAwesomeIcons.solidHeart,
-            title: "Favoriler",
-          ),
-          customPersistentBottomNavBarItem(
-            FontAwesomeIcons.boxesStacked,
-            title: "Cihazlar",
-          ),
-          customPersistentBottomNavBarItem(
-            FontAwesomeIcons.solidClock,
-            title: "Planlar",
-          ),
-          customPersistentBottomNavBarItem(
-            FontAwesomeIcons.gear,
-            title: "Ayarlar",
-          ),
-        ],
       ),
     );
   }

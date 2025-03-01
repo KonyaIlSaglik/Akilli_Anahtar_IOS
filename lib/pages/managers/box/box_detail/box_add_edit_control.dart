@@ -59,47 +59,44 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
               restarting = false;
             });
             mqttController.publishMessage(box.topicRec!, "getinfo");
-          }
-          if (message == "restarting") {
+          } else if (message == "restarting") {
             setState(() {
               restarting = true;
             });
-          }
-          if (message == "upgrading") {
+          } else if (message == "upgrading") {
             setState(() {
               upgrading = true;
             });
-          }
-          if (message == "ap-1") {
+          } else if (message == "ap-1") {
             setState(() {
               apSatus = "1";
               apChanging = true;
             });
-          }
-          if (message == "ap-3") {
+          } else if (message == "ap-3") {
             setState(() {
               apSatus = "3";
               apChanging = true;
             });
-          }
-          if (message.contains("{")) {
+          } else if (message.contains("{")) {
             try {
               var infoModel = NodemcuInfoModel();
               infoModel = NodemcuInfoModel.fromJson(message);
-              if (infoModel.chipId.isNotEmpty) {
+              if (infoModel.chip.isNotEmpty) {
                 setState(() {
-                  apSatus = infoModel.apEnable ? "2" : "0";
+                  apSatus = infoModel.ap ? "2" : "0";
                   apChanging = false;
-                  version = infoModel.version;
+                  version = infoModel.ver;
                 });
               }
             } catch (e) {
               print(e);
             }
           }
-          setState(() {
-            disable = restarting || apChanging || upgrading;
-          });
+          if (mounted) {
+            setState(() {
+              disable = restarting || apChanging || upgrading;
+            });
+          }
         }
       },
     );
@@ -137,7 +134,7 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
                             ? null
                             : () {
                                 mqttController.publishMessage(
-                                    box.topicRec!, "reboot");
+                                    box.topicRec!, "restart");
                               },
                       ),
               ),
@@ -200,7 +197,7 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
                                     ? null
                                     : () {
                                         mqttController.publishMessage(
-                                            box.topicRec!, "doUpgrade");
+                                            box.topicRec!, "upgrade");
                                       },
                               )
                             : CupertinoActivityIndicator(color: goldColor)
@@ -208,6 +205,46 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
                             onPressed: null,
                             child: Text("Güncel"),
                           ),
+              ),
+              Divider(),
+              ListTile(
+                title: Text("Wi-fi Ayarları Sıfırla"),
+                trailing: IconButton(
+                  icon: Icon(
+                    Icons.delete_forever,
+                    color: Colors.red,
+                  ),
+                  onPressed: disable
+                      ? null
+                      : () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: Text(
+                                    "Wi-fi ayarları sıfırlanacak ve cihaz SmartConnect moduna geçecektir."),
+                                title: Text("Dikkat"),
+                                actions: [
+                                  TextButton(
+                                    child: Text("Vazgeç"),
+                                    onPressed: () {
+                                      Get.back();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: Text("Sıfırla"),
+                                    onPressed: () {
+                                      mqttController.publishMessage(
+                                          box.topicRec!, "wifireset");
+                                      Get.back();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                ),
               ),
               Divider(),
             ],

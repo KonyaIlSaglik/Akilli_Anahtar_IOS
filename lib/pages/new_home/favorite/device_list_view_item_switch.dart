@@ -20,9 +20,6 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch> {
   final MqttController _mqttController = Get.find();
   final HomeController homeController = Get.find();
   late HomeDeviceDto device;
-  int openCount = 0;
-  int closeCount = 0;
-  int waitingCount = 0;
   String status = "";
   Timer? _statusTimer;
   @override
@@ -33,26 +30,13 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch> {
     _startStatusTimeout();
     _mqttController.onMessage((topic, message) {
       if (topic == device.topicStat) {
+        print("$topic: $message");
         if (mounted) {
           setState(() {
             status = message;
-            if (status == "1") {
-              openCount = 0;
-              closeCount = 0;
-              waitingCount = 0;
-            }
-            if (status == "2") {
-              openCount++;
-            }
-            if (status == "3") {
-              waitingCount++;
-            }
-            if (status == "4") {
-              closeCount++;
-            }
           });
           homeController.lastStatus[device.id!] = status;
-          _resetStatusTimeout(); // Yeni mesaj alındığında zamanlayıcıyı sıfırla
+          _resetStatusTimeout();
         }
       }
     });
@@ -70,8 +54,8 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch> {
   }
 
   void _resetStatusTimeout() {
-    _statusTimer?.cancel(); // Önceki zamanlayıcıyı iptal et
-    _startStatusTimeout(); // Yeni zamanlayıcı başlat
+    _statusTimer?.cancel();
+    _startStatusTimeout();
   }
 
   @override
@@ -89,13 +73,51 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch> {
           opacity: status == "" ? 0.5 : 1,
           child: Switch(
             activeColor: goldColor,
-            value: false,
+            value: device.typeId == 5
+                ? status == "1"
+                    ? false
+                    : true
+                : status == "0"
+                    ? false
+                    : true,
             onChanged: (value) {
               //
             },
           ),
         ),
+        Text(
+          device.typeId == 5
+              ? status.isEmpty || status == "1"
+                  ? "Kapalı"
+                  : "Açık"
+              : status.isEmpty || status == "0"
+                  ? "Kapalı"
+                  : formatDuration(status),
+          style: textTheme(context).labelMedium?.copyWith(
+              fontWeight: device.typeId == 5 || status.isEmpty || status == "0"
+                  ? FontWeight.normal
+                  : FontWeight.bold,
+              color: device.typeId == 5 || status.isEmpty || status == "0"
+                  ? Colors.black
+                  : Colors.red),
+        ),
       ],
     );
+  }
+
+  String formatDuration(String status) {
+    // String'i int'e çevir
+    int seconds = int.tryParse(status) ?? 0;
+
+    // Saat, dakika ve saniye hesaplama
+    int hours = seconds ~/ 3600;
+    seconds %= 3600;
+    int minutes = seconds ~/ 60;
+    seconds %= 60;
+    String sa = hours < 10 ? "0$hours" : "$hours";
+    String dk = minutes < 10 ? "0$minutes" : "$minutes";
+    String sn = seconds < 10 ? "0$seconds" : "$seconds";
+    // Formatı oluştur
+    return '$sa:$dk:$sn';
   }
 }

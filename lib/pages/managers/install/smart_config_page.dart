@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:akilli_anahtar/controllers/install/wifi_controller.dart';
+import 'package:akilli_anahtar/pages/managers/install/introduction_page.dart';
+import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +29,7 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
       TextEditingController(text: "");
   final formKey = GlobalKey<FormState>();
   bool passVisible = false;
+  List<Map<String, String>> savedNetworks = [];
   final provisioner = MyProvisioner.espTouch();
   late Timer timer;
   bool _animate = false;
@@ -43,6 +47,14 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
         });
       }
     });
+
+    LocalDb.get("ssidlist").then(
+      (value) {
+        if (value != null) {
+          savedNetworks = json.decode(value) as List<Map<String, String>>;
+        }
+      },
+    );
   }
 
   @override
@@ -65,6 +77,14 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
               ? textTheme(context).titleMedium!
               : textTheme(context).titleLarge!,
         ),
+        actions: [
+          TextButton(
+            child: Text("AP Kurulum"),
+            onPressed: () {
+              Get.to(IntroductionPage());
+            },
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -90,6 +110,14 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
                     _buildTextField(
                         passwordController, "PAROLA", FontAwesomeIcons.lock,
                         isPassword: true),
+                    SizedBox(height: height(context) * 0.02),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                            onPressed: _saveNetwork, child: Text("Kaydet")),
+                      ],
+                    ),
                     SizedBox(height: height(context) * 0.05),
                     _buildSubmitButton(),
                     SizedBox(height: height(context) * 0.05),
@@ -160,12 +188,53 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
                         });
                       },
                     )
-                  : null,
+                  : IconButton(
+                      icon: Icon(
+                        FontAwesomeIcons.list,
+                        color: goldColor,
+                      ),
+                      onPressed: () => _showSavedNetworks(),
+                    ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  void _saveNetwork() async {
+    if (formKey.currentState!.validate()) {
+      final existingNetwork = savedNetworks.firstWhere(
+        (network) => network['ssid'] == ssidController.text,
+        orElse: () => {},
+      );
+
+      if (existingNetwork.isNotEmpty) {
+        // Optionally, show a dialog to update the existing entry
+        Get.snackbar(
+          "Hata",
+          "Bu SSID zaten mevcut.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+      setState(() {
+        savedNetworks.add({
+          'ssid': ssidController.text,
+          'password': passwordController.text,
+        });
+      });
+      saveLocalDb();
+      Get.snackbar(
+        "Başarılı",
+        "Ağ bilgileri kaydedildi.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  void saveLocalDb() async {
+    await LocalDb.add("ssidlist", json.encode(savedNetworks));
   }
 
   Widget _buildSubmitButton() {
@@ -215,6 +284,97 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
           Text(" saniye", style: textTheme(context).titleMedium),
         ],
       ),
+    );
+  }
+
+  void _showSavedNetworks() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SizedBox(
+          height: height(context) * 0.5,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 10),
+                child: Row(
+                  children: [
+                    Text(
+                      "Kayıtlı Ağlar",
+                      style: textTheme(context).titleMedium,
+                    ),
+                  ],
+                ),
+              ),
+              Divider(
+                color: goldColor,
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: savedNetworks.length,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        ListTile(
+                          title: Text(savedNetworks[index]['ssid']!),
+                          subtitle: Text(savedNetworks[index]['password']!),
+                          trailing: IconButton(
+                            icon: Icon(
+                              Icons.remove_circle,
+                              color: Colors.red,
+                            ),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text("Dikkat!"),
+                                    content: Text(
+                                        "Ağ bilgisini silmek istior musunuz?"),
+                                    actions: [
+                                      TextButton(
+                                        child: Text("Vazgeç"),
+                                        onPressed: () {
+                                          Get.back();
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: Text("Sil"),
+                                        onPressed: () {
+                                          setState(() {
+                                            savedNetworks
+                                                .remove(savedNetworks[index]);
+                                          });
+                                          saveLocalDb();
+                                          Get.back();
+                                          if (savedNetworks.isEmpty) {
+                                            Get.back();
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          onTap: () {
+                            ssidController.text = savedNetworks[index]['ssid']!;
+                            passwordController.text =
+                                savedNetworks[index]['password']!;
+                            Navigator.pop(context); // Close the bottom sheet
+                          },
+                        ),
+                        Divider(),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

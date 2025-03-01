@@ -21,7 +21,6 @@ class _BoxListPageState extends State<BoxListPage> {
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () async {
-      await boxManagementController.checkNewVersion();
       await boxManagementController.getBoxList();
       await boxManagementController.getOrganisationList();
       setState(() {});

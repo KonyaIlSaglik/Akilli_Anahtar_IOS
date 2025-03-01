@@ -24,9 +24,9 @@ String notificationKey(int deviceId) {
   return "notification$deviceId";
 }
 
-const String apiUrlOut =
-    "http://uzak.konyasm.gov.tr:42027/AkilliAnahtarApi/api";
-//const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
+// const String apiUrlOut =
+//     "http://uzak.konyasm.gov.tr:42027/AkilliAnahtarApi/api";
+const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
 const String userIdKey = "userId";
 const String webTokenKey = "webToken";
 const String userNameKey = "userName";

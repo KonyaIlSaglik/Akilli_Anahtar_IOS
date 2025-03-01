@@ -38,6 +38,7 @@ class _BoxAddEditState extends State<BoxAddEdit>
 
   void init() async {
     if (box.id != null) {
+      await boxManagementController.checkNewVersion();
       await deviceManagementController.getAllByBoxId(box.id!);
       await deviceManagementController.getDeviceTypes();
     }

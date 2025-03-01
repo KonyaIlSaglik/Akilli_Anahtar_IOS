@@ -97,7 +97,8 @@ class _IntroductionPageState extends State<IntroductionPage> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  Get.to(() => Layout());
+                                  Get.back();
+                                  Get.back();
                                 },
                                 child: Text(
                                   "Çıkış",

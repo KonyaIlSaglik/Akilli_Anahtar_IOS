@@ -102,7 +102,7 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
           status.isNotEmpty ? status : "-",
           style: textTheme(context).headlineLarge!.copyWith(
                 color: alarmStatus == 1
-                    ? Colors.white
+                    ? Colors.orange
                     : alarmStatus == 2
                         ? Colors.red
                         : Colors.black,
@@ -115,7 +115,7 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
           device.unit ?? "-",
           style: TextStyle(
             color: alarmStatus == 1
-                ? Colors.white
+                ? Colors.orange
                 : alarmStatus == 2
                     ? Colors.red
                     : Colors.black,
