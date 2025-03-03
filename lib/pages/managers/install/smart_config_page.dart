@@ -51,7 +51,10 @@ class _SmartConfigPageState extends State<SmartConfigPage> {
     LocalDb.get("ssidlist").then(
       (value) {
         if (value != null) {
-          savedNetworks = json.decode(value) as List<Map<String, String>>;
+          print(value);
+          savedNetworks = (jsonDecode(value) as List)
+              .map((item) => Map<String, String>.from(item))
+              .toList();
         }
       },
     );
