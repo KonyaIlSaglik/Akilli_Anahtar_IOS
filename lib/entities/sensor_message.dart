@@ -46,4 +46,9 @@ class SensorMessage {
 
   factory SensorMessage.fromJson(String source) =>
       SensorMessage.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  static List<SensorMessage> fromJsonList(String source) {
+    final List<dynamic> jsonList = json.decode(source) as List<dynamic>;
+    return jsonList.map((x) => SensorMessage.fromJson(json.encode(x))).toList();
+  }
 }

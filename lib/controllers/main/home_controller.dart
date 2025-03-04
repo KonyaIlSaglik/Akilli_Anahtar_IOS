@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/dtos/home_device_dto.dart';
+import 'package:akilli_anahtar/dtos/home_notification_dto.dart';
 import 'package:akilli_anahtar/entities/city.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/district.dart';
@@ -137,15 +138,15 @@ class HomeController extends GetxController {
     devices.value = <Device>[];
   }
 
-  Future<List<NotificationModel>> getAllNotificationMessage() async {
+  Future<List<HomeNotificationDto>> getAllNotificationMessage() async {
     AuthController authController = Get.find();
     var response = await BaseService.get(
       "$apiUrlOut/Home/getAllNotificationMessage?userId=${authController.user.value.id!}",
     );
     if (response.statusCode == 200) {
-      return NotificationModel.fromJsonList(response.body);
+      return HomeNotificationDto.fromJsonList(response.body);
     }
-    return <NotificationModel>[];
+    return <HomeNotificationDto>[];
   }
 
   Future<NotificationModel> getNotification(int deviceId) async {

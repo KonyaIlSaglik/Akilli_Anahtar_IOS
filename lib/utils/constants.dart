@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:new_version_plus/new_version_plus.dart';
@@ -24,9 +25,9 @@ String notificationKey(int deviceId) {
   return "notification$deviceId";
 }
 
-// const String apiUrlOut =
-//     "http://uzak.konyasm.gov.tr:42027/AkilliAnahtarApi/api";
-const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
+const String apiUrlOut =
+    "http://uzak.konyasm.gov.tr:42027/AkilliAnahtarApi/api";
+//const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
 const String userIdKey = "userId";
 const String webTokenKey = "webToken";
 const String userNameKey = "userName";
@@ -210,3 +211,19 @@ const double minWidth = 361;
 TextTheme textTheme(context) => Theme.of(context).textTheme;
 width(context) => MediaQuery.sizeOf(context).width;
 height(context) => MediaQuery.sizeOf(context).height;
+
+IconData? deviceIcon(int deviceId) {
+  return deviceId == 1
+      ? FontAwesomeIcons.temperatureHigh
+      : deviceId == 2
+          ? FontAwesomeIcons.droplet
+          : deviceId == 3
+              ? FontAwesomeIcons.volcano
+              : deviceId == 4 || deviceId == 6
+                  ? FontAwesomeIcons.roadBarrier
+                  : deviceId == 5
+                      ? FontAwesomeIcons.lightbulb
+                      : deviceId == 8
+                          ? FontAwesomeIcons.faucetDrip
+                          : null;
+}
