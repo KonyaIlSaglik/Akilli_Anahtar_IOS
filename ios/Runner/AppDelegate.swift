@@ -16,6 +16,9 @@ import Flutter
       UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
     }
 
+    let flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin()
+        flutterLocalNotificationsPlugin.initialize()
+
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
