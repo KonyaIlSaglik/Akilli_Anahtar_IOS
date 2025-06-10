@@ -15,6 +15,8 @@ const String mqttPortKey = "mqttPort";
 const String mqttUserKey = "mqttUser";
 const String mqttPasswordKey = "mqttPassword";
 
+const String notificationPermissionKey =
+    "notificationPermissionRequested"; //notification izni istendi mi
 const String notificationRangeKey = "notificationRange";
 const List<String> notificationRanges = [
   "5",

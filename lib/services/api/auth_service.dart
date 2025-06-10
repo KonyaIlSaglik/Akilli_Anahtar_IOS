@@ -10,6 +10,7 @@ import 'package:akilli_anahtar/models/old_session_model.dart';
 import 'package:akilli_anahtar/services/api/base_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -118,6 +119,25 @@ class AuthService {
         authController.user.value = user;
         LocalDb.add(userNameKey, loginModel.userName);
         LocalDb.add(passwordKey, loginModel.password);
+
+        var alreadyAsked = await LocalDb.get(notificationPermissionKey);
+        if (alreadyAsked != "true") {
+          NotificationSettings settings =
+              await FirebaseMessaging.instance.requestPermission();
+
+          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+            print('📬 Bildirim izni verildi.');
+          } else if (settings.authorizationStatus ==
+              AuthorizationStatus.denied) {
+            print('⛔ Bildirim izni reddedildi.');
+          }
+
+          await LocalDb.add(notificationPermissionKey, "true");
+        }
+
+        String? token = await FirebaseMessaging.instance.getToken();
+        print("FCM TOKEN: $token");
+
         return;
       } else if (response.statusCode == 202) {
         authController.oldSessions.value =

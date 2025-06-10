@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "530892159842",
+    "project_id": "akillianahtar01",
+    "storage_bucket": "akillianahtar01.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530892159842:android:7c8211b06e48a9b3164a3b",
+        "android_client_info": {
+          "package_name": "com.akillianahtar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "530892159842-bvhesf38ia1c08o2if9nf42p4897q7au.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPHjOXYJJsM7WWni3kRV8D8EKWJ0aH9QM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "530892159842-bvhesf38ia1c08o2if9nf42p4897q7au.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

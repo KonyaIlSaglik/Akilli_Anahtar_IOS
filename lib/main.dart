@@ -6,9 +6,11 @@ import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:akilli_anahtar/splash_page.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Firebase.initializeApp();
   await initializeService();
   initializeDateFormatting('tr_TR', null).then(
     (value) => runApp(MyApp(theme: ThemeData.light())),
