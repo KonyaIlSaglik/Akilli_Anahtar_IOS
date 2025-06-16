@@ -1,5 +1,6 @@
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
+import 'package:akilli_anahtar/controllers/main/notification_filter_controller.dart';
 import 'package:akilli_anahtar/pages/new_home/drawer_page.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/favorite_page.dart';
 import 'package:akilli_anahtar/pages/new_home/device/device_list_page.dart';
@@ -12,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 
 class Layout extends StatefulWidget {
   const Layout({super.key});
@@ -23,14 +26,69 @@ class Layout extends StatefulWidget {
 class _LayoutState extends State<Layout> {
   MqttController mqttController = Get.put(MqttController());
   HomeController homeController = Get.put(HomeController());
+  NotificationFilterController filterController =
+      Get.put(NotificationFilterController());
   PersistentTabController tabController =
       PersistentTabController(initialIndex: 0);
+  final DatabaseReference _database = FirebaseDatabase.instance.ref();
 
   @override
   void initState() {
     super.initState();
     print("Layout Created");
     init();
+    _listenToNotifications();
+  }
+
+  void _listenToNotifications() {
+    final userId = Get.find<AuthController>().user.value.id.toString();
+
+    // İlk yükleme için
+    _database.child('notifications/$userId').once().then((event) {
+      if (event.snapshot.value != null) {
+        final data = event.snapshot.value as Map<dynamic, dynamic>;
+        final notifications = data.entries.map((entry) {
+          final notification = Map<String, dynamic>.from(entry.value as Map);
+          notification['id'] = entry.key;
+          return notification;
+        }).toList();
+
+        final unreadCount = notifications.where((n) => n['read'] != 1).length;
+        filterController.unreadCount.value = unreadCount;
+      } else {
+        filterController.unreadCount.value = 0;
+      }
+    });
+
+    // Gerçek zamanlı güncellemeler için
+    _database.child('notifications/$userId').onChildAdded.listen((event) {
+      _updateNotificationCount(userId);
+    });
+
+    _database.child('notifications/$userId').onChildChanged.listen((event) {
+      _updateNotificationCount(userId);
+    });
+
+    _database.child('notifications/$userId').onChildRemoved.listen((event) {
+      _updateNotificationCount(userId);
+    });
+  }
+
+  Future<void> _updateNotificationCount(String userId) async {
+    final snapshot = await _database.child('notifications/$userId').get();
+    if (snapshot.value != null) {
+      final data = snapshot.value as Map<dynamic, dynamic>;
+      final notifications = data.entries.map((entry) {
+        final notification = Map<String, dynamic>.from(entry.value as Map);
+        notification['id'] = entry.key;
+        return notification;
+      }).toList();
+
+      final unreadCount = notifications.where((n) => n['read'] != 1).length;
+      filterController.unreadCount.value = unreadCount;
+    } else {
+      filterController.unreadCount.value = 0;
+    }
   }
 
   init() async {
@@ -65,13 +123,13 @@ class _LayoutState extends State<Layout> {
                 : textTheme(context).titleLarge!,
           ),
           actions: [
-            NamedIcon(
-              iconData: FontAwesomeIcons.solidBell,
-              notificationCount: 11,
-              onTap: () {
-                Get.to(() => NotificationPage());
-              },
-            )
+            Obx(() => NamedIcon(
+                  iconData: FontAwesomeIcons.solidBell,
+                  notificationCount: filterController.unreadCount.value,
+                  onTap: () {
+                    Get.to(() => NotificationPage());
+                  },
+                ))
           ],
         ),
         drawer: DrawerPage(),
@@ -158,21 +216,22 @@ class NamedIcon extends StatelessWidget {
                 if (text != null) Text(text!, overflow: TextOverflow.ellipsis),
               ],
             ),
-            Positioned(
-              top: 5,
-              right: 5,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration:
-                    BoxDecoration(shape: BoxShape.circle, color: Colors.red),
-                alignment: Alignment.center,
-                child: Text(
-                  notificationCount < 100 ? "$notificationCount" : "99+",
-                  style: textTheme(context).labelMedium?.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+            if (notificationCount > 0)
+              Positioned(
+                top: 5,
+                right: 5,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration:
+                      BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+                  alignment: Alignment.center,
+                  child: Text(
+                    notificationCount < 100 ? "$notificationCount" : "99+",
+                    style: textTheme(context).labelMedium?.copyWith(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-            )
+              )
           ],
         ),
       ),

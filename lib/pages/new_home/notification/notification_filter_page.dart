@@ -4,22 +4,23 @@ import 'package:get/get.dart';
 import 'package:akilli_anahtar/controllers/main/notification_controller.dart';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 
-class NotificationFilterModal extends StatelessWidget {
-  final NotificationFilterController filterController = Get.find();
+class NotificationFilterPage extends StatelessWidget {
+  final NotificationController filterController = Get.find();
   final HomeController homeController = Get.find();
+  final RxBool _expandedLocation = false.obs;
 
-  NotificationFilterModal({super.key});
+  NotificationFilterPage({super.key});
 
   List<String> get sensorTypes => homeController.homeDevices
-      .map((e) => e.typeName)
+      .map((e) => e.typeName ?? '')
+      .where((e) => e.isNotEmpty)
       .whereType<String>()
       .toSet()
       .toList();
 
   List<String> get locations => homeController.homeDevices
-      .map((e) => e.boxName ?? e.organisationName)
-      .where((e) => e != null && e.isNotEmpty)
-      .cast<String>()
+      .map((e) => e.boxName ?? e.organisationName ?? '')
+      .where((e) => e.isNotEmpty)
       .toSet()
       .toList();
 
@@ -40,107 +41,271 @@ class NotificationFilterModal extends StatelessWidget {
           decoration: BoxDecoration(
             color: colorScheme.surface,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                spreadRadius: 5,
+              ),
+            ],
           ),
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
           child: Obx(() {
-            return SingleChildScrollView(
-              controller: scrollController,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Filtrele', style: theme.textTheme.titleLarge),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Sensör Tipi',
-                    style: theme.textTheme.labelLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: sensorTypes.map((type) {
-                      final selected =
-                          filterController.selectedSensor.value == type;
-                      return FilterChip(
-                        label: Text(type),
-                        selected: selected,
-                        onSelected: (_) =>
-                            filterController.selectedSensor.value = type,
-                        selectedColor: goldColor.withOpacity(0.5),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 20),
-                  Text('Lokasyon', style: theme.textTheme.labelLarge),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: locations.map((loc) {
-                      final selected =
-                          filterController.selectedLocation.value == loc;
-                      return FilterChip(
-                        label: Text(loc),
-                        selected: selected,
-                        onSelected: (_) =>
-                            filterController.selectedLocation.value = loc,
-                        selectedColor: goldColor.withOpacity(0.5),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Tarih',
-                    style: theme.textTheme.labelLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: dateOptions.map((option) {
-                      final selected =
-                          filterController.selectedDateFilter.value == option;
-                      return FilterChip(
-                        label: Text(option),
-                        selected: selected,
-                        onSelected: (_) =>
-                            filterController.selectedDateFilter.value = option,
-                        selectedColor: goldColor.withOpacity(0.5),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 30),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            filterController.clearFilters();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            textStyle: theme.textTheme.titleMedium,
-                          ),
-                          child: Text("Temizle",
-                              style: TextStyle(color: goldColor)),
+            return Column(
+              children: [
+                Column(
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[400],
+                          borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Filtrele',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            )),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFilterSection(
+                          context,
+                          title: 'Sensör Tipi',
+                          children: [
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: sensorTypes.map((type) {
+                                final selected =
+                                    filterController.selectedSensor.value ==
+                                        type;
+                                return ChoiceChip(
+                                  label: Text(type),
+                                  selected: selected,
+                                  onSelected: (_) => filterController
+                                      .selectedSensor
+                                      .value = selected ? "" : type,
+                                  selectedColor: goldColor.withOpacity(0.3),
+                                  labelStyle: TextStyle(
+                                    color: selected
+                                        ? Colors.black
+                                        : colorScheme.onSurface,
+                                  ),
+                                  backgroundColor: colorScheme.surfaceVariant,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Obx(() => _buildExpandableSection(
+                              context,
+                              title: 'Lokasyon',
+                              expanded: _expandedLocation.value,
+                              onExpand: () => _expandedLocation.toggle(),
+                              children: [
+                                if (_expandedLocation.value) ...[
+                                  const SizedBox(height: 8),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: locations.map((loc) {
+                                      final selected = filterController
+                                              .selectedLocation.value ==
+                                          loc;
+                                      return ChoiceChip(
+                                        label: Text(loc),
+                                        selected: selected,
+                                        onSelected: (_) => filterController
+                                            .selectedLocation
+                                            .value = selected ? "" : loc,
+                                        selectedColor:
+                                            goldColor.withOpacity(0.3),
+                                        labelStyle: TextStyle(
+                                          color: selected
+                                              ? Colors.black
+                                              : colorScheme.onSurface,
+                                        ),
+                                        backgroundColor:
+                                            colorScheme.surfaceVariant,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ],
+                            )),
+                        const SizedBox(height: 20),
+                        _buildFilterSection(
+                          context,
+                          title: 'Tarih',
+                          children: [
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: dateOptions.map((option) {
+                                final selected =
+                                    filterController.selectedDateFilter.value ==
+                                        option;
+                                return ChoiceChip(
+                                  label: Text(option),
+                                  selected: selected,
+                                  onSelected: (_) => filterController
+                                      .selectedDateFilter
+                                      .value = selected ? "" : option,
+                                  selectedColor: goldColor.withOpacity(0.3),
+                                  labelStyle: TextStyle(
+                                    color: selected
+                                        ? Colors.black
+                                        : colorScheme.onSurface,
+                                  ),
+                                  backgroundColor: colorScheme.surfaceVariant,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            filterController.clearFilters();
+                            Navigator.pop(context, true);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(color: goldColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            "Temizle",
+                            style: TextStyle(color: goldColor),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Navigator.pop(context, true),
                           style: ElevatedButton.styleFrom(
-                            textStyle: theme.textTheme.titleMedium,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: goldColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          child: const Text("Bitir",
-                              style: TextStyle(color: goldColor)),
+                          child: const Text(
+                            "Uygula",
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
                     ],
-                  )
-                ],
-              ),
+                  ),
+                ),
+              ],
             );
           }),
         );
       },
+    );
+  }
+
+  Widget _buildFilterSection(
+    BuildContext context, {
+    required String title,
+    required List<Widget> children,
+  }) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ...children,
+      ],
+    );
+  }
+
+  Widget _buildExpandableSection(
+    BuildContext context, {
+    required String title,
+    required bool expanded,
+    required VoidCallback onExpand,
+    required List<Widget> children,
+  }) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: onExpand,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Icon(
+                  expanded ? Icons.expand_less : Icons.expand_more,
+                  color: theme.iconTheme.color,
+                ),
+              ],
+            ),
+          ),
+        ),
+        ...children,
+      ],
     );
   }
 }

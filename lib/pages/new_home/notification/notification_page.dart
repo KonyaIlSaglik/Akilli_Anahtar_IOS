@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'dart:async';
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:akilli_anahtar/controllers/main/notification_controller.dart';
+import 'package:akilli_anahtar/controllers/main/notification_filter_controller.dart';
+import 'package:akilli_anahtar/pages/new_home/notification/notification_filter_page.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -16,8 +20,13 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   List<Map<String, dynamic>> notifications = [];
   final ScrollController _scrollController = ScrollController();
+  final NotificationController notificationController =
+      Get.put(NotificationController());
   String filterStatus = 'all';
   bool isLoading = false;
+  final NotificationController filters = Get.find();
+  final DatabaseReference _database = FirebaseDatabase.instance.ref();
+  StreamSubscription? _notificationSubscription;
 
   final Map<String, IconData> sensorIcons = {
     'temperature': FontAwesomeIcons.temperatureHigh,
@@ -30,6 +39,44 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     _loadNotifications();
+    _startNotificationListener();
+  }
+
+  void _startNotificationListener() {
+    final userId = Get.find<AuthController>().user.value.id.toString();
+
+    _notificationSubscription =
+        _database.child('notifications/$userId').onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        final data = event.snapshot.value as Map;
+        final mapData = Map<String, dynamic>.from(data);
+        final tempList = mapData.entries.map((entry) {
+          final notif = Map<String, dynamic>.from(entry.value);
+          notif['id'] = entry.key;
+          return notif;
+        }).toList();
+
+        tempList.sort((a, b) {
+          final aTimeStr = a['received_at'];
+          final bTimeStr = b['received_at'];
+
+          final aTime = DateTime.tryParse(aTimeStr ?? '');
+          final bTime = DateTime.tryParse(bTimeStr ?? '');
+
+          if (aTime == null && bTime == null) return 0;
+          if (aTime == null) return 1;
+          if (bTime == null) return -1;
+
+          return bTime.compareTo(aTime);
+        });
+
+        if (mounted) {
+          setState(() {
+            notifications = tempList;
+          });
+        }
+      }
+    });
   }
 
   Future<void> _loadNotifications() async {
@@ -53,11 +100,16 @@ class _NotificationPageState extends State<NotificationPage> {
         }).toList();
 
         tempList.sort((a, b) {
-          final aTime = a['received_at'];
-          final bTime = b['received_at'];
+          final aTimeStr = a['received_at'];
+          final bTimeStr = b['received_at'];
+
+          final aTime = DateTime.tryParse(aTimeStr ?? '');
+          final bTime = DateTime.tryParse(bTimeStr ?? '');
+
           if (aTime == null && bTime == null) return 0;
           if (aTime == null) return 1;
           if (bTime == null) return -1;
+
           return bTime.compareTo(aTime);
         });
 
@@ -91,11 +143,23 @@ class _NotificationPageState extends State<NotificationPage> {
     final userId = Get.find<AuthController>().user.value.id.toString();
     final ref = FirebaseDatabase.instance.ref("notifications/$userId");
 
+    final updates = <String, dynamic>{};
+
     for (final notif in notifications) {
-      await ref.child(notif['id']).update({'read': true});
+      updates["${notif['id']}/read"] = 1;
     }
 
-    setState(() {});
+    await ref.update(updates);
+
+    if (!mounted) return;
+
+    setState(() {
+      notifications = notifications.map((n) => {...n, 'read': 1}).toList();
+    });
+
+    final filterController = Get.find<NotificationFilterController>();
+    filterController.unreadCount.value = 0;
+
     successSnackbar("Başarılı", "Tüm bildirimler okundu olarak işaretlendi.");
   }
 
@@ -125,6 +189,7 @@ class _NotificationPageState extends State<NotificationPage> {
       setState(() {
         notifications = [];
       });
+      successSnackbar("Başarılı", "Tüm bildirimler silindi.");
     }
   }
 
@@ -136,14 +201,6 @@ class _NotificationPageState extends State<NotificationPage> {
     setState(() {
       notifications.removeWhere((n) => n['id'] == notificationId);
     });
-  }
-
-  Future<void> _markAsRead(String notificationId) async {
-    final userId = Get.find<AuthController>().user.value.id.toString();
-    await FirebaseDatabase.instance
-        .ref("notifications/$userId/$notificationId")
-        .update({'read': true});
-    setState(() {});
   }
 
   IconData _getSensorIcon(String? sensorName) {
@@ -159,9 +216,41 @@ class _NotificationPageState extends State<NotificationPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final filtered = notifications.where((n) {
-      if (filterStatus == 'all') return true;
-      if (filterStatus == 'read') return n['read'] == true;
-      return n['read'] != true;
+      final matchesSensor = filters.selectedSensor.value.isEmpty ||
+          (n['sensor_name']?.toString().toLowerCase() ?? '')
+              .contains(filters.selectedSensor.value.toLowerCase());
+
+      final locationName = (n['boxName'] ?? n['organisation_name'] ?? '')
+          .toString()
+          .toLowerCase();
+      final matchesLocation = filters.selectedLocation.value.isEmpty ||
+          locationName.contains(filters.selectedLocation.value.toLowerCase());
+
+      final matchesDate = () {
+        final selected = filters.selectedDateFilter.value;
+        if (selected.isEmpty) return true;
+        final time = DateTime.tryParse(n['received_at'] ?? '');
+        if (time == null) return false;
+        final now = DateTime.now();
+        if (selected == 'Son 24 Saat')
+          return time.isAfter(now.subtract(const Duration(days: 1)));
+        if (selected == 'Son 7 Gün')
+          return time.isAfter(now.subtract(const Duration(days: 7)));
+        if (selected == 'Son 1 Ay')
+          return time.isAfter(now.subtract(const Duration(days: 30)));
+        return true;
+      }();
+
+      final matchesReadStatus = () {
+        if (filterStatus == 'read') return n['read'] == 1;
+        if (filterStatus == 'unread') return n['read'] != 1;
+        return true;
+      }();
+
+      return matchesSensor &&
+          matchesLocation &&
+          matchesDate &&
+          matchesReadStatus;
     }).toList();
 
     return Scaffold(
@@ -179,9 +268,18 @@ class _NotificationPageState extends State<NotificationPage> {
             onPressed: markAllAsRead,
           ),
           IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: _loadNotifications,
-          ),
+              icon: const Icon(Icons.filter_list),
+              onPressed: () async {
+                final updated = await showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (_) => NotificationFilterPage(),
+                );
+                if (updated == true) {
+                  _loadNotifications();
+                  setState(() {});
+                }
+              }),
         ],
       ),
       body: RefreshIndicator(
@@ -211,7 +309,7 @@ class _NotificationPageState extends State<NotificationPage> {
                             itemCount: filtered.length,
                             itemBuilder: (context, index) {
                               final item = filtered[index];
-                              final isRead = item['read'] == true;
+                              final isRead = item['read'] == 1;
                               final borderColor =
                                   getAlarmStatusColor(item['alarm']);
                               final sensorIcon =
@@ -260,9 +358,6 @@ class _NotificationPageState extends State<NotificationPage> {
                                   return false;
                                 },
                                 child: GestureDetector(
-                                  onTap: () {
-                                    _markAsRead(item['id']);
-                                  },
                                   child: Stack(
                                     children: [
                                       Container(
@@ -417,6 +512,8 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _notificationSubscription?.cancel();
+    filters.clearFilters();
     super.dispose();
   }
 }
