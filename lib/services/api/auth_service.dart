@@ -126,10 +126,10 @@ class AuthService {
               await FirebaseMessaging.instance.requestPermission();
 
           if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-            print('📬 Bildirim izni verildi.');
+            print(' Bildirim izni verildi.');
           } else if (settings.authorizationStatus ==
               AuthorizationStatus.denied) {
-            print('⛔ Bildirim izni reddedildi.');
+            print(' Bildirim izni reddedildi.');
           }
 
           await LocalDb.add(notificationPermissionKey, "true");

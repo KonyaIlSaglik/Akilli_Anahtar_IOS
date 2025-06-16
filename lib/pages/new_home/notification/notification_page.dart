@@ -1,10 +1,8 @@
-import 'package:akilli_anahtar/controllers/main/home_controller.dart';
-import 'package:akilli_anahtar/dtos/home_notification_dto.dart';
-import 'package:akilli_anahtar/utils/constants.dart';
-import 'package:akilli_anahtar/widgets/back_container.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
+import 'package:get/get.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -14,67 +12,140 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  var list = <HomeNotificationDto>[];
-  HomeController homeController = Get.find();
+  List<Map<String, dynamic>> notifications = [];
+
   @override
   void initState() {
     super.initState();
-    init();
+
+    final userId = Get.find<AuthController>().user.value.id.toString();
+    final databaseRef = FirebaseDatabase.instance.ref("notifications/$userId");
+
+    databaseRef.onValue.listen((DatabaseEvent event) {
+      final data = event.snapshot.value;
+      if (data != null && data is Map) {
+        final mapData = Map<String, dynamic>.from(data);
+
+        final tempList = mapData.entries.map((entry) {
+          final notif = Map<String, dynamic>.from(entry.value);
+          notif["id"] = entry.key;
+          return notif;
+        }).toList();
+
+        tempList.sort((a, b) {
+          final aTime = a["received_at"];
+          final bTime = b["received_at"];
+          if (aTime == null && bTime == null) return 0;
+          if (aTime == null) return 1;
+          if (bTime == null) return -1;
+          return bTime.compareTo(aTime);
+        });
+
+        if (mounted) {
+          setState(() {
+            notifications = tempList;
+          });
+        }
+      }
+    });
   }
 
-  void init() async {
-    var result = await homeController.getAllNotificationMessage();
-
-    setState(() {
-      list = result;
-    });
+  Color getAlarmStatusColor(int alarmStatus) {
+    switch (alarmStatus) {
+      case 2:
+        return Colors.red[700]!;
+      case 1:
+        return Colors.orange[300]!;
+      default:
+        return Colors.green;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: Colors.brown[50],
       appBar: AppBar(
-        backgroundColor: Colors.brown[50]!,
-        foregroundColor: Colors.brown[50]!,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        iconTheme: IconThemeData(
-          size: 30,
-        ),
-        title: Text(
-          "Bildirimler",
-          style: width(context) < minWidth
-              ? textTheme(context).titleMedium!
-              : textTheme(context).titleLarge!,
-        ),
-        actions: [
-          //
-        ],
+        backgroundColor: Colors.brown[50],
+        title: const Text('Bildirimler'),
       ),
-      body: BackContainer(
-        child: list.isEmpty
-            ? Center()
-            : ListView.separated(
-                itemBuilder: (context, i) {
-                  return ListTile(
-                    leading: Icon(
-                      deviceIcon(homeController.homeDevices
-                          .singleWhere((d) => d.id == list[i].sensorId)
-                          .typeId!),
-                      size: 40,
-                      color: list[i].alarmStatus! == 1
-                          ? Colors.orange
-                          : Colors.red,
-                    ),
-                    title: Text("${list[i].boxName!} / ${list[i].sensorName!}"),
-                    subtitle: Text(
-                        "Bildirim Zamanı: ${DateFormat("dd.MM.yyyy HH:mm").format(list[i].dateTime!)}"),
-                  );
-                },
-                separatorBuilder: (context, index) => Divider(),
-                itemCount: list.length,
-              ),
-      ),
+      body: notifications.isEmpty
+          ? const Center(child: Text("Henüz hiçbir bildirim yok"))
+          : ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: notifications.length,
+              itemBuilder: (context, index) {
+                final item = notifications[index];
+                final alarmInt = int.tryParse(item['alarm'].toString()) ?? 0;
+                final alarmColor = getAlarmStatusColor(alarmInt);
+
+                final sensorType = item['sensor_name'] ?? "Sensör";
+                final location =
+                    item['organisation_name'] ?? "Lokasyon Bilinmiyor";
+                final unit = item['unit'] ?? "";
+                final value = item['deger'] ?? "-";
+                final timeString =
+                    item['received_at'] ?? DateTime.now().toIso8601String();
+                final time = DateTime.tryParse(timeString);
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: alarmColor, width: 2),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            item['alarm'] == 2 ? Icons.error : Icons.warning,
+                            color: alarmColor,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  sensorType,
+                                  style: theme.textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  location,
+                                  style: theme.textTheme.bodySmall
+                                      ?.copyWith(color: Colors.grey[700]),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            "$value${unit.isNotEmpty ? ' $unit' : ''}",
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: alarmColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      if (time != null)
+                        Text(
+                          DateFormat("dd.MM.yyyy HH:mm:ss").format(time),
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey[600]),
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
     );
   }
 }
