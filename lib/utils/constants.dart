@@ -220,7 +220,7 @@ IconData? deviceIcon(int deviceId) {
       : deviceId == 2
           ? FontAwesomeIcons.droplet
           : deviceId == 3
-              ? FontAwesomeIcons.volcano
+              ? FontAwesomeIcons.fire
               : deviceId == 4 || deviceId == 6
                   ? FontAwesomeIcons.roadBarrier
                   : deviceId == 5

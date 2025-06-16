@@ -24,7 +24,7 @@ class DeviceListViewItemBackIcon extends StatelessWidget {
                 )
               : typeId == 3
                   ? Icon(
-                      FontAwesomeIcons.volcano,
+                      FontAwesomeIcons.fire,
                       size: 40,
                     )
                   : typeId == 4 || typeId == 6
