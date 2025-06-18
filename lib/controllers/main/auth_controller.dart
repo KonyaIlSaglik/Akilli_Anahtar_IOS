@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/background_service.dart';
 import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/dtos/user_dto.dart';
@@ -7,12 +8,16 @@ import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
   var session = SessionDto.empty().obs;
   var oldSessions = <OldSessionModel>[].obs;
   var user = UserDto().obs;
+  var isLoading = false.obs;
+  var isChanged = false.obs;
+  var platformIdentity = "".obs;
 
   Future<List<OperationClaim>?> getUserClaims() async {
     var claimsResult = await AuthService.getUserClaims();
@@ -25,29 +30,48 @@ class AuthController extends GetxController {
   Future<void> logOut(int sessionId, String identity) async {
     LoginController loginController = Get.find();
     await AuthService.logOut(sessionId, identity);
+    Get.offAll(() => const LoginPage());
+    await Future.delayed(Duration(milliseconds: 100));
     session.value = SessionDto.empty();
     user.value = UserDto();
     await loginController.clearLoginInfo();
-    Get.to(() => LoginPage());
   }
 
-  Future<void> changePassword(String oldPassword, String newPassword) async {
-    // isChanged.value = false;
-    // isLoading.value = true;
-    // try {
-    //   var response = await AuthService.changePassword(oldPassword, newPassword);
-    //   if (response != null) {
-    //     session.value = response;
-    //     isChanged.value = true;
-    //     LoginController loginController = Get.find();
-    //     loginController.password.value = newPassword;
-    //     await loginController.saveLoginInfo();
-    //   }
-    // } catch (e) {
-    //   errorSnackbar('Error', 'Bir hata oldu. Tekrar deneyin.');
-    // } finally {
-    //   isLoading.value = false;
-    // }
+  Future<void> changePassword(
+      String oldPassword, String newPassword, String identity) async {
+    isLoading.value = true;
+    isChanged.value = false;
+
+    try {
+      var result =
+          await AuthService.changePassword(oldPassword, newPassword, identity);
+      if (result) {
+        isChanged.value = true;
+        stopBackgroundService();
+
+        LoginController loginController = Get.find();
+        loginController.password.value = "";
+        loginController.userName.value = "";
+
+        final authController = Get.find<AuthController>();
+        authController.session.value = SessionDto.empty();
+        authController.user.value = UserDto();
+
+        await LocalDb.clear();
+
+        successSnackbar("Başarılı",
+            "Şifreniz başarıyla değiştirildi. Giriş ekranına yönlendiriliyorsunuz");
+
+        Get.reset();
+        Get.offAllNamed("/login");
+      } else {
+        errorSnackbar("Hata", "Şifre güncellenemedi");
+      }
+    } catch (e) {
+      errorSnackbar('Hata', 'Beklenmeyen bir hata oldu.');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> checkSessions(context) async {

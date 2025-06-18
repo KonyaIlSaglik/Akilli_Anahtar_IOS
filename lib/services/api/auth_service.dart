@@ -90,7 +90,7 @@ class AuthService {
     return;
   }
 
-  static Future<void> appLogin(LoginModel2 loginModel) async {
+  static Future<bool> appLogin(LoginModel2 loginModel) async {
     AuthController authController = Get.put(AuthController());
     authController.oldSessions.clear();
     print("$url/appLogin");
@@ -113,10 +113,18 @@ class AuthService {
         LoginController loginController = Get.find();
         loginController.isLogin.value = true;
         var data = json.decode(response.body) as Map<String, dynamic>;
-        var session = SessionDto.fromJson(json.encode(data["sessionDto"]));
+        //var session = SessionDto.fromJson(json.encode(data["sessionDto"]));
+        var session = SessionDto.fromMap(data["sessionDto"]);
+        print("Giriş sonrası oturum bilgisi: ${session.toMap()}");
         authController.session.value = session;
-        var user = UserDto.fromJson(json.encode(data["userDto"]));
+
+        //var user = UserDto.fromJson(json.encode(data["userDto"]));
+        var user = UserDto.fromMap(data["userDto"]);
+        print("Giriş sonrası kullanıcı bilgisi: ${user.toMap()}");
         authController.user.value = user;
+        print(
+            "Giriş sonrası kullanıcı bilgisi: ${authController.user.value.toMap()}");
+        authController.platformIdentity.value = loginModel.identity;
         LocalDb.add(userNameKey, loginModel.userName);
         LocalDb.add(passwordKey, loginModel.password);
 
@@ -137,12 +145,17 @@ class AuthService {
 
         String? token = await FirebaseMessaging.instance.getToken();
         print("FCM TOKEN: $token");
+        if (token != null) {
+          await saveFcmToken(token);
+        }
 
-        return;
+        await Future.delayed(Duration(milliseconds: 700));
+
+        return true;
       } else if (response.statusCode == 202) {
         authController.oldSessions.value =
             OldSessionModel.fromJsonList(response.body);
-        return;
+        return false;
       } else {
         errorSnackbar("Hata", response.body);
       }
@@ -150,7 +163,33 @@ class AuthService {
       errorSnackbar("Hata", "Oturum Açma Sırasında bir hata oluştu.");
       print(e);
     }
-    return;
+    return false;
+  }
+
+  static Future<void> saveFcmToken(String token) async {
+    final uri = Uri.parse("$url/save-fcm-token");
+    final client = http.Client();
+
+    final authController = Get.find<AuthController>();
+    final accessToken = authController.session.value.accessToken;
+
+    try {
+      final response = await client.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: json.encode({"fcmToken": token}),
+      );
+
+      print("FCM token gönderildi. Durum: ${response.statusCode}");
+    } catch (e) {
+      print("FCM token gönderme hatası: $e");
+    } finally {
+      client.close();
+    }
   }
 
   static Future<void> webLogin(LoginModel2 loginModel) async {
@@ -247,30 +286,40 @@ class AuthService {
     }
   }
 
-  static Future<SessionDto?> changePassword(
-      String oldPassword, String newPassword) async {
+  static Future<bool> changePassword(
+      String oldPassword, String newPassword, String identity) async {
     var authController = Get.find<AuthController>();
     var session = authController.session.value;
-    var requestBody = {
-      'userId': authController.user.value.id,
-      'oldPassword': oldPassword,
-      'newPassword': newPassword,
-    };
-    var uri = Uri.parse("$url/changepassword");
-    var client = http.Client();
-    var response = await client.put(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-        'Authorization': 'Bearer ${session.accessToken}',
-      },
-      body: json.encode(requestBody),
+
+    final uri = Uri.parse(
+      "$url/changePassword"
+      "?userId=${authController.user.value.id}"
+      "&oldPasword=$oldPassword"
+      "&newPassword=$newPassword"
+      "&identity=${identity}",
     );
-    client.close();
-    if (response.statusCode == 200) {
-      var data = SessionDto.fromJson(json.encode(response.body));
-      return data;
+
+    var client = http.Client();
+
+    try {
+      var response = await client.put(
+        uri,
+        headers: {
+          'Authorization': 'Bearer ${session.accessToken}',
+        },
+      );
+
+      if (response.statusCode == 200 && response.body.trim() == "true") {
+        return true;
+      }
+      print("Şifre değiştir API status: ${response.statusCode}");
+      print("Şifre değiştir API body: ${response.body}");
+    } catch (e) {
+      print("changePassword API hatası: $e");
+    } finally {
+      client.close();
     }
-    return null;
+
+    return false;
   }
 }

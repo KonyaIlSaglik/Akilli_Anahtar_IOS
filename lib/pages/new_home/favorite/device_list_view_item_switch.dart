@@ -30,7 +30,7 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch> {
     _startStatusTimeout();
     _mqttController.onMessage((topic, message) {
       if (topic == device.topicStat) {
-        print("$topic: $message");
+        //print("$topic: $message");
         if (mounted) {
           setState(() {
             status = message;

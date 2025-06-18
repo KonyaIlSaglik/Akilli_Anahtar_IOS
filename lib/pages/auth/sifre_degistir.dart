@@ -2,7 +2,7 @@ import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/pages/auth/login_page_form_input_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:get/get.dart';
 
@@ -134,8 +134,14 @@ class _SifreDegistirPageState extends State<SifreDegistirPage> {
                   height: height * 0.06,
                   width: width(context) * 0.50,
                   child: InkWell(
-                    onTap: () {
-                      if (formKey.currentState!.validate()) {}
+                    onTap: () async {
+                      if (formKey.currentState!.validate()) {
+                        await Get.find<AuthController>().changePassword(
+                          oldPasswordCont.text,
+                          newPasswordCont.text,
+                          Get.find<AuthController>().platformIdentity.value,
+                        );
+                      }
                     },
                     child: Card(
                       elevation: 5,

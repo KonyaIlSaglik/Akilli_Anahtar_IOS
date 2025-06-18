@@ -69,7 +69,9 @@ class _DrawerPageState extends State<DrawerPage> {
                               height: height * 0.05,
                               child: Center(
                                 child: Text(
-                                  _authController.user.value.fullName!.trim(),
+                                  (_authController.user.value.fullName ??
+                                          "Kullanıcı Adı")
+                                      .trim(),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: Theme.of(context)
@@ -85,7 +87,8 @@ class _DrawerPageState extends State<DrawerPage> {
                               height: height * 0.05,
                               child: Center(
                                 child: Text(
-                                  _authController.user.value.userName!.trim(),
+                                  (_authController.user.value.userName ?? "")
+                                      .trim(),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: Theme.of(context)
@@ -144,9 +147,8 @@ class _DrawerPageState extends State<DrawerPage> {
                             },
                             trailing: Icon(Icons.chevron_right),
                           ),
-                          if (_authController.session.value.claims!.any(
-                            (e) => e == "device_install",
-                          ))
+                          if ((_authController.session.value.claims ?? [])
+                              .any((e) => e == "device_install"))
                             Column(
                               children: [
                                 ListTile(
@@ -159,9 +161,8 @@ class _DrawerPageState extends State<DrawerPage> {
                                 ),
                               ],
                             ),
-                          if (_authController.session.value.claims!.any(
-                            (e) => e == "developer",
-                          ))
+                          if ((_authController.session.value.claims ?? [])
+                              .any((e) => e == "developer"))
                             Column(
                               children: [
                                 ListTile(

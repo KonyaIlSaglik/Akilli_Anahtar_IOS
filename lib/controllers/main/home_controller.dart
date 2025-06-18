@@ -195,8 +195,23 @@ class HomeController extends GetxController {
   Future<void> getDevices() async {
     loading.value = true;
     AuthController authController = Get.find();
+
     var id = authController.user.value.id;
-    homeDevices.value = await HomeService.getDevices(id!) ?? <HomeDeviceDto>[];
+    if (id == null) {
+      //test
+      loading.value = false;
+      return;
+    }
+    homeDevices.value = await HomeService.getDevices(id) ?? <HomeDeviceDto>[];
+
+    if (homeDevices.isEmpty) {
+      print("Kullanıcının atanmış bileşeni yok.");
+      groupDevices();
+      loadFavorites();
+      loading.value = false;
+      return;
+    }
+
     homeDevices.sort(
       (a, b) => a.typeId!.compareTo(b.typeId!),
     );

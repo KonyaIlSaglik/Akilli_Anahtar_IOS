@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
-import 'dart:async';
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:akilli_anahtar/controllers/main/notification_controller.dart';
-import 'package:akilli_anahtar/controllers/main/notification_filter_controller.dart';
 import 'package:akilli_anahtar/pages/new_home/notification/notification_filter_page.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -25,8 +23,6 @@ class _NotificationPageState extends State<NotificationPage> {
   String filterStatus = 'all';
   bool isLoading = false;
   final NotificationController filters = Get.find();
-  final DatabaseReference _database = FirebaseDatabase.instance.ref();
-  StreamSubscription? _notificationSubscription;
 
   final Map<String, IconData> sensorIcons = {
     'temperature': FontAwesomeIcons.temperatureHigh,
@@ -39,44 +35,6 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     _loadNotifications();
-    _startNotificationListener();
-  }
-
-  void _startNotificationListener() {
-    final userId = Get.find<AuthController>().user.value.id.toString();
-
-    _notificationSubscription =
-        _database.child('notifications/$userId').onValue.listen((event) {
-      if (event.snapshot.value != null) {
-        final data = event.snapshot.value as Map;
-        final mapData = Map<String, dynamic>.from(data);
-        final tempList = mapData.entries.map((entry) {
-          final notif = Map<String, dynamic>.from(entry.value);
-          notif['id'] = entry.key;
-          return notif;
-        }).toList();
-
-        tempList.sort((a, b) {
-          final aTimeStr = a['received_at'];
-          final bTimeStr = b['received_at'];
-
-          final aTime = DateTime.tryParse(aTimeStr ?? '');
-          final bTime = DateTime.tryParse(bTimeStr ?? '');
-
-          if (aTime == null && bTime == null) return 0;
-          if (aTime == null) return 1;
-          if (bTime == null) return -1;
-
-          return bTime.compareTo(aTime);
-        });
-
-        if (mounted) {
-          setState(() {
-            notifications = tempList;
-          });
-        }
-      }
-    });
   }
 
   Future<void> _loadNotifications() async {
@@ -157,9 +115,6 @@ class _NotificationPageState extends State<NotificationPage> {
       notifications = notifications.map((n) => {...n, 'read': 1}).toList();
     });
 
-    final filterController = Get.find<NotificationFilterController>();
-    filterController.unreadCount.value = 0;
-
     successSnackbar("Başarılı", "Tüm bildirimler okundu olarak işaretlendi.");
   }
 
@@ -217,12 +172,11 @@ class _NotificationPageState extends State<NotificationPage> {
     final theme = Theme.of(context);
     final filtered = notifications.where((n) {
       final matchesSensor = filters.selectedSensor.value.isEmpty ||
-          (n['sensor_name']?.toString().toLowerCase() ?? '')
+          (n['sensor_name']?.toLowerCase() ?? '')
               .contains(filters.selectedSensor.value.toLowerCase());
 
-      final locationName = (n['boxName'] ?? n['organisation_name'] ?? '')
-          .toString()
-          .toLowerCase();
+      final locationName =
+          (n['boxName'] ?? n['organisation_name'] ?? '').toLowerCase();
       final matchesLocation = filters.selectedLocation.value.isEmpty ||
           locationName.contains(filters.selectedLocation.value.toLowerCase());
 
@@ -512,8 +466,6 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _notificationSubscription?.cancel();
-    filters.clearFilters();
     super.dispose();
   }
 }

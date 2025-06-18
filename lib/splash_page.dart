@@ -19,25 +19,31 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    print("SplashPage started");
     init();
   }
 
   init() async {
     final LoginController loginController = Get.put(LoginController());
     await loginController.loadLoginInfo();
+
     if (loginController.userName.value.isEmpty ||
         loginController.password.value.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Get.to(() => LoginPage());
-      });
+      await Future.delayed(Duration(milliseconds: 500));
+      Get.offAll(() => LoginPage(),
+          transition: Transition.fadeIn, duration: Duration(milliseconds: 300));
+      return;
+    }
+
+    await loginController.login();
+
+    if (loginController.isLogin.value) {
+      Get.offAll(() => Layout(),
+          transition: Transition.fadeIn, duration: Duration(milliseconds: 300));
     } else {
-      await loginController.login();
-      if (loginController.isLogin.value) {
-        Get.to(() => Layout());
-      } else {
-        Get.to(() => LoginPage());
-      }
+      await loginController.clearLoginInfo();
+      loginController.password.value = "";
+      Get.offAll(() => LoginPage(),
+          transition: Transition.fadeIn, duration: Duration(milliseconds: 300));
     }
     checkNewVersion(context, false);
   }

@@ -42,10 +42,13 @@ class LoginController extends GetxController {
     );
   }
 
-  Future<void> login() async {
-    await AuthService.appLogin(getLoginModel);
-    if (isLogin.value) {
-      saveLoginInfo();
+  Future<bool> login() async {
+    isLogin.value = false;
+    final result = await AuthService.appLogin(getLoginModel);
+    isLogin.value = result;
+    if (result) {
+      await saveLoginInfo();
     }
+    return result;
   }
 }

@@ -37,4 +37,10 @@ class LocalDb {
     await delete(key);
     return add(key, value);
   }
+
+  static Future<bool> clear() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.clear();
+  }
 }
