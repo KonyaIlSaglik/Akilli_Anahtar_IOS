@@ -51,7 +51,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
   void _startLiveListener() {
     final userId = Get.find<AuthController>().user.value.id.toString();
-    _database
+    _notificationSubscription = _database
         .child('notifications/$userId')
         .limitToLast(1)
         .onChildAdded
@@ -62,6 +62,10 @@ class _NotificationPageState extends State<NotificationPage> {
       data['id'] = event.snapshot.key;
 
       if (!mounted) return;
+
+      final alreadyExists = notifications.any((n) => n['id'] == data['id']);
+      if (alreadyExists) return;
+
       setState(() {
         notifications.insert(0, data);
 
@@ -252,6 +256,8 @@ class _NotificationPageState extends State<NotificationPage> {
     if (confirmed == true) {
       final userId = Get.find<AuthController>().user.value.id.toString();
 
+      _notificationSubscription?.cancel();
+
       final toDelete = notifications.take(_pageSize).toList();
 
       for (final notif in toDelete) {
@@ -266,7 +272,9 @@ class _NotificationPageState extends State<NotificationPage> {
       });
 
       successSnackbar("Başarılı", "Son 20 bildirim silindi.");
-      await _loadPaginatedNotifications();
+
+      await _loadNotifications();
+      _startLiveListener();
     }
   }
 
