@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'dart:async';
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:akilli_anahtar/controllers/main/notification_controller.dart';
 import 'package:akilli_anahtar/pages/new_home/notification/notification_filter_page.dart';
+import 'package:akilli_anahtar/controllers/main/notification_filter_controller.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -23,6 +25,13 @@ class _NotificationPageState extends State<NotificationPage> {
   String filterStatus = 'all';
   bool isLoading = false;
   final NotificationController filters = Get.find();
+  final DatabaseReference _database = FirebaseDatabase.instance.ref();
+  StreamSubscription? _notificationSubscription;
+  int _loadedCount = 0;
+  int _pageSize = 20;
+  bool _hasMore = true;
+  bool _isFetching = false;
+  String? lastReceivedAt;
 
   final Map<String, IconData> sensorIcons = {
     'temperature': FontAwesomeIcons.temperatureHigh,
@@ -34,7 +43,108 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
-    _loadNotifications();
+
+    _loadPaginatedNotifications();
+    _startLiveListener();
+    deleteOldNotifications();
+  }
+
+  void _startLiveListener() {
+    final userId = Get.find<AuthController>().user.value.id.toString();
+    _database
+        .child('notifications/$userId')
+        .limitToLast(1)
+        .onChildAdded
+        .listen((event) {
+      if (!mounted || event.snapshot.value == null) return;
+
+      final data = Map<String, dynamic>.from(event.snapshot.value as Map);
+      data['id'] = event.snapshot.key;
+
+      if (!mounted) return;
+      setState(() {
+        notifications.insert(0, data);
+
+        if (notifications.length > _pageSize) {
+          notifications = notifications.take(_pageSize).toList();
+        }
+      });
+    });
+  }
+
+  Future<void> _loadPaginatedNotifications() async {
+    if (_isFetching || !_hasMore) return;
+    setState(() => _isFetching = true);
+
+    final userId = Get.find<AuthController>().user.value.id.toString();
+    var ref = FirebaseDatabase.instance
+        .ref("notifications/$userId")
+        .orderByChild("received_at")
+        .limitToLast(_pageSize);
+
+    if (lastReceivedAt != null) {
+      ref = ref.endBefore(lastReceivedAt);
+    }
+
+    final snapshot = await ref.get();
+
+    if (snapshot.exists && snapshot.value is Map) {
+      final mapData = Map<String, dynamic>.from(snapshot.value as Map);
+      final newList = mapData.entries.map((e) {
+        final notif = Map<String, dynamic>.from(e.value);
+        notif['id'] = e.key;
+        return notif;
+      }).toList();
+
+      newList.sort((a, b) {
+        final aTime = DateTime.tryParse(a['received_at'] ?? '');
+        final bTime = DateTime.tryParse(b['received_at'] ?? '');
+        if (aTime == null || bTime == null) return 0;
+        return bTime.compareTo(aTime);
+      });
+
+      if (newList.isNotEmpty) {
+        lastReceivedAt = newList.last['received_at'];
+      }
+
+      for (final item in newList) {
+        if (!notifications.any((n) => n['id'] == item['id'])) {
+          notifications.add(item);
+        }
+      }
+
+      setState(() {
+        _hasMore = newList.length >= _pageSize;
+        _isFetching = false;
+      });
+    } else {
+      setState(() {
+        _hasMore = false;
+        _isFetching = false;
+      });
+    }
+  }
+
+  Future<void> deleteOldNotifications() async {
+    final userId = Get.find<AuthController>().user.value.id.toString();
+    final ref = FirebaseDatabase.instance.ref("notifications/$userId");
+
+    final snapshot = await ref.get();
+    if (!snapshot.exists || snapshot.value is! Map) return;
+
+    final Map<String, dynamic> all =
+        Map<String, dynamic>.from(snapshot.value as Map);
+    final now = DateTime.now();
+
+    for (final entry in all.entries) {
+      final data = Map<String, dynamic>.from(entry.value);
+      final receivedAtStr = data['received_at'];
+      final receivedAt = DateTime.tryParse(receivedAtStr ?? '');
+
+      if (receivedAt != null && now.difference(receivedAt).inDays > 20) {
+        await ref.child(entry.key).remove();
+      }
+    }
   }
 
   Future<void> _loadNotifications() async {
@@ -104,7 +214,7 @@ class _NotificationPageState extends State<NotificationPage> {
     final updates = <String, dynamic>{};
 
     for (final notif in notifications) {
-      updates["${notif['id']}/read"] = 1;
+      updates["${notif['id']}/isRead"] = 1;
     }
 
     await ref.update(updates);
@@ -112,7 +222,9 @@ class _NotificationPageState extends State<NotificationPage> {
     if (!mounted) return;
 
     setState(() {
-      notifications = notifications.map((n) => {...n, 'read': 1}).toList();
+      for (var i = 0; i < notifications.length; i++) {
+        notifications[i]['isRead'] = 1;
+      }
     });
 
     successSnackbar("Başarılı", "Tüm bildirimler okundu olarak işaretlendi.");
@@ -122,9 +234,8 @@ class _NotificationPageState extends State<NotificationPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Tüm Bildirimleri Sil'),
-        content: const Text(
-            'Tüm bildirimleri silmek istediğinize emin misiniz? Bu işlem geri alınamaz.'),
+        title: const Text('Son 20 Bildirimi Sil'),
+        content: const Text('Emin misiniz?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -140,11 +251,22 @@ class _NotificationPageState extends State<NotificationPage> {
 
     if (confirmed == true) {
       final userId = Get.find<AuthController>().user.value.id.toString();
-      await FirebaseDatabase.instance.ref("notifications/$userId").remove();
+
+      final toDelete = notifications.take(_pageSize).toList();
+
+      for (final notif in toDelete) {
+        final id = notif['id'];
+        await FirebaseDatabase.instance
+            .ref("notifications/$userId/$id")
+            .remove();
+      }
+
       setState(() {
-        notifications = [];
+        notifications.clear();
       });
-      successSnackbar("Başarılı", "Tüm bildirimler silindi.");
+
+      successSnackbar("Başarılı", "Son 20 bildirim silindi.");
+      await _loadPaginatedNotifications();
     }
   }
 
@@ -156,6 +278,9 @@ class _NotificationPageState extends State<NotificationPage> {
     setState(() {
       notifications.removeWhere((n) => n['id'] == notificationId);
     });
+    if (notifications.length < _pageSize && _hasMore && !_isFetching) {
+      _loadPaginatedNotifications();
+    }
   }
 
   IconData _getSensorIcon(String? sensorName) {
@@ -170,42 +295,47 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final filtered = notifications.where((n) {
-      final matchesSensor = filters.selectedSensor.value.isEmpty ||
-          (n['sensor_name']?.toLowerCase() ?? '')
-              .contains(filters.selectedSensor.value.toLowerCase());
+    final filtered = notifications
+        .where((n) {
+          final matchesSensor = filters.selectedSensor.value.isEmpty ||
+              (n['sensor_name']?.toLowerCase() ?? '')
+                  .contains(filters.selectedSensor.value.toLowerCase());
 
-      final locationName =
-          (n['boxName'] ?? n['organisation_name'] ?? '').toLowerCase();
-      final matchesLocation = filters.selectedLocation.value.isEmpty ||
-          locationName.contains(filters.selectedLocation.value.toLowerCase());
+          final locationName = (n['boxName'] ?? n['organisation_name'] ?? '')
+              .toString()
+              .toLowerCase();
+          final matchesLocation = filters.selectedLocation.value.isEmpty ||
+              locationName
+                  .contains(filters.selectedLocation.value.toLowerCase());
 
-      final matchesDate = () {
-        final selected = filters.selectedDateFilter.value;
-        if (selected.isEmpty) return true;
-        final time = DateTime.tryParse(n['received_at'] ?? '');
-        if (time == null) return false;
-        final now = DateTime.now();
-        if (selected == 'Son 24 Saat')
-          return time.isAfter(now.subtract(const Duration(days: 1)));
-        if (selected == 'Son 7 Gün')
-          return time.isAfter(now.subtract(const Duration(days: 7)));
-        if (selected == 'Son 1 Ay')
-          return time.isAfter(now.subtract(const Duration(days: 30)));
-        return true;
-      }();
+          final matchesDate = () {
+            final selected = filters.selectedDateFilter.value;
+            if (selected.isEmpty) return true;
+            final time = DateTime.tryParse(n['received_at'] ?? '');
+            if (time == null) return false;
+            final now = DateTime.now();
+            if (selected == 'Son 24 Saat')
+              return time.isAfter(now.subtract(const Duration(days: 1)));
+            if (selected == 'Son 7 Gün')
+              return time.isAfter(now.subtract(const Duration(days: 7)));
+            if (selected == 'Son 1 Ay')
+              return time.isAfter(now.subtract(const Duration(days: 30)));
+            return true;
+          }();
 
-      final matchesReadStatus = () {
-        if (filterStatus == 'read') return n['read'] == 1;
-        if (filterStatus == 'unread') return n['read'] != 1;
-        return true;
-      }();
+          final matchesReadStatus = () {
+            if (filterStatus == 'read') return n['read'] == 1;
+            if (filterStatus == 'unread') return n['read'] != 1;
+            return true;
+          }();
 
-      return matchesSensor &&
-          matchesLocation &&
-          matchesDate &&
-          matchesReadStatus;
-    }).toList();
+          return matchesSensor &&
+              matchesLocation &&
+              matchesDate &&
+              matchesReadStatus;
+        })
+        .take(_pageSize) // ✅ SADECE SON 20
+        .toList();
 
     return Scaffold(
       backgroundColor: Colors.brown[50],
@@ -263,6 +393,7 @@ class _NotificationPageState extends State<NotificationPage> {
                             itemCount: filtered.length,
                             itemBuilder: (context, index) {
                               final item = filtered[index];
+
                               final isRead = item['read'] == 1;
                               final borderColor =
                                   getAlarmStatusColor(item['alarm']);
@@ -466,6 +597,8 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _notificationSubscription?.cancel();
+    filters.clearFilters();
     super.dispose();
   }
 }
