@@ -258,20 +258,23 @@ class _NotificationPageState extends State<NotificationPage> {
 
       _notificationSubscription?.cancel();
 
+      final Map<String, dynamic> updates = {};
       final toDelete = notifications.take(_pageSize).toList();
 
       for (final notif in toDelete) {
         final id = notif['id'];
-        await FirebaseDatabase.instance
-            .ref("notifications/$userId/$id")
-            .remove();
+        updates["$id"] = null;
       }
+
+      await FirebaseDatabase.instance
+          .ref("notifications/$userId")
+          .update(updates);
 
       setState(() {
         notifications.clear();
       });
 
-      successSnackbar("Başarılı", "Son 20 bildirim silindi.");
+      successSnackbar("Başarılı", "Son 20 bildirim hızlıca silindi.");
 
       await _loadNotifications();
       _startLiveListener();
@@ -342,7 +345,7 @@ class _NotificationPageState extends State<NotificationPage> {
               matchesDate &&
               matchesReadStatus;
         })
-        .take(_pageSize) // ✅ SADECE SON 20
+        .take(_pageSize)
         .toList();
 
     return Scaffold(
