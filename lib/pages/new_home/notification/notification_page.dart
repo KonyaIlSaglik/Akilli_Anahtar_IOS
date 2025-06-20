@@ -214,7 +214,7 @@ class _NotificationPageState extends State<NotificationPage> {
     final updates = <String, dynamic>{};
 
     for (final notif in notifications) {
-      updates["${notif['id']}/isRead"] = 1;
+      updates["${notif['id']}/read"] = 1;
     }
 
     await ref.update(updates);
@@ -223,7 +223,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
     setState(() {
       for (var i = 0; i < notifications.length; i++) {
-        notifications[i]['isRead'] = 1;
+        notifications[i]['read'] = 1;
       }
     });
 
