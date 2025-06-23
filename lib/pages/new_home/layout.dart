@@ -47,7 +47,7 @@ class _LayoutState extends State<Layout> {
     final ref = _database
         .child('notifications/$userId/$todayKey')
         .orderByChild("received_at")
-        .limitToLast(100);
+        .limitToLast(20);
 
     ref.once().then((event) {
       if (event.snapshot.value != null) {
@@ -80,7 +80,7 @@ class _LayoutState extends State<Layout> {
     final snapshot = await _database
         .child('notifications/$userId/$todayKey')
         .orderByChild("received_at")
-        .limitToLast(100)
+        .limitToLast(20)
         .get();
 
     if (snapshot.exists && snapshot.value is Map) {
