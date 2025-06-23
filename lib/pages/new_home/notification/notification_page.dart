@@ -28,10 +28,10 @@ class _NotificationPageState extends State<NotificationPage> {
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   StreamSubscription? _notificationSubscription;
   int _loadedCount = 0;
-  final int _pageSize = 20;
+  int _pageSize = 20;
   bool _hasMore = true;
   bool _isFetching = false;
-  String? lastEpoch;
+  int? lastEpoch;
 
   final Map<String, IconData> sensorIcons = {
     'temperature': FontAwesomeIcons.temperatureHigh,
@@ -85,7 +85,7 @@ class _NotificationPageState extends State<NotificationPage> {
     var ref = FirebaseDatabase.instance
         .ref("notifications/$userId/$todayKey")
         .orderByChild("received_at_epoch")
-        .limitToLast(20);
+        .limitToLast(_pageSize);
 
     if (lastEpoch != null) {
       ref = ref.endBefore(lastEpoch);
