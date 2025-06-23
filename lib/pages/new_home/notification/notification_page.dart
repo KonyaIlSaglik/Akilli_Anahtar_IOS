@@ -94,18 +94,13 @@ class _NotificationPageState extends State<NotificationPage> {
 
     if (snapshot.exists && snapshot.value is Map) {
       final mapData = Map<String, dynamic>.from(snapshot.value as Map);
-      final newList = mapData.entries.map((e) {
+      var newList = mapData.entries.map((e) {
         final notif = Map<String, dynamic>.from(e.value);
         notif['id'] = e.key;
         return notif;
       }).toList();
 
-      newList.sort((a, b) {
-        final aTime = DateTime.tryParse(a['received_at'] ?? '');
-        final bTime = DateTime.tryParse(b['received_at'] ?? '');
-        if (aTime == null || bTime == null) return 0;
-        return bTime.compareTo(aTime);
-      });
+      newList = newList.reversed.toList();
 
       if (newList.isNotEmpty) {
         lastReceivedAt = newList.last['received_at'];
@@ -151,54 +146,54 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
-  Future<void> _loadNotifications() async {
-    setState(() {
-      isLoading = true;
-    });
+  // Future<void> _loadNotifications() async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
 
-    try {
-      final userId = Get.find<AuthController>().user.value.id.toString();
-      final databaseRef =
-          FirebaseDatabase.instance.ref("notifications/$userId");
+  //   try {
+  //     final userId = Get.find<AuthController>().user.value.id.toString();
+  //     final databaseRef =
+  //         FirebaseDatabase.instance.ref("notifications/$userId");
 
-      final snapshot = await databaseRef.get();
-      if (snapshot.exists) {
-        final data = snapshot.value as Map;
-        final mapData = Map<String, dynamic>.from(data);
-        final tempList = mapData.entries.map((entry) {
-          final notif = Map<String, dynamic>.from(entry.value);
-          notif['id'] = entry.key;
-          return notif;
-        }).toList();
+  //     final snapshot = await databaseRef.get();
+  //     if (snapshot.exists) {
+  //       final data = snapshot.value as Map;
+  //       final mapData = Map<String, dynamic>.from(data);
+  //       final tempList = mapData.entries.map((entry) {
+  //         final notif = Map<String, dynamic>.from(entry.value);
+  //         notif['id'] = entry.key;
+  //         return notif;
+  //       }).toList();
 
-        tempList.sort((a, b) {
-          final aTimeStr = a['received_at'];
-          final bTimeStr = b['received_at'];
+  //       tempList.sort((a, b) {
+  //         final aTimeStr = a['received_at'];
+  //         final bTimeStr = b['received_at'];
 
-          final aTime = DateTime.tryParse(aTimeStr ?? '');
-          final bTime = DateTime.tryParse(bTimeStr ?? '');
+  //         final aTime = DateTime.tryParse(aTimeStr ?? '');
+  //         final bTime = DateTime.tryParse(bTimeStr ?? '');
 
-          if (aTime == null && bTime == null) return 0;
-          if (aTime == null) return 1;
-          if (bTime == null) return -1;
+  //         if (aTime == null && bTime == null) return 0;
+  //         if (aTime == null) return 1;
+  //         if (bTime == null) return -1;
 
-          return bTime.compareTo(aTime);
-        });
+  //         return bTime.compareTo(aTime);
+  //       });
 
-        if (mounted) {
-          setState(() {
-            notifications = tempList;
-          });
-        }
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
-  }
+  //       if (mounted) {
+  //         setState(() {
+  //           notifications = tempList;
+  //         });
+  //       }
+  //     }
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     }
+  //   }
+  // }
 
   Color getAlarmStatusColor(String? alarm) {
     switch (alarm) {
@@ -234,7 +229,7 @@ class _NotificationPageState extends State<NotificationPage> {
     successSnackbar("Başarılı", "Tüm bildirimler okundu olarak işaretlendi.");
   }
 
-  Future<void> deleteAll() async {
+  Future<void> deleteLast20() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -276,22 +271,27 @@ class _NotificationPageState extends State<NotificationPage> {
 
       successSnackbar("Başarılı", "Son 20 bildirim hızlıca silindi.");
 
-      await _loadNotifications();
+      await _loadPaginatedNotifications();
       _startLiveListener();
     }
   }
 
   Future<void> _deleteNotification(String notificationId) async {
     final userId = Get.find<AuthController>().user.value.id.toString();
+
+    _notificationSubscription?.cancel();
+
     await FirebaseDatabase.instance
         .ref("notifications/$userId/$notificationId")
         .remove();
+
     setState(() {
       notifications.removeWhere((n) => n['id'] == notificationId);
     });
-    if (notifications.length < _pageSize && _hasMore && !_isFetching) {
-      _loadPaginatedNotifications();
-    }
+
+    await _loadPaginatedNotifications();
+
+    _startLiveListener();
   }
 
   IconData _getSensorIcon(String? sensorName) {
@@ -356,7 +356,7 @@ class _NotificationPageState extends State<NotificationPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_sweep),
-            onPressed: deleteAll,
+            onPressed: deleteLast20,
           ),
           IconButton(
             icon: const Icon(Icons.mark_email_read),
@@ -371,14 +371,15 @@ class _NotificationPageState extends State<NotificationPage> {
                   builder: (_) => NotificationFilterPage(),
                 );
                 if (updated == true) {
-                  _loadNotifications();
+                  await _loadPaginatedNotifications();
+
                   setState(() {});
                 }
               }),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadNotifications,
+        onRefresh: _loadPaginatedNotifications,
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
             : Column(

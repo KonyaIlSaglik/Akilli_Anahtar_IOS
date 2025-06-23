@@ -43,24 +43,25 @@ class _LayoutState extends State<Layout> {
   void _listenToNotifications() {
     final userId = Get.find<AuthController>().user.value.id.toString();
 
-    // İlk yükleme için
-    _database.child('notifications/$userId').once().then((event) {
-      if (event.snapshot.value != null) {
-        final data = event.snapshot.value as Map<dynamic, dynamic>;
-        final notifications = data.entries.map((entry) {
-          final notification = Map<String, dynamic>.from(entry.value as Map);
-          notification['id'] = entry.key;
-          return notification;
-        }).toList();
+    final ref = _database
+        .child('notifications/$userId')
+        .orderByChild("received_at")
+        .limitToLast(100);
 
-        final unreadCount = notifications.where((n) => n['read'] != 1).length;
+    ref.once().then((event) {
+      if (event.snapshot.value != null) {
+        final data = Map<String, dynamic>.from(event.snapshot.value as Map);
+        final unreadCount = data.values.where((n) {
+          final map = Map<String, dynamic>.from(n as Map);
+          return map['read'] != 1;
+        }).length;
+
         filterController.unreadCount.value = unreadCount;
       } else {
         filterController.unreadCount.value = 0;
       }
     });
 
-    // Gerçek zamanlı güncellemeler için
     _database.child('notifications/$userId').onChildAdded.listen((event) {
       _updateNotificationCount(userId);
     });
@@ -75,16 +76,19 @@ class _LayoutState extends State<Layout> {
   }
 
   Future<void> _updateNotificationCount(String userId) async {
-    final snapshot = await _database.child('notifications/$userId').get();
-    if (snapshot.value != null) {
-      final data = snapshot.value as Map<dynamic, dynamic>;
-      final notifications = data.entries.map((entry) {
-        final notification = Map<String, dynamic>.from(entry.value as Map);
-        notification['id'] = entry.key;
-        return notification;
-      }).toList();
+    final snapshot = await _database
+        .child('notifications/$userId')
+        .orderByChild("received_at")
+        .limitToLast(100)
+        .get();
 
-      final unreadCount = notifications.where((n) => n['read'] != 1).length;
+    if (snapshot.exists && snapshot.value is Map) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      final unreadCount = data.values.where((n) {
+        final map = Map<String, dynamic>.from(n as Map);
+        return map['read'] != 1;
+      }).length;
+
       filterController.unreadCount.value = unreadCount;
     } else {
       filterController.unreadCount.value = 0;
