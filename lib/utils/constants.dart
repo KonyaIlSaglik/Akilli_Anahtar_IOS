@@ -14,6 +14,8 @@ const String mqttHostKey = "mqttHost";
 const String mqttPortKey = "mqttPort";
 const String mqttUserKey = "mqttUser";
 const String mqttPasswordKey = "mqttPassword";
+final String todayKey = DateFormat('yyyy-MM-dd')
+    .format(DateTime.now().toUtc().add(const Duration(hours: 3)));
 
 const String notificationPermissionKey =
     "notificationPermissionRequested"; //notification izni istendi mi

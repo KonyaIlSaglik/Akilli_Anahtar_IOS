@@ -28,10 +28,10 @@ class _NotificationPageState extends State<NotificationPage> {
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   StreamSubscription? _notificationSubscription;
   int _loadedCount = 0;
-  int _pageSize = 20;
+  final int _pageSize = 20;
   bool _hasMore = true;
   bool _isFetching = false;
-  String? lastReceivedAt;
+  String? lastEpoch;
 
   final Map<String, IconData> sensorIcons = {
     'temperature': FontAwesomeIcons.temperatureHigh,
@@ -46,13 +46,14 @@ class _NotificationPageState extends State<NotificationPage> {
 
     _loadPaginatedNotifications();
     _startLiveListener();
-    deleteOldNotifications();
+    //deleteOldNotifications();
   }
 
   void _startLiveListener() {
     final userId = Get.find<AuthController>().user.value.id.toString();
     _notificationSubscription = _database
-        .child('notifications/$userId')
+        .child('notifications/$userId/$todayKey')
+        .orderByChild('received_at_epoch')
         .limitToLast(1)
         .onChildAdded
         .listen((event) {
@@ -60,8 +61,6 @@ class _NotificationPageState extends State<NotificationPage> {
 
       final data = Map<String, dynamic>.from(event.snapshot.value as Map);
       data['id'] = event.snapshot.key;
-
-      if (!mounted) return;
 
       final alreadyExists = notifications.any((n) => n['id'] == data['id']);
       if (alreadyExists) return;
@@ -78,32 +77,38 @@ class _NotificationPageState extends State<NotificationPage> {
 
   Future<void> _loadPaginatedNotifications() async {
     if (_isFetching || !_hasMore) return;
+
     setState(() => _isFetching = true);
 
     final userId = Get.find<AuthController>().user.value.id.toString();
-    var ref = FirebaseDatabase.instance
-        .ref("notifications/$userId")
-        .orderByChild("received_at")
-        .limitToLast(_pageSize);
 
-    if (lastReceivedAt != null) {
-      ref = ref.endBefore(lastReceivedAt);
+    var ref = FirebaseDatabase.instance
+        .ref("notifications/$userId/$todayKey")
+        .orderByChild("received_at_epoch")
+        .limitToLast(20);
+
+    if (lastEpoch != null) {
+      ref = ref.endBefore(lastEpoch);
     }
 
     final snapshot = await ref.get();
 
+    print("Snapshot count: ${snapshot.children.length}");
+
     if (snapshot.exists && snapshot.value is Map) {
       final mapData = Map<String, dynamic>.from(snapshot.value as Map);
+
       var newList = mapData.entries.map((e) {
         final notif = Map<String, dynamic>.from(e.value);
         notif['id'] = e.key;
         return notif;
       }).toList();
 
-      newList = newList.reversed.toList();
+      newList.sort((a, b) =>
+          (a['received_at_epoch'] ?? 0).compareTo(b['received_at_epoch'] ?? 0));
 
       if (newList.isNotEmpty) {
-        lastReceivedAt = newList.last['received_at'];
+        lastEpoch = newList.first['received_at_epoch'];
       }
 
       for (final item in newList) {
@@ -124,27 +129,27 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
-  Future<void> deleteOldNotifications() async {
-    final userId = Get.find<AuthController>().user.value.id.toString();
-    final ref = FirebaseDatabase.instance.ref("notifications/$userId");
+  // Future<void> deleteOldNotifications() async {
+  //   final userId = Get.find<AuthController>().user.value.id.toString();
+  //   final ref = FirebaseDatabase.instance.ref("notifications/$userId");
 
-    final snapshot = await ref.get();
-    if (!snapshot.exists || snapshot.value is! Map) return;
+  //   final snapshot = await ref.get();
+  //   if (!snapshot.exists || snapshot.value is! Map) return;
 
-    final Map<String, dynamic> all =
-        Map<String, dynamic>.from(snapshot.value as Map);
-    final now = DateTime.now();
+  //   final Map<String, dynamic> all =
+  //       Map<String, dynamic>.from(snapshot.value as Map);
+  //   final now = DateTime.now();
 
-    for (final entry in all.entries) {
-      final data = Map<String, dynamic>.from(entry.value);
-      final receivedAtStr = data['received_at'];
-      final receivedAt = DateTime.tryParse(receivedAtStr ?? '');
+  //   for (final entry in all.entries) {
+  //     final data = Map<String, dynamic>.from(entry.value);
+  //     final receivedAtStr = data['received_at'];
+  //     final receivedAt = DateTime.tryParse(receivedAtStr ?? '');
 
-      if (receivedAt != null && now.difference(receivedAt).inDays > 20) {
-        await ref.child(entry.key).remove();
-      }
-    }
-  }
+  //     if (receivedAt != null && now.difference(receivedAt).inDays > 20) {
+  //       await ref.child(entry.key).remove();
+  //     }
+  //   }
+  // }
 
   // Future<void> _loadNotifications() async {
   //   setState(() {
@@ -208,7 +213,8 @@ class _NotificationPageState extends State<NotificationPage> {
 
   Future<void> markAllAsRead() async {
     final userId = Get.find<AuthController>().user.value.id.toString();
-    final ref = FirebaseDatabase.instance.ref("notifications/$userId");
+    final ref =
+        FirebaseDatabase.instance.ref("notifications/$userId/$todayKey");
 
     final updates = <String, dynamic>{};
 
@@ -250,48 +256,44 @@ class _NotificationPageState extends State<NotificationPage> {
 
     if (confirmed == true) {
       final userId = Get.find<AuthController>().user.value.id.toString();
+      final ref =
+          FirebaseDatabase.instance.ref("notifications/$userId/$todayKey");
 
-      _notificationSubscription?.cancel();
+      final snapshot = await ref.orderByKey().limitToLast(_pageSize).get();
 
-      final Map<String, dynamic> updates = {};
-      final toDelete = notifications.take(_pageSize).toList();
+      if (!snapshot.exists || snapshot.value is! Map) return;
 
-      for (final notif in toDelete) {
-        final id = notif['id'];
-        updates["$id"] = null;
+      final mapData = Map<String, dynamic>.from(snapshot.value as Map);
+      final deleteUpdates = <String, dynamic>{};
+
+      for (final key in mapData.keys) {
+        deleteUpdates[key] = null;
       }
 
-      await FirebaseDatabase.instance
-          .ref("notifications/$userId")
-          .update(updates);
+      await ref.update(deleteUpdates);
 
       setState(() {
-        notifications.clear();
+        notifications.removeWhere((n) => deleteUpdates.containsKey(n['id']));
       });
 
-      successSnackbar("Başarılı", "Son 20 bildirim hızlıca silindi.");
+      successSnackbar("Başarılı", "Son 20 bildirim silindi.");
 
       await _loadPaginatedNotifications();
-      _startLiveListener();
     }
   }
 
   Future<void> _deleteNotification(String notificationId) async {
     final userId = Get.find<AuthController>().user.value.id.toString();
+    final ref = FirebaseDatabase.instance
+        .ref("notifications/$userId/$todayKey/$notificationId");
 
-    _notificationSubscription?.cancel();
-
-    await FirebaseDatabase.instance
-        .ref("notifications/$userId/$notificationId")
-        .remove();
+    await ref.remove();
 
     setState(() {
       notifications.removeWhere((n) => n['id'] == notificationId);
     });
 
     await _loadPaginatedNotifications();
-
-    _startLiveListener();
   }
 
   IconData _getSensorIcon(String? sensorName) {
