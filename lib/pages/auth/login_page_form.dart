@@ -93,14 +93,18 @@ class _LoginPageFormState extends State<LoginPageForm> {
                                 passwordController.text;
                             await loginController.login();
                             if (loginController.isLogin.value) {
-                              Get.to(() => Layout());
+                              if (Get.currentRoute != '/layout') {
+                                Get.to(() => Layout());
+                              }
                             } else {
                               AuthController authController = Get.find();
                               if (authController.oldSessions.isNotEmpty) {
                                 await authController.checkSessions(context);
                                 await loginController.login();
                                 if (loginController.isLogin.value) {
-                                  Get.to(() => Layout());
+                                  if (Get.currentRoute != '/layout') {
+                                    Get.to(() => Layout());
+                                  }
                                 } else {
                                   passwordController.text = "";
                                 }

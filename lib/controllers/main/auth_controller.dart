@@ -5,6 +5,7 @@ import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/dtos/session_dto.dart';
 import 'package:akilli_anahtar/models/old_session_model.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
+import 'package:akilli_anahtar/splash_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -27,10 +28,15 @@ class AuthController extends GetxController {
     return null;
   }
 
-  Future<void> logOut(int sessionId, String identity) async {
+  Future<void> logOut(int sessionId, String identity,
+      {BuildContext? context}) async {
     LoginController loginController = Get.find();
     await AuthService.logOut(sessionId, identity);
-    Get.offAll(() => const LoginPage());
+    if (context != null && Navigator.canPop(context)) {
+      Navigator.pop(context);
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+    Get.offAll(() => const SplashPage());
     await Future.delayed(Duration(milliseconds: 100));
     session.value = SessionDto.empty();
     user.value = UserDto();
@@ -77,6 +83,7 @@ class AuthController extends GetxController {
   Future<void> checkSessions(context) async {
     return await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
           alignment: Alignment.centerLeft,
@@ -102,9 +109,11 @@ class AuthController extends GetxController {
                           await logOut(
                             oldSessions[i].id!,
                             oldSessions[i].platformIdentity!,
+                            context: context,
                           );
                           oldSessions.remove(oldSessions[i]);
-                          if (oldSessions.isEmpty) {
+                          if (oldSessions.isEmpty &&
+                              Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
                         },
@@ -123,7 +132,9 @@ class AuthController extends GetxController {
             TextButton(
               child: Text("Vazgeç"),
               onPressed: () {
-                Navigator.pop(context);
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
               },
             ),
           ],

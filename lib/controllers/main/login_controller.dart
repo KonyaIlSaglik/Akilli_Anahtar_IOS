@@ -30,7 +30,11 @@ class LoginController extends GetxController {
   }
 
   Future<void> clearLoginInfo() async {
-    await LocalDb.delete(passwordKey);
+    await LocalDb.delete(webTokenKey);
+    await LocalDb.delete(userIdKey);
+    isLogin.value = false;
+
+    print("Login info cleared successfully");
   }
 
   LoginModel2 get getLoginModel {

@@ -26,26 +26,20 @@ class _SplashPageState extends State<SplashPage> {
     final LoginController loginController = Get.put(LoginController());
     await loginController.loadLoginInfo();
 
-    if (loginController.userName.value.isEmpty ||
-        loginController.password.value.isEmpty) {
-      await Future.delayed(Duration(milliseconds: 500));
-      Get.offAll(() => LoginPage(),
-          transition: Transition.fadeIn, duration: Duration(milliseconds: 300));
-      return;
+    if (loginController.userName.value.isNotEmpty &&
+        loginController.password.value.isNotEmpty) {
+      await loginController.login();
+      if (loginController.isLogin.value) {
+        Get.offAll(() => Layout(),
+            transition: Transition.fadeIn,
+            duration: Duration(milliseconds: 300));
+        return;
+      }
     }
 
-    await loginController.login();
-
-    if (loginController.isLogin.value) {
-      Get.offAll(() => Layout(),
-          transition: Transition.fadeIn, duration: Duration(milliseconds: 300));
-    } else {
-      await loginController.clearLoginInfo();
-      loginController.password.value = "";
-      Get.offAll(() => LoginPage(),
-          transition: Transition.fadeIn, duration: Duration(milliseconds: 300));
-    }
-    checkNewVersion(context, false);
+    await Future.delayed(Duration(milliseconds: 500));
+    Get.offAll(() => LoginPage(),
+        transition: Transition.fadeIn, duration: Duration(milliseconds: 300));
   }
 
   @override
