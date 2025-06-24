@@ -46,7 +46,6 @@ class _NotificationPageState extends State<NotificationPage> {
 
     _loadPaginatedNotifications();
     _startLiveListener();
-    //deleteOldNotifications();
   }
 
   void _startLiveListener() {
@@ -93,8 +92,6 @@ class _NotificationPageState extends State<NotificationPage> {
 
     final snapshot = await ref.get();
 
-    print("Snapshot count: ${snapshot.children.length}");
-
     if (snapshot.exists && snapshot.value is Map) {
       final mapData = Map<String, dynamic>.from(snapshot.value as Map);
 
@@ -105,7 +102,7 @@ class _NotificationPageState extends State<NotificationPage> {
       }).toList();
 
       newList.sort((a, b) =>
-          (a['received_at_epoch'] ?? 0).compareTo(b['received_at_epoch'] ?? 0));
+          (b['received_at_epoch'] ?? 0).compareTo(a['received_at_epoch'] ?? 0));
 
       if (newList.isNotEmpty) {
         lastEpoch = newList.first['received_at_epoch'];
@@ -129,77 +126,6 @@ class _NotificationPageState extends State<NotificationPage> {
     }
   }
 
-  // Future<void> deleteOldNotifications() async {
-  //   final userId = Get.find<AuthController>().user.value.id.toString();
-  //   final ref = FirebaseDatabase.instance.ref("notifications/$userId");
-
-  //   final snapshot = await ref.get();
-  //   if (!snapshot.exists || snapshot.value is! Map) return;
-
-  //   final Map<String, dynamic> all =
-  //       Map<String, dynamic>.from(snapshot.value as Map);
-  //   final now = DateTime.now();
-
-  //   for (final entry in all.entries) {
-  //     final data = Map<String, dynamic>.from(entry.value);
-  //     final receivedAtStr = data['received_at'];
-  //     final receivedAt = DateTime.tryParse(receivedAtStr ?? '');
-
-  //     if (receivedAt != null && now.difference(receivedAt).inDays > 20) {
-  //       await ref.child(entry.key).remove();
-  //     }
-  //   }
-  // }
-
-  // Future<void> _loadNotifications() async {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-
-  //   try {
-  //     final userId = Get.find<AuthController>().user.value.id.toString();
-  //     final databaseRef =
-  //         FirebaseDatabase.instance.ref("notifications/$userId");
-
-  //     final snapshot = await databaseRef.get();
-  //     if (snapshot.exists) {
-  //       final data = snapshot.value as Map;
-  //       final mapData = Map<String, dynamic>.from(data);
-  //       final tempList = mapData.entries.map((entry) {
-  //         final notif = Map<String, dynamic>.from(entry.value);
-  //         notif['id'] = entry.key;
-  //         return notif;
-  //       }).toList();
-
-  //       tempList.sort((a, b) {
-  //         final aTimeStr = a['received_at'];
-  //         final bTimeStr = b['received_at'];
-
-  //         final aTime = DateTime.tryParse(aTimeStr ?? '');
-  //         final bTime = DateTime.tryParse(bTimeStr ?? '');
-
-  //         if (aTime == null && bTime == null) return 0;
-  //         if (aTime == null) return 1;
-  //         if (bTime == null) return -1;
-
-  //         return bTime.compareTo(aTime);
-  //       });
-
-  //       if (mounted) {
-  //         setState(() {
-  //           notifications = tempList;
-  //         });
-  //       }
-  //     }
-  //   } finally {
-  //     if (mounted) {
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //     }
-  //   }
-  // }
-
   Color getAlarmStatusColor(String? alarm) {
     switch (alarm) {
       case "2":
@@ -219,7 +145,7 @@ class _NotificationPageState extends State<NotificationPage> {
     final updates = <String, dynamic>{};
 
     for (final notif in notifications) {
-      updates["${notif['id']}/read"] = 1;
+      updates["${notif['id']}/isRead"] = 1;
     }
 
     await ref.update(updates);
@@ -228,7 +154,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
     setState(() {
       for (var i = 0; i < notifications.length; i++) {
-        notifications[i]['read'] = 1;
+        notifications[i]['isRead'] = 1;
       }
     });
 
@@ -259,7 +185,10 @@ class _NotificationPageState extends State<NotificationPage> {
       final ref =
           FirebaseDatabase.instance.ref("notifications/$userId/$todayKey");
 
-      final snapshot = await ref.orderByKey().limitToLast(_pageSize).get();
+      final snapshot = await ref
+          .orderByChild("received_at_epoch")
+          .limitToLast(_pageSize)
+          .get();
 
       if (!snapshot.exists || snapshot.value is! Map) return;
 
@@ -337,8 +266,8 @@ class _NotificationPageState extends State<NotificationPage> {
           }();
 
           final matchesReadStatus = () {
-            if (filterStatus == 'read') return n['read'] == 1;
-            if (filterStatus == 'unread') return n['read'] != 1;
+            if (filterStatus == 'read') return n['isRead'] == 1;
+            if (filterStatus == 'unread') return n['isRead'] != 1;
             return true;
           }();
 
@@ -408,7 +337,7 @@ class _NotificationPageState extends State<NotificationPage> {
                             itemBuilder: (context, index) {
                               final item = filtered[index];
 
-                              final isRead = item['read'] == 1;
+                              final isRead = item['isRead'] == 1;
                               final borderColor =
                                   getAlarmStatusColor(item['alarm']);
                               final sensorIcon =
