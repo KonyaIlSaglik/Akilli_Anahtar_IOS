@@ -36,7 +36,7 @@ class AuthController extends GetxController {
       Navigator.pop(context);
       await Future.delayed(Duration(milliseconds: 100));
     }
-    Get.offAll(() => const SplashPage());
+    Get.offAll(() => SplashPage(fromLogout: true));
     await Future.delayed(Duration(milliseconds: 100));
     session.value = SessionDto.empty();
     user.value = UserDto();
@@ -94,29 +94,34 @@ class AuthController extends GetxController {
               () {
                 return ListView.separated(
                   itemBuilder: (context, i) {
+                    final session = oldSessions[i];
+                    final canTerminate =
+                        session.id != null && session.platformIdentity != null;
                     return ListTile(
-                      title: Text(oldSessions[i].platformName ?? "Bilinmiyor"),
+                      title: Text(session.platformName ?? "Bilinmiyor"),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(getDate(oldSessions[i].lastActiveTime!)),
-                          Text(getTime(oldSessions[i].lastActiveTime!)),
+                          Text(getDate(session.lastActiveTime ?? "")),
+                          Text(getTime(session.lastActiveTime ?? "")),
                         ],
                       ),
                       trailing: TextButton(
                         child: Text("Sonlandır"),
-                        onPressed: () async {
-                          await logOut(
-                            oldSessions[i].id!,
-                            oldSessions[i].platformIdentity!,
-                            context: context,
-                          );
-                          oldSessions.remove(oldSessions[i]);
-                          if (oldSessions.isEmpty &&
-                              Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }
-                        },
+                        onPressed: canTerminate
+                            ? () async {
+                                await logOut(
+                                  session.id!,
+                                  session.platformIdentity!,
+                                  context: context,
+                                );
+                                oldSessions.remove(session);
+                                if (oldSessions.isEmpty &&
+                                    Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                }
+                              }
+                            : null,
                       ),
                     );
                   },

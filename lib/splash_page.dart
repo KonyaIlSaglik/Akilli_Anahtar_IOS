@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SplashPage extends StatefulWidget {
-  const SplashPage({super.key});
+  final bool fromLogout;
+  const SplashPage({super.key, this.fromLogout = false});
 
   @override
   State<SplashPage> createState() => _SplashPageState();
@@ -25,6 +26,13 @@ class _SplashPageState extends State<SplashPage> {
   init() async {
     final LoginController loginController = Get.put(LoginController());
     await loginController.loadLoginInfo();
+
+    if (widget.fromLogout) {
+      await Future.delayed(Duration(milliseconds: 500));
+      Get.offAll(() => LoginPage(),
+          transition: Transition.fadeIn, duration: Duration(milliseconds: 300));
+      return;
+    }
 
     if (loginController.userName.value.isNotEmpty &&
         loginController.password.value.isNotEmpty) {
