@@ -4,7 +4,6 @@ import 'package:akilli_anahtar/entities/operation_claim.dart';
 import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/dtos/session_dto.dart';
 import 'package:akilli_anahtar/models/old_session_model.dart';
-import 'package:akilli_anahtar/pages/auth/login_page.dart';
 import 'package:akilli_anahtar/splash_page.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';

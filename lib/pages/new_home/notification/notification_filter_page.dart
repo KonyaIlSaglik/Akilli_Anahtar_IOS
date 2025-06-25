@@ -1,20 +1,25 @@
+import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:akilli_anahtar/controllers/main/notification_controller.dart';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
+import 'package:akilli_anahtar/controllers/main/notification_filter_controller.dart';
 
-class NotificationFilterPage extends StatelessWidget {
-  final NotificationController filterController = Get.find();
+class NotificationFilterPage extends StatefulWidget {
+  const NotificationFilterPage({super.key});
+
+  @override
+  State<NotificationFilterPage> createState() => _NotificationFilterPageState();
+}
+
+class _NotificationFilterPageState extends State<NotificationFilterPage> {
+  final NotificationFilterController filterController = Get.find();
   final HomeController homeController = Get.find();
   final RxBool _expandedLocation = false.obs;
-
-  NotificationFilterPage({super.key});
 
   List<String> get sensorTypes => homeController.homeDevices
       .map((e) => e.typeName ?? '')
       .where((e) => e.isNotEmpty)
-      .whereType<String>()
       .toSet()
       .toList();
 
@@ -23,8 +28,6 @@ class NotificationFilterPage extends StatelessWidget {
       .where((e) => e.isNotEmpty)
       .toSet()
       .toList();
-
-  List<String> get dateOptions => ['Son 24 Saat', 'Son 7 Gün', 'Son 1 Ay'];
 
   @override
   Widget build(BuildContext context) {
@@ -53,31 +56,27 @@ class NotificationFilterPage extends StatelessWidget {
           child: Obx(() {
             return Column(
               children: [
-                Column(
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Filtrele',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            )),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Filtrele',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        )),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
                     ),
                   ],
                 ),
@@ -103,7 +102,7 @@ class NotificationFilterPage extends StatelessWidget {
                                   selected: selected,
                                   onSelected: (_) => filterController
                                       .selectedSensor
-                                      .value = selected ? "" : type,
+                                      .value = selected ? '' : type,
                                   selectedColor: goldColor.withOpacity(0.3),
                                   labelStyle: TextStyle(
                                     color: selected
@@ -163,21 +162,25 @@ class NotificationFilterPage extends StatelessWidget {
                         const SizedBox(height: 20),
                         _buildFilterSection(
                           context,
-                          title: 'Tarih',
+                          title: 'Alarm Durumu',
                           children: [
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
-                              children: dateOptions.map((option) {
+                              children: [
+                                {'label': 'Kritik', 'value': '2'},
+                                {'label': 'Uyarı', 'value': '1'},
+                              ].map<Widget>((Map<String, String> alarm) {
                                 final selected =
-                                    filterController.selectedDateFilter.value ==
-                                        option;
+                                    filterController.selectedAlarmLevel.value ==
+                                        alarm['value'];
                                 return ChoiceChip(
-                                  label: Text(option),
+                                  label: Text(alarm['label']!),
                                   selected: selected,
-                                  onSelected: (_) => filterController
-                                      .selectedDateFilter
-                                      .value = selected ? "" : option,
+                                  onSelected: (_) {
+                                    filterController.selectedAlarmLevel.value =
+                                        selected ? '' : alarm['value']!;
+                                  },
                                   selectedColor: goldColor.withOpacity(0.3),
                                   labelStyle: TextStyle(
                                     color: selected
@@ -190,7 +193,7 @@ class NotificationFilterPage extends StatelessWidget {
                                   ),
                                 );
                               }).toList(),
-                            ),
+                            )
                           ],
                         ),
                       ],
@@ -248,13 +251,9 @@ class NotificationFilterPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterSection(
-    BuildContext context, {
-    required String title,
-    required List<Widget> children,
-  }) {
+  Widget _buildFilterSection(BuildContext context,
+      {required String title, required List<Widget> children}) {
     final theme = Theme.of(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -265,7 +264,7 @@ class NotificationFilterPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        ...children,
+        Wrap(children: children),
       ],
     );
   }
@@ -278,7 +277,6 @@ class NotificationFilterPage extends StatelessWidget {
     required List<Widget> children,
   }) {
     final theme = Theme.of(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
