@@ -47,12 +47,18 @@ class LoginController extends GetxController {
   }
 
   Future<bool> login() async {
-    isLogin.value = false;
-    final result = await AuthService.appLogin(getLoginModel);
-    isLogin.value = result;
-    if (result) {
-      await saveLoginInfo();
+    try {
+      isLogin.value = false;
+      final result = await AuthService.appLogin(getLoginModel);
+      isLogin.value = result;
+      if (result) {
+        await saveLoginInfo();
+      }
+      return result;
+    } catch (e) {
+      print("Login hatası: $e");
+      isLogin.value = false;
+      return false;
     }
-    return result;
   }
 }

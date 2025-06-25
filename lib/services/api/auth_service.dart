@@ -109,22 +109,23 @@ class AuthService {
       client.close();
       print(response.statusCode);
       print(response.body);
+
       if (response.statusCode == 200) {
         LoginController loginController = Get.find();
         loginController.isLogin.value = true;
         var data = json.decode(response.body) as Map<String, dynamic>;
-        //var session = SessionDto.fromJson(json.encode(data["sessionDto"]));
+
         var session = SessionDto.fromMap(data["sessionDto"]);
         print("Giriş sonrası oturum bilgisi: ${session.toMap()}");
         authController.session.value = session;
 
-        //var user = UserDto.fromJson(json.encode(data["userDto"]));
         var user = UserDto.fromMap(data["userDto"]);
         print("Giriş sonrası kullanıcı bilgisi: ${user.toMap()}");
         authController.user.value = user;
         print(
             "Giriş sonrası kullanıcı bilgisi: ${authController.user.value.toMap()}");
         authController.platformIdentity.value = loginModel.identity;
+
         LocalDb.add(userNameKey, loginModel.userName);
         LocalDb.add(passwordKey, loginModel.password);
 
@@ -158,12 +159,13 @@ class AuthService {
         return false;
       } else {
         errorSnackbar("Hata", response.body);
+        return false;
       }
     } catch (e) {
+      print("appLogin hatası: $e");
       errorSnackbar("Hata", "Oturum Açma Sırasında bir hata oluştu.");
-      print(e);
+      return false;
     }
-    return false;
   }
 
   static Future<void> saveFcmToken(String token) async {
@@ -266,23 +268,28 @@ class AuthService {
   }
 
   static Future<void> logOut(int sessionId, String identity) async {
-    var uri =
-        Uri.parse("$url/appLogout?sessionId=$sessionId&identity=$identity");
-    var client = http.Client();
-    var response = await client.put(
-      uri,
-      headers: {
-        'content-type': 'application/json; charset=utf-8',
-      },
-    );
-    client.close();
-    print("$url/appLogout?sessionId=$sessionId&identity=$identity");
-    print(response.statusCode);
-    print(response.body);
-    if (response.statusCode == 200) {
-      successSnackbar("Başarılı", response.body);
-    } else {
-      errorSnackbar("Hata", response.body);
+    try {
+      var uri =
+          Uri.parse("$url/appLogout?sessionId=$sessionId&identity=$identity");
+      var client = http.Client();
+      var response = await client.put(
+        uri,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+        },
+      );
+      client.close();
+      print("$url/appLogout?sessionId=$sessionId&identity=$identity");
+      print(response.statusCode);
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        successSnackbar("Başarılı", response.body);
+      } else {
+        print("Oturum sonlandırma hatası: ${response.body}");
+      }
+    } catch (e) {
+      print("logOut API hatası: $e");
     }
   }
 

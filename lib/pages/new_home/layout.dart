@@ -124,8 +124,10 @@ class _LayoutState extends State<Layout> {
           title: Text(
             "AKILLI ANAHTAR",
             style: width(context) < minWidth
-                ? textTheme(context).titleMedium!
-                : textTheme(context).titleLarge!,
+                ? (textTheme(context).titleMedium ??
+                    const TextStyle(fontSize: 20))
+                : (textTheme(context).titleLarge ??
+                    const TextStyle(fontSize: 24)),
           ),
           actions: [
             Obx(() => NamedIcon(

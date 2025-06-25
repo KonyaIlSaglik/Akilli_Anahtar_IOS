@@ -93,11 +93,10 @@ class _ProfilCardState extends State<ProfilCard> {
                   bottom: 10,
                   left: 10,
                   child: Text(
-                    authController.user.value.fullName!,
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.white, // Yazının rengi
-                    ),
+                    authController.user.value.fullName ?? "",
+                    style: textTheme(context).titleLarge?.copyWith(
+                          color: Colors.white,
+                        ),
                   ),
                 ),
               ],

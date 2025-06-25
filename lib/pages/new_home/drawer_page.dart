@@ -5,6 +5,9 @@ import 'package:akilli_anahtar/pages/managers/user/user_list_page.dart';
 import 'package:akilli_anahtar/pages/auth/sifre_degistir.dart';
 import 'package:akilli_anahtar/pages/managers/box/list.dart';
 import 'package:akilli_anahtar/widgets/version_text.dart';
+import 'package:akilli_anahtar/dtos/session_dto.dart';
+import 'package:akilli_anahtar/dtos/user_dto.dart';
+import 'package:akilli_anahtar/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -135,7 +138,8 @@ class _DrawerPageState extends State<DrawerPage> {
                             onTap: () async {
                               await _authController.logOut(
                                   _authController.session.value.id,
-                                  _loginController.deviceId.value);
+                                  _loginController.deviceId.value,
+                                  context: context);
                             },
                             trailing: Icon(Icons.chevron_right),
                           ),

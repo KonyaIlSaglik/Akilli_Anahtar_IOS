@@ -28,19 +28,44 @@ class AuthController extends GetxController {
     return null;
   }
 
+  Future<bool> terminateSession(int sessionId, String identity) async {
+    try {
+      await AuthService.logOut(sessionId, identity);
+      return true;
+    } catch (e) {
+      print("Oturum sonlandırma hatası: $e");
+      return false;
+    }
+  }
+
   Future<void> logOut(int sessionId, String identity,
       {BuildContext? context}) async {
     LoginController loginController = Get.find();
-    await AuthService.logOut(sessionId, identity);
+    session.value = SessionDto.empty();
+    user.value = UserDto();
+    await loginController.clearLoginInfo();
+
     if (context != null && Navigator.canPop(context)) {
       Navigator.pop(context);
       await Future.delayed(Duration(milliseconds: 100));
     }
-    Get.offAll(() => SplashPage(fromLogout: true));
+
+    try {
+      await AuthService.logOut(sessionId, identity);
+    } catch (e) {
+      print("API çıkış hatası: $e");
+    }
+
     await Future.delayed(Duration(milliseconds: 100));
-    session.value = SessionDto.empty();
-    user.value = UserDto();
-    await loginController.clearLoginInfo();
+
+    if (context != null) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => SplashPage(fromLogout: true)),
+        (route) => false,
+      );
+    } else {
+      Get.offAll(() => SplashPage(fromLogout: true));
+    }
   }
 
   Future<void> changePassword(
@@ -110,15 +135,22 @@ class AuthController extends GetxController {
                         child: Text("Sonlandır"),
                         onPressed: canTerminate
                             ? () async {
-                                await logOut(
+                                bool success = await terminateSession(
                                   session.id!,
                                   session.platformIdentity!,
-                                  context: context,
                                 );
-                                oldSessions.remove(session);
-                                if (oldSessions.isEmpty &&
-                                    Navigator.canPop(context)) {
-                                  Navigator.pop(context);
+
+                                if (success) {
+                                  oldSessions.remove(session);
+
+                                  if (oldSessions.isEmpty) {
+                                    if (Navigator.canPop(context)) {
+                                      Navigator.pop(context);
+                                    }
+                                  }
+                                } else {
+                                  errorSnackbar(
+                                      "Hata", "Oturum sonlandırılamadı.");
                                 }
                               }
                             : null,

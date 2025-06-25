@@ -91,8 +91,9 @@ class _LoginPageFormState extends State<LoginPageForm> {
                                 userNameController.text;
                             loginController.password.value =
                                 passwordController.text;
-                            await loginController.login();
-                            if (loginController.isLogin.value) {
+                            bool loginSuccess = await loginController.login();
+
+                            if (loginSuccess) {
                               if (Get.currentRoute != '/layout') {
                                 Get.to(() => Layout());
                               }
@@ -100,16 +101,28 @@ class _LoginPageFormState extends State<LoginPageForm> {
                               AuthController authController = Get.find();
                               if (authController.oldSessions.isNotEmpty) {
                                 await authController.checkSessions(context);
-                                await loginController.login();
-                                if (loginController.isLogin.value) {
-                                  if (Get.currentRoute != '/layout') {
-                                    Get.to(() => Layout());
+                                if (authController.oldSessions.isEmpty) {
+                                  await Future.delayed(
+                                      Duration(milliseconds: 500));
+                                  bool retryLoginSuccess =
+                                      await loginController.login();
+
+                                  if (retryLoginSuccess) {
+                                    if (Get.currentRoute != '/layout') {
+                                      Get.to(() => Layout());
+                                    }
+                                  } else {
+                                    passwordController.text = "";
+                                    errorSnackbar("Hata",
+                                        "Giriş yapılamadı. Lütfen bilgilerinizi kontrol edin.");
                                   }
                                 } else {
                                   passwordController.text = "";
                                 }
                               } else {
                                 passwordController.text = "";
+                                errorSnackbar("Hata",
+                                    "Giriş yapılamadı. Lütfen bilgilerinizi kontrol edin.");
                               }
                             }
                           }
