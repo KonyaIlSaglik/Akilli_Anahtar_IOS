@@ -77,6 +77,7 @@ class _NotificationPageState extends State<NotificationPage> {
   Future<void> _loadPaginatedNotifications() async {
     if (_isFetching || !_hasMore) return;
 
+    if (!mounted) return;
     setState(() => _isFetching = true);
 
     final userId = Get.find<AuthController>().user.value.id.toString();
@@ -91,6 +92,8 @@ class _NotificationPageState extends State<NotificationPage> {
     }
 
     final snapshot = await ref.get();
+
+    if (!mounted) return;
 
     if (snapshot.exists && snapshot.value is Map) {
       final mapData = Map<String, dynamic>.from(snapshot.value as Map);
@@ -113,12 +116,13 @@ class _NotificationPageState extends State<NotificationPage> {
           notifications.add(item);
         }
       }
-
+      if (!mounted) return;
       setState(() {
         _hasMore = newList.length >= _pageSize;
         _isFetching = false;
       });
     } else {
+      if (!mounted) return;
       setState(() {
         _hasMore = false;
         _isFetching = false;
@@ -155,6 +159,9 @@ class _NotificationPageState extends State<NotificationPage> {
     setState(() {
       for (var i = 0; i < notifications.length; i++) {
         notifications[i]['isRead'] = 1;
+      }
+      if (filterStatus == 'unread') {
+        filterStatus = 'read';
       }
     });
 

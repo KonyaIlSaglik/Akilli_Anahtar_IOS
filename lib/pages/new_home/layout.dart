@@ -54,7 +54,7 @@ class _LayoutState extends State<Layout> {
         final data = Map<String, dynamic>.from(event.snapshot.value as Map);
         final unreadCount = data.values.where((n) {
           final map = Map<String, dynamic>.from(n as Map);
-          return map['read'] != 1;
+          return map['isRead'] != 1;
         }).length;
 
         filterController.unreadCount.value = unreadCount;
@@ -87,7 +87,7 @@ class _LayoutState extends State<Layout> {
       final data = Map<String, dynamic>.from(snapshot.value as Map);
       final unreadCount = data.values.where((n) {
         final map = Map<String, dynamic>.from(n as Map);
-        return map['read'] != 1;
+        return map['isRead'] != 1;
       }).length;
 
       filterController.unreadCount.value = unreadCount;
