@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'dart:async';
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:akilli_anahtar/controllers/main/notification_controller.dart';
 import 'package:akilli_anahtar/pages/new_home/notification/notification_filter_page.dart';
 import 'package:akilli_anahtar/controllers/main/notification_filter_controller.dart';
 
@@ -20,14 +19,13 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   List<Map<String, dynamic>> notifications = [];
   final ScrollController _scrollController = ScrollController();
-  final NotificationController notificationController =
-      Get.put(NotificationController());
+  final NotificationFilterController notificationController =
+      Get.put(NotificationFilterController());
   String filterStatus = 'all';
   bool isLoading = false;
-  final NotificationController filters = Get.find();
+  final NotificationFilterController filters = Get.find();
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   StreamSubscription? _notificationSubscription;
-  int _loadedCount = 0;
   int _pageSize = 20;
   bool _hasMore = true;
   bool _isFetching = false;
@@ -246,30 +244,24 @@ class _NotificationPageState extends State<NotificationPage> {
     final theme = Theme.of(context);
     final filtered = notifications
         .where((n) {
-          final matchesSensor = filters.selectedSensor.value.isEmpty ||
+          final matchesSensor = filters.selectedSensor.value == null ||
+              filters.selectedSensor.value!.isEmpty ||
               (n['sensor_name']?.toLowerCase() ?? '')
-                  .contains(filters.selectedSensor.value.toLowerCase());
+                  .contains(filters.selectedSensor.value!.toLowerCase());
 
+          final selectedLocation = filters.selectedLocation.value;
           final locationName = (n['boxName'] ?? n['organisation_name'] ?? '')
               .toString()
               .toLowerCase();
-          final matchesLocation = filters.selectedLocation.value.isEmpty ||
-              locationName
-                  .contains(filters.selectedLocation.value.toLowerCase());
 
-          final matchesDate = () {
-            final selected = filters.selectedDateFilter.value;
-            if (selected.isEmpty) return true;
-            final time = DateTime.tryParse(n['received_at'] ?? '');
-            if (time == null) return false;
-            final now = DateTime.now();
-            if (selected == 'Son 24 Saat')
-              return time.isAfter(now.subtract(const Duration(days: 1)));
-            if (selected == 'Son 7 Gün')
-              return time.isAfter(now.subtract(const Duration(days: 7)));
-            if (selected == 'Son 1 Ay')
-              return time.isAfter(now.subtract(const Duration(days: 30)));
-            return true;
+          final matchesLocation = selectedLocation == null ||
+              selectedLocation.isEmpty ||
+              locationName.contains(selectedLocation.toLowerCase());
+
+          final matchesAlarm = () {
+            final selectedAlarm = filters.selectedAlarmLevel.value;
+            if (selectedAlarm.isEmpty) return true;
+            return (n['alarm']?.toString() ?? '') == selectedAlarm;
           }();
 
           final matchesReadStatus = () {
@@ -280,7 +272,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
           return matchesSensor &&
               matchesLocation &&
-              matchesDate &&
+              matchesAlarm &&
               matchesReadStatus;
         })
         .take(_pageSize)

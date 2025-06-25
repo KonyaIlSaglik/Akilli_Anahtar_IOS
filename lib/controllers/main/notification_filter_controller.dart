@@ -9,9 +9,12 @@ class NotificationFilterController extends GetxController {
 
   final unreadCount = 0.obs;
 
+  final selectedAlarmLevel = ''.obs;
+
   void clearFilters() {
     selectedSensor.value = null;
     selectedLocation.value = null;
     selectedDateFilter.value = null;
+    selectedAlarmLevel.value = '';
   }
 }
