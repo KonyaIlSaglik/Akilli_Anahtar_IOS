@@ -43,54 +43,49 @@ class _LayoutState extends State<Layout> {
   void _listenToNotifications() {
     final userId = Get.find<AuthController>().user.value.id.toString();
 
-    final ref = _database
-        .child('notifications/$userId/$todayKey')
-        .orderByChild("received_at")
-        .limitToLast(20);
+    final userRef = _database.child('notifications/$userId');
 
-    ref.once().then((event) {
-      if (event.snapshot.value != null) {
-        final data = Map<String, dynamic>.from(event.snapshot.value as Map);
-        final unreadCount = data.values.where((n) {
-          final map = Map<String, dynamic>.from(n as Map);
-          return map['isRead'] != 1;
-        }).length;
+    userRef.onChildAdded.listen((_) => _updateNotificationCount(userId));
+    userRef.onChildChanged.listen((_) => _updateNotificationCount(userId));
+    userRef.onChildRemoved.listen((_) => _updateNotificationCount(userId));
+
+    _updateNotificationCount(userId);
+  }
+
+  Future<void> _updateNotificationCount(String userId) async {
+    final ref = _database.child('notifications/$userId');
+
+    try {
+      final snapshot = await ref.get();
+
+      List<Map<String, dynamic>> allNotifications = [];
+
+      if (snapshot.exists && snapshot.value is Map) {
+        final dateGroups = Map<String, dynamic>.from(snapshot.value as Map);
+
+        for (final dateMap in dateGroups.values) {
+          if (dateMap is Map) {
+            for (final item in dateMap.entries) {
+              final data = item.value;
+              if (data is Map) {
+                allNotifications.add(Map<String, dynamic>.from(data));
+              }
+            }
+          }
+        }
+
+        allNotifications.sort((a, b) => (b['received_at_epoch'] ?? 0)
+            .compareTo(a['received_at_epoch'] ?? 0));
+
+        final latest100 = allNotifications.take(100);
+        final unreadCount = latest100.where((n) => n['isRead'] != 1).length;
 
         filterController.unreadCount.value = unreadCount;
       } else {
         filterController.unreadCount.value = 0;
       }
-    });
-
-    _database.child('notifications/$userId').onChildAdded.listen((event) {
-      _updateNotificationCount(userId);
-    });
-
-    _database.child('notifications/$userId').onChildChanged.listen((event) {
-      _updateNotificationCount(userId);
-    });
-
-    _database.child('notifications/$userId').onChildRemoved.listen((event) {
-      _updateNotificationCount(userId);
-    });
-  }
-
-  Future<void> _updateNotificationCount(String userId) async {
-    final snapshot = await _database
-        .child('notifications/$userId/$todayKey')
-        .orderByChild("received_at")
-        .limitToLast(20)
-        .get();
-
-    if (snapshot.exists && snapshot.value is Map) {
-      final data = Map<String, dynamic>.from(snapshot.value as Map);
-      final unreadCount = data.values.where((n) {
-        final map = Map<String, dynamic>.from(n as Map);
-        return map['isRead'] != 1;
-      }).length;
-
-      filterController.unreadCount.value = unreadCount;
-    } else {
+    } catch (e) {
+      print('Unread count error: $e');
       filterController.unreadCount.value = 0;
     }
   }
