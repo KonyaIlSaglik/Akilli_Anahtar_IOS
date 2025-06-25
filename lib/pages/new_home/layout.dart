@@ -45,7 +45,7 @@ class _LayoutState extends State<Layout> {
 
     final ref = _database
         .child('notifications/$userId/$todayKey')
-        .orderByChild("received_at")
+        .orderByChild("received_at_epoch")
         .limitToLast(20);
 
     ref.once().then((event) {
@@ -55,22 +55,30 @@ class _LayoutState extends State<Layout> {
           final map = Map<String, dynamic>.from(n as Map);
           return map['isRead'] != 1;
         }).length;
-
         filterController.unreadCount.value = unreadCount;
       } else {
         filterController.unreadCount.value = 0;
       }
     });
 
-    _database.child('notifications/$userId').onChildAdded.listen((event) {
+    _database
+        .child('notifications/$userId/$todayKey')
+        .onChildAdded
+        .listen((event) {
       _updateNotificationCount(userId);
     });
 
-    _database.child('notifications/$userId').onChildChanged.listen((event) {
+    _database
+        .child('notifications/$userId/$todayKey')
+        .onChildChanged
+        .listen((event) {
       _updateNotificationCount(userId);
     });
 
-    _database.child('notifications/$userId').onChildRemoved.listen((event) {
+    _database
+        .child('notifications/$userId/$todayKey')
+        .onChildRemoved
+        .listen((event) {
       _updateNotificationCount(userId);
     });
   }
@@ -78,7 +86,7 @@ class _LayoutState extends State<Layout> {
   Future<void> _updateNotificationCount(String userId) async {
     final snapshot = await _database
         .child('notifications/$userId/$todayKey')
-        .orderByChild("received_at")
+        .orderByChild("received_at_epoch")
         .limitToLast(20)
         .get();
 
@@ -88,7 +96,6 @@ class _LayoutState extends State<Layout> {
         final map = Map<String, dynamic>.from(n as Map);
         return map['isRead'] != 1;
       }).length;
-
       filterController.unreadCount.value = unreadCount;
     } else {
       filterController.unreadCount.value = 0;
@@ -232,7 +239,7 @@ class NamedIcon extends StatelessWidget {
                       BoxDecoration(shape: BoxShape.circle, color: Colors.red),
                   alignment: Alignment.center,
                   child: Text(
-                    notificationCount < 100 ? "$notificationCount" : "99+",
+                    "$notificationCount",
                     style: textTheme(context).labelMedium?.copyWith(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
