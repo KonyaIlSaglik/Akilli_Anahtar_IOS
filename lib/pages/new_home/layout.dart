@@ -12,6 +12,7 @@ import 'package:akilli_anahtar/widgets/back_container.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
@@ -43,10 +44,9 @@ class _LayoutState extends State<Layout> {
   void _listenToNotifications() {
     final userId = Get.find<AuthController>().user.value.id.toString();
 
-<<<<<<< HEAD
     final ref = _database
         .child('notifications/$userId/$todayKey')
-        .orderByChild("received_at_epoch")
+        .orderByChild("received_at")
         .limitToLast(20);
 
     ref.once().then((event) {
@@ -56,70 +56,22 @@ class _LayoutState extends State<Layout> {
           final map = Map<String, dynamic>.from(n as Map);
           return map['isRead'] != 1;
         }).length;
-=======
-    final userRef = _database.child('notifications/$userId');
 
-    userRef.onChildAdded.listen((_) => _updateNotificationCount(userId));
-    userRef.onChildChanged.listen((_) => _updateNotificationCount(userId));
-    userRef.onChildRemoved.listen((_) => _updateNotificationCount(userId));
-
-    _updateNotificationCount(userId);
-  }
-
-  Future<void> _updateNotificationCount(String userId) async {
-    final ref = _database.child('notifications/$userId');
-
-    try {
-      final snapshot = await ref.get();
-
-      List<Map<String, dynamic>> allNotifications = [];
-
-      if (snapshot.exists && snapshot.value is Map) {
-        final dateGroups = Map<String, dynamic>.from(snapshot.value as Map);
-
-        for (final dateMap in dateGroups.values) {
-          if (dateMap is Map) {
-            for (final item in dateMap.entries) {
-              final data = item.value;
-              if (data is Map) {
-                allNotifications.add(Map<String, dynamic>.from(data));
-              }
-            }
-          }
-        }
-
-        allNotifications.sort((a, b) => (b['received_at_epoch'] ?? 0)
-            .compareTo(a['received_at_epoch'] ?? 0));
-
-        final latest100 = allNotifications.take(100);
-        final unreadCount = latest100.where((n) => n['isRead'] != 1).length;
-
->>>>>>> f133921db36a3b670eb3aa50e4715ef43fc0e520
         filterController.unreadCount.value = unreadCount;
       } else {
         filterController.unreadCount.value = 0;
       }
-<<<<<<< HEAD
     });
 
-    _database
-        .child('notifications/$userId/$todayKey')
-        .onChildAdded
-        .listen((event) {
+    _database.child('notifications/$userId').onChildAdded.listen((event) {
       _updateNotificationCount(userId);
     });
 
-    _database
-        .child('notifications/$userId/$todayKey')
-        .onChildChanged
-        .listen((event) {
+    _database.child('notifications/$userId').onChildChanged.listen((event) {
       _updateNotificationCount(userId);
     });
 
-    _database
-        .child('notifications/$userId/$todayKey')
-        .onChildRemoved
-        .listen((event) {
+    _database.child('notifications/$userId').onChildRemoved.listen((event) {
       _updateNotificationCount(userId);
     });
   }
@@ -127,7 +79,7 @@ class _LayoutState extends State<Layout> {
   Future<void> _updateNotificationCount(String userId) async {
     final snapshot = await _database
         .child('notifications/$userId/$todayKey')
-        .orderByChild("received_at_epoch")
+        .orderByChild("received_at")
         .limitToLast(20)
         .get();
 
@@ -137,12 +89,9 @@ class _LayoutState extends State<Layout> {
         final map = Map<String, dynamic>.from(n as Map);
         return map['isRead'] != 1;
       }).length;
+
       filterController.unreadCount.value = unreadCount;
     } else {
-=======
-    } catch (e) {
-      print('Unread count error: $e');
->>>>>>> f133921db36a3b670eb3aa50e4715ef43fc0e520
       filterController.unreadCount.value = 0;
     }
   }
@@ -284,7 +233,7 @@ class NamedIcon extends StatelessWidget {
                       BoxDecoration(shape: BoxShape.circle, color: Colors.red),
                   alignment: Alignment.center,
                   child: Text(
-                    "$notificationCount",
+                    notificationCount < 100 ? "$notificationCount" : "99+",
                     style: textTheme(context).labelMedium?.copyWith(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
