@@ -42,12 +42,12 @@ class AuthController extends GetxController {
     LoginController loginController = Get.find();
     session.value = SessionDto.empty();
     user.value = UserDto();
-    await loginController.clearLoginInfo();
+    /* await loginController.clearLoginInfo();
 
     if (context != null && Navigator.canPop(context)) {
       Navigator.pop(context);
       await Future.delayed(Duration(milliseconds: 100));
-    }
+    }*/
 
     try {
       await AuthService.logOut(sessionId, identity);
