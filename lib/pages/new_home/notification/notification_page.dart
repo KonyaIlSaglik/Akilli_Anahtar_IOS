@@ -190,10 +190,8 @@ class _NotificationPageState extends State<NotificationPage> {
       final ref =
           FirebaseDatabase.instance.ref("notifications/$userId/$todayKey");
 
-      final snapshot = await ref
-          .orderByChild("received_at_epoch")
-          .limitToLast(_pageSize)
-          .get();
+      final snapshot =
+          await ref.orderByChild("received_at_epoch").limitToLast(20).get();
 
       if (!snapshot.exists || snapshot.value is! Map) return;
 
