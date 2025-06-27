@@ -44,24 +44,7 @@ class _LayoutState extends State<Layout> {
   void _listenToNotifications() {
     final userId = Get.find<AuthController>().user.value.id.toString();
 
-    final ref = _database
-        .child('notifications/$userId/$todayKey')
-        .orderByChild("received_at")
-        .limitToLast(20);
-
-    ref.once().then((event) {
-      if (event.snapshot.value != null) {
-        final data = Map<String, dynamic>.from(event.snapshot.value as Map);
-        final unreadCount = data.values.where((n) {
-          final map = Map<String, dynamic>.from(n as Map);
-          return map['isRead'] != 1;
-        }).length;
-
-        filterController.unreadCount.value = unreadCount;
-      } else {
-        filterController.unreadCount.value = 0;
-      }
-    });
+    _updateNotificationCount(userId);
 
     _database.child('notifications/$userId').onChildAdded.listen((event) {
       _updateNotificationCount(userId);
@@ -77,23 +60,46 @@ class _LayoutState extends State<Layout> {
   }
 
   Future<void> _updateNotificationCount(String userId) async {
-    final snapshot = await _database
-        .child('notifications/$userId/$todayKey')
-        .orderByChild("received_at")
-        .limitToLast(20)
-        .get();
+    final List<Map<String, dynamic>> unread = [];
 
-    if (snapshot.exists && snapshot.value is Map) {
-      final data = Map<String, dynamic>.from(snapshot.value as Map);
-      final unreadCount = data.values.where((n) {
-        final map = Map<String, dynamic>.from(n as Map);
-        return map['isRead'] != 1;
-      }).length;
+    final daysSnapshot = await _database.child('notifications/$userId').get();
 
-      filterController.unreadCount.value = unreadCount;
-    } else {
+    if (!daysSnapshot.exists || daysSnapshot.value is! Map) {
       filterController.unreadCount.value = 0;
+      return;
     }
+
+    final allDateKeys =
+        Map<String, dynamic>.from(daysSnapshot.value as Map).keys.toList();
+    allDateKeys.sort();
+    final reversedDates = allDateKeys.reversed.toList();
+
+    for (final dateKey in reversedDates) {
+      print(">>> Fetching notifications for $dateKey");
+
+      final snapshot = await _database
+          .child('notifications/$userId/$dateKey')
+          .orderByChild("received_at_epoch")
+          .limitToLast(100)
+          .get();
+
+      if (snapshot.exists && snapshot.value is Map) {
+        final data = Map<String, dynamic>.from(snapshot.value as Map);
+        final dayUnread = data.values
+            .where((n) {
+              final map = Map<String, dynamic>.from(n as Map);
+              return map['isRead'] == null || map['isRead'] != 1;
+            })
+            .map<Map<String, dynamic>>(
+                (n) => Map<String, dynamic>.from(n as Map))
+            .toList();
+
+        unread.insertAll(0, dayUnread);
+        if (unread.length >= 100) break;
+      }
+    }
+
+    filterController.unreadCount.value = unread.length;
   }
 
   init() async {

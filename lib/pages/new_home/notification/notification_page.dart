@@ -19,8 +19,6 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   List<Map<String, dynamic>> notifications = [];
   final ScrollController _scrollController = ScrollController();
-  final NotificationFilterController notificationController =
-      Get.put(NotificationFilterController());
   String filterStatus = 'all';
   bool isLoading = false;
   final NotificationFilterController filters = Get.find();
@@ -30,6 +28,8 @@ class _NotificationPageState extends State<NotificationPage> {
   bool _hasMore = true;
   bool _isFetching = false;
   int? lastEpoch;
+  DateTime _currentDate = DateTime.now().toUtc().add(const Duration(hours: 3));
+  String get currentDateKey => DateFormat('yyyy-MM-dd').format(_currentDate);
 
   final Map<String, IconData> sensorIcons = {
     'temperature': FontAwesomeIcons.temperatureHigh,
@@ -58,6 +58,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
       final data = Map<String, dynamic>.from(event.snapshot.value as Map);
       data['id'] = event.snapshot.key;
+      data['dateKey'] = event.snapshot.ref.parent?.key;
 
       final alreadyExists = notifications.any((n) => n['id'] == data['id']);
       if (alreadyExists) return;
@@ -74,89 +75,77 @@ class _NotificationPageState extends State<NotificationPage> {
 
   Future<void> _loadPaginatedNotifications() async {
     if (_isFetching || !_hasMore) return;
-
-    if (!mounted) return;
-    setState(() => _isFetching = true);
+    _isFetching = true;
 
     final userId = Get.find<AuthController>().user.value.id.toString();
 
-    var ref = FirebaseDatabase.instance
-        .ref("notifications/$userId/$todayKey")
-        .orderByChild("received_at_epoch")
-        .limitToLast(_pageSize);
+    while (_hasMore && notifications.length < _pageSize) {
+      final snapshot = await _database
+          .child('notifications/$userId/$currentDateKey')
+          .orderByChild('received_at_epoch')
+          .limitToLast(100)
+          .get();
 
-    if (lastEpoch != null) {
-      ref = ref.endBefore(lastEpoch);
-    }
+      if (snapshot.exists && snapshot.value is Map) {
+        final data = Map<String, dynamic>.from(snapshot.value as Map);
 
-    final snapshot = await ref.get();
+        final dayItems = data.entries.map<Map<String, dynamic>>((e) {
+          final map = Map<String, dynamic>.from(e.value as Map);
+          final id = e.key;
+          final dateKey = snapshot.key;
+          map['id'] = id;
+          map['dateKey'] = dateKey;
+          return map;
+        }).toList();
 
-    if (!mounted) return;
+        dayItems.sort((a, b) => (a['received_at_epoch'] ?? 0)
+            .compareTo(b['received_at_epoch'] ?? 0));
 
-    if (snapshot.exists && snapshot.value is Map) {
-      final mapData = Map<String, dynamic>.from(snapshot.value as Map);
+        notifications.addAll(dayItems);
 
-      var newList = mapData.entries.map((e) {
-        final notif = Map<String, dynamic>.from(e.value);
-        notif['id'] = e.key;
-        return notif;
-      }).toList();
+        notifications.sort((a, b) => (b['received_at_epoch'] ?? 0)
+            .compareTo(a['received_at_epoch'] ?? 0));
 
-      newList.sort((a, b) =>
-          (b['received_at_epoch'] ?? 0).compareTo(a['received_at_epoch'] ?? 0));
-
-      if (newList.isNotEmpty) {
-        lastEpoch = newList.first['received_at_epoch'];
-      }
-
-      for (final item in newList) {
-        if (!notifications.any((n) => n['id'] == item['id'])) {
-          notifications.add(item);
+        if (notifications.length > _pageSize) {
+          notifications = notifications.sublist(0, _pageSize);
+          _hasMore = true;
+          break;
         }
       }
-      if (!mounted) return;
-      setState(() {
-        _hasMore = newList.length >= _pageSize;
-        _isFetching = false;
-      });
-    } else {
-      if (!mounted) return;
-      setState(() {
-        _hasMore = false;
-        _isFetching = false;
-      });
-    }
-  }
 
-  Color getAlarmStatusColor(String? alarm) {
-    switch (alarm) {
-      case "2":
-        return Colors.red;
-      case "1":
-        return Colors.orange;
-      default:
-        return Colors.green;
+      _currentDate = _currentDate.subtract(const Duration(days: 1));
     }
+
+    _isFetching = false;
+    setState(() {});
   }
 
   Future<void> markAllAsRead() async {
     final userId = Get.find<AuthController>().user.value.id.toString();
-    final ref =
-        FirebaseDatabase.instance.ref("notifications/$userId/$todayKey");
-
-    final updates = <String, dynamic>{};
+    final Map<String, Map<String, dynamic>> updatesPerDate = {};
 
     for (final notif in notifications) {
-      updates["${notif['id']}/isRead"] = 1;
+      final id = notif['id'];
+      final dateKey = notif['dateKey'];
+      if (id != null && dateKey != null) {
+        updatesPerDate.putIfAbsent(dateKey, () => {});
+        updatesPerDate[dateKey]!["$id/isRead"] = 1;
+      }
     }
 
-    await ref.update(updates);
+    for (final entry in updatesPerDate.entries) {
+      final dateKey = entry.key;
+      final updates = entry.value;
+      final ref =
+          FirebaseDatabase.instance.ref("notifications/$userId/$dateKey");
+      await ref.update(updates);
+    }
 
     if (!mounted) return;
 
     setState(() {
-      for (var i = 0; i < notifications.length; i++) {
-        notifications[i]['isRead'] = 1;
+      for (var notif in notifications) {
+        notif['isRead'] = 1;
       }
       if (filterStatus == 'unread') {
         filterStatus = 'read';
@@ -185,46 +174,35 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
     );
 
-    if (confirmed == true) {
-      final userId = Get.find<AuthController>().user.value.id.toString();
-      final ref =
-          FirebaseDatabase.instance.ref("notifications/$userId/$todayKey");
+    if (confirmed != true) return;
 
-      final snapshot =
-          await ref.orderByChild("received_at_epoch").limitToLast(20).get();
-
-      if (!snapshot.exists || snapshot.value is! Map) return;
-
-      final mapData = Map<String, dynamic>.from(snapshot.value as Map);
-      final deleteUpdates = <String, dynamic>{};
-
-      for (final key in mapData.keys) {
-        deleteUpdates[key] = null;
-      }
-
-      await ref.update(deleteUpdates);
-
-      setState(() {
-        notifications.removeWhere((n) => deleteUpdates.containsKey(n['id']));
-      });
-
-      successSnackbar("Başarılı", "Son 20 bildirim silindi.");
-
-      await _loadPaginatedNotifications();
-    }
-  }
-
-  Future<void> _deleteNotification(String notificationId) async {
     final userId = Get.find<AuthController>().user.value.id.toString();
-    final ref = FirebaseDatabase.instance
-        .ref("notifications/$userId/$todayKey/$notificationId");
+    final toDelete = notifications.take(20).toList();
+    final Map<String, Map<String, dynamic>> deletePerDate = {};
 
-    await ref.remove();
+    for (final notif in toDelete) {
+      final id = notif['id'];
+      final dateKey = notif['dateKey'];
+      if (id != null && dateKey != null) {
+        deletePerDate.putIfAbsent(dateKey, () => {});
+        deletePerDate[dateKey]![id] = null;
+      }
+    }
+
+    for (final entry in deletePerDate.entries) {
+      final dateKey = entry.key;
+      final deleteMap = entry.value;
+      final ref =
+          FirebaseDatabase.instance.ref("notifications/$userId/$dateKey");
+      await ref.update(deleteMap);
+    }
 
     setState(() {
-      notifications.removeWhere((n) => n['id'] == notificationId);
+      final ids = toDelete.map((n) => n['id']).toSet();
+      notifications.removeWhere((n) => ids.contains(n['id']));
     });
 
+    successSnackbar("Başarılı", "Son 20 bildirim silindi.");
     await _loadPaginatedNotifications();
   }
 
@@ -235,6 +213,17 @@ class _NotificationPageState extends State<NotificationPage> {
     if (lowerName.contains('nem')) return sensorIcons['humidity']!;
     if (lowerName.contains('duman')) return sensorIcons['smoke']!;
     return sensorIcons['default']!;
+  }
+
+  Color getAlarmStatusColor(String? alarm) {
+    switch (alarm) {
+      case "2":
+        return Colors.red;
+      case "1":
+        return Colors.orange;
+      default:
+        return Colors.green;
+    }
   }
 
   @override
@@ -369,7 +358,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                           ),
                                           TextButton(
                                             onPressed: () {
-                                              _deleteNotification(item['id']);
+                                              // _deleteNotification(item['id']);
                                               Navigator.of(context).pop(true);
                                             },
                                             child: const Text('Sil',
