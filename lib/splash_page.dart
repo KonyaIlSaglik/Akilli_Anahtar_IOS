@@ -8,7 +8,9 @@ import 'package:get/get.dart';
 
 class SplashPage extends StatefulWidget {
   final bool fromLogout;
-  const SplashPage({super.key, this.fromLogout = false});
+  final String autoFillUserName;
+  const SplashPage(
+      {super.key, this.fromLogout = false, this.autoFillUserName = ""});
 
   @override
   State<SplashPage> createState() => _SplashPageState();
@@ -29,6 +31,11 @@ class _SplashPageState extends State<SplashPage> {
 
     if (widget.fromLogout) {
       await Future.delayed(Duration(milliseconds: 500));
+
+      if (widget.autoFillUserName.isNotEmpty) {
+        loginController.userName.value = widget.autoFillUserName;
+      }
+
       Get.offAll(() => LoginPage(),
           transition: Transition.fadeIn, duration: Duration(milliseconds: 300));
       return;

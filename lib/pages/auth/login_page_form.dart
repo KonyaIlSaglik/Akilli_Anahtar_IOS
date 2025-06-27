@@ -27,6 +27,12 @@ class _LoginPageFormState extends State<LoginPageForm> {
     print("LoginPageForm initialized");
     userNameController.text = loginController.userName.value;
     passwordController.text = loginController.password.value;
+
+    ever(loginController.userName, (String value) {
+      if (userNameController.text != value) {
+        userNameController.text = value;
+      }
+    });
   }
 
   @override

@@ -39,31 +39,49 @@ class AuthController extends GetxController {
 
   Future<void> logOut(int sessionId, String identity,
       {BuildContext? context}) async {
-    LoginController loginController = Get.find();
-    session.value = SessionDto.empty();
-    user.value = UserDto();
-    /* await loginController.clearLoginInfo();
-
-    if (context != null && Navigator.canPop(context)) {
-      Navigator.pop(context);
-      await Future.delayed(Duration(milliseconds: 100));
-    }*/
-
     try {
-      await AuthService.logOut(sessionId, identity);
+      LoginController? loginController;
+      try {
+        loginController = Get.find<LoginController>();
+      } catch (e) {
+        print("LoginController bulunamadı: $e");
+      }
+
+      session.value = SessionDto.empty();
+      user.value = UserDto();
+
+      if (loginController != null) {
+        await LocalDb.delete(webTokenKey);
+        await LocalDb.delete(userIdKey);
+        loginController.isLogin.value = false;
+      }
+
+      try {
+        await AuthService.logOut(sessionId, identity);
+      } catch (e) {
+        print("API çıkış hatası: $e");
+      }
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      if (context != null) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => SplashPage(fromLogout: true)),
+          (route) => false,
+        );
+      } else {
+        Get.offAll(() => SplashPage(fromLogout: true));
+      }
     } catch (e) {
-      print("API çıkış hatası: $e");
-    }
-
-    await Future.delayed(Duration(milliseconds: 100));
-
-    if (context != null) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => SplashPage(fromLogout: true)),
-        (route) => false,
-      );
-    } else {
-      Get.offAll(() => SplashPage(fromLogout: true));
+      print("Logout işleminde hata: $e");
+      if (context != null) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => SplashPage(fromLogout: true)),
+          (route) => false,
+        );
+      } else {
+        Get.offAll(() => SplashPage(fromLogout: true));
+      }
     }
   }
 
@@ -78,22 +96,26 @@ class AuthController extends GetxController {
       if (result) {
         isChanged.value = true;
         stopBackgroundService();
+        String currentUserName = "";
+        try {
+          LoginController loginController = Get.find();
+          currentUserName = loginController.userName.value;
+        } catch (e) {
+          print("LoginController bulunamadı: $e");
+        }
 
-        LoginController loginController = Get.find();
-        loginController.password.value = "";
-        loginController.userName.value = "";
-
-        final authController = Get.find<AuthController>();
-        authController.session.value = SessionDto.empty();
-        authController.user.value = UserDto();
+        session.value = SessionDto.empty();
+        user.value = UserDto();
 
         await LocalDb.clear();
 
         successSnackbar("Başarılı",
             "Şifreniz başarıyla değiştirildi. Giriş ekranına yönlendiriliyorsunuz");
 
-        Get.reset();
-        Get.offAllNamed("/login");
+        await Future.delayed(Duration(milliseconds: 500));
+
+        Get.offAll(() =>
+            SplashPage(fromLogout: true, autoFillUserName: currentUserName));
       } else {
         errorSnackbar("Hata", "Şifre güncellenemedi");
       }
@@ -179,4 +201,3 @@ class AuthController extends GetxController {
     );
   }
 }
-//push deneme
