@@ -5,6 +5,8 @@ import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/widgets/loading_dots.dart';
+import 'package:akilli_anahtar/widgets/connection_error_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -27,17 +29,26 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
   int alarmStatus = 0;
   String status = "";
   Timer? _statusTimer;
+  bool _connectionError = false;
 
   @override
   void initState() {
     super.initState();
     device = widget.device;
     status = homeController.lastStatus[device.id!] ?? "";
-    _startStatusTimeout();
+
+    _connectionError = homeController.connectionErrors[device.id!] ?? false;
+
+    if (!_connectionError && status.isEmpty) {
+      _startStatusTimeout();
+    }
+
     _mqttController.onMessage((topic, message) {
       if (topic == device.topicStat) {
         if (mounted) {
           setState(() {
+            _connectionError = false;
+            homeController.connectionErrors[device.id!] = false;
             if (device.typeId == 1 ||
                 device.typeId == 2 ||
                 device.typeId == 3) {
@@ -61,7 +72,7 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
             }
           });
           homeController.lastStatus[device.id!] = status;
-          _resetStatusTimeout(); // Yeni mesaj alındığında zamanlayıcıyı sıfırla
+          _resetStatusTimeout();
         }
       }
     });
@@ -70,20 +81,25 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
   }
 
   void _startStatusTimeout() {
-    _statusTimer = Timer(Duration(minutes: 10), () {
+    _statusTimer = Timer(Duration(seconds: 10), () {
       if (mounted) {
         setState(() {
           status = "";
           alarmStatus = 0;
+          _connectionError = true;
+          homeController.connectionErrors[device.id!] = true;
         });
         homeController.lastStatus[device.id!] = status;
+        _statusTimer?.cancel();
       }
     });
   }
 
   void _resetStatusTimeout() {
-    _statusTimer?.cancel(); // Önceki zamanlayıcıyı iptal et
-    _startStatusTimeout(); // Yeni zamanlayıcı başlat
+    _statusTimer?.cancel();
+    if (!_connectionError) {
+      _startStatusTimeout();
+    }
   }
 
   @override
@@ -98,29 +114,42 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(
-          status.isNotEmpty ? status : "-",
-          style: textTheme(context).headlineLarge!.copyWith(
-                color: alarmStatus == 1
-                    ? Colors.orange
-                    : alarmStatus == 2
-                        ? Colors.red
-                        : Colors.black,
-              ),
-        ),
-        SizedBox(
-          width: 5,
-        ),
-        Text(
-          device.unit ?? "-",
-          style: TextStyle(
-            color: alarmStatus == 1
-                ? Colors.orange
-                : alarmStatus == 2
-                    ? Colors.red
-                    : Colors.black,
+        if (status.isNotEmpty)
+          Text(
+            status,
+            style: textTheme(context).headlineLarge!.copyWith(
+                  color: alarmStatus == 1
+                      ? Colors.orange
+                      : alarmStatus == 2
+                          ? Colors.red
+                          : Colors.black,
+                ),
+          )
+        else if (_connectionError)
+          ConnectionErrorWidget(
+            fontSize: 10.0,
+            color: Colors.red[800],
+          )
+        else
+          LoadingDots(
+            color: Colors.grey[800],
+            size: 6.0,
           ),
-        ),
+        if (status.isNotEmpty) ...[
+          SizedBox(
+            width: 5,
+          ),
+          Text(
+            device.unit ?? "-",
+            style: TextStyle(
+              color: alarmStatus == 1
+                  ? Colors.orange
+                  : alarmStatus == 2
+                      ? Colors.red
+                      : Colors.black,
+            ),
+          ),
+        ],
       ],
     );
   }

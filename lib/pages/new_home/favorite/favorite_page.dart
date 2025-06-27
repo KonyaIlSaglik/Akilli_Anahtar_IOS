@@ -2,6 +2,7 @@ import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/profil_card.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/widgets/loading_dots.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -68,8 +69,10 @@ class _FavoritePageState extends State<FavoritePage> {
                     return child;
                   },
                   children: homeController.favorites
-                      .map((d) =>
-                          DeviceListViewItem(key: ValueKey(d.id), device: d))
+                      .map((d) => DeviceListViewItem(
+                          key: ValueKey(
+                              "${d.id}_${homeController.refreshTimestamp.value}"),
+                          device: d))
                       .toList(),
                   onReorder: (oldIndex, newIndex) async {
                     final element = homeController.favorites.removeAt(oldIndex);
