@@ -34,6 +34,10 @@ class HomeController extends GetxController {
   var grouping = false.obs;
   var groupedDevices = <DeviceGroupByBox>[].obs;
 
+  var lastStatus = <int, String>{}.obs;
+  var connectionErrors = <int, bool>{}.obs;
+  var refreshTimestamp = 0.obs;
+
   @override
   void onInit() async {
     super.onInit();
@@ -181,7 +185,6 @@ class HomeController extends GetxController {
   var city = "".obs;
   var tempeture = "".obs;
   var homeDevices = <HomeDeviceDto>[].obs;
-  var lastStatus = <int, String>{}.obs;
   var favorites = <HomeDeviceDto>[].obs;
   var parameters = <Parameter>[].obs;
   //////////////
@@ -202,6 +205,10 @@ class HomeController extends GetxController {
       loading.value = false;
       return;
     }
+
+    connectionErrors.clear();
+    refreshTimestamp.value = DateTime.now().millisecondsSinceEpoch;
+
     homeDevices.value = await HomeService.getDevices(id) ?? <HomeDeviceDto>[];
 
     if (homeDevices.isEmpty) {
