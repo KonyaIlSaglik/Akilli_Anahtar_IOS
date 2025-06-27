@@ -8,6 +8,8 @@ import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:akilli_anahtar/pages/new_home/notification/notification_filter_page.dart';
 import 'package:akilli_anahtar/controllers/main/notification_filter_controller.dart';
+import 'package:akilli_anahtar/models/notification_db_model.dart';
+import 'package:akilli_anahtar/controllers/main/notification_controller.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -38,12 +40,28 @@ class _NotificationPageState extends State<NotificationPage> {
     'default': Icons.sensors,
   };
 
+  Future<void> _initLastDateKey() async {
+    final userId = Get.find<AuthController>().user.value.id.toString();
+    final ref = _database.child('notifications/$userId');
+    final snapshot = await ref.get();
+
+    if (snapshot.exists && snapshot.value is Map) {
+      final keys = (snapshot.value as Map).keys;
+      final sortedKeys = keys.toList()..sort();
+      final lastKey = sortedKeys.last;
+
+      _currentDate = DateFormat('yyyy-MM-dd').parse(lastKey);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
-    _loadPaginatedNotifications();
-    _startLiveListener();
+    _initLastDateKey().then((_) {
+      _loadPaginatedNotifications();
+      _startLiveListener();
+    });
   }
 
   void _startLiveListener() {
@@ -73,47 +91,66 @@ class _NotificationPageState extends State<NotificationPage> {
     });
   }
 
-  Future<void> _loadPaginatedNotifications() async {
-    if (_isFetching || !_hasMore) return;
+  Future<void> _refreshNotifications() async {
+    setState(() {
+      isLoading = true;
+    });
+    _hasMore = true;
+    _isFetching = false;
+    notifications.clear();
+    _currentDate = DateTime.now().toUtc().add(const Duration(hours: 3));
+    await _loadPaginatedNotifications();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> _loadPaginatedNotifications({bool reset = false}) async {
+    if (_isFetching) return;
     _isFetching = true;
 
+    if (reset) {
+      notifications.clear();
+      _currentDate = DateTime.now().toUtc().add(const Duration(hours: 3));
+      lastEpoch = null;
+      _hasMore = true;
+    }
+
     final userId = Get.find<AuthController>().user.value.id.toString();
+    final dateKey = DateFormat('yyyy-MM-dd').format(_currentDate);
 
-    while (_hasMore && notifications.length < _pageSize) {
-      final snapshot = await _database
-          .child('notifications/$userId/$currentDateKey')
-          .orderByChild('received_at_epoch')
-          .limitToLast(100)
-          .get();
+    final ref = _database.child('notifications/$userId/$dateKey').orderByKey();
 
-      if (snapshot.exists && snapshot.value is Map) {
-        final data = Map<String, dynamic>.from(snapshot.value as Map);
+    if (lastEpoch != null) {
+      ref.endAt(lastEpoch.toString());
+    }
 
-        final dayItems = data.entries.map<Map<String, dynamic>>((e) {
-          final map = Map<String, dynamic>.from(e.value as Map);
-          final id = e.key;
-          final dateKey = snapshot.key;
-          map['id'] = id;
-          map['dateKey'] = dateKey;
-          return map;
-        }).toList();
+    final snapshot = await ref.limitToLast(_pageSize).get();
 
-        dayItems.sort((a, b) => (a['received_at_epoch'] ?? 0)
-            .compareTo(b['received_at_epoch'] ?? 0));
-
-        notifications.addAll(dayItems);
-
-        notifications.sort((a, b) => (b['received_at_epoch'] ?? 0)
-            .compareTo(a['received_at_epoch'] ?? 0));
-
-        if (notifications.length > _pageSize) {
-          notifications = notifications.sublist(0, _pageSize);
-          _hasMore = true;
-          break;
-        }
-      }
-
+    if (!snapshot.exists || snapshot.value == null) {
       _currentDate = _currentDate.subtract(const Duration(days: 1));
+      _isFetching = false;
+      await _loadPaginatedNotifications();
+      return;
+    }
+
+    final rawData = Map<String, dynamic>.from(snapshot.value as Map);
+    final sortedKeys = rawData.keys.toList()..sort();
+
+    final newItems = sortedKeys.map((k) {
+      final data = Map<String, dynamic>.from(rawData[k]);
+      data['id'] = k;
+      data['dateKey'] = dateKey;
+      return data;
+    }).toList();
+
+    if (newItems.isNotEmpty) {
+      notifications.addAll(newItems.reversed);
+      lastEpoch = int.tryParse(sortedKeys.first);
+    }
+
+    if (newItems.length < _pageSize) {
+      _hasMore = false;
     }
 
     _isFetching = false;
@@ -203,7 +240,7 @@ class _NotificationPageState extends State<NotificationPage> {
     });
 
     successSnackbar("Başarılı", "Son 20 bildirim silindi.");
-    await _loadPaginatedNotifications();
+    await _loadPaginatedNotifications(reset: false);
   }
 
   IconData _getSensorIcon(String? sensorName) {
@@ -296,7 +333,7 @@ class _NotificationPageState extends State<NotificationPage> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadPaginatedNotifications,
+        onRefresh: _refreshNotifications,
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
             : Column(
@@ -318,9 +355,14 @@ class _NotificationPageState extends State<NotificationPage> {
                         ? const Center(child: Text("Henüz hiçbir bildirim yok"))
                         : ListView.builder(
                             controller: _scrollController,
+                            physics: const AlwaysScrollableScrollPhysics(),
                             padding: const EdgeInsets.all(12),
-                            itemCount: filtered.length,
+                            itemCount: filtered.length + (_hasMore ? 1 : 0),
                             itemBuilder: (context, index) {
+                              if (index == filtered.length) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
                               final item = filtered[index];
 
                               final isRead = item['isRead'] == 1;
@@ -329,145 +371,97 @@ class _NotificationPageState extends State<NotificationPage> {
                               final sensorIcon =
                                   _getSensorIcon(item['sensor_name']);
 
-                              return Dismissible(
-                                key: Key(item['id']),
-                                background: Container(
-                                  color: Colors.red,
-                                  alignment: Alignment.centerRight,
-                                  padding: const EdgeInsets.only(right: 20),
-                                  child: const Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                confirmDismiss: (direction) async {
-                                  if (direction ==
-                                      DismissDirection.endToStart) {
-                                    return await showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text('Bildirimi Sil'),
-                                        content: const Text(
-                                            'Bu bildirimi silmek istediğinize emin misiniz?'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context)
-                                                    .pop(false),
-                                            child: const Text('İptal'),
+                              return GestureDetector(
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(bottom: 12),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                            color: borderColor, width: 2),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(sensorIcon,
+                                                  color: borderColor),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      item['sensor_name'] ??
+                                                          'Sensör',
+                                                      style: theme
+                                                          .textTheme.titleMedium
+                                                          ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                    ),
+                                                    Text(
+                                                      item['organisation_name'] ??
+                                                          'Lokasyon Bilinmiyor',
+                                                      style: theme
+                                                          .textTheme.bodySmall
+                                                          ?.copyWith(
+                                                              color: Colors
+                                                                  .grey[700]),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Text(
+                                                "${item['deger'] ?? '-'}",
+                                                style: theme.textTheme.bodyLarge
+                                                    ?.copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: borderColor,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          TextButton(
-                                            onPressed: () {
-                                              // _deleteNotification(item['id']);
-                                              Navigator.of(context).pop(true);
-                                            },
-                                            child: const Text('Sil',
-                                                style: TextStyle(
-                                                    color: Colors.red)),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            DateFormat("dd.MM.yyyy HH:mm:ss")
+                                                .format(
+                                              DateTime.tryParse(
+                                                      item['received_at'] ??
+                                                          '') ??
+                                                  DateTime.now(),
+                                            ),
+                                            style: theme.textTheme.bodySmall
+                                                ?.copyWith(
+                                                    color: Colors.grey[600]),
                                           ),
                                         ],
                                       ),
-                                    );
-                                  }
-                                  return false;
-                                },
-                                child: GestureDetector(
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 12),
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          border: Border.all(
-                                              color: borderColor, width: 2),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Icon(sensorIcon,
-                                                    color: borderColor),
-                                                const SizedBox(width: 6),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        item['sensor_name'] ??
-                                                            'Sensör',
-                                                        style: theme.textTheme
-                                                            .titleMedium
-                                                            ?.copyWith(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                      ),
-                                                      Text(
-                                                        item['organisation_name'] ??
-                                                            'Lokasyon Bilinmiyor',
-                                                        style: theme
-                                                            .textTheme.bodySmall
-                                                            ?.copyWith(
-                                                                color: Colors
-                                                                    .grey[700]),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Text(
-                                                  "${item['deger'] ?? '-'}",
-                                                  style: theme
-                                                      .textTheme.bodyLarge
-                                                      ?.copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: borderColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              DateFormat("dd.MM.yyyy HH:mm:ss")
-                                                  .format(
-                                                DateTime.tryParse(
-                                                        item['received_at'] ??
-                                                            '') ??
-                                                    DateTime.now(),
-                                              ),
-                                              style: theme.textTheme.bodySmall
-                                                  ?.copyWith(
-                                                      color: Colors.grey[600]),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      if (!isRead)
-                                        Positioned(
-                                          top: 8,
-                                          right: 8,
-                                          child: Container(
-                                            width: 12,
-                                            height: 12,
-                                            decoration: BoxDecoration(
-                                              color: Colors.red,
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                              border: Border.all(
-                                                  color: Colors.white,
-                                                  width: 2),
-                                            ),
+                                    ),
+                                    if (!isRead)
+                                      Positioned(
+                                        top: 8,
+                                        right: 8,
+                                        child: Container(
+                                          width: 12,
+                                          height: 12,
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                            border: Border.all(
+                                                color: Colors.white, width: 2),
                                           ),
                                         ),
-                                    ],
-                                  ),
+                                      ),
+                                  ],
                                 ),
                               );
                             },
