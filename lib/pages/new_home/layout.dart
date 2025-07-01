@@ -38,7 +38,6 @@ class _LayoutState extends State<Layout> {
     super.initState();
     print("Layout Created");
     init();
-    _listenToNotifications();
   }
 
   void _listenToNotifications() {
@@ -59,32 +58,56 @@ class _LayoutState extends State<Layout> {
     });
   }
 
+  bool _shouldStopCounting = false;
+
   Future<void> _updateNotificationCount(String userId) async {
-    final daysSnapshot = await _database.child('notifications/$userId').get();
+    if (_shouldStopCounting) return;
 
-    if (!daysSnapshot.exists || daysSnapshot.value is! Map) {
-      filterController.unreadCount.value = 0;
-      return;
-    }
+    final ref = FirebaseDatabase.instance.ref('notifications/$userId');
 
-    final allNotifs = Map<String, dynamic>.from(daysSnapshot.value as Map);
-    final sortedKeys = allNotifs.keys.toList()..sort();
-    final newest100Keys = sortedKeys.reversed.take(100);
     int unread = 0;
-    for (final k in newest100Keys) {
-      final notif = allNotifs[k];
-      if (notif is Map) {
-        if (notif['isRead'] == null || notif['isRead'] != 1) {
+    const int fetchSize = 100;
+    const int maxLoops = 10;
+
+    String? endAtKey;
+
+    for (int i = 0; i < maxLoops; i++) {
+      Query query = ref.orderByKey().limitToLast(fetchSize);
+      if (endAtKey != null) query = query.endBefore(endAtKey);
+
+      final snapshot = await query.get();
+      if (!snapshot.exists || snapshot.value is! Map) break;
+
+      final items = Map<String, dynamic>.from(snapshot.value as Map)
+        ..removeWhere((key, value) => value is! Map);
+
+      final sorted = items.entries.toList()
+        ..sort((a, b) => int.parse(b.key).compareTo(int.parse(a.key)));
+
+      for (final entry in sorted) {
+        final isRead = entry.value['isRead'];
+        if (isRead == null || isRead != 1) {
           unread++;
+          if (unread >= 99) {
+            filterController.unreadCount.value = 100;
+            _shouldStopCounting = true;
+            return;
+          }
         }
       }
+
+      endAtKey = sorted.last.key;
     }
+
     filterController.unreadCount.value = unread;
+    _shouldStopCounting = false;
   }
 
-  init() async {
+  Future<void> init() async {
     await mqttController.initClient();
     await homeController.getDevices();
+
+    Future(() => _listenToNotifications());
   }
 
   @override

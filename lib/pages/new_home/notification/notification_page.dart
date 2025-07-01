@@ -22,7 +22,7 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   List<Map<String, dynamic>> notifications = [];
   final ScrollController _scrollController = ScrollController();
-  String filterStatus = 'all';
+
   bool isLoading = false;
   final NotificationFilterController filters = Get.find();
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
@@ -74,10 +74,16 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
+    isLoading = true;
 
     _initLastDateKey().then((_) {
       _loadPaginatedNotifications(reset: false, retryCount: 0);
       _startLiveListener();
+
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 
@@ -87,7 +93,6 @@ class _NotificationPageState extends State<NotificationPage> {
     _notificationSubscription?.cancel();
     _dateCheckTimer?.cancel();
 
-    // onChildAdded
     _notificationSubscription =
         _database.child('notifications/$userId').onChildAdded.listen((event) {
       if (!mounted || event.snapshot.value == null) return;
@@ -105,7 +110,6 @@ class _NotificationPageState extends State<NotificationPage> {
       });
     }, onError: (error) {});
 
-    // onChildChanged
     _database.child('notifications/$userId').onChildChanged.listen((event) {
       if (!mounted || event.snapshot.value == null) return;
       final data = Map<String, dynamic>.from(event.snapshot.value as Map);
@@ -118,7 +122,6 @@ class _NotificationPageState extends State<NotificationPage> {
       });
     });
 
-    // onChildRemoved
     _database.child('notifications/$userId').onChildRemoved.listen((event) {
       if (!mounted || event.snapshot.key == null) return;
       setState(() {
@@ -162,9 +165,15 @@ class _NotificationPageState extends State<NotificationPage> {
     }
 
     final userId = Get.find<AuthController>().user.value.id.toString();
-    final ref = _database.child('notifications/$userId');
-    final snapshot = await ref.get();
-    if (!snapshot.exists || snapshot.value == null) {
+    final ref = FirebaseDatabase.instance.ref('notifications/$userId');
+
+    Query query = ref.orderByKey().limitToLast(_pageSize);
+    if (lastEpoch != null) {
+      query = query.endBefore(lastEpoch.toString());
+    }
+
+    final snapshot = await query.get();
+    if (!snapshot.exists || snapshot.value is! Map) {
       _hasMore = false;
       _isFetching = false;
       setState(() {});
@@ -205,9 +214,6 @@ class _NotificationPageState extends State<NotificationPage> {
     setState(() {
       for (var notif in notifications) {
         notif['isRead'] = 1;
-      }
-      if (filterStatus == 'unread') {
-        filterStatus = 'read';
       }
     });
 
@@ -301,16 +307,7 @@ class _NotificationPageState extends State<NotificationPage> {
             return (n['alarm']?.toString() ?? '') == selectedAlarm;
           }();
 
-          final matchesReadStatus = () {
-            if (filterStatus == 'read') return n['isRead'] == 1;
-            if (filterStatus == 'unread') return n['isRead'] != 1;
-            return true;
-          }();
-
-          return matchesSensor &&
-              matchesLocation &&
-              matchesAlarm &&
-              matchesReadStatus;
+          return matchesSensor && matchesLocation && matchesAlarm;
         })
         .take(_pageSize)
         .toList();
@@ -354,14 +351,6 @@ class _NotificationPageState extends State<NotificationPage> {
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildFilterButton('Tümü', 'all'),
-                        _buildFilterButton('Okundu', 'read'),
-                        _buildFilterButton('Okunmadı', 'unread'),
-                      ],
-                    ),
                   ),
                   Expanded(
                     child: filtered.isEmpty
@@ -585,38 +574,6 @@ class _NotificationPageState extends State<NotificationPage> {
         child: const Icon(Icons.arrow_upward),
         backgroundColor: Colors.white,
         foregroundColor: Colors.brown,
-      ),
-    );
-  }
-
-  Widget _buildFilterButton(String text, String status) {
-    final isSelected = filterStatus == status;
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Material(
-          color: isSelected ? Colors.brown : Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(18),
-            onTap: () {
-              setState(() {
-                filterStatus = status;
-              });
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              alignment: Alignment.center,
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
