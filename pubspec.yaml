@@ -97,6 +97,7 @@ dependencies:
   reorderable_grid_view: ^2.2.8
   network_info_plus: ^6.1.2
   persistent_bottom_nav_bar: ^6.2.1
+  flutter_slidable: ^3.1.2
 
 flutter_icons:
   android: "launcher_icon"

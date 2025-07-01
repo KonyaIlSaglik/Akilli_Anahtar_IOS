@@ -60,8 +60,6 @@ class _LayoutState extends State<Layout> {
   }
 
   Future<void> _updateNotificationCount(String userId) async {
-    final List<Map<String, dynamic>> unread = [];
-
     final daysSnapshot = await _database.child('notifications/$userId').get();
 
     if (!daysSnapshot.exists || daysSnapshot.value is! Map) {
@@ -69,37 +67,19 @@ class _LayoutState extends State<Layout> {
       return;
     }
 
-    final allDateKeys =
-        Map<String, dynamic>.from(daysSnapshot.value as Map).keys.toList();
-    allDateKeys.sort();
-    final reversedDates = allDateKeys.reversed.toList();
-
-    for (final dateKey in reversedDates) {
-      print(">>> Fetching notifications for $dateKey");
-
-      final snapshot = await _database
-          .child('notifications/$userId/$dateKey')
-          .orderByChild("received_at_epoch")
-          .limitToLast(100)
-          .get();
-
-      if (snapshot.exists && snapshot.value is Map) {
-        final data = Map<String, dynamic>.from(snapshot.value as Map);
-        final dayUnread = data.values
-            .where((n) {
-              final map = Map<String, dynamic>.from(n as Map);
-              return map['isRead'] == null || map['isRead'] != 1;
-            })
-            .map<Map<String, dynamic>>(
-                (n) => Map<String, dynamic>.from(n as Map))
-            .toList();
-
-        unread.insertAll(0, dayUnread);
-        if (unread.length >= 100) break;
+    final allNotifs = Map<String, dynamic>.from(daysSnapshot.value as Map);
+    final sortedKeys = allNotifs.keys.toList()..sort();
+    final newest100Keys = sortedKeys.reversed.take(100);
+    int unread = 0;
+    for (final k in newest100Keys) {
+      final notif = allNotifs[k];
+      if (notif is Map) {
+        if (notif['isRead'] == null || notif['isRead'] != 1) {
+          unread++;
+        }
       }
     }
-
-    filterController.unreadCount.value = unread.length;
+    filterController.unreadCount.value = unread;
   }
 
   init() async {
