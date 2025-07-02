@@ -12,7 +12,6 @@ import 'package:akilli_anahtar/widgets/back_container.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';

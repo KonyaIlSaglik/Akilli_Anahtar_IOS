@@ -41,11 +41,11 @@ void prnt(String message) {
 Future<void> initializeService() async {
   prnt("initializing...");
   final service = FlutterBackgroundService();
+
   await service.configure(
     iosConfiguration: IosConfiguration(
       autoStart: false,
       onForeground: onStart,
-      onBackground: onIosBackground,
     ),
     androidConfiguration: AndroidConfiguration(
       autoStart: false,
@@ -61,23 +61,17 @@ Future<void> initializeService() async {
       ],
     ),
   );
-  if (await service.isRunning()) {
-    prnt("Service already running, stopping it first...");
-    service.invoke("stopService");
+
+  final isRunning = await service.isRunning();
+  if (isRunning) {
+    print(" Service already running. No need to start again.");
+    return;
   }
 
-  await Future.delayed(Duration(seconds: 3));
-  prnt("initialized.");
-  prnt("starting...");
-  service.startService();
-}
-
-@pragma('vm:entry-point')
-Future<bool> onIosBackground(ServiceInstance service) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  DartPluginRegistrant.ensureInitialized();
-
-  return true;
+  print(" Service not running. Starting after short delay...");
+  await Future.delayed(const Duration(seconds: 2));
+  await service.startService();
+  print(" Service started.");
 }
 
 @pragma('vm:entry-point')
@@ -116,6 +110,8 @@ void notificationTapBackground(
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
+  DartPluginRegistrant.ensureInitialized();
+
   service.on('stopService').listen((event) {
     service.stopSelf();
   });
@@ -161,20 +157,20 @@ void onStart(ServiceInstance service) async {
         if (response.statusCode == 200) {
           var sensorMessage = SensorMessage.fromJson(response.body);
           if (sensorMessage.alarmStatus == 1) {
-            _showNotification(
-              flutterLocalNotificationsPlugin,
-              device.id!,
-              "${device.boxName!}/${device.name!}",
-              "${sensorMessage.value} değeri için uyarı",
-            );
+            // _showNotification(
+            //   flutterLocalNotificationsPlugin,
+            //   device.id!,
+            //   "${device.boxName!}/${device.name!}",
+            //   "${sensorMessage.value} değeri için uyarı",
+            // );
           }
           if (sensorMessage.alarmStatus == 2) {
-            _showNotification(
-              flutterLocalNotificationsPlugin,
-              device.id!,
-              "${device.boxName!}/${device.name!}",
-              "${sensorMessage.value} değeri için kritik değer",
-            );
+            // _showNotification(
+            //   flutterLocalNotificationsPlugin,
+            //   device.id!,
+            //   "${device.boxName!}/${device.name!}",
+            //   "${sensorMessage.value} değeri için kritik değer",
+            // );
           }
         }
       }
@@ -274,37 +270,37 @@ Future<void> _showNotification(
   String title,
   String body,
 ) async {
-  const AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-    'your_channel_id',
-    'Acil Durumlar',
-    channelDescription: 'Alarm Bildirimleri',
-    importance: Importance.max,
-    priority: Priority.high,
-    showWhen: false,
-    actions: [
-      AndroidNotificationAction(
-        'action_30_min',
-        '30 Dakika Ertele',
-        cancelNotification: true,
-      ),
-      AndroidNotificationAction(
-        'action_2_hour',
-        '2 Saat Ertele',
-        cancelNotification: true,
-      ),
-      AndroidNotificationAction(
-        'action_8_hour',
-        '8 Saat Ertele',
-        cancelNotification: true,
-      ),
-    ],
-  );
-  const NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
+  // const AndroidNotificationDetails androidPlatformChannelSpecifics =
+  //     AndroidNotificationDetails(
+  //   'your_channel_id',
+  //   'Acil Durumlar',
+  //   channelDescription: 'Alarm Bildirimleri',
+  //   importance: Importance.max,
+  //   priority: Priority.high,
+  //   showWhen: false,
+  //   actions: [
+  //     AndroidNotificationAction(
+  //       'action_30_min',
+  //       '30 Dakika Ertele',
+  //       cancelNotification: true,
+  //     ),
+  //     AndroidNotificationAction(
+  //       'action_2_hour',
+  //       '2 Saat Ertele',
+  //       cancelNotification: true,
+  //     ),
+  //     AndroidNotificationAction(
+  //       'action_8_hour',
+  //       '8 Saat Ertele',
+  //       cancelNotification: true,
+  //     ),
+  //   ],
+  // );
+  // const NotificationDetails platformChannelSpecifics =
+  //     NotificationDetails(android: androidPlatformChannelSpecifics);
 
-  await flutterLocalNotificationsPlugin.show(
-      id, title, body, platformChannelSpecifics);
+  // await flutterLocalNotificationsPlugin.show(
+  //     id, title, body, platformChannelSpecifics);
 }
 
 class MyMqtt {
