@@ -8,8 +8,6 @@ import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:akilli_anahtar/pages/new_home/notification/notification_filter_page.dart';
 import 'package:akilli_anahtar/controllers/main/notification_filter_controller.dart';
-import 'package:akilli_anahtar/models/notification_db_model.dart';
-import 'package:akilli_anahtar/controllers/main/notification_controller.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -46,6 +44,8 @@ class _NotificationPageState extends State<NotificationPage> {
     final userId = Get.find<AuthController>().user.value.id.toString();
     final ref = _database.child('notifications/$userId');
     final snapshot = await ref.get();
+
+    if (!mounted) return;
 
     if (snapshot.exists && snapshot.value is Map) {
       final keys = (snapshot.value as Map).keys.toList();
@@ -173,6 +173,8 @@ class _NotificationPageState extends State<NotificationPage> {
     }
 
     final snapshot = await query.get();
+
+    if (!mounted) return;
     if (!snapshot.exists || snapshot.value is! Map) {
       _hasMore = false;
       _isFetching = false;
