@@ -19,7 +19,6 @@ import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 
 class Layout extends StatefulWidget {
   const Layout({super.key});
-
   @override
   State<Layout> createState() => _LayoutState();
 }
