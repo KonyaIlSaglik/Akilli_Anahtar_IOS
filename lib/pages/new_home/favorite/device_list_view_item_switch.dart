@@ -26,6 +26,8 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch>
   String status = "";
   Timer? _statusTimer;
   bool _connectionError = false;
+  bool _wasPaused = false;
+  DateTime? _pausedTime;
 
   @override
   void initState() {
@@ -63,6 +65,7 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch>
           status = "";
           _connectionError = true;
           homeController.connectionErrors[device.id!] = true;
+          homeController.lastStatus[device.id!] = "";
         });
         homeController.lastStatus[device.id!] = status;
 
@@ -100,8 +103,17 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _handleAppResumed();
+    if (state == AppLifecycleState.paused) {
+      _wasPaused = true;
+      _pausedTime = DateTime.now();
+    }
+    if (state == AppLifecycleState.resumed && _wasPaused) {
+      if (_pausedTime != null &&
+          DateTime.now().difference(_pausedTime!).inSeconds > 30) {
+        _handleAppResumed();
+      }
+      _wasPaused = false;
+      _pausedTime = null;
     }
   }
 

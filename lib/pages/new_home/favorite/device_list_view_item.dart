@@ -8,6 +8,7 @@ import 'package:akilli_anahtar/pages/new_home/favorite/device_list_view_item_swi
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/rendering.dart';
 
 class DeviceListViewItem extends StatefulWidget {
   final HomeDeviceDto device;
@@ -18,10 +19,14 @@ class DeviceListViewItem extends StatefulWidget {
   State<DeviceListViewItem> createState() => _DeviceListViewItemState();
 }
 
-class _DeviceListViewItemState extends State<DeviceListViewItem> {
+class _DeviceListViewItemState extends State<DeviceListViewItem>
+    with AutomaticKeepAliveClientMixin {
   final MqttController _mqttController = Get.find();
   final HomeController homeController = Get.find();
   late HomeDeviceDto device;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -31,6 +36,7 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Obx(
       () {
         return Opacity(

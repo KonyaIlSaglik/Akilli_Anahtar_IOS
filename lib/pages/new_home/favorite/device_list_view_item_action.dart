@@ -31,6 +31,8 @@ class _DeviceListViewItemActionState extends State<DeviceListViewItemAction>
   String status = "";
   Timer? _statusTimer;
   bool _connectionError = false;
+  bool _wasPaused = false;
+  DateTime? _pausedTime;
 
   @override
   void initState() {
@@ -81,6 +83,7 @@ class _DeviceListViewItemActionState extends State<DeviceListViewItemAction>
           status = "";
           _connectionError = true;
           homeController.connectionErrors[device.id!] = true;
+          homeController.lastStatus[device.id!] = "";
         });
         homeController.lastStatus[device.id!] = status;
 
@@ -121,8 +124,17 @@ class _DeviceListViewItemActionState extends State<DeviceListViewItemAction>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _handleAppResumed();
+    if (state == AppLifecycleState.paused) {
+      _wasPaused = true;
+      _pausedTime = DateTime.now();
+    }
+    if (state == AppLifecycleState.resumed && _wasPaused) {
+      if (_pausedTime != null &&
+          DateTime.now().difference(_pausedTime!).inSeconds > 30) {
+        _handleAppResumed();
+      }
+      _wasPaused = false;
+      _pausedTime = null;
     }
   }
 
