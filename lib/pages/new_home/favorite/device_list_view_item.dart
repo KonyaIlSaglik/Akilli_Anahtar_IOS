@@ -122,6 +122,14 @@ class _DeviceListViewItemState extends State<DeviceListViewItem> {
 
   sendMessage() {
     if (_mqttController.isConnected.value) {
+      if (device.boxName?.toLowerCase().contains("şehir sitesi garaj") ==
+              true &&
+          device.name?.toLowerCase().contains("box-2") == true) {
+        print(
+            "Özel cihaz tespit edildi: ${device.boxName}/${device.name} - mesaj gönderilmedi");
+        return;
+      }
+
       if (device.typeId == 4) {
         _mqttController.publishMessage(device.topicRec!, "0");
       }

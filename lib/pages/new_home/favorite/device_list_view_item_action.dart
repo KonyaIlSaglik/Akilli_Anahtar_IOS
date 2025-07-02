@@ -20,7 +20,8 @@ class DeviceListViewItemAction extends StatefulWidget {
       _DeviceListViewItemActionState();
 }
 
-class _DeviceListViewItemActionState extends State<DeviceListViewItemAction> {
+class _DeviceListViewItemActionState extends State<DeviceListViewItemAction>
+    with WidgetsBindingObserver {
   final MqttController _mqttController = Get.find();
   final HomeController homeController = Get.find();
   late HomeDeviceDto device;
@@ -34,6 +35,7 @@ class _DeviceListViewItemActionState extends State<DeviceListViewItemAction> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     device = widget.device;
     status = homeController.lastStatus[device.id!] ?? "";
 
@@ -94,10 +96,34 @@ class _DeviceListViewItemActionState extends State<DeviceListViewItemAction> {
     }
   }
 
+  void _handleAppResumed() async {
+    setState(() {
+      _connectionError = false;
+      homeController.connectionErrors[device.id!] = false;
+      status = "";
+      openCount = 0;
+      closeCount = 0;
+      waitingCount = 0;
+      _statusTimer?.cancel();
+      _startStatusTimeout();
+    });
+    if (!_mqttController.isConnected.value) {
+      await _mqttController.connect();
+    }
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _statusTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _handleAppResumed();
+    }
   }
 
   @override

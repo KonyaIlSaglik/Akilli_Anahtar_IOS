@@ -18,7 +18,8 @@ class DeviceListViewItemSwitch extends StatefulWidget {
       _DeviceListViewItemSwitchState();
 }
 
-class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch> {
+class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch>
+    with WidgetsBindingObserver {
   final MqttController _mqttController = Get.find();
   final HomeController homeController = Get.find();
   late HomeDeviceDto device;
@@ -29,13 +30,12 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     device = widget.device;
     status = homeController.lastStatus[device.id!] ?? "";
 
-    // HomeController'dan bağlantı hatası durumunu al
     _connectionError = homeController.connectionErrors[device.id!] ?? false;
 
-    // Eğer bağlantı hatası yoksa ve status boşsa timer başlat
     if (!_connectionError && status.isEmpty) {
       _startStatusTimeout();
     }
@@ -45,7 +45,7 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch> {
         //print("$topic: $message");
         if (mounted) {
           setState(() {
-            _connectionError = false; // Bağlantı başarılı
+            _connectionError = false;
             homeController.connectionErrors[device.id!] = false;
             status = message;
           });
@@ -61,11 +61,11 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch> {
       if (mounted) {
         setState(() {
           status = "";
-          _connectionError = true; // Bağlantı hatası
+          _connectionError = true;
           homeController.connectionErrors[device.id!] = true;
         });
         homeController.lastStatus[device.id!] = status;
-        // Bağlantı hatası durumunda timer'ı durdur
+
         _statusTimer?.cancel();
       }
     });
@@ -74,14 +74,35 @@ class _DeviceListViewItemSwitchState extends State<DeviceListViewItemSwitch> {
   void _resetStatusTimeout() {
     _statusTimer?.cancel();
     if (!_connectionError) {
-      _startStatusTimeout(); // Sadece bağlantı hatası yoksa yeni zamanlayıcı başlat
+      _startStatusTimeout();
+    }
+  }
+
+  void _handleAppResumed() async {
+    setState(() {
+      _connectionError = false;
+      homeController.connectionErrors[device.id!] = false;
+      status = "";
+      _statusTimer?.cancel();
+      _startStatusTimeout();
+    });
+    if (!_mqttController.isConnected.value) {
+      await _mqttController.connect();
     }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _statusTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _handleAppResumed();
+    }
   }
 
   @override

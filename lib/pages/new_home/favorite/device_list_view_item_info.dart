@@ -21,7 +21,8 @@ class DeviceListViewItemInfo extends StatefulWidget {
   State<DeviceListViewItemInfo> createState() => _DeviceListViewItemInfoState();
 }
 
-class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
+class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo>
+    with WidgetsBindingObserver {
   final MqttController _mqttController = Get.find();
   final HomeController homeController = Get.find();
   late HomeDeviceDto device;
@@ -34,10 +35,12 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     device = widget.device;
     status = homeController.lastStatus[device.id!] ?? "";
 
-    _connectionError = homeController.connectionErrors[device.id!] ?? false;
+    _connectionError = false;
+    homeController.connectionErrors[device.id!] = false;
 
     if (!_connectionError && status.isEmpty) {
       _startStatusTimeout();
@@ -76,12 +79,10 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
         }
       }
     });
-    print("${device.topicRec} -->  get");
-    _mqttController.publishMessage(device.topicRec!, "get");
   }
 
   void _startStatusTimeout() {
-    _statusTimer = Timer(Duration(seconds: 10), () {
+    _statusTimer = Timer(Duration(seconds: 20), () {
       if (mounted) {
         setState(() {
           status = "";
@@ -102,14 +103,39 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
     }
   }
 
+  void _handleAppResumed() async {
+    setState(() {
+      _connectionError = false;
+      homeController.connectionErrors[device.id!] = false;
+      status = "";
+      alarmStatus = 0;
+      _statusTimer?.cancel();
+      _startStatusTimeout();
+    });
+    if (!_mqttController.isConnected.value) {
+      await _mqttController.connect();
+    }
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _statusTimer?.cancel();
     super.dispose();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _handleAppResumed();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_connectionError) {
+      return ConnectionErrorWidget();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -124,11 +150,6 @@ class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
                           ? Colors.red
                           : Colors.black,
                 ),
-          )
-        else if (_connectionError)
-          ConnectionErrorWidget(
-            fontSize: 10.0,
-            color: Colors.red[800],
           )
         else
           LoadingDots(
