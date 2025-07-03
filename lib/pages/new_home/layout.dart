@@ -38,24 +38,6 @@ class _LayoutState extends State<Layout> {
     init();
   }
 
-  void _listenToNotifications() {
-    final userId = Get.find<AuthController>().user.value.id.toString();
-
-    _updateNotificationCount(userId);
-
-    _database.child('notifications/$userId').onChildAdded.listen((event) {
-      _updateNotificationCount(userId);
-    });
-
-    _database.child('notifications/$userId').onChildChanged.listen((event) {
-      _updateNotificationCount(userId);
-    });
-
-    _database.child('notifications/$userId').onChildRemoved.listen((event) {
-      _updateNotificationCount(userId);
-    });
-  }
-
   bool _shouldStopCounting = false;
 
   Future<void> _updateNotificationCount(String userId) async {
@@ -104,8 +86,13 @@ class _LayoutState extends State<Layout> {
   Future<void> init() async {
     await mqttController.initClient();
     await homeController.getDevices();
+    await refreshNotificationCount();
+  }
 
-    Future(() => _listenToNotifications());
+  Future<void> refreshNotificationCount() async {
+    final userId = Get.find<AuthController>().user.value.id.toString();
+    await _updateNotificationCount(userId);
+    setState(() {});
   }
 
   @override
@@ -141,44 +128,49 @@ class _LayoutState extends State<Layout> {
                   iconData: FontAwesomeIcons.solidBell,
                   notificationCount: filterController.unreadCount.value,
                   onTap: () {
-                    Get.to(() => NotificationPage());
+                    Get.to(() => NotificationPage())?.then((_) {
+                      refreshNotificationCount();
+                    });
                   },
                 ))
           ],
         ),
         drawer: DrawerPage(),
-        body: PersistentTabView(
-          controller: tabController,
-          handleAndroidBackButtonPress: false,
-          backgroundColor: Colors.brown[50]!,
-          navBarHeight: height(context) * 0.07,
-          padding: EdgeInsets.all(height(context) * 0.01),
-          navBarStyle: NavBarStyle.style6,
-          context,
-          screens: [
-            BackContainer(child: FavoritePage()),
-            BackContainer(child: DeviceListPage()),
-            BackContainer(child: PlanPage()),
-            BackContainer(child: SettingsPage()),
-          ],
-          items: [
-            customPersistentBottomNavBarItem(
-              FontAwesomeIcons.solidHeart,
-              title: "Favoriler",
-            ),
-            customPersistentBottomNavBarItem(
-              FontAwesomeIcons.boxesStacked,
-              title: "Cihazlar",
-            ),
-            customPersistentBottomNavBarItem(
-              FontAwesomeIcons.solidClock,
-              title: "Planlar",
-            ),
-            customPersistentBottomNavBarItem(
-              FontAwesomeIcons.gear,
-              title: "Ayarlar",
-            ),
-          ],
+        body: RefreshIndicator(
+          onRefresh: refreshNotificationCount,
+          child: PersistentTabView(
+            controller: tabController,
+            handleAndroidBackButtonPress: false,
+            backgroundColor: Colors.brown[50]!,
+            navBarHeight: height(context) * 0.07,
+            padding: EdgeInsets.all(height(context) * 0.01),
+            navBarStyle: NavBarStyle.style6,
+            context,
+            screens: [
+              BackContainer(child: FavoritePage()),
+              BackContainer(child: DeviceListPage()),
+              BackContainer(child: PlanPage()),
+              BackContainer(child: SettingsPage()),
+            ],
+            items: [
+              customPersistentBottomNavBarItem(
+                FontAwesomeIcons.solidHeart,
+                title: "Favoriler",
+              ),
+              customPersistentBottomNavBarItem(
+                FontAwesomeIcons.boxesStacked,
+                title: "Cihazlar",
+              ),
+              customPersistentBottomNavBarItem(
+                FontAwesomeIcons.solidClock,
+                title: "Planlar",
+              ),
+              customPersistentBottomNavBarItem(
+                FontAwesomeIcons.gear,
+                title: "Ayarlar",
+              ),
+            ],
+          ),
         ),
       ),
     );
