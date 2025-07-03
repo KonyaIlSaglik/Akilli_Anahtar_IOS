@@ -129,21 +129,6 @@ class AuthService {
         LocalDb.add(userNameKey, loginModel.userName);
         LocalDb.add(passwordKey, loginModel.password);
 
-        var alreadyAsked = await LocalDb.get(notificationPermissionKey);
-        if (alreadyAsked != "true") {
-          NotificationSettings settings =
-              await FirebaseMessaging.instance.requestPermission();
-
-          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-            print(' Bildirim izni verildi.');
-          } else if (settings.authorizationStatus ==
-              AuthorizationStatus.denied) {
-            print(' Bildirim izni reddedildi.');
-          }
-
-          await LocalDb.add(notificationPermissionKey, "true");
-        }
-
         String? token = await FirebaseMessaging.instance.getToken();
         print("FCM TOKEN: $token");
         if (token != null) {
