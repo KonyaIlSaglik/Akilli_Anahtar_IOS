@@ -7,8 +7,10 @@ import 'package:akilli_anahtar/pages/new_home/device/device_list_page.dart';
 import 'package:akilli_anahtar/pages/new_home/notification/notification_page.dart';
 import 'package:akilli_anahtar/pages/new_home/plan/plan_page.dart';
 import 'package:akilli_anahtar/pages/new_home/setting/settings_page.dart';
+import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/back_container.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -36,6 +38,27 @@ class _LayoutState extends State<Layout> {
     super.initState();
     print("Layout Created");
     init();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkNotificationPermission();
+    });
+  }
+
+  Future<void> _checkNotificationPermission() async {
+    final alreadyAsked = await LocalDb.get(notificationPermissionKey);
+
+    if (alreadyAsked != "true") {
+      NotificationSettings settings =
+          await FirebaseMessaging.instance.requestPermission();
+
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        print(' Bildirim izni verildi.');
+      } else {
+        print(' Bildirim izni reddedildi.');
+      }
+
+      await LocalDb.add(notificationPermissionKey, "true");
+    }
   }
 
   void _listenToNotifications() {

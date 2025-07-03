@@ -1,4 +1,5 @@
 import 'package:akilli_anahtar/background_service.dart';
+import 'package:akilli_anahtar/bindings/app_binding.dart';
 import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/pages/new_home/layout.dart';
 import 'package:akilli_anahtar/pages/new_home/notification/notification_page.dart';
@@ -12,7 +13,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:akilli_anahtar/bindings/app_binding.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -47,8 +47,6 @@ Future<void> initializeFCM(BuildContext context) async {
       await FirebaseMessaging.instance.getInitialMessage();
   if (initialMessage != null) {
     fcmInitialRoute = initialMessage.data['route'] ?? '/notification';
-    await flutterLocalNotificationsPlugin.cancelAll();
-  } else {
     await flutterLocalNotificationsPlugin.cancelAll();
   }
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {

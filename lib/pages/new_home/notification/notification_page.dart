@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/main.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -20,7 +21,6 @@ class NotificationPage extends StatefulWidget {
 class _NotificationPageState extends State<NotificationPage> {
   List<Map<String, dynamic>> notifications = [];
   final ScrollController _scrollController = ScrollController();
-
   bool isLoading = false;
   final NotificationFilterController filters = Get.find();
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
@@ -75,7 +75,7 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     isLoading = true;
-
+    flutterLocalNotificationsPlugin.cancelAll();
     _initLastDateKey().then((_) {
       _loadPaginatedNotifications(reset: false, retryCount: 0);
       _startLiveListener();
