@@ -37,6 +37,8 @@ class _LayoutState extends State<Layout> {
   void initState() {
     super.initState();
     print("Layout Created");
+
+    Get.put(this, tag: 'layoutState', permanent: true);
     init();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -61,11 +63,7 @@ class _LayoutState extends State<Layout> {
     }
   }
 
-  bool _shouldStopCounting = false;
-
   Future<void> _updateNotificationCount(String userId) async {
-    if (_shouldStopCounting) return;
-
     final ref = FirebaseDatabase.instance.ref('notifications/$userId');
 
     int unread = 0;
@@ -91,19 +89,13 @@ class _LayoutState extends State<Layout> {
         final isRead = entry.value['isRead'];
         if (isRead == null || isRead != 1) {
           unread++;
-          if (unread >= 99) {
-            filterController.unreadCount.value = 100;
-            _shouldStopCounting = true;
-            return;
-          }
         }
       }
 
       endAtKey = sorted.last.key;
     }
 
-    filterController.unreadCount.value = unread;
-    _shouldStopCounting = false;
+    filterController.unreadCount.value = unread > 99 ? 100 : unread;
   }
 
   Future<void> init() async {

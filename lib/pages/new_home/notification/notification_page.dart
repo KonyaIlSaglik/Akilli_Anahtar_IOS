@@ -82,14 +82,14 @@ class _NotificationPageState extends State<NotificationPage> {
     _minTimePassed = false;
     flutterLocalNotificationsPlugin.cancelAll();
 
-    _minLoadingTimer = Timer(const Duration(seconds: 3), () {
+    _minLoadingTimer = Timer(const Duration(seconds: 4), () {
       if (!mounted) return;
-      _minTimePassed = true;
-      if (!_dataLoaded) {
-        setState(() {
+      setState(() {
+        _minTimePassed = true;
+        if (!_dataLoaded) {
           isLoading = false;
-        });
-      }
+        }
+      });
     });
 
     (() async {
@@ -154,14 +154,14 @@ class _NotificationPageState extends State<NotificationPage> {
       _minTimePassed = false;
     });
     _minLoadingTimer?.cancel();
-    _minLoadingTimer = Timer(const Duration(seconds: 2), () {
+    _minLoadingTimer = Timer(const Duration(seconds: 4), () {
       if (!mounted) return;
-      _minTimePassed = true;
-      if (!_dataLoaded) {
-        setState(() {
+      setState(() {
+        _minTimePassed = true;
+        if (!_dataLoaded) {
           isLoading = false;
-        });
-      }
+        }
+      });
     });
     _hasMore = true;
     _isFetching = false;
@@ -206,7 +206,9 @@ class _NotificationPageState extends State<NotificationPage> {
     if (!snapshot.exists || snapshot.value is! Map) {
       _hasMore = false;
       _isFetching = false;
-      setState(() {});
+      setState(() {
+        notifications.clear();
+      });
       return;
     }
     final rawData = Map<String, dynamic>.from(snapshot.value as Map);
@@ -248,6 +250,13 @@ class _NotificationPageState extends State<NotificationPage> {
     });
 
     successSnackbar("Başarılı", "Tüm bildirimler okundu olarak işaretlendi.");
+
+    if (mounted) {
+      final layoutState = Get.isRegistered(tag: 'layoutState')
+          ? Get.find(tag: 'layoutState')
+          : null;
+      layoutState?.refreshNotificationCount();
+    }
   }
 
   Future<void> deleteLast20() async {
@@ -286,7 +295,19 @@ class _NotificationPageState extends State<NotificationPage> {
     setState(() {
       final ids = toDelete.map((n) => n['id']).toSet();
       notifications.removeWhere((n) => ids.contains(n['id']));
+
+      if (notifications.isEmpty) {
+        isLoading = false;
+        _minTimePassed = true;
+      }
     });
+
+    if (mounted) {
+      final layoutState = Get.isRegistered(tag: 'layoutState')
+          ? Get.find(tag: 'layoutState')
+          : null;
+      layoutState?.refreshNotificationCount();
+    }
 
     successSnackbar("Başarılı", "Son 20 bildirim silindi.");
     await _loadPaginatedNotifications(reset: false, retryCount: 0);
@@ -450,7 +471,22 @@ class _NotificationPageState extends State<NotificationPage> {
                                               setState(() {
                                                 notifications.removeWhere(
                                                     (n) => n['id'] == notifId);
+                                                if (notifications.isEmpty) {
+                                                  isLoading = false;
+                                                  _minTimePassed = true;
+                                                }
                                               });
+
+                                              if (mounted) {
+                                                final layoutState =
+                                                    Get.isRegistered(
+                                                            tag: 'layoutState')
+                                                        ? Get.find(
+                                                            tag: 'layoutState')
+                                                        : null;
+                                                layoutState
+                                                    ?.refreshNotificationCount();
+                                              }
                                             },
                                             backgroundColor: Colors.red,
                                             foregroundColor: Colors.white,
