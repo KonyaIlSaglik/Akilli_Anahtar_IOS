@@ -19,6 +19,7 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   bool load = false;
+  bool _navigated = false;
 
   @override
   void initState() {
@@ -27,6 +28,8 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void init() async {
+    if (_navigated) return;
+    _navigated = true;
     await Future.delayed(const Duration(seconds: 2));
     final loginController = Get.put(LoginController());
     await loginController.loadLoginInfo();

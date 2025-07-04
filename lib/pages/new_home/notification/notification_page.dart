@@ -22,6 +22,9 @@ class _NotificationPageState extends State<NotificationPage> {
   List<Map<String, dynamic>> notifications = [];
   final ScrollController _scrollController = ScrollController();
   bool isLoading = false;
+  bool _dataLoaded = false;
+  bool _minTimePassed = false;
+  Timer? _minLoadingTimer;
   final NotificationFilterController filters = Get.find();
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   StreamSubscription? _notificationSubscription;
@@ -75,16 +78,30 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     isLoading = true;
+    _dataLoaded = false;
+    _minTimePassed = false;
     flutterLocalNotificationsPlugin.cancelAll();
-    _initLastDateKey().then((_) {
-      _loadPaginatedNotifications(reset: false, retryCount: 0);
-      _startLiveListener();
 
+    _minLoadingTimer = Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
+      _minTimePassed = true;
+      if (!_dataLoaded) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
+
+    (() async {
+      await _initLastDateKey();
+      await _loadPaginatedNotifications(reset: false, retryCount: 0);
+      _startLiveListener();
+      if (!mounted) return;
+      _dataLoaded = true;
       setState(() {
         isLoading = false;
       });
-    });
+    })();
   }
 
   void _startLiveListener() {
@@ -133,14 +150,25 @@ class _NotificationPageState extends State<NotificationPage> {
   Future<void> _refreshNotifications() async {
     setState(() {
       isLoading = true;
+      _dataLoaded = false;
+      _minTimePassed = false;
+    });
+    _minLoadingTimer?.cancel();
+    _minLoadingTimer = Timer(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      _minTimePassed = true;
+      if (!_dataLoaded) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     });
     _hasMore = true;
     _isFetching = false;
     notifications.clear();
     await _loadPaginatedNotifications(reset: true, retryCount: 0);
-
     _startLiveListener();
-
+    _dataLoaded = true;
     setState(() {
       isLoading = false;
     });
@@ -355,212 +383,224 @@ class _NotificationPageState extends State<NotificationPage> {
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
                   Expanded(
-                    child: filtered.isEmpty
-                        ? const Center(child: Text("Henüz hiçbir bildirim yok"))
-                        : ListView.builder(
-                            controller: _scrollController,
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: EdgeInsets.zero,
-                            itemCount: filtered.length + (_hasMore ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              if (index == filtered.length) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              final item = filtered[index];
-                              final isRead = item['isRead'] == 1;
-                              final borderColor =
-                                  getAlarmStatusColor(item['alarm']);
-                              final sensorIcon =
-                                  _getSensorIcon(item['sensor_name']);
+                    child: (filtered.isEmpty && !_minTimePassed)
+                        ? const Center(child: CircularProgressIndicator())
+                        : (filtered.isEmpty && _minTimePassed)
+                            ? const Center(
+                                child: Text("Henüz hiçbir bildirim yok"))
+                            : ListView.builder(
+                                controller: _scrollController,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                padding: EdgeInsets.zero,
+                                itemCount: filtered.length + (_hasMore ? 1 : 0),
+                                itemBuilder: (context, index) {
+                                  if (index == filtered.length) {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  }
+                                  final item = filtered[index];
+                                  final isRead = item['isRead'] == 1;
+                                  final borderColor =
+                                      getAlarmStatusColor(item['alarm']);
+                                  final sensorIcon =
+                                      _getSensorIcon(item['sensor_name']);
 
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: Slidable(
-                                  key: ValueKey(item['id']),
-                                  endActionPane: ActionPane(
-                                    motion: const DrawerMotion(),
-                                    children: [
-                                      SlidableAction(
-                                        onPressed: (context) async {
-                                          final userId =
-                                              Get.find<AuthController>()
-                                                  .user
-                                                  .value
-                                                  .id
-                                                  .toString();
-                                          final notifId = item['id'];
-                                          final ref = FirebaseDatabase.instance.ref(
-                                              'notifications/$userId/$notifId');
-                                          await ref.update({'isRead': 1});
-                                          setState(() {
-                                            item['isRead'] = 1;
-                                          });
-                                        },
-                                        backgroundColor: Colors.blue,
-                                        foregroundColor: Colors.white,
-                                        icon: Icons.mark_email_read,
-                                        label: 'Okundu',
-                                      ),
-                                      SlidableAction(
-                                        onPressed: (context) async {
-                                          final userId =
-                                              Get.find<AuthController>()
-                                                  .user
-                                                  .value
-                                                  .id
-                                                  .toString();
-                                          final notifId = item['id'];
-                                          final ref = FirebaseDatabase.instance.ref(
-                                              'notifications/$userId/$notifId');
-                                          await ref.remove();
-                                          setState(() {
-                                            notifications.removeWhere(
-                                                (n) => n['id'] == notifId);
-                                          });
-                                        },
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
-                                        icon: Icons.delete,
-                                        label: 'Sil',
-                                      ),
-                                    ],
-                                  ),
-                                  child: GestureDetector(
-                                    child: IntrinsicHeight(
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: Slidable(
+                                      key: ValueKey(item['id']),
+                                      endActionPane: ActionPane(
+                                        motion: const DrawerMotion(),
                                         children: [
-                                          Expanded(
-                                            child: Container(
-                                              padding: const EdgeInsets.all(12),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(0),
-                                                border: Border.all(
-                                                    color: borderColor,
-                                                    width: 2),
-                                              ),
-                                              child: Stack(
-                                                children: [
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Icon(sensorIcon,
-                                                              color:
-                                                                  borderColor),
-                                                          const SizedBox(
-                                                              width: 6),
-                                                          Expanded(
-                                                            child: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                  item['sensor_name'] ??
-                                                                      'Sensör',
-                                                                  style: theme
-                                                                      .textTheme
-                                                                      .titleMedium
-                                                                      ?.copyWith(
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                ),
-                                                                Text(
-                                                                  item['organisation_name'] ??
-                                                                      'Lokasyon Bilinmiyor',
-                                                                  style: theme
-                                                                      .textTheme
-                                                                      .bodySmall
-                                                                      ?.copyWith(
-                                                                          color:
-                                                                              Colors.grey[700]),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            "${item['deger'] ?? '-'}",
-                                                            style: theme
-                                                                .textTheme
-                                                                .bodyLarge
-                                                                ?.copyWith(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color:
-                                                                        borderColor),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        DateFormat(
-                                                                "dd.MM.yyyy HH:mm:ss")
-                                                            .format(DateTime.tryParse(
-                                                                    item['received_at'] ??
-                                                                        '') ??
-                                                                DateTime.now()),
-                                                        style: theme
-                                                            .textTheme.bodySmall
-                                                            ?.copyWith(
-                                                                color: Colors
-                                                                    .grey[600]),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  if (!isRead)
-                                                    Positioned(
-                                                      top: -2,
-                                                      right: 0,
-                                                      child: Container(
-                                                        width: 12,
-                                                        height: 12,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.red,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(6),
-                                                          border: Border.all(
-                                                              color:
-                                                                  Colors.white,
-                                                              width: 2),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
+                                          SlidableAction(
+                                            onPressed: (context) async {
+                                              final userId =
+                                                  Get.find<AuthController>()
+                                                      .user
+                                                      .value
+                                                      .id
+                                                      .toString();
+                                              final notifId = item['id'];
+                                              final ref =
+                                                  FirebaseDatabase.instance.ref(
+                                                      'notifications/$userId/$notifId');
+                                              await ref.update({'isRead': 1});
+                                              setState(() {
+                                                item['isRead'] = 1;
+                                              });
+                                            },
+                                            backgroundColor: Colors.blue,
+                                            foregroundColor: Colors.white,
+                                            icon: Icons.mark_email_read,
+                                            label: 'Okundu',
                                           ),
-                                          Container(
-                                            width: 3,
-                                            decoration: BoxDecoration(
-                                              color: isRead
-                                                  ? Colors.grey
-                                                  : Colors.deepOrange,
-                                              borderRadius:
-                                                  const BorderRadius.only(
-                                                topRight: Radius.circular(0),
-                                                bottomRight: Radius.circular(0),
-                                              ),
-                                            ),
+                                          SlidableAction(
+                                            onPressed: (context) async {
+                                              final userId =
+                                                  Get.find<AuthController>()
+                                                      .user
+                                                      .value
+                                                      .id
+                                                      .toString();
+                                              final notifId = item['id'];
+                                              final ref =
+                                                  FirebaseDatabase.instance.ref(
+                                                      'notifications/$userId/$notifId');
+                                              await ref.remove();
+                                              setState(() {
+                                                notifications.removeWhere(
+                                                    (n) => n['id'] == notifId);
+                                              });
+                                            },
+                                            backgroundColor: Colors.red,
+                                            foregroundColor: Colors.white,
+                                            icon: Icons.delete,
+                                            label: 'Sil',
                                           ),
                                         ],
                                       ),
+                                      child: GestureDetector(
+                                        child: IntrinsicHeight(
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.stretch,
+                                            children: [
+                                              Expanded(
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(12),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            0),
+                                                    border: Border.all(
+                                                        color: borderColor,
+                                                        width: 2),
+                                                  ),
+                                                  child: Stack(
+                                                    children: [
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Row(
+                                                            children: [
+                                                              Icon(sensorIcon,
+                                                                  color:
+                                                                      borderColor),
+                                                              const SizedBox(
+                                                                  width: 6),
+                                                              Expanded(
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      item['sensor_name'] ??
+                                                                          'Sensör',
+                                                                      style: theme
+                                                                          .textTheme
+                                                                          .titleMedium
+                                                                          ?.copyWith(
+                                                                              fontWeight: FontWeight.bold),
+                                                                    ),
+                                                                    Text(
+                                                                      item['organisation_name'] ??
+                                                                          'Lokasyon Bilinmiyor',
+                                                                      style: theme
+                                                                          .textTheme
+                                                                          .bodySmall
+                                                                          ?.copyWith(
+                                                                              color: Colors.grey[700]),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                "${item['deger'] ?? '-'}",
+                                                                style: theme
+                                                                    .textTheme
+                                                                    .bodyLarge
+                                                                    ?.copyWith(
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color:
+                                                                            borderColor),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 8),
+                                                          Text(
+                                                            DateFormat(
+                                                                    "dd.MM.yyyy HH:mm:ss")
+                                                                .format(DateTime.tryParse(
+                                                                        item['received_at'] ??
+                                                                            '') ??
+                                                                    DateTime
+                                                                        .now()),
+                                                            style: theme
+                                                                .textTheme
+                                                                .bodySmall
+                                                                ?.copyWith(
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        600]),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      if (!isRead)
+                                                        Positioned(
+                                                          top: -2,
+                                                          right: 0,
+                                                          child: Container(
+                                                            width: 12,
+                                                            height: 12,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Colors.red,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          6),
+                                                              border: Border.all(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  width: 2),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              Container(
+                                                width: 3,
+                                                decoration: BoxDecoration(
+                                                  color: isRead
+                                                      ? Colors.grey
+                                                      : Colors.deepOrange,
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                    topRight:
+                                                        Radius.circular(0),
+                                                    bottomRight:
+                                                        Radius.circular(0),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                                  );
+                                },
+                              ),
                   ),
                 ],
               ),
@@ -585,6 +625,7 @@ class _NotificationPageState extends State<NotificationPage> {
     _scrollController.dispose();
     _notificationSubscription?.cancel();
     _dateCheckTimer?.cancel();
+    _minLoadingTimer?.cancel();
     filters.clearFilters();
     super.dispose();
   }

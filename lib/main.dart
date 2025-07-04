@@ -122,8 +122,8 @@ class _MyAppState extends State<MyApp> {
         initialBinding: AppBinding(),
         getPages: [
           GetPage(name: '/', page: () => SplashPage()),
-          GetPage(name: '/notification', page: () => NotificationPage()),
           GetPage(name: '/layout', page: () => Layout()),
+          GetPage(name: '/notification', page: () => NotificationPage()),
         ],
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
