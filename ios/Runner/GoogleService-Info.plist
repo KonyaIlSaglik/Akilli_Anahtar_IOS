@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>530892159842-m2msr6fdib59apdov7nc0lg6qoqu3cuc.apps.googleusercontent.com</string>
+	<string>530892159842-03ua310mqupjdbti6f5q6vhkt9k6bng0.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.530892159842-m2msr6fdib59apdov7nc0lg6qoqu3cuc</string>
+	<string>com.googleusercontent.apps.530892159842-03ua310mqupjdbti6f5q6vhkt9k6bng0</string>
 	<key>API_KEY</key>
 	<string>AIzaSyBoAp6Acj6hpgSfyW2O3Gc-1Tp1lmHXYMk</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.akillianahtar.app</string>
+	<string>com.akillianahtar</string>
 	<key>PROJECT_ID</key>
 	<string>akillianahtar01</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +29,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:530892159842:ios:72f98cc05d33a8ad164a3b</string>
+	<string>1:530892159842:ios:b327b6c3f2481fb0164a3b</string>
 	<key>DATABASE_URL</key>
 	<string>https://akillianahtar01-default-rtdb.firebaseio.com</string>
 </dict>

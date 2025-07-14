@@ -159,7 +159,7 @@ class _LayoutState extends State<Layout> {
             backgroundColor: Colors.brown[50]!,
             navBarHeight: height(context) * 0.07,
             padding: EdgeInsets.all(height(context) * 0.01),
-            navBarStyle: NavBarStyle.style6,
+            navBarStyle: NavBarStyle.simple,
             context,
             screens: [
               BackContainer(child: FavoritePage()),
@@ -196,7 +196,7 @@ class _LayoutState extends State<Layout> {
     String? title,
   }) {
     return PersistentBottomNavBarItem(
-      icon: Icon(iconData),
+      icon: Icon(iconData, size: 20),
       title: title,
       activeColorPrimary: goldColor,
       activeColorSecondary: goldColor,

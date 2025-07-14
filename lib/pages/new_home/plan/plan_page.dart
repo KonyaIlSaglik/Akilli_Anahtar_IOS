@@ -11,16 +11,26 @@ class PlanPage extends StatefulWidget {
 class _PlanPageState extends State<PlanPage> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(10),
-      shrinkWrap: true,
-      children: [
-        PlanPageListItem(),
-        PlanPageListItem(),
-        PlanPageListItem(),
-        PlanPageListItem(),
-      ],
+    return Scaffold(
+      backgroundColor: Colors.brown[50],
+      body: Center(
+          child: Text(
+        "Henüz plan bulunmuyor.",
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Colors.grey[700],
+            ),
+      )),
     );
+    // return ListView(
+    //   padding: const EdgeInsets.all(10),
+    //   shrinkWrap: true,
+    //   children: [
+    //     PlanPageListItem(),
+    //     PlanPageListItem(),
+    //     PlanPageListItem(),
+    //     PlanPageListItem(),
+    //   ],
+    // );
   }
 }
 

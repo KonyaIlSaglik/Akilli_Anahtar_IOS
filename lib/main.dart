@@ -1,5 +1,4 @@
 import 'package:akilli_anahtar/background_service.dart';
-import 'package:akilli_anahtar/bindings/app_binding.dart';
 import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/pages/new_home/layout.dart';
 import 'package:akilli_anahtar/pages/new_home/notification/notification_page.dart';
@@ -13,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:akilli_anahtar/bindings/app_binding.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -43,10 +43,22 @@ Future<void> _initializeNotifications() async {
 }
 
 Future<void> initializeFCM(BuildContext context) async {
+  await FirebaseMessaging.instance.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
   RemoteMessage? initialMessage =
       await FirebaseMessaging.instance.getInitialMessage();
   if (initialMessage != null) {
     fcmInitialRoute = initialMessage.data['route'] ?? '/notification';
+    await flutterLocalNotificationsPlugin.cancelAll();
+  } else {
     await flutterLocalNotificationsPlugin.cancelAll();
   }
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
@@ -54,6 +66,30 @@ Future<void> initializeFCM(BuildContext context) async {
     fcmInitialRoute = message.data['route'] ?? '/notification';
 
     Get.offAll(() => SplashPage());
+  });
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'high_importance_channel',
+            'Önemli Bildirimler',
+            channelDescription:
+                'Bu kanal yüksek öncelikli bildirimler içindir.',
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+      );
+    }
   });
 }
 
@@ -64,14 +100,24 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  print("Uygulama başlatılıyor");
+
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  print("Firebase başlatılıyor...");
   await Firebase.initializeApp();
+  print("Firebase başlatıldı");
+
   await initializeService();
+  print("Servis başlatıldı");
+
   await _initializeNotifications();
+  print("Bildirimler başlatıldı");
 
   Get.put(LoginController());
   Get.put(SessionController());
 
+  print("DateFormat yükleniyor");
   initializeDateFormatting('tr_TR', null).then(
     (value) => runApp(MyApp(theme: ThemeData.light())),
   );
@@ -122,8 +168,8 @@ class _MyAppState extends State<MyApp> {
         initialBinding: AppBinding(),
         getPages: [
           GetPage(name: '/', page: () => SplashPage()),
-          GetPage(name: '/layout', page: () => Layout()),
           GetPage(name: '/notification', page: () => NotificationPage()),
+          GetPage(name: '/layout', page: () => Layout()),
         ],
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
@@ -143,7 +189,7 @@ class _MyAppState extends State<MyApp> {
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(foregroundColor: goldColor),
           ),
-          cardTheme: CardTheme(shadowColor: goldColor),
+          cardTheme: CardThemeData(shadowColor: goldColor),
           dialogTheme: Theme.of(context)
               .dialogTheme
               .copyWith(backgroundColor: Colors.white),

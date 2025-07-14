@@ -279,6 +279,10 @@ class _NotificationPageState extends State<NotificationPage> {
     );
 
     if (confirmed != true) return;
+    setState(() {
+      isLoading = true;
+      _minTimePassed = false;
+    });
 
     final userId = Get.find<AuthController>().user.value.id.toString();
     final toDelete = notifications.take(20).toList();
@@ -295,11 +299,6 @@ class _NotificationPageState extends State<NotificationPage> {
     setState(() {
       final ids = toDelete.map((n) => n['id']).toSet();
       notifications.removeWhere((n) => ids.contains(n['id']));
-
-      if (notifications.isEmpty) {
-        isLoading = false;
-        _minTimePassed = true;
-      }
     });
 
     if (mounted) {
@@ -311,6 +310,12 @@ class _NotificationPageState extends State<NotificationPage> {
 
     successSnackbar("Başarılı", "Son 20 bildirim silindi.");
     await _loadPaginatedNotifications(reset: false, retryCount: 0);
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+        _minTimePassed = true;
+      });
+    }
   }
 
   IconData _getSensorIcon(String? sensorName) {
@@ -572,13 +577,11 @@ class _NotificationPageState extends State<NotificationPage> {
                                                           const SizedBox(
                                                               height: 8),
                                                           Text(
-                                                            DateFormat(
-                                                                    "dd.MM.yyyy HH:mm:ss")
-                                                                .format(DateTime.tryParse(
-                                                                        item['received_at'] ??
-                                                                            '') ??
-                                                                    DateTime
-                                                                        .now()),
+                                                            (item['received_at'] ?? '-')
+                                                                .replaceAll(
+                                                                    'T', ' ')
+                                                                .replaceAll(
+                                                                    'Z', ''),
                                                             style: theme
                                                                 .textTheme
                                                                 .bodySmall
