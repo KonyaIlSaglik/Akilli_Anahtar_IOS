@@ -7,6 +7,7 @@ class HomeDeviceDto {
   String? favoriteName;
   int? typeId;
   String? typeName;
+  int? boxId;
   String? boxName;
   String? organisationName;
   String? topicStat;
@@ -29,6 +30,7 @@ class HomeDeviceDto {
     this.favoriteName,
     this.typeId,
     this.typeName,
+    this.boxId,
     this.boxName,
     this.organisationName,
     this.topicStat,
@@ -53,6 +55,7 @@ class HomeDeviceDto {
       'favoriteName': favoriteName,
       'typeId': typeId,
       'typeName': typeName,
+      'boxId': boxId,
       'boxName': boxName,
       'organisationName': organisationName,
       'topicStat': topicStat,
@@ -81,6 +84,7 @@ class HomeDeviceDto {
           map['favoriteName'] != null ? map['favoriteName'] as String : null,
       typeId: map['typeId'] as int,
       typeName: map['typeName'] != null ? map['typeName'] as String : null,
+      boxId: map['boxId'] as int?,
       boxName: map['boxName'] != null ? map['boxName'] as String : null,
       organisationName: map['organisationName'] != null
           ? map['organisationName'] as String

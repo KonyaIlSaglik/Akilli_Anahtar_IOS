@@ -67,7 +67,7 @@ class _LoadingDotsState extends State<LoadingDots>
                   width: widget.size,
                   height: widget.size,
                   decoration: BoxDecoration(
-                    color: widget.color ?? Colors.grey[800],
+                    color: widget.color ?? Colors.grey[500],
                     shape: BoxShape.circle,
                   ),
                 ),

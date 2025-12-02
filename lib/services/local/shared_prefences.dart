@@ -43,4 +43,10 @@ class LocalDb {
     SharedPreferences pref = await SharedPreferences.getInstance();
     return pref.clear();
   }
+
+  static Future<bool> remove(String key) async {
+    WidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.remove(key);
+  }
 }

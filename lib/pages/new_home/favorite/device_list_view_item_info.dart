@@ -1,188 +1,299 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:akilli_anahtar/widgets/device_status_text.dart';
 import 'package:akilli_anahtar/widgets/loading_dots.dart';
-import 'package:akilli_anahtar/widgets/connection_error_widget.dart';
+import 'package:akilli_anahtar/widgets/offline_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class DeviceListViewItemInfo extends StatefulWidget {
   final HomeDeviceDto device;
-  const DeviceListViewItemInfo({
-    super.key,
-    required this.device,
-  });
+  const DeviceListViewItemInfo({super.key, required this.device});
 
   @override
   State<DeviceListViewItemInfo> createState() => _DeviceListViewItemInfoState();
 }
 
-class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo>
-    with WidgetsBindingObserver {
-  final MqttController _mqttController = Get.find();
-  final HomeController homeController = Get.find();
-  late HomeDeviceDto device;
+class _DeviceListViewItemInfoState extends State<DeviceListViewItemInfo> {
+  final MqttController _mqtt = Get.find();
+  final HomeController _home = Get.find();
 
-  int alarmStatus = 0;
+  late HomeDeviceDto device;
   String status = "";
-  Timer? _statusTimer;
-  bool _connectionError = false;
-  bool _wasPaused = false;
-  DateTime? _pausedTime;
+  int alarmStatus = 0;
+
+  bool _hasFirstData = false;
+  Timer? _retainedCheckTimer;
+
+  void Function(String topic, String payload)? _listenerRef;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     device = widget.device;
-    status = homeController.lastStatus[device.id!] ?? "";
 
-    _connectionError = false;
-    homeController.connectionErrors[device.id!] = false;
+    _checkForExistingStatus();
 
-    if (!_connectionError && status.isEmpty) {
-      _startStatusTimeout();
+    if (device.topicStat != null && device.topicStat!.isNotEmpty) {
+      _mqtt.subscribeToTopic(device.topicStat!);
+
+      _retainedCheckTimer = Timer(const Duration(milliseconds: 500), () {
+        _checkForExistingStatus();
+      });
     }
 
-    _mqttController.onMessage((topic, message) {
-      if (topic == device.topicStat) {
-        if (mounted) {
-          setState(() {
-            _connectionError = false;
-            homeController.connectionErrors[device.id!] = false;
-            if (device.typeId == 1 ||
-                device.typeId == 2 ||
-                device.typeId == 3) {
-              if (message.startsWith("{") && !message.endsWith(":}")) {
-                final dynamic data;
-                device.typeId! < 3
-                    ? data = json.decode(message)["deger"] as double
-                    : data = json.decode(message)["deger"] as int;
-                status = data.toString();
-                var dData = double.parse(status);
-                alarmStatus = 0;
-                if (device.normalMaxValue != null &&
-                    dData > device.normalMaxValue!) {
-                  alarmStatus = 1;
-                }
-                if (device.criticalMaxValue != null &&
-                    dData > device.criticalMaxValue!) {
-                  alarmStatus = 2;
-                }
-              }
+    status = _home.lastStatus[device.id!] ?? "";
+    _hasFirstData = status.isNotEmpty;
+
+    _listenerRef = (String topic, String payload) {
+      if (!mounted) return;
+      if (topic != device.topicStat) return;
+
+      try {
+        if (payload.isNotEmpty && payload.trimLeft().startsWith("{")) {
+          final map = json.decode(payload);
+
+          final dynamic raw = map["deger"];
+          final String valueStr = (raw == null) ? "" : raw.toString();
+
+          int newAlarm = 0;
+          if (map.containsKey("alarm")) {
+            final a = map["alarm"];
+            if (a is int) newAlarm = a.clamp(0, 2);
+            if (a is String) newAlarm = (int.tryParse(a) ?? 0).clamp(0, 2);
+          } else {
+            final dVal = double.tryParse(valueStr);
+            if (dVal != null) {
+              if (device.normalMaxValue != null &&
+                  dVal >= device.normalMaxValue!) newAlarm = 1;
+              if (device.criticalMaxValue != null &&
+                  dVal >= device.criticalMaxValue!) newAlarm = 2;
             }
-          });
-          homeController.lastStatus[device.id!] = status;
-          _resetStatusTimeout();
+          }
+
+          if (status != valueStr || alarmStatus != newAlarm) {
+            setState(() {
+              status = valueStr;
+              alarmStatus = newAlarm;
+              _hasFirstData = status.isNotEmpty || _hasFirstData;
+            });
+          }
+          _home.lastStatus[device.id!] = valueStr;
         }
-      }
-    });
-  }
+      } catch (_) {}
+    };
 
-  void _startStatusTimeout() {
-    _statusTimer = Timer(Duration(seconds: 20), () {
-      if (mounted) {
-        setState(() {
-          status = "";
-          alarmStatus = 0;
-          _connectionError = true;
-          homeController.connectionErrors[device.id!] = true;
-          homeController.lastStatus[device.id!] = "";
-        });
-        _statusTimer?.cancel();
-      }
-    });
-  }
-
-  void _resetStatusTimeout() {
-    _statusTimer?.cancel();
-    if (!_connectionError) {
-      _startStatusTimeout();
-    }
-  }
-
-  void _handleAppResumed() async {
-    setState(() {
-      _connectionError = false;
-      homeController.connectionErrors[device.id!] = false;
-      status = "";
-      alarmStatus = 0;
-      _statusTimer?.cancel();
-      _startStatusTimeout();
-    });
-    if (!_mqttController.isConnected.value) {
-      await _mqttController.connect();
-    }
+    _mqtt.onMessage(_listenerRef!);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _statusTimer?.cancel();
+    try {} catch (_) {}
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _wasPaused = true;
-      _pausedTime = DateTime.now();
+  void _checkForExistingStatus() {
+    if (!mounted) return;
+    final last = _mqtt.getDeviceLastStatus(device);
+    print("Retained check for device ${device.id}: $last");
+    if (last != null && last.isNotEmpty) {
+      final parsed = _parsePayload(last);
+      final valueStr = parsed.$1;
+      final newAlarm = parsed.$2;
+
+      if (valueStr.isEmpty && status.isNotEmpty) return;
+
+      setState(() {
+        status = valueStr;
+        alarmStatus = newAlarm;
+        _hasFirstData = status.isNotEmpty || _hasFirstData;
+      });
+      _home.lastStatus[device.id!] = valueStr;
     }
-    if (state == AppLifecycleState.resumed && _wasPaused) {
-      if (_pausedTime != null &&
-          DateTime.now().difference(_pausedTime!).inSeconds > 30) {
-        _handleAppResumed();
+  }
+
+  (String, int) _parsePayload(String payload) {
+    try {
+      final text = payload.trim();
+      if (text.isEmpty) return ("", 0);
+
+      if (text.startsWith("{")) {
+        final map = json.decode(text) as Map<String, dynamic>;
+
+        dynamic rawVal = map["deger"] ??
+            map["value"] ??
+            map["val"] ??
+            (map["data"] is Map ? map["data"]["value"] : null);
+
+        String valueStr = rawVal == null ? "" : rawVal.toString();
+
+        // alarm
+        int newAlarm = 0;
+        if (map.containsKey("alarm")) {
+          final a = map["alarm"];
+          if (a is int) newAlarm = a.clamp(0, 2);
+          if (a is String) newAlarm = (int.tryParse(a) ?? 0).clamp(0, 2);
+        } else {
+          final dVal = double.tryParse(valueStr.replaceAll(",", "."));
+          if (dVal != null) {
+            if (device.normalMaxValue != null && dVal >= device.normalMaxValue!)
+              newAlarm = 1;
+            if (device.criticalMaxValue != null &&
+                dVal >= device.criticalMaxValue!) newAlarm = 2;
+          }
+        }
+        return (valueStr, newAlarm);
+      } else {
+        final valueStr = text;
+        int newAlarm = 0;
+        final dVal = double.tryParse(valueStr.replaceAll(",", "."));
+        if (dVal != null) {
+          if (device.normalMaxValue != null && dVal >= device.normalMaxValue!)
+            newAlarm = 1;
+          if (device.criticalMaxValue != null &&
+              dVal >= device.criticalMaxValue!) newAlarm = 2;
+        }
+        return (valueStr, newAlarm);
       }
-      _wasPaused = false;
-      _pausedTime = null;
+    } catch (_) {
+      return (payload, 0);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_connectionError) {
-      return ConnectionErrorWidget();
-    }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        if (status.isNotEmpty)
-          Text(
-            status,
-            style: textTheme(context).headlineLarge!.copyWith(
-                  color: alarmStatus == 1
-                      ? Colors.orange
-                      : alarmStatus == 2
-                          ? Colors.red
-                          : Colors.black,
-                ),
-          )
-        else
-          LoadingDots(
-            color: Colors.grey[800],
-            size: 6.0,
-          ),
-        if (status.isNotEmpty) ...[
-          SizedBox(
-            width: 5,
-          ),
-          Text(
-            device.unit ?? "-",
-            style: TextStyle(
-              color: alarmStatus == 1
-                  ? Colors.orange
-                  : alarmStatus == 2
-                      ? Colors.red
-                      : Colors.black,
+    return Obx(() {
+      final bool offline = _mqtt.isDeviceOffline(device);
+      final bool connected = _mqtt.isConnected.value;
+      final bool connecting = _mqtt.connecting.value;
+
+      final bool forceLoading = (!_hasFirstData) && (connecting || !connected);
+
+      final double opacity = offline ? 0.7 : 1.0;
+
+      if (device.typeId == 3) {
+        if (offline) {
+          if (offline) {
+            return Opacity(
+              opacity: opacity,
+              child: const OfflineWidget(),
+            );
+          }
+        }
+        return Opacity(
+          opacity: opacity,
+          child: Center(
+            child: DeviceStatusText(
+              device: device,
+              alarm: alarmStatus,
+              value: status,
+              isLoading: !offline && forceLoading,
             ),
           ),
-        ],
+        );
+      }
+
+      return Opacity(
+        opacity: opacity,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          child: _buildBody(
+              offline: offline, forceLoading: forceLoading, context: context),
+        ),
+      );
+    });
+  }
+
+  Widget _buildBody({
+    required bool offline,
+    required bool forceLoading,
+    required BuildContext context,
+  }) {
+    if (offline) {
+      return const OfflineWidget();
+    }
+
+    if (forceLoading) {
+      return const _LoadingCenter(key: ValueKey('loading'));
+    }
+
+    final String shown = status.isEmpty ? "—" : status;
+    return _ValueWithUnit(
+      key: ValueKey('value-$shown-$alarmStatus'),
+      value: shown,
+      unit: device.unit ?? "",
+      valueStyle: valueStyle26(context, alarmStatus),
+      unitStyle: unitStyle14(context, alarmStatus),
+    );
+  }
+}
+
+TextStyle valueStyle26(BuildContext context, int alarm) {
+  final Color color = switch (alarm) {
+    2 => Colors.red,
+    1 => Colors.orange,
+    _ => Colors.black87,
+  };
+  return TextStyle(
+    color: color,
+    fontSize: 26,
+    fontWeight: FontWeight.w500,
+  );
+}
+
+TextStyle unitStyle14(BuildContext context, int alarm) {
+  final Color color = switch (alarm) {
+    2 => Colors.red,
+    1 => Colors.orange,
+    _ => Colors.black54,
+  };
+  return TextStyle(
+    color: color,
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+  );
+}
+
+class _ValueWithUnit extends StatelessWidget {
+  final String value;
+  final String unit;
+  final TextStyle? valueStyle;
+  final TextStyle? unitStyle;
+
+  const _ValueWithUnit({
+    super.key,
+    required this.value,
+    required this.unit,
+    this.valueStyle,
+    this.unitStyle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      key: key,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(value, style: valueStyle),
+        const SizedBox(width: 6),
+        Text(unit, style: unitStyle),
       ],
     );
+  }
+}
+
+class _LoadingCenter extends StatelessWidget {
+  const _LoadingCenter({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: LoadingDots());
   }
 }

@@ -19,6 +19,7 @@ class Device {
   int? pinMode;
   int? pinStart;
   int? active;
+  int? publishTime;
   List<String>? rfCodes;
   int? normalValueRangeId;
   int? criticalValueRangeId;
@@ -46,6 +47,7 @@ class Device {
     this.openingTime,
     this.waitingTime,
     this.closingTime,
+    this.publishTime,
     this.pinMode,
     this.pinStart,
     this.active = 1,
@@ -78,6 +80,7 @@ class Device {
       'openingTime': openingTime,
       'waitingTime': waitingTime,
       'closingTime': closingTime,
+      'publishTime': publishTime,
       'pinMode': pinMode,
       'pinStart': pinStart,
       'active': active,
@@ -115,6 +118,8 @@ class Device {
           map['waitingTime'] != null ? map['waitingTime'] as int : null,
       closingTime:
           map['closingTime'] != null ? map['closingTime'] as int : null,
+      publishTime:
+          map['publishTime'] != null ? map['publishTime'] as int : null,
       pinMode: map['pinMode'] != null ? map['pinMode'] as int : null,
       pinStart: map['pinStart'] != null ? map['pinStart'] as int : null,
       active: map['active'] as int,

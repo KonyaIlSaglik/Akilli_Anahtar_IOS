@@ -11,6 +11,10 @@ class Box {
   String version;
   String localIp;
   int restartTimeout;
+  String? espType;
+  int? channel;
+  int? boxTypeId;
+  int? target;
   //bool isSub = false;
   //String? organisationName;
   //int isOld = -1;
@@ -28,6 +32,10 @@ class Box {
     this.version = "",
     this.localIp = "",
     this.restartTimeout = 0,
+    this.espType,
+    this.channel,
+    this.boxTypeId,
+    this.target,
   });
 
   Map<String, dynamic> toMap() {
@@ -41,20 +49,30 @@ class Box {
       'topicRes': topicRes,
       'version': version,
       'restartTimeout': restartTimeout,
+      'localIp': localIp,
+      'espType': espType,
+      'channel': channel,
+      'boxTypeId': boxTypeId,
+      'target': target,
     };
   }
 
   factory Box.fromMap(Map<String, dynamic> map) {
     return Box(
-      id: map['id'] as int,
-      name: map['name'] as String,
-      chipId: map['chipId'] as int,
-      organisationId: map['organisationId'] as int,
-      active: map['active'] as int,
-      topicRec: map['topicRec'] as String,
-      topicRes: map['topicRes'] as String,
-      version: map['version'] != null ? map['version'] as String : "",
-      restartTimeout: map['restartTimeout'] as int,
+      id: map['id'] ?? 0,
+      name: map['name'] ?? "",
+      chipId: map['chipId'] ?? 0,
+      organisationId: map['organisationId'] ?? 0,
+      active: map['active'] ?? 1,
+      topicRec: map['topicRec'] ?? "",
+      topicRes: map['topicRes'] ?? "",
+      version: map['version'] ?? "",
+      localIp: map['localIp'] ?? "",
+      restartTimeout: map['restartTimeout'] ?? 0,
+      espType: map['espType']?.toString(),
+      channel: map['channel'],
+      boxTypeId: map['boxTypeId'],
+      target: map['target'],
     );
   }
 

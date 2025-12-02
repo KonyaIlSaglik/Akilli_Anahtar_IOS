@@ -35,37 +35,35 @@ class _LoginPageState extends State<LoginPage> {
         padding: EdgeInsets.symmetric(
           horizontal: width(context) * 0.05,
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(
-                height: keboardVisible
-                    ? height(context) * 0.10
-                    : height(context) * 0.20,
-              ),
-              SizedBox(
-                height: height(context) * 0.10,
-                child: Image.asset(
-                  "assets/anahtar.png",
-                ),
-              ),
-              SizedBox(
-                height: height(context) * 0.10,
-              ),
-              LoginPageForm(),
-              SizedBox(
-                height: keboardVisible
-                    ? height(context) * 0.05
-                    : height(context) * 0.25,
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    VersionText(),
+                    SizedBox(
+                      height: keboardVisible
+                          ? height(context) * 0.06
+                          : height(context) * 0.15,
+                    ),
+                    SizedBox(
+                      height: height(context) * 0.10,
+                      child: Image.asset(
+                        "assets/anahtar.webp",
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const LoginPageForm(),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+            if (!keboardVisible) ...[
+              const SizedBox(height: 12),
+              const VersionText(),
+              const SizedBox(height: 16),
+            ]
+          ],
         ),
       ),
     );

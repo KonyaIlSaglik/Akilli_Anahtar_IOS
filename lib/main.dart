@@ -1,10 +1,21 @@
+import 'dart:convert';
+
 import 'package:akilli_anahtar/background_service.dart';
+import 'package:akilli_anahtar/bindings/app_binding.dart';
 import 'package:akilli_anahtar/controllers/main/login_controller.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
+import 'package:akilli_anahtar/pages/auth/send_email_verify_code.dart';
+import 'package:akilli_anahtar/pages/auth/verify_code_page.dart';
+import 'package:akilli_anahtar/pages/managers/user/complete_profile_page.dart';
+import 'package:akilli_anahtar/pages/new_home/device/device_select_page.dart';
 import 'package:akilli_anahtar/pages/new_home/layout.dart';
 import 'package:akilli_anahtar/pages/new_home/notification/notification_page.dart';
+import 'package:akilli_anahtar/services/api/widget_publish_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:akilli_anahtar/pages/managers/user/complete_register_user_page.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:akilli_anahtar/splash_page.dart';
@@ -12,7 +23,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:akilli_anahtar/bindings/app_binding.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -43,22 +53,10 @@ Future<void> _initializeNotifications() async {
 }
 
 Future<void> initializeFCM(BuildContext context) async {
-  await FirebaseMessaging.instance.requestPermission(
-    alert: true,
-    announcement: false,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  );
-
   RemoteMessage? initialMessage =
       await FirebaseMessaging.instance.getInitialMessage();
   if (initialMessage != null) {
     fcmInitialRoute = initialMessage.data['route'] ?? '/notification';
-    await flutterLocalNotificationsPlugin.cancelAll();
-  } else {
     await flutterLocalNotificationsPlugin.cancelAll();
   }
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
@@ -67,30 +65,6 @@ Future<void> initializeFCM(BuildContext context) async {
 
     Get.offAll(() => SplashPage());
   });
-
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
-
-    if (notification != null && android != null) {
-      flutterLocalNotificationsPlugin.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'high_importance_channel',
-            'Önemli Bildirimler',
-            channelDescription:
-                'Bu kanal yüksek öncelikli bildirimler içindir.',
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-          iOS: DarwinNotificationDetails(),
-        ),
-      );
-    }
-  });
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -98,26 +72,67 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print(' Arka planda gelen FCM mesajı: ${message.messageId}');
 }
 
+@pragma('vm:entry-point')
+Future<void> interactiveCallback(Uri? data) async {
+  // Widget’tan gelen “tıklama / komut”leri burada ele alırsın
+  if (data?.host == 'refresh') {
+    // Örneğin widget üzerindeki bir butona basıldıysa
+    // Uygulamayı açmadan burada gerekli işlemleri tetikleyebilirsin
+    // Örnek: veri çek, HomeWidget.saveWidgetData vs.
+  }
+}
+
+const platform = MethodChannel("com.akillianahtar/navigation");
+
+void initPlatformChannel() {
+  platform.setMethodCallHandler((call) async {
+    if (call.method == "openPage") {
+      final route = call.arguments as String;
+      if (route == "/deviceSelect") {
+        Get.toNamed('/deviceSelect');
+      } else {
+        Get.toNamed(route);
+      }
+    }
+    if (call.method == "publishFromWidget") {
+      try {
+        final data = Map<String, dynamic>.from(call.arguments);
+        final topic = data["topic"];
+        final payload = data["payload"];
+
+        print(" publishFromWidget → topic=$topic, payload=$payload");
+
+        final ok = await WidgetApiService.widgetPublish(topic, payload);
+        print(" API sonucu: $ok");
+      } catch (e) {
+        print(" publishFromWidget hata: $e");
+      }
+    }
+  });
+}
+
+Future<void> saveTokenToNative(String token) async {
+  await platform.invokeMethod("saveToken", token);
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  print("Uygulama başlatılıyor");
-
+  // HttpOverrides.global = PostHttpOverrides();
+  Get.put(MqttController(), permanent: true);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  print("Firebase başlatılıyor...");
-  await Firebase.initializeApp();
-  print("Firebase başlatıldı");
-
-  await initializeService();
-  print("Servis başlatıldı");
-
-  await _initializeNotifications();
-  print("Bildirimler başlatıldı");
+  await Future.wait([
+    Firebase.initializeApp(),
+    initializeService(),
+    _initializeNotifications(),
+  ]);
 
   Get.put(LoginController());
   Get.put(SessionController());
 
-  print("DateFormat yükleniyor");
+  //HomeWidget.registerInteractivityCallback(interactiveCallback);
+  initPlatformChannel();
+
   initializeDateFormatting('tr_TR', null).then(
     (value) => runApp(MyApp(theme: ThemeData.light())),
   );
@@ -127,6 +142,7 @@ class SessionController {}
 
 class MyApp extends StatefulWidget {
   final ThemeData theme;
+
   const MyApp({super.key, required this.theme});
 
   @override
@@ -168,8 +184,17 @@ class _MyAppState extends State<MyApp> {
         initialBinding: AppBinding(),
         getPages: [
           GetPage(name: '/', page: () => SplashPage()),
-          GetPage(name: '/notification', page: () => NotificationPage()),
           GetPage(name: '/layout', page: () => Layout()),
+          GetPage(name: '/notification', page: () => NotificationPage()),
+          GetPage(name: '/sendMail', page: () => RegisterSendMailPage()),
+          GetPage(
+              name: '/completeProfile',
+              page: () => const CompleteProfilePage()),
+          GetPage(name: '/VerifyCodePage', page: () => const VerifyCodePage()),
+          GetPage(
+              name: '/Completeregister',
+              page: () => const CompleteRegisterUserPage()),
+          //GetPage(name: '/deviceSelect', page: () => DeviceSelectPage())
         ],
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
@@ -186,10 +211,10 @@ class _MyAppState extends State<MyApp> {
           iconTheme: IconThemeData(color: goldColor),
           progressIndicatorTheme: ProgressIndicatorThemeData(color: goldColor),
           textTheme: GoogleFonts.robotoTextTheme(),
+          scaffoldBackgroundColor: const Color(0xFFFAF7F2),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(foregroundColor: goldColor),
           ),
-          cardTheme: CardThemeData(shadowColor: goldColor),
           dialogTheme: Theme.of(context)
               .dialogTheme
               .copyWith(backgroundColor: Colors.white),

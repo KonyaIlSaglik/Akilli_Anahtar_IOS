@@ -31,19 +31,40 @@ class SessionDto {
       'loginTime': loginTime,
       'accessToken': accessToken,
       'expiration': expiration,
-      'claims': json.encode(claims!),
+      'claims': claims,
     };
   }
 
   factory SessionDto.fromMap(Map<String, dynamic> map) {
+    List<String>? parsedClaims;
+
+    final rawClaims = map['claims'];
+    if (rawClaims != null) {
+      if (rawClaims is String) {
+        // String olarak kaydedilmişse decode etmeyi dene
+        try {
+          final decoded = jsonDecode(rawClaims);
+          if (decoded is List) {
+            parsedClaims = List<String>.from(decoded);
+          } else {
+            parsedClaims = [rawClaims];
+          }
+        } catch (_) {
+          parsedClaims = [rawClaims];
+        }
+      } else if (rawClaims is List) {
+        parsedClaims = List<String>.from(rawClaims);
+      }
+    }
+
     return SessionDto(
-      id: map['id'] as int,
-      loginTime: map['loginTime'] as String,
-      accessToken: map['accessToken'] as String,
-      expiration: map['expiration'] as String,
-      claims: map['claims'] != null
-          ? List<String>.from(map['claims'] as List<dynamic>)
-          : null,
+      id: (map['id'] ?? 0) is int
+          ? map['id']
+          : int.tryParse(map['id'].toString()) ?? 0,
+      loginTime: map['loginTime']?.toString() ?? '',
+      accessToken: map['accessToken']?.toString() ?? '',
+      expiration: map['expiration']?.toString() ?? '',
+      claims: parsedClaims,
     );
   }
 

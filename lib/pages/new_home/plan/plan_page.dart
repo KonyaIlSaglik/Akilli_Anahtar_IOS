@@ -1,4 +1,3 @@
-import 'package:akilli_anahtar/pages/new_home/plan/plan_page_list_item.dart';
 import 'package:flutter/material.dart';
 
 class PlanPage extends StatefulWidget {

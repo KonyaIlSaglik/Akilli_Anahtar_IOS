@@ -1,23 +1,22 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
-
-import 'package:akilli_anahtar/entities/sensor_message.dart';
-import 'package:flutter/material.dart';
+import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:mqtt5_client/mqtt5_server_client.dart';
 
 import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/entities/parameter.dart';
-import 'package:akilli_anahtar/models/notification_model.dart';
 import 'package:akilli_anahtar/models/login_model2.dart';
 import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
+import 'package:typed_data/src/typed_buffer.dart';
+
+MyMqtt? mqtt;
+List<HomeDeviceDto> devices = [];
 
 Future<void> startBackgroundService() async {
   final service = FlutterBackgroundService();
@@ -74,39 +73,39 @@ Future<void> initializeService() async {
   print(" Service started.");
 }
 
-@pragma('vm:entry-point')
-void notificationTapBackground(
-    NotificationResponse notificationResponse) async {
-  prnt("notificationTapBackground.");
-  if (notificationResponse.actionId == null) {
-    prnt("No action ID provided.");
-    return;
-  }
-  var token = await LocalDb.get(webTokenKey);
-  var userId = int.tryParse(await LocalDb.get(userIdKey) ?? "");
-  var data = NotificationModel(
-    userId: userId,
-    deviceId: notificationResponse.id!,
-  );
-  prnt(notificationResponse.actionId!);
-  switch (notificationResponse.actionId) {
-    case 'action_30_min':
-      data.status = 30;
-      data.datetime = DateTime.now().add(Duration(minutes: 30));
-      await updateNotification(token!, data);
-      break;
-    case 'action_2_hour':
-      data.status = 120;
-      data.datetime = DateTime.now().add(Duration(minutes: 120));
-      await updateNotification(token!, data);
-      break;
-    case 'action_8_hour':
-      data.status = 480;
-      data.datetime = DateTime.now().add(Duration(minutes: 480));
-      await updateNotification(token!, data);
-      break;
-  }
-}
+// @pragma('vm:entry-point')
+// void notificationTapBackground(
+//     NotificationResponse notificationResponse) async {
+//   prnt("notificationTapBackground.");
+//   if (notificationResponse.actionId == null) {
+//     prnt("No action ID provided.");
+//     return;
+//   }
+//   var token = await LocalDb.get(webTokenKey);
+//   var userId = int.tryParse(await LocalDb.get(userIdKey) ?? "");
+//   var data = NotificationModel(
+//     userId: userId,
+//     deviceId: notificationResponse.id!,
+//   );
+//   prnt(notificationResponse.actionId!);
+//   switch (notificationResponse.actionId) {
+//     case 'action_30_min':
+//       data.status = 30;
+//       data.datetime = DateTime.now().add(Duration(minutes: 30));
+//       await updateNotification(token!, data);
+//       break;
+//     case 'action_2_hour':
+//       data.status = 120;
+//       data.datetime = DateTime.now().add(Duration(minutes: 120));
+//       await updateNotification(token!, data);
+//       break;
+//     case 'action_8_hour':
+//       data.status = 480;
+//       data.datetime = DateTime.now().add(Duration(minutes: 480));
+//       await updateNotification(token!, data);
+//       break;
+//   }
+// }
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
@@ -116,16 +115,21 @@ void onStart(ServiceInstance service) async {
     service.stopSelf();
   });
 
-  var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/app_icon');
-  final InitializationSettings initializationSettings =
-      InitializationSettings(android: initializationSettingsAndroid);
+  service.on("publish").listen((event) async {
+    final topic = event?['topic'];
+    final payload = event?['payload'];
 
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
-  );
+    if (topic != null && payload != null && mqtt != null) {
+      mqtt!.mqttClient.publishMessage(
+        topic,
+        MqttQos.atLeastOnce,
+        utf8.encode(payload) as Uint8Buffer,
+      );
+      prnt("Widget publish: $topic → $payload");
+    } else {
+      prnt("Publish çalışmadı: mqtt client null veya parametre eksik");
+    }
+  });
 
   String? token;
   int? userId;
@@ -146,34 +150,32 @@ void onStart(ServiceInstance service) async {
   Timer.periodic(Duration(minutes: min), (timer) async {
     prnt("service is successfully running ${DateTime.now().second}");
 
-    if (token != null && userId != null) {
-      var devices = await getDevices(token, userId);
-      for (var device in devices) {
-        var response = await httpGet(
-          url:
-              "$apiUrlOut/Home/getNotificationMessage?userId=$userId&deviceId=${device.id}&lastMin=$min",
-          token: token,
-        );
-        if (response.statusCode == 200) {
-          var sensorMessage = SensorMessage.fromJson(response.body);
-          if (sensorMessage.alarmStatus == 1) {
-            // _showNotification(
-            //   flutterLocalNotificationsPlugin,
-            //   device.id!,
-            //   "${device.boxName!}/${device.name!}",
-            //   "${sensorMessage.value} değeri için uyarı",
-            // );
-          }
-          if (sensorMessage.alarmStatus == 2) {
-            // _showNotification(
-            //   flutterLocalNotificationsPlugin,
-            //   device.id!,
-            //   "${device.boxName!}/${device.name!}",
-            //   "${sensorMessage.value} değeri için kritik değer",
-            // );
-          }
+    if (token != null) {
+      var parameterResponse = await httpGet(
+        url: "$apiUrlOut/Home/getParameters?typeId=1",
+        token: token,
+      );
+      if (parameterResponse.statusCode == 200) {
+        var parameters = Parameter.fromJsonList(parameterResponse.body);
+        if (parameters.isNotEmpty) {
+          mqtt = MyMqtt(parameters);
+          await mqtt!.initialClient();
         }
       }
+      if (userId != null) {
+        devices = await getDevices(token, userId);
+      }
+    }
+
+    if (devices.isNotEmpty) {
+      for (HomeDeviceDto device in devices) {
+        mqtt?.subscribeToTopic(device.topicStat!);
+      }
+
+      mqtt?.onMessage((topic, message) {
+        prnt("MQTT mesaj geldi → $topic : $message");
+        // burada alarm kontrolünü, notification logic’i ekle
+      });
     }
   });
 }
@@ -205,26 +207,26 @@ Future<List<HomeDeviceDto>> getDevices(String token, int userId) async {
 //       userId: userId, deviceId: deviceId, status: 1, datetime: null);
 // }
 
-@pragma('vm:entry-point')
-Future<bool> updateNotification(
-    String token, NotificationModel notificationModel) async {
-  prnt("updateNotification...............");
-  prnt("$apiUrlOut/Home/updateNotification");
-  prnt(notificationModel.toJson());
-  var response = await http.put(
-    Uri.parse("$apiUrlOut/Home/updateNotification"),
-    headers: {
-      'content-type': 'application/json; charset=utf-8',
-      'Authorization': 'Bearer $token',
-    },
-    body: notificationModel.toJson(),
-  );
-  prnt(response.body);
-  if (response.statusCode == 200) {
-    return response.body == "true";
-  }
-  return false;
-}
+// @pragma('vm:entry-point')
+// Future<bool> updateNotification(
+//     String token, NotificationModel notificationModel) async {
+//   prnt("updateNotification...............");
+//   prnt("$apiUrlOut/Home/updateNotification");
+//   prnt(notificationModel.toJson());
+//   var response = await http.put(
+//     Uri.parse("$apiUrlOut/Home/updateNotification"),
+//     headers: {
+//       'content-type': 'application/json; charset=utf-8',
+//       'Authorization': 'Bearer $token',
+//     },
+//     body: notificationModel.toJson(),
+//   );
+//   prnt(response.body);
+//   if (response.statusCode == 200) {
+//     return response.body == "true";
+//   }
+//   return false;
+// }
 
 Future<http.Response> httpGet(
     {required String url, required String token}) async {
@@ -264,44 +266,44 @@ Future<http.Response> httpGet(
 //   return alarm;
 // }
 
-Future<void> _showNotification(
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
-  int id,
-  String title,
-  String body,
-) async {
-  // const AndroidNotificationDetails androidPlatformChannelSpecifics =
-  //     AndroidNotificationDetails(
-  //   'your_channel_id',
-  //   'Acil Durumlar',
-  //   channelDescription: 'Alarm Bildirimleri',
-  //   importance: Importance.max,
-  //   priority: Priority.high,
-  //   showWhen: false,
-  //   actions: [
-  //     AndroidNotificationAction(
-  //       'action_30_min',
-  //       '30 Dakika Ertele',
-  //       cancelNotification: true,
-  //     ),
-  //     AndroidNotificationAction(
-  //       'action_2_hour',
-  //       '2 Saat Ertele',
-  //       cancelNotification: true,
-  //     ),
-  //     AndroidNotificationAction(
-  //       'action_8_hour',
-  //       '8 Saat Ertele',
-  //       cancelNotification: true,
-  //     ),
-  //   ],
-  // );
-  // const NotificationDetails platformChannelSpecifics =
-  //     NotificationDetails(android: androidPlatformChannelSpecifics);
+// Future<void> _showNotification(
+//   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+//   int id,
+//   String title,
+//   String body,
+// ) async {
+// const AndroidNotificationDetails androidPlatformChannelSpecifics =
+//     AndroidNotificationDetails(
+//   'your_channel_id',
+//   'Acil Durumlar',
+//   channelDescription: 'Alarm Bildirimleri',
+//   importance: Importance.max,
+//   priority: Priority.high,
+//   showWhen: false,
+//   actions: [
+//     AndroidNotificationAction(
+//       'action_30_min',
+//       '30 Dakika Ertele',
+//       cancelNotification: true,
+//     ),
+//     AndroidNotificationAction(
+//       'action_2_hour',
+//       '2 Saat Ertele',
+//       cancelNotification: true,
+//     ),
+//     AndroidNotificationAction(
+//       'action_8_hour',
+//       '8 Saat Ertele',
+//       cancelNotification: true,
+//     ),
+//   ],
+// );
+// const NotificationDetails platformChannelSpecifics =
+//     NotificationDetails(android: androidPlatformChannelSpecifics);
 
-  // await flutterLocalNotificationsPlugin.show(
-  //     id, title, body, platformChannelSpecifics);
-}
+// await flutterLocalNotificationsPlugin.show(
+//     id, title, body, platformChannelSpecifics);
+//}
 
 class MyMqtt {
   final List<Parameter> parameters;
@@ -323,8 +325,8 @@ class MyMqtt {
     mqttClient = MqttServerClient(host, identity);
     mqttClient.port = port;
     mqttClient.keepAlivePeriod = 60;
-    mqttClient.autoReconnect = true;
-    mqttClient.resubscribeOnAutoReconnect = true;
+    mqttClient.autoReconnect = false;
+    mqttClient.resubscribeOnAutoReconnect = false;
     mqttClient.onConnected = onConnected;
     mqttClient.onDisconnected = onDisconnected;
     mqttClient.onSubscribed = onSubscribed;

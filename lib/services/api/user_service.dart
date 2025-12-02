@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:akilli_anahtar/dtos/simple_organisation_dto.dart';
 import 'package:akilli_anahtar/dtos/user_dto.dart';
 import 'package:akilli_anahtar/entities/user_device.dart';
 import 'package:akilli_anahtar/entities/user_operation_claim.dart';
@@ -10,15 +11,15 @@ import 'package:akilli_anahtar/utils/constants.dart';
 class UserService {
   static String url = "$apiUrlOut/User";
 
-  static Future<UserDto?> get(int id) async {
-    var response = await BaseService.get(
-      "/get?id=",
-    );
-    if (response.statusCode == 200) {
-      return UserDto.fromJson(response.body);
-    }
-    return null;
-  }
+  // static Future<UserDto?> get(int id) async {
+  //   var response = await BaseService.get(
+  //     "/get?id=",
+  //   );
+  //   if (response.statusCode == 200) {
+  //     return UserDto.fromJson(response.body);
+  //   }
+  //   return null;
+  // }
 
   static Future<UserDto?> getbyUserName(String userName) async {
     var response = await BaseService.get(
@@ -28,6 +29,16 @@ class UserService {
       return UserDto.fromJson(response.body);
     }
     return null;
+  }
+
+  static Future<bool> getDeviceUserStatus(int userId, int deviceId) async {
+    final response = await BaseService.post(
+        "$url/active-pasiveDeviceUser?userId=$userId&deviceId=$deviceId");
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return false;
   }
 
   static Future<List<UserDto>?> getAll() async {
@@ -96,6 +107,17 @@ class UserService {
       return true;
     }
     return false;
+  }
+
+  static Future<List<SimpleOrganisationDto>?> getUserOrganisation2(
+      int userId) async {
+    var response = await BaseService.get(
+      "$url/getUserOrganisation2?userId=$userId",
+    );
+    if (response.statusCode == 200) {
+      return SimpleOrganisationDto.fromJsonList(response.body);
+    }
+    return null;
   }
 
   static Future<List<UserOperationClaim>?> getUserClaims(int userId) async {
@@ -176,22 +198,22 @@ class UserService {
     return null;
   }
 
-  static Future<bool?> updateNotification(
-      int userId, int deviceId, int favoriteSequence) async {
-    var requestBody = {
-      'userId': userId,
-      'deviceId': deviceId,
-      'favoriteSequence': favoriteSequence,
-    };
-    var response = await BaseService.update(
-      "$url/updateFavorite?userId=$userId&deviceId=$deviceId&favoriteSequence=$favoriteSequence",
-      json.encode(requestBody),
-    );
-    if (response.statusCode == 200) {
-      return response.body == "true";
-    }
-    return null;
-  }
+  // static Future<bool?> updateNotification(
+  //     int userId, int deviceId, int favoriteSequence) async {
+  //   var requestBody = {
+  //     'userId': userId,
+  //     'deviceId': deviceId,
+  //     'favoriteSequence': favoriteSequence,
+  //   };
+  //   var response = await BaseService.update(
+  //     "$url/updateFavorite?userId=$userId&deviceId=$deviceId&favoriteSequence=$favoriteSequence",
+  //     json.encode(requestBody),
+  //   );
+  //   if (response.statusCode == 200) {
+  //     return response.body == "true";
+  //   }
+  //   return null;
+  // }
 
   static Future<bool> deleteUserDevice(int userDeviceId) async {
     var response = await BaseService.delete(

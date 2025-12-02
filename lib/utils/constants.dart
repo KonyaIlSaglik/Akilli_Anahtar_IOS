@@ -34,15 +34,26 @@ String notificationKey(int deviceId) {
 const String apiUrlOut = "https://wss.ossbs.com/AkilliAnahtarApi/api";
 const String userIdKey = "userId";
 const String webTokenKey = "webToken";
+const String appleUserKey = "appleUserId";
 const String userNameKey = "userName";
 const String passwordKey = "password";
 const String watherVisibleKey = "watherVisible";
 const Color goldColor = Colors.brown;
+const Color sheetBackground = Color(0xFFFAF7F2);
+const Color lightBackgroundColor =
+    Color.fromARGB(255, 231, 236, 239); // #E7ECF0
+const Color primaryDarkBlue = Color.fromARGB(255, 39, 76, 119); // #274C77
+const Color mediumBlue = Color.fromARGB(255, 96, 150, 186); // #6096BA
+const Color lightBlue = Color.fromARGB(255, 163, 206, 241); // #A3CEF1
+const Color grayNeutral = Color.fromARGB(255, 139, 140, 137); // #8B8C89
+const Color darkBlue = Color.fromARGB(255, 41, 50, 65); // #003366
+const Color primaryPinkColor = Color.fromARGB(255, 238, 108, 77); // #b49664
+
 //const Color goldColor = Color(0xffb49664);
 //const Color mainColor = Color.fromARGB(255, 180, 150, 100);
 const String gizlilikUrl = "https://ossbs.com/gizlilik/index.htm";
 
-Future<void> checkNewVersion(context, showForce) async {
+Future<bool> checkNewVersion(context, showForce) async {
   VersionStatus? versionStatus = await NewVersionPlus().getVersionStatus();
   if (versionStatus != null && (versionStatus.canUpdate || showForce)) {
     NewVersionPlus().showUpdateDialog(
@@ -58,7 +69,9 @@ Future<void> checkNewVersion(context, showForce) async {
       context: context,
       versionStatus: versionStatus,
     );
+    return false;
   }
+  return true;
 }
 
 Future<String> getDeviceId() async {
@@ -175,13 +188,21 @@ void successBar(BuildContext context, String title, String message) {
 }
 
 errorSnackbar(String title, String message) {
-  Get.snackbar(
-    title,
-    message,
-    backgroundColor: Colors.red.withOpacity(0.75),
-    colorText: Colors.white,
-    icon: Icon(Icons.dangerous_outlined, color: Colors.white),
-  );
+  try {
+    if (Get.context != null) {
+      Get.snackbar(
+        title,
+        message,
+        backgroundColor: Colors.red.withOpacity(0.75),
+        colorText: Colors.white,
+        icon: const Icon(Icons.dangerous_outlined, color: Colors.white),
+      );
+    } else {
+      debugPrint("Snackbar gösterilemedi. Mesaj: $title - $message");
+    }
+  } catch (e) {
+    debugPrint("Snackbar hatası: $e");
+  }
 }
 
 successSnackbar(String title, String message) {
@@ -194,6 +215,7 @@ successSnackbar(String title, String message) {
       Icons.done_outline,
       color: Colors.white,
     ),
+    duration: Duration(seconds: 1),
   );
 }
 
@@ -227,7 +249,7 @@ IconData? deviceIcon(int deviceId) {
                   ? FontAwesomeIcons.roadBarrier
                   : deviceId == 5
                       ? FontAwesomeIcons.lightbulb
-                      : deviceId == 8
+                      : deviceId == 8 || deviceId == 10
                           ? FontAwesomeIcons.faucetDrip
                           : null;
 }

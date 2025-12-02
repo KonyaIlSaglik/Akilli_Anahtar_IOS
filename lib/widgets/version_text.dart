@@ -27,9 +27,8 @@ class _VersionTextState extends State<VersionText> {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      "Versiyon: $version",
-      style: TextStyle(color: goldColor),
-    );
+    return Text(" $version",
+        style: TextStyle(
+            color: goldColor, fontSize: 16, fontWeight: FontWeight.w500));
   }
 }

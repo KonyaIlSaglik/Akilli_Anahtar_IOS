@@ -3,6 +3,7 @@ import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/dtos/bm_box_dto.dart';
 import 'package:akilli_anahtar/dtos/bm_organisation_dto.dart';
 import 'package:akilli_anahtar/entities/box.dart';
+import 'package:akilli_anahtar/entities/organisation.dart';
 import 'package:akilli_anahtar/models/version_model.dart';
 import 'package:akilli_anahtar/services/api/box_management_service.dart';
 import 'package:akilli_anahtar/services/api/box_service.dart';
@@ -11,14 +12,27 @@ import 'package:get/get.dart';
 import 'package:turkish/turkish.dart';
 
 class BoxManagementController extends GetxController {
-  MqttController mqttController = Get.find();
   var boxes = <Box>[].obs;
+  var organisations = <Organisation>[].obs;
   var selectedSortOption = "Bileşen Adı".obs;
   var selectedBox = Box().obs;
   var loadingBox = false.obs;
   var selectedOrganisationId = 0.obs;
+  var organisationId = 0.obs;
+  var userSearchQuery = "".obs;
+  var filteredOrganisations = <Organisation>[].obs;
+  var organisationList = <BmOrganisationDto>[].obs;
+  var filteredOrganisationList = <BmOrganisationDto>[].obs;
 
   var newVersion = VersionModel().obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    MqttController mqttController = Get.find();
+    ever(userSearchQuery, (_) => filterOrganisationDtos());
+    ever(organisationList, (_) => filterOrganisationDtos());
+  }
 
   var espPins = [
     "D0",
@@ -35,11 +49,18 @@ class BoxManagementController extends GetxController {
 
   Future<void> checkNewVersion() async {
     loadingBox.value = true;
-    var result = await BoxService.checkNewVersion();
-    if (result != null) {
-      newVersion.value = result;
+    var result = await BoxService.checkNewVersion(
+      espType: selectedBox.value.espType ?? "",
+      boxTypeId: selectedBox.value.boxTypeId ?? 1,
+    );
+
+    if (result == null || result.version == "GÜNCEL") {
+      newVersion.value = VersionModel(version: "GÜNCEL");
+      loadingBox.value = false;
+      return;
     }
     loadingBox.value = false;
+    newVersion.value = result;
   }
 
   Future<void> getBoxes() async {
@@ -83,6 +104,46 @@ class BoxManagementController extends GetxController {
       }
     }
     return isOld;
+  }
+
+  void filterOrganisationDtos() {
+    final q = userSearchQuery.value.trim().toLowerCaseTr();
+
+    if (q.isEmpty) {
+      filteredOrganisationList.assignAll(organisationList);
+    } else {
+      filteredOrganisationList.assignAll(
+        organisationList.where((o) {
+          final name = (o.name ?? '').toLowerCaseTr();
+          final idTxt = (o.id?.toString() ?? '');
+          return name.contains(q) || idTxt.contains(q);
+        }).toList(),
+      );
+    }
+
+    sortOrganisationDtos();
+  }
+
+  void sortOrganisationDtos() {
+    filteredOrganisationList.sort((a, b) {
+      final an = (a.name ?? '').toLowerCaseTr();
+      final bn = (b.name ?? '').toLowerCaseTr();
+      return an.compareTo(bn);
+    });
+  }
+
+  Future<void> getOrganisationList() async {
+    final auth = Get.find<AuthController>();
+    final id = auth.user.value.id!;
+    organisationList.value = await BoxManagementService.getOrganisations(id) ??
+        <BmOrganisationDto>[];
+    filteredOrganisationList.assignAll(organisationList);
+  }
+
+  void sortOrganisations() {
+    filteredOrganisations.sort(
+      (a, b) => a.name!.toLowerCaseTr().compareTo(b.name!.toLowerCaseTr()),
+    );
   }
 
   void sortBoxes() {
@@ -147,18 +208,9 @@ class BoxManagementController extends GetxController {
 
   var boxList = <BmBoxDto>[].obs;
 
-  var organisationList = <BmOrganisationDto>[].obs;
-
   Future<void> getBoxList() async {
     AuthController authController = Get.find();
     var id = authController.user.value.id!;
     boxList.value = await BoxManagementService.getBoxes(id) ?? <BmBoxDto>[];
-  }
-
-  Future<void> getOrganisationList() async {
-    AuthController authController = Get.find();
-    var id = authController.user.value.id!;
-    organisationList.value = await BoxManagementService.getOrganisations(id) ??
-        <BmOrganisationDto>[];
   }
 }

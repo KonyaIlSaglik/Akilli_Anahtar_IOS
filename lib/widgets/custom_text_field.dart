@@ -8,6 +8,7 @@ class CustomTextField extends StatefulWidget {
   final FocusNode focusNode;
   final FocusNode? nextFocus;
   final bool autoFocus;
+
   const CustomTextField({
     super.key,
     required this.controller,
@@ -24,12 +25,8 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   bool passVisible = false;
+
   @override
   Widget build(BuildContext context) {
     return TextField(
@@ -37,43 +34,29 @@ class _CustomTextFieldState extends State<CustomTextField> {
       obscureText: widget.isPassword && !passVisible,
       focusNode: widget.focusNode,
       autofocus: widget.autoFocus,
-      cursorColor: Colors.white,
-      onSubmitted: (value) {
+      onSubmitted: (_) {
         if (widget.nextFocus != null) {
-          widget.nextFocus!.requestFocus();
+          FocusScope.of(context).requestFocus(widget.nextFocus);
         }
       },
       textInputAction: widget.nextFocus != null
           ? TextInputAction.next
           : TextInputAction.done,
-      style: TextStyle(
-          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-          fontWeight: FontWeight.bold),
+      style: const TextStyle(fontSize: 16),
       decoration: InputDecoration(
         hintText: widget.hintText,
-        hintStyle: TextStyle(
-          fontSize: Theme.of(context).textTheme.titleMedium!.fontSize,
-        ),
         prefixIcon: widget.icon,
-        prefixIconColor:
-            widget.focusNode.hasFocus ? Colors.white : Colors.black,
+        filled: true,
+        fillColor: Colors.brown[50],
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(15),
-          ),
-          borderSide: BorderSide(
-            width: 1,
-            color: Colors.black,
-          ),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(15),
-          ),
-          borderSide: BorderSide(
-            width: 1,
-            color: Colors.white,
-          ),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.brown, width: 1.5),
         ),
         suffixIcon: widget.isPassword
             ? IconButton(
@@ -82,8 +65,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     passVisible = !passVisible;
                   });
                 },
-                icon: Icon(Icons.visibility,
-                    color: passVisible ? Colors.white : Colors.black54),
+                icon: Icon(
+                  passVisible ? Icons.visibility_off : Icons.visibility,
+                  color: Colors.grey[700],
+                ),
               )
             : null,
       ),

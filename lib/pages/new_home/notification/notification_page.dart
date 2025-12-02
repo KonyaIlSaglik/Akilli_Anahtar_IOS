@@ -169,6 +169,7 @@ class _NotificationPageState extends State<NotificationPage> {
     await _loadPaginatedNotifications(reset: true, retryCount: 0);
     _startLiveListener();
     _dataLoaded = true;
+    if (!mounted) return;
     setState(() {
       isLoading = false;
     });
@@ -369,9 +370,9 @@ class _NotificationPageState extends State<NotificationPage> {
         .toList();
 
     return Scaffold(
-      backgroundColor: Colors.brown[50],
+      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
-        backgroundColor: Colors.brown[50],
+        backgroundColor: const Color(0xFFFAF7F2),
         title: const Text('Bildirimler'),
         actions: [
           IconButton(

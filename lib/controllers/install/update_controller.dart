@@ -1,3 +1,4 @@
+import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/models/box_update_model.dart';
 import 'package:akilli_anahtar/models/version_model.dart';
 import 'package:akilli_anahtar/services/api/box_service.dart';
@@ -9,6 +10,7 @@ class UpdateController extends GetxController {
   var loadingBoxList = false.obs;
   var newVersion = VersionModel().obs;
   var boxList = <BoxUpdateModel>[].obs;
+  var selectedBox = Box().obs;
 
   @override
   void onInit() async {
@@ -19,7 +21,10 @@ class UpdateController extends GetxController {
 
   Future<void> checkNewVersion() async {
     checkingNewVersion.value = true;
-    //newVersion.value = await BoxService.checkNewVersion();
+    newVersion.value = (await BoxService.checkNewVersion(
+      espType: selectedBox.value.espType ?? "",
+      boxTypeId: selectedBox.value.boxTypeId ?? 0,
+    ))!;
     checkingNewVersion.value = false;
   }
 

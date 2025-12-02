@@ -11,6 +11,7 @@ class LoginController extends GetxController {
   var privacyPolicy = true.obs;
   var deviceId = "".obs;
   var deviceName = "".obs;
+  var isLoading = false.obs;
 
   var userNameFocus = FocusNode();
   var passwordFocus = FocusNode();
@@ -58,7 +59,7 @@ class LoginController extends GetxController {
     } catch (e) {
       print("Login hatası: $e");
       isLogin.value = false;
-      return false;
+      rethrow;
     }
   }
 }

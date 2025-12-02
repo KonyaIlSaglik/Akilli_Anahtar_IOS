@@ -1,12 +1,13 @@
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/controllers/main/notification_filter_controller.dart';
-import 'package:akilli_anahtar/pages/new_home/drawer_page.dart';
 import 'package:akilli_anahtar/pages/new_home/favorite/favorite_page.dart';
 import 'package:akilli_anahtar/pages/new_home/device/device_list_page.dart';
 import 'package:akilli_anahtar/pages/new_home/notification/notification_page.dart';
 import 'package:akilli_anahtar/pages/new_home/plan/plan_page.dart';
 import 'package:akilli_anahtar/pages/new_home/setting/settings_page.dart';
+import 'package:akilli_anahtar/pages/profile/profile_page.dart';
+import 'package:akilli_anahtar/services/api/management_service.dart';
 import 'package:akilli_anahtar/services/local/shared_prefences.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/back_container.dart';
@@ -17,6 +18,8 @@ import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
+import 'dart:ui' show ImageFilter;
+import 'package:akilli_anahtar/pages/new_home/appbar.dart' as custom_appbar;
 
 class Layout extends StatefulWidget {
   const Layout({super.key});
@@ -27,11 +30,12 @@ class Layout extends StatefulWidget {
 class _LayoutState extends State<Layout> {
   MqttController mqttController = Get.put(MqttController());
   HomeController homeController = Get.put(HomeController());
+  AuthController authController = Get.find<AuthController>();
+  final user = Get.find<AuthController>().user.value;
   NotificationFilterController filterController =
       Get.put(NotificationFilterController());
   PersistentTabController tabController =
       PersistentTabController(initialIndex: 0);
-  final DatabaseReference _database = FirebaseDatabase.instance.ref();
 
   @override
   void initState() {
@@ -102,16 +106,21 @@ class _LayoutState extends State<Layout> {
     await mqttController.initClient();
     await homeController.getDevices();
     await refreshNotificationCount();
+    await ManagementService.getUserDevices();
   }
 
   Future<void> refreshNotificationCount() async {
     final userId = Get.find<AuthController>().user.value.id.toString();
     await _updateNotificationCount(userId);
+    await authController.fetchAndAssignUserRoles();
+    if (!mounted) return;
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final deviceCount = homeController.groupedDevices.length;
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -122,70 +131,60 @@ class _LayoutState extends State<Layout> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.brown[50]!,
-          foregroundColor: Colors.brown[50]!,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          iconTheme: IconThemeData(
-            size: 30,
+        appBar: custom_appbar.AppBar(
+          title: Image.asset(
+            'assets/anahtar7.png',
+            height: 27,
           ),
-          title: Text(
-            "AKILLI ANAHTAR",
-            style: width(context) < minWidth
-                ? (textTheme(context).titleMedium ??
-                    const TextStyle(fontSize: 20))
-                : (textTheme(context).titleLarge ??
-                    const TextStyle(fontSize: 24)),
-          ),
-          actions: [
-            Obx(() => NamedIcon(
-                  iconData: FontAwesomeIcons.solidBell,
-                  notificationCount: filterController.unreadCount.value,
-                  onTap: () {
-                    Get.to(() => NotificationPage())?.then((_) {
-                      refreshNotificationCount();
-                    });
-                  },
-                ))
-          ],
+          unread: filterController.unreadCount.value,
+          onBellTap: () {
+            Get.to(() => NotificationPage())
+                ?.then((_) => refreshNotificationCount());
+          },
+          onProfileTap: () => Get.to(() => ProfilePage()),
         ),
-        drawer: DrawerPage(),
-        body: RefreshIndicator(
-          onRefresh: refreshNotificationCount,
-          child: PersistentTabView(
-            controller: tabController,
-            handleAndroidBackButtonPress: false,
-            backgroundColor: Colors.brown[50]!,
-            navBarHeight: height(context) * 0.07,
-            padding: EdgeInsets.all(height(context) * 0.01),
-            navBarStyle: NavBarStyle.simple,
-            context,
-            screens: [
-              BackContainer(child: FavoritePage()),
-              BackContainer(child: DeviceListPage()),
-              BackContainer(child: PlanPage()),
-              BackContainer(child: SettingsPage()),
-            ],
-            items: [
-              customPersistentBottomNavBarItem(
-                FontAwesomeIcons.solidHeart,
-                title: "Favoriler",
+        body: Column(
+          children: [
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: refreshNotificationCount,
+                child: PersistentTabView(
+                  controller: tabController,
+                  handleAndroidBackButtonPress: false,
+                  backgroundColor: Colors.brown[50]!,
+                  navBarHeight: height(context) * 0.07,
+                  padding: EdgeInsets.all(height(context) * 0.01),
+                  navBarStyle: NavBarStyle.simple,
+                  context,
+                  screens: [
+                    BackContainer(child: FavoritePage()),
+                    BackContainer(child: DeviceListPage()),
+                    BackContainer(child: PlanPage()),
+                    BackContainer(child: SettingsPage()),
+                  ],
+                  items: [
+                    customPersistentBottomNavBarItem(
+                      FontAwesomeIcons.solidHeart,
+                      title: "Favoriler",
+                    ),
+                    customPersistentBottomNavBarItem(
+                      FontAwesomeIcons.boxesStacked,
+                      title: "Cihazlar",
+                      badgeCount: deviceCount > 99 ? 99 : deviceCount,
+                    ),
+                    customPersistentBottomNavBarItem(
+                      FontAwesomeIcons.solidClock,
+                      title: "Planlar",
+                    ),
+                    customPersistentBottomNavBarItem(
+                      FontAwesomeIcons.gear,
+                      title: "Ayarlar",
+                    ),
+                  ],
+                ),
               ),
-              customPersistentBottomNavBarItem(
-                FontAwesomeIcons.boxesStacked,
-                title: "Cihazlar",
-              ),
-              customPersistentBottomNavBarItem(
-                FontAwesomeIcons.solidClock,
-                title: "Planlar",
-              ),
-              customPersistentBottomNavBarItem(
-                FontAwesomeIcons.gear,
-                title: "Ayarlar",
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -194,9 +193,48 @@ class _LayoutState extends State<Layout> {
   PersistentBottomNavBarItem customPersistentBottomNavBarItem(
     IconData iconData, {
     String? title,
+    int? badgeCount,
   }) {
     return PersistentBottomNavBarItem(
-      icon: Icon(iconData, size: 20),
+      icon: SizedBox(
+        width: 40,
+        height: 30,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: Icon(iconData, size: 24),
+            ),
+            if (badgeCount != null && badgeCount > 0)
+              Positioned(
+                right: -6,
+                top: -6,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: Center(
+                    child: Text(
+                      badgeCount > 99 ? "99+" : "$badgeCount",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
       title: title,
       activeColorPrimary: goldColor,
       activeColorSecondary: goldColor,
@@ -211,6 +249,7 @@ class NamedIcon extends StatelessWidget {
   final String? text;
   final VoidCallback? onTap;
   final int notificationCount;
+  final double? size;
 
   const NamedIcon({
     super.key,
@@ -218,6 +257,7 @@ class NamedIcon extends StatelessWidget {
     this.text,
     required this.iconData,
     this.notificationCount = 0,
+    this.size,
   });
 
   @override
@@ -233,7 +273,7 @@ class NamedIcon extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Icon(iconData),
+                Icon(iconData, size: size ?? 24),
                 if (text != null) Text(text!, overflow: TextOverflow.ellipsis),
               ],
             ),

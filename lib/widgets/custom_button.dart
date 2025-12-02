@@ -1,50 +1,50 @@
 import 'package:flutter/material.dart';
 
-import 'package:akilli_anahtar/utils/constants.dart';
-
-// ignore: must_be_immutable
 class CustomButton extends StatelessWidget {
   final void Function() onPressed;
   final String title;
-  bool? loading = false;
-  Color? color;
+  final bool loading;
+  final Color? backgroundColor;
 
-  CustomButton({
+  const CustomButton({
     super.key,
     required this.onPressed,
     required this.title,
-    this.loading,
-    this.color,
+    this.loading = false,
+    this.backgroundColor,
   });
+
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
-    return ButtonTheme(
-      child: Card(
-        color: color ?? Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: OutlinedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            minimumSize: Size(double.infinity, height * 0.075),
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: loading ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          elevation: 3,
+          backgroundColor: backgroundColor ?? Colors.brown[700],
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: loading == null || !loading!
-              ? Text(
-                  title,
-                  style: TextStyle(
-                    color: color == null ? Colors.black : Colors.white,
-                    fontSize:
-                        Theme.of(context).textTheme.headlineSmall!.fontSize,
-                  ),
-                )
-              : Center(
-                  child: CircularProgressIndicator(
-                    color: goldColor,
-                  ),
-                ),
         ),
+        child: loading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
   }

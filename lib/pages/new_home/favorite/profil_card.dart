@@ -31,7 +31,7 @@ class _ProfilCardState extends State<ProfilCard> {
     return Obx(
       () {
         return SizedBox(
-          height: height(context) * (widget.min ? 0.15 : 0.23),
+          height: height(context) * (widget.min ? 0.10 : 0.16),
           width: width(context),
           child: Card(
             elevation: 1,
@@ -41,7 +41,7 @@ class _ProfilCardState extends State<ProfilCard> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: Image.asset(
-                      'assets/home_card_background.jpg',
+                      'assets/home_card_background.webp',
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -59,7 +59,7 @@ class _ProfilCardState extends State<ProfilCard> {
                               FontAwesomeIcons.cloudSunRain,
                               color: Colors.white70,
                             ),
-                            SizedBox(width: width(context) * 0.03),
+                            SizedBox(width: width(context) * 0.01),
                             Text(
                               homeController.tempeture.value,
                               style: textTheme(context).titleLarge!.copyWith(

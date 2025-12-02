@@ -52,18 +52,64 @@ class BoxService {
     return false;
   }
 
-  static Future<VersionModel?> checkNewVersion() async {
+  static Future<VersionModel?> checkNewVersion({
+    required String espType,
+    required int boxTypeId,
+  }) async {
     try {
-      var uri = Uri.parse("https://www.ossbs.com/update/version.html");
-      var client = http.Client();
-      var response = await client.get(uri);
-      if (response.statusCode == 200) {
-        return VersionModel.fromString(response.body);
+      print(" [BoxService] checkNewVersion başladı");
+      print("- espType: $espType");
+      print("- boxTypeId: $boxTypeId");
+
+      const typePaths = {
+        1: "ortamizleme",
+        2: "bariyer",
+        3: "sulama",
+        4: "bariyer-lora",
+        5: "sulama-lora",
+        6: "ortamizleme-lora",
+      };
+
+      final path = typePaths[boxTypeId];
+      if (path == null) {
+        print(" Geçersiz boxTypeId: $boxTypeId");
+        return VersionModel(version: "GÜNCEL");
       }
-    } catch (e) {
-      print(e);
-      return null;
+
+      final versionUrl =
+          Uri.parse("https://www.ossbs.com/update/$path/$espType/version.html");
+      print(
+          "++++++++++++++++++++++++ Versiyon dosyası URL: ${versionUrl.toString()}");
+
+      final response =
+          await http.get(versionUrl).timeout(const Duration(seconds: 8));
+      print(" HTTP yanıt kodu: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        final body = response.body.trim();
+        print(" Gelen içerik:\n$body");
+
+        final colon = body.indexOf(':');
+        final dash = body.indexOf('-');
+        String versionString;
+
+        if (colon > 0 && dash > colon) {
+          versionString = body.substring(colon + 1, dash).trim();
+        } else {
+          versionString = body;
+        }
+
+        print(" Bulunan versiyon: $versionString");
+        return VersionModel(version: versionString);
+      } else {
+        print(" HTTP ${response.statusCode} hatası: ${response.body}");
+      }
+    } catch (e, s) {
+      print(" Versiyon kontrolü hatası: $e");
+      print(s);
     }
+
+    print(" checkNewVersion başarısız veya versiyon alınamadı.");
     return null;
   }
 }

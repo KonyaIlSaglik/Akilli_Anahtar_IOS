@@ -1,6 +1,8 @@
 import 'package:akilli_anahtar/controllers/admin/box_management_controller.dart';
 import 'package:akilli_anahtar/controllers/admin/device_management_controller.dart';
 import 'package:akilli_anahtar/dtos/bm_box_dto.dart';
+import 'package:akilli_anahtar/dtos/box_dto2.dart';
+import 'package:akilli_anahtar/entities/box.dart';
 import 'package:akilli_anahtar/entities/device.dart';
 import 'package:akilli_anahtar/entities/device_type.dart';
 import 'package:akilli_anahtar/pages/managers/box/box_detail/box_add_edit_control.dart';
@@ -14,6 +16,7 @@ import 'package:get/get.dart';
 
 class BoxAddEdit extends StatefulWidget {
   final BmBoxDto? box;
+
   const BoxAddEdit({super.key, this.box});
 
   @override
@@ -33,11 +36,14 @@ class _BoxAddEditState extends State<BoxAddEdit>
     super.initState();
     box = widget.box ?? BmBoxDto();
     _tabController = TabController(length: 3, vsync: this);
-    init();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      init();
+    });
   }
 
   void init() async {
     if (box.id != null) {
+      boxManagementController.selectedBox.value = box.toBox();
       await boxManagementController.checkNewVersion();
       await deviceManagementController.getAllByBoxId(box.id!);
       await deviceManagementController.getDeviceTypes();

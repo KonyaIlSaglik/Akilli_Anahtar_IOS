@@ -10,6 +10,11 @@ class UserDto {
   int? active;
   int? organisationId;
   String? organisationName;
+  int? emailVerified;
+  int? smsVerified;
+
+  bool get isEmailVerified => emailVerified == 1;
+  bool get isSmsVerified => smsVerified == 1;
 
   UserDto({
     this.id,
@@ -21,6 +26,8 @@ class UserDto {
     this.active,
     this.organisationId,
     this.organisationName,
+    this.emailVerified,
+    this.smsVerified,
   });
 
   Map<String, dynamic> toMap() {
@@ -33,7 +40,9 @@ class UserDto {
       'telephone': telephone,
       'active': active,
       'organisationId': organisationId,
-      'organisationName': organisationName
+      'organisationName': organisationName,
+      'emailVerified': emailVerified,
+      'smsVerified': smsVerified,
     };
   }
 
@@ -51,6 +60,10 @@ class UserDto {
       organisationName: map['organisationName'] != null
           ? map['organisationName'] as String
           : "",
+      emailVerified:
+          map['emailVerified'] != null ? map['emailVerified'] as int : null,
+      smsVerified:
+          map['smsVerified'] != null ? map['smsVerified'] as int : null,
     );
   }
 
@@ -69,6 +82,8 @@ class UserDto {
     int? active,
     int? organisationId,
     String? organisationName,
+    int? emailVerified,
+    int? smsVerified,
   }) {
     return UserDto(
       id: id ?? this.id,
@@ -80,6 +95,8 @@ class UserDto {
       active: active ?? this.active,
       organisationId: organisationId ?? this.organisationId,
       organisationName: organisationName ?? this.organisationName,
+      emailVerified: emailVerified ?? this.emailVerified,
+      smsVerified: smsVerified ?? this.smsVerified,
     );
   }
 
@@ -99,8 +116,16 @@ class UserDto {
         other.telephone == telephone &&
         other.active == active &&
         other.organisationId == organisationId &&
-        other.organisationName == organisationName;
+        other.organisationName == organisationName &&
+        other.emailVerified == emailVerified &&
+        other.smsVerified == smsVerified;
   }
+
+  bool get isSocialProfileComplete =>
+      fullName != null &&
+      fullName!.trim().isNotEmpty &&
+      telephone != null &&
+      telephone!.trim().isNotEmpty;
 
   @override
   int get hashCode {
@@ -112,6 +137,8 @@ class UserDto {
         telephone.hashCode ^
         active.hashCode ^
         organisationId.hashCode ^
-        organisationName.hashCode;
+        organisationName.hashCode ^
+        emailVerified.hashCode ^
+        smsVerified.hashCode;
   }
 }

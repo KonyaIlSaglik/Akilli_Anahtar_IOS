@@ -12,6 +12,10 @@ class BmBoxDto {
   String? version;
   String? localIp;
   int? restartTimeout;
+  String? espType;
+  int? channel;
+  int? boxTypeId;
+  int? target;
 
   BmBoxDto({
     this.id,
@@ -25,6 +29,10 @@ class BmBoxDto {
     this.version,
     this.localIp,
     this.restartTimeout,
+    this.espType,
+    this.channel,
+    this.boxTypeId,
+    this.target,
   });
 
   Map<String, dynamic> toMap() {
@@ -39,6 +47,10 @@ class BmBoxDto {
       'topicRes': topicRes,
       'version': version,
       'restartTimeout': restartTimeout,
+      'espType': espType,
+      'channel': channel,
+      'boxTypeId': boxTypeId,
+      'target': target,
     };
   }
 
@@ -58,6 +70,11 @@ class BmBoxDto {
       version: map['version'] != null ? map['version'] as String : null,
       restartTimeout:
           map['restartTimeout'] != null ? map['restartTimeout'] as int : null,
+      localIp: map['localIp'] != null ? map['localIp'] as String : null,
+      espType: map['espType']?.toString(),
+      channel: map['channel'] != null ? map['channel'] as int : null,
+      boxTypeId: map['boxTypeId'] != null ? map['boxTypeId'] as int : null,
+      target: map['target'] != null ? map['target'] as int : null,
     );
   }
 

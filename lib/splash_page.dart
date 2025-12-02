@@ -2,6 +2,7 @@ import 'package:akilli_anahtar/controllers/main/login_controller.dart';
 import 'package:akilli_anahtar/main.dart';
 import 'package:akilli_anahtar/pages/new_home/layout.dart';
 import 'package:akilli_anahtar/pages/auth/login_page.dart';
+import 'package:akilli_anahtar/services/api/auth_service.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:akilli_anahtar/widgets/custom_container.dart';
 import 'package:flutter/material.dart';
@@ -24,22 +25,54 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    init();
+    Future.delayed(Duration(milliseconds: 10), init);
   }
 
   void init() async {
+    await checkNewVersion(context, false);
+
+    bool canContinue = await checkNewVersion(context, false);
+    if (!canContinue) {
+      return;
+    }
+
     if (_navigated) return;
     _navigated = true;
-    await Future.delayed(const Duration(seconds: 2));
+
     final loginController = Get.put(LoginController());
     await loginController.loadLoginInfo();
 
     if (widget.fromLogout) {
-      await Future.delayed(Duration(milliseconds: 500));
       if (widget.autoFillUserName.isNotEmpty) {
         loginController.userName.value = widget.autoFillUserName;
       }
-      Get.offAll(() => LoginPage());
+      Get.offAll(() => const LoginPage());
+      return;
+    }
+    final googleSuccess = await AuthService.tryAutoGoogleLogin();
+    final appleSucces = await AuthService.tryAutoAppleLogin();
+
+    if (googleSuccess) {
+      final route = fcmInitialRoute;
+      fcmInitialRoute = null;
+      Get.offAll(() => const Layout());
+      if (route != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.toNamed(route);
+        });
+      }
+      return;
+    }
+
+    if (appleSucces) {
+      final route = fcmInitialRoute;
+      fcmInitialRoute = null;
+      Get.offAll(() => const Layout());
+      if (route != null) {
+        Future.delayed(const Duration(milliseconds: 300), () {
+          Get.toNamed(route);
+        });
+      }
       return;
     }
 
@@ -48,26 +81,19 @@ class _SplashPageState extends State<SplashPage> {
       await loginController.login();
 
       if (loginController.isLogin.value) {
-        if (fcmInitialRoute != null) {
-          final route = fcmInitialRoute!;
-          fcmInitialRoute = null;
-
-          Get.offAll(() => Layout());
-
-          Future.delayed(Duration(milliseconds: 300), () {
+        final route = fcmInitialRoute;
+        fcmInitialRoute = null;
+        Get.offAll(() => const Layout());
+        if (route != null) {
+          Future.delayed(const Duration(milliseconds: 300), () {
             Get.toNamed(route);
           });
-          return;
         }
-
-        Get.offAll(() => Layout());
         return;
       }
     }
-    print("Giriş başarılı. Notification yönlendiriliyor...");
 
-    await Future.delayed(Duration(milliseconds: 500));
-    Get.offAll(() => LoginPage());
+    Get.offAll(() => const LoginPage());
   }
 
   @override

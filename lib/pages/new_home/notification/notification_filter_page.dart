@@ -1,4 +1,3 @@
-import 'package:akilli_anahtar/controllers/main/auth_controller.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -61,7 +60,7 @@ class _NotificationFilterPageState extends State<NotificationFilterPage> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.grey[400],
+                      color: sheetBackground,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -71,9 +70,7 @@ class _NotificationFilterPageState extends State<NotificationFilterPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Filtrele',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        )),
+                        style: theme.textTheme.titleLarge?.copyWith()),
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.pop(context),
@@ -109,7 +106,8 @@ class _NotificationFilterPageState extends State<NotificationFilterPage> {
                                         ? Colors.black
                                         : colorScheme.onSurface,
                                   ),
-                                  backgroundColor: colorScheme.surfaceVariant,
+                                  backgroundColor:
+                                      Colors.white.withOpacity(0.8),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -148,7 +146,7 @@ class _NotificationFilterPageState extends State<NotificationFilterPage> {
                                               : colorScheme.onSurface,
                                         ),
                                         backgroundColor:
-                                            colorScheme.surfaceVariant,
+                                            Colors.white.withOpacity(0.8),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),

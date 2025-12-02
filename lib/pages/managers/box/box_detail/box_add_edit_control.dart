@@ -33,9 +33,9 @@ class _BoxAddEditControlState extends State<BoxAddEditControl> {
   @override
   void initState() {
     super.initState();
-    if (mounted) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       init();
-    }
+    });
   }
 
   init() {

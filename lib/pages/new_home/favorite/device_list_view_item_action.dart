@@ -1,237 +1,227 @@
 import 'dart:async';
-
+import 'dart:convert';
 import 'package:akilli_anahtar/controllers/main/home_controller.dart';
 import 'package:akilli_anahtar/controllers/main/mqtt_controller.dart';
 import 'package:akilli_anahtar/dtos/home_device_dto.dart';
 import 'package:akilli_anahtar/utils/constants.dart';
-import 'package:akilli_anahtar/widgets/loading_dots.dart';
-import 'package:akilli_anahtar/widgets/connection_error_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class DeviceListViewItemAction extends StatefulWidget {
   final HomeDeviceDto device;
-  const DeviceListViewItemAction({super.key, required this.device});
+  final VoidCallback? onPowerTap;
+
+  const DeviceListViewItemAction({
+    super.key,
+    required this.device,
+    this.onPowerTap,
+  });
 
   @override
   State<DeviceListViewItemAction> createState() =>
       _DeviceListViewItemActionState();
 }
 
-class _DeviceListViewItemActionState extends State<DeviceListViewItemAction>
-    with WidgetsBindingObserver {
-  final MqttController _mqttController = Get.find();
-  final HomeController homeController = Get.find();
+class _DeviceListViewItemActionState extends State<DeviceListViewItemAction> {
+  final MqttController _mqtt = Get.find();
+
+  HomeController? _home;
   late HomeDeviceDto device;
+
+  String status = "";
   int openCount = 0;
   int closeCount = 0;
   int waitingCount = 0;
-  String status = "";
-  Timer? _statusTimer;
-  bool _connectionError = false;
-  bool _wasPaused = false;
-  DateTime? _pausedTime;
+
+  StreamSubscription? _sub;
+  Timer? _retainedCheckTimer;
+
+  bool _toggle01 = false;
+  Timer? _toggleTimer;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     device = widget.device;
-    status = homeController.lastStatus[device.id!] ?? "";
 
-    _connectionError = homeController.connectionErrors[device.id!] ?? false;
+    _toggleTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+      if (!mounted) return;
+      setState(() => _toggle01 = !_toggle01);
+    });
 
-    if (!_connectionError && status.isEmpty) {
-      _startStatusTimeout();
+    if (Get.isRegistered<HomeController>()) {
+      _home = Get.find<HomeController>();
+      status = _home?.lastStatus[device.id!] ?? "";
+    }
+    _checkForExistingStatus();
+
+    if (device.topicStat != null && device.topicStat!.isNotEmpty) {
+      _mqtt.subscribeToTopic(device.topicStat!);
+
+      _retainedCheckTimer = Timer(const Duration(milliseconds: 500), () {
+        _checkForExistingStatus();
+      });
     }
 
-    _mqttController.onMessage((topic, message) {
-      if (topic == device.topicStat) {
-        if (mounted) {
-          setState(() {
-            _connectionError = false;
-            homeController.connectionErrors[device.id!] = false;
-            status = message;
-            if (status == "1") {
-              openCount = 0;
-              closeCount = 0;
-              waitingCount = 0;
-            }
-            if (status == "2") {
-              openCount++;
-            }
-            if (status == "3") {
-              waitingCount++;
-            }
-            if (status == "4") {
-              closeCount++;
-            }
-          });
-          homeController.lastStatus[device.id!] = status;
-          _resetStatusTimeout();
-        }
-      }
+    _sub = _mqtt.client.updates.listen((events) {
+      if (!mounted || events.isEmpty) return;
+      final msg = events.first;
+      final topic = msg.topic.toString();
+      if (topic != device.topicStat) return;
+
+      final pub = msg.payload as MqttPublishMessage;
+      final text = const Utf8Decoder().convert(pub.payload.message!).trim();
+
+      _updateStatus(text);
     });
   }
 
-  void _startStatusTimeout() {
-    _statusTimer = Timer(Duration(seconds: 10), () {
-      if (mounted) {
-        setState(() {
-          status = "";
-          _connectionError = true;
-          homeController.connectionErrors[device.id!] = true;
-          homeController.lastStatus[device.id!] = "";
-        });
-        homeController.lastStatus[device.id!] = status;
+  void _checkForExistingStatus() {
+    if (!mounted) return;
 
-        _statusTimer?.cancel();
-      }
-    });
-  }
-
-  void _resetStatusTimeout() {
-    _statusTimer?.cancel();
-    if (!_connectionError) {
-      _startStatusTimeout();
+    final lastStatus = _mqtt.getDeviceLastStatus(device);
+    if (lastStatus != null && lastStatus.isNotEmpty) {
+      _updateStatus(lastStatus);
     }
   }
 
-  void _handleAppResumed() async {
+  void _updateStatus(String newStatus) {
+    if (!mounted) return;
+
     setState(() {
-      _connectionError = false;
-      homeController.connectionErrors[device.id!] = false;
-      status = "";
-      openCount = 0;
-      closeCount = 0;
-      waitingCount = 0;
-      _statusTimer?.cancel();
-      _startStatusTimeout();
+      status = newStatus;
+      if (status == "1") {
+        openCount = 0;
+        closeCount = 0;
+        waitingCount = 0;
+      } else if (status == "2") {
+        final max = (device.openingTime ?? 1);
+        openCount = (openCount + 1).clamp(0, max);
+      } else if (status == "3") {
+        waitingCount++;
+      } else if (status == "4") {
+        final max = (device.closingTime ?? 1);
+        closeCount = (closeCount + 1).clamp(0, max);
+      }
     });
-    if (!_mqttController.isConnected.value) {
-      await _mqttController.connect();
-    }
+
+    _home?.lastStatus[device.id!] = newStatus;
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _statusTimer?.cancel();
+    _retainedCheckTimer?.cancel();
+    _toggleTimer?.cancel();
+    _sub?.cancel();
     super.dispose();
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _wasPaused = true;
-      _pausedTime = DateTime.now();
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final bool offline = _mqtt.isDeviceOffline(device);
+      final Color bgColor = _backgroundColor(offline);
+      final Color progressColor = _progressColor(offline);
+      final Color iconColor = _iconColor(offline);
+      final double percent = _percentValue().clamp(0.0, 1.0);
+
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Opacity(
+              opacity: offline ? 0.6 : (status.isEmpty ? 0.85 : 1.0),
+              child: Card(
+                elevation: 0,
+                shape: const CircleBorder(),
+                color: bgColor,
+                child: SizedBox(
+                  width: width(context) * 0.1,
+                  height: width(context) * 0.1,
+                  child: GestureDetector(
+                    onTap: () {
+                      print("Power butona tıklandı!");
+                    },
+                    child: CircularPercentIndicator(
+                      radius: width(context) * 0.05,
+                      percent: percent,
+                      progressColor: progressColor,
+                      backgroundColor: Colors.brown[50]!,
+                      lineWidth: width(context) * 0.006,
+                      center: Icon(
+                        FontAwesomeIcons.powerOff,
+                        color: iconColor,
+                        size: width(context) * 0.06,
+                      ),
+                    ),
+                  ),
+                ),
+              )),
+          const SizedBox(height: 4),
+          Text(
+            _labelText(offline),
+            style: textTheme(context).labelMedium,
+          ),
+        ],
+      );
+    });
+  }
+
+  double _percentValue() {
+    if (status == "2" || status == "3" || status == "4") {
+      return _toggle01 ? 1.0 : 0.0;
     }
-    if (state == AppLifecycleState.resumed && _wasPaused) {
-      if (_pausedTime != null &&
-          DateTime.now().difference(_pausedTime!).inSeconds > 30) {
-        _handleAppResumed();
-      }
-      _wasPaused = false;
-      _pausedTime = null;
+    return 1.0;
+  }
+
+  String _labelText(bool offline) {
+    if (offline) return "";
+    return status == "1"
+        ? "Kapalı"
+        : status == "2"
+            ? "Açılıyor"
+            : status == "3"
+                ? "Açık"
+                : status == "4"
+                    ? "Kapanıyor"
+                    : status.isEmpty
+                        ? "Yükleniyor..."
+                        : " ";
+  }
+
+  Color _backgroundColor(bool offline) {
+    if (offline) return Colors.grey.shade300;
+
+    if (device.typeId == 4 || device.typeId == 6) {
+      if (status == "1") return Colors.red[400]!;
+      if (status == "2") return Colors.brown[50]!;
+      if (status == "3")
+        return waitingCount.isOdd ? Colors.brown[50]! : Colors.green;
+      if (status == "4") return Colors.brown[50]!;
+      return Colors.red[400]!;
+    } else if (device.typeId == 5 ||
+        device.typeId == 8 ||
+        device.typeId == 10) {
+      return status == "0" ? Colors.brown[50]! : Colors.red[400]!;
+    } else {
+      return status == "1" ? Colors.brown[50]! : Colors.red[400]!;
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Opacity(
-          opacity: status == "" ? 0.5 : 1,
-          child: Card(
-            elevation: 0,
-            shape: CircleBorder(),
-            color: device.typeId == 4 || device.typeId == 6
-                ? status == "1"
-                    ? Colors.red[400]
-                    : status == "2"
-                        ? Colors.brown[50]!
-                        : status == "3"
-                            ? waitingCount.isOdd
-                                ? Colors.brown[50]!
-                                : Colors.green
-                            : status == "4"
-                                ? Colors.brown[50]!
-                                : Colors.red[400]
-                : device.typeId == 5 || device.typeId == 8
-                    ? status == "0"
-                        ? Colors.brown[50]!
-                        : Colors.red[400]
-                    : status == "1"
-                        ? Colors.brown[50]!
-                        : Colors.red[400],
-            child: CircularPercentIndicator(
-              radius: width(context) * 0.05,
-              percent: status == "2"
-                  ? openCount / device.openingTime!
-                  : status == "4"
-                      ? closeCount / device.closingTime!
-                      : waitingCount.isEven
-                          ? 1
-                          : 1,
-              progressColor: status == "2" || status == "3"
-                  ? Colors.green
-                  : Colors.red[400],
-              backgroundColor: Colors.brown[50]!,
-              lineWidth: width(context) * 0.006,
-              center: status.isNotEmpty
-                  ? Icon(
-                      FontAwesomeIcons.powerOff,
-                      color: status == "2"
-                          ? Colors.green
-                          : status == "3"
-                              ? waitingCount.isOdd
-                                  ? Colors.green
-                                  : Colors.brown[50]!
-                              : status == "4"
-                                  ? Colors.red[400]
-                                  : Colors.brown[50]!,
-                      size: width(context) * 0.06,
-                    )
-                  : _connectionError
-                      ? Icon(
-                          Icons.error_outline,
-                          color: Colors.red[800],
-                          size: width(context) * 0.06,
-                        )
-                      : LoadingDots(
-                          color: Colors.grey[800],
-                          size: 4.0,
-                        ),
-            ),
-          ),
-        ),
-        if (status.isNotEmpty)
-          Text(
-            status == "1"
-                ? "Kapalı"
-                : status == "2"
-                    ? "Açılıyor"
-                    : status == "3"
-                        ? "Açık"
-                        : status == "4"
-                            ? "Kapanıyor"
-                            : "-",
-            style: textTheme(context).labelMedium,
-          )
-        else if (_connectionError)
-          ConnectionErrorWidget(
-            fontSize: 8.0,
-            color: Colors.red[800],
-          )
-        else
-          LoadingDots(
-            color: Colors.grey[800],
-            size: 4.0,
-          ),
-      ],
-    );
+  Color _progressColor(bool offline) {
+    if (offline) return Colors.grey;
+    if (status == "2" || status == "3") return Colors.green;
+    return Colors.red[400]!;
+  }
+
+  Color _iconColor(bool offline) {
+    if (offline) return Colors.white70;
+    if (status == "2") return Colors.green;
+    if (status == "3")
+      return waitingCount.isOdd ? Colors.green : Colors.brown[50]!;
+    if (status == "4") return Colors.red[400]!;
+    return Colors.brown[50]!;
   }
 }
